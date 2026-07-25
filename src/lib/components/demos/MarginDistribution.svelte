@@ -16,7 +16,7 @@
 	const NUM_BINS = 15;
 	const SVG_W = 520;
 	const SVG_H = 240;
-	const PAD = { top: 20, right: 16, bottom: 36, left: 48 };
+	const PAD = { top: 34, right: 16, bottom: 36, left: 48 };
 	const PLOT_W = SVG_W - PAD.left - PAD.right;
 	const PLOT_H = SVG_H - PAD.top - PAD.bottom;
 
@@ -288,7 +288,7 @@
 			</g>
 
 			<!-- Step badge -->
-			<g transform={`translate(${SVG_W / 2}, ${PAD.top - 2})`}>
+			<g transform={`translate(${SVG_W / 2}, 14)`}>
 				<rect x="-52" y="-10" width="104" height="20" rx="4" class="badge-bg" />
 				<text x="0" y="3" text-anchor="middle" class="badge-text">
 					Itération {currentStep} / {numModels}
@@ -403,7 +403,11 @@
 
 	/* ── Histogram SVG ─────────────────────────────────────────────── */
 	.hist-svg {
-		max-width: 560px;
+		display: block;
+		width: 100%;
+		aspect-ratio: 520 / 240;
+		margin-top: 20px;
+		height: auto;
 	}
 
 	.grid line {
@@ -511,7 +515,6 @@
 		align-items: center;
 		gap: 0.5rem;
 		width: 100%;
-		max-width: 480px;
 	}
 
 	.actions-row {
@@ -529,7 +532,6 @@
 		padding: 0.75rem 1rem;
 		background: rgba(59, 130, 246, 0.08);
 		border-radius: 6px;
-		max-width: 560px;
 		width: 100%;
 	}
 

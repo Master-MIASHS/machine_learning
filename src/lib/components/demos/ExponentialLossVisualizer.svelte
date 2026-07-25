@@ -487,7 +487,6 @@
 		gap: 0.75rem;
 		align-items: center;
 		width: 100%;
-		max-width: 680px;
 	}
 
 	.demo-header {
@@ -523,11 +522,23 @@
 		font-family: var(--font-mono, monospace);
 	}
 
+	.main-chart {
+		width: 100%;
+		max-width: 620px;
+		aspect-ratio: 620 / 300;
+	}
+
+	.convergence-chart {
+		width: 100%;
+		max-width: 620px;
+		aspect-ratio: 620 / 160;
+	}
+
 	.main-chart svg,
 	.convergence-chart svg {
 		display: block;
 		width: 100%;
-		height: auto;
+		height: 100%;
 		user-select: none;
 	}
 
@@ -704,7 +715,6 @@
 		border-radius: var(--radius-md, 8px);
 		padding: 0.75rem 1rem;
 		width: 100%;
-		max-width: 460px;
 	}
 	.button-row {
 		display: flex;

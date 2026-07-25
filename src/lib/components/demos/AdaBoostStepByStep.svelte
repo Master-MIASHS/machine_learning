@@ -293,8 +293,7 @@
 			<div class="main-plot">
 				<svg
 					viewBox={`0 0 ${SVG_W} ${SVG_H}`}
-					width="100%"
-					height={SVG_H}
+					preserveAspectRatio="xMidYMid meet"
 					role="img"
 					aria-label="Frontière de décision AdaBoost pas à pas"
 				>
@@ -538,9 +537,13 @@
 		margin: 0;
 	}
 
+	/* ─── Plot container: fixed aspect-ratio so the flex row can never
+	       collapse it to near-zero height regardless of svg attribute/CSS
+	       height conflicts. This is the actual fix for the 2px bug. ── */
 	.viz-grid {
 		display: flex;
 		flex-direction: row;
+		align-items: stretch;
 		gap: 1rem;
 		justify-content: center;
 		width: 100%;
@@ -548,6 +551,9 @@
 	}
 
 	.main-plot {
+		width: 100%;
+		max-width: 480px;
+		aspect-ratio: 460 / 380;
 		border-radius: 12px;
 		overflow: hidden;
 		border: 1px solid var(--color-border);
@@ -555,10 +561,10 @@
 	}
 
 	.main-plot svg {
-		max-width: 480px;
-		width: 100%;
-		user-select: none;
 		display: block;
+		width: 100%;
+		height: 100%;
+		user-select: none;
 	}
 
 	.plot-frame {

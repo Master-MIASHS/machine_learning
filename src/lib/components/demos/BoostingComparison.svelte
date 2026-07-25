@@ -21,9 +21,14 @@
 	const SVG_W = PLOT_W + PAD_L + PAD_R;
 	const SVG_H = PLOT_H + PAD_T + PAD_B;
 
-	// Color scheme for methods
-	const ADABOOST_COLOR = 'var(--color-belief, #06b6d4)';
+	// Color scheme for methods — plain hex values used consistently
+	// everywhere (SVG fill, chart series, inline styles, and CSS below).
+	// Do NOT wrap these in var(...) — they're consumed by JS, not CSS,
+	// and parsing a var() string back apart in JS is exactly what broke
+	// this before (invisible line + mismatched legend color).
+	const ADABOOST_COLOR = '#06b6d4';
 	const GB_COLOR = '#f59e0b';
+	const NEGATIVE_COLOR = '#ef4444';
 
 	// ─── Seeded RNG (Lehmer / MINSTD) ──────────────────
 	function makeRng(seed: number): () => number {
@@ -569,18 +574,24 @@
 	});
 
 	// ─── Convergence chart data ──────────────────────
+	// NOTE: adaHistory.cumulativeErrors[0] represents the error AFTER step 1
+	// (it has no step-0 entry), while gbHistory.trainingErrors[0] represents
+	// the error BEFORE any boosting (F_init only). To keep both series
+	// index-aligned on a shared "step" x-axis, we prepend an explicit
+	// step-0 baseline to the AdaBoost series: with zero models trained,
+	// every sample is unclassified/wrong, so the baseline error is 1 (100%).
 	const convergenceSeries = $derived.by(() => {
 		const maxLen = Math.max(adaHistory.cumulativeErrors.length, gbHistory.trainingErrors.length);
 		if (maxLen === 0) return [];
 
 		const visibleSteps = currentStep;
-		const adaValues = adaHistory.cumulativeErrors.slice(0, visibleSteps + 1);
+		const adaValues = [1, ...adaHistory.cumulativeErrors].slice(0, visibleSteps + 1);
 		const gbValues = gbHistory.trainingErrors.slice(0, visibleSteps + 1);
 
 		return [
 			{
 				values: adaValues,
-				color: ADABOOST_COLOR.replace('var(--color-belief, ', '').split(',')[0],
+				color: ADABOOST_COLOR,
 				label: 'AdaBoost'
 			},
 			{ values: gbValues, color: GB_COLOR, label: 'Gradient Boosting' }
@@ -689,90 +700,88 @@
 			<!-- AdaBoost panel (left) -->
 			<figure class="method-panel">
 				<div class="panel-title ada-title">AdaBoost</div>
-				<svg
-					viewBox={`0 0 ${SVG_W} ${SVG_H}`}
-					width="100%"
-					height={SVG_H}
-					role="img"
-					aria-label="Frontière de décision AdaBoost"
-				>
-					<!-- Grid cells -->
-					{#if adaGridCells.cells && adaGridCells.cells.length > 0}
-						{#each adaGridCells.cells as cell}
-							<rect
-								x={cell.sx}
-								y={cell.sy}
-								width={adaGridCells.cellW}
-								height={adaGridCells.cellH}
-								fill={cell.pred === 1
-									? 'rgba(59,130,246,0.18)'
-									: cell.pred === -1
-										? 'rgba(239,68,68,0.18)'
-										: 'transparent'}
+				<div class="plot-box">
+					<svg
+						viewBox={`0 0 ${SVG_W} ${SVG_H}`}
+						role="img"
+						aria-label="Frontière de décision AdaBoost"
+					>
+						<!-- Grid cells -->
+						{#if adaGridCells.cells && adaGridCells.cells.length > 0}
+							{#each adaGridCells.cells as cell}
+								<rect
+									x={cell.sx}
+									y={cell.sy}
+									width={adaGridCells.cellW}
+									height={adaGridCells.cellH}
+									fill={cell.pred === 1
+										? 'rgba(59,130,246,0.18)'
+										: cell.pred === -1
+											? 'rgba(239,68,68,0.18)'
+											: 'transparent'}
+								/>
+							{/each}
+						{/if}
+
+						<!-- Boundary edges -->
+						{#each adaEdges as edge}
+							<line
+								x1={edge.x1}
+								y1={edge.y1}
+								x2={edge.x2}
+								y2={edge.y2}
+								stroke="#a78bfa"
+								stroke-width="0.8"
+								opacity="0.45"
 							/>
 						{/each}
-					{/if}
 
-					<!-- Boundary edges -->
-					{#each adaEdges as edge}
+						<!-- Data points -->
+						{#each projectedPoints as p}
+							<circle
+								cx={p.cx}
+								cy={p.cy}
+								r={p.r}
+								fill={p.label === 1 ? ADABOOST_COLOR : NEGATIVE_COLOR}
+								stroke="rgba(255,255,255,0.5)"
+								stroke-width="0.7"
+								opacity="0.85"
+							/>
+						{/each}
+
+						<!-- Axes -->
 						<line
-							x1={edge.x1}
-							y1={edge.y1}
-							x2={edge.x2}
-							y2={edge.y2}
-							stroke="#a78bfa"
-							stroke-width="0.8"
-							opacity="0.45"
+							x1={PAD_L}
+							y1={SVG_H - PAD_B + 3}
+							x2={SVG_W - PAD_R}
+							y2={SVG_H - PAD_B + 3}
+							stroke="var(--color-border)"
+							stroke-width="0.5"
 						/>
-					{/each}
-
-					<!-- Data points -->
-					{#each projectedPoints as p}
-						<circle
-							cx={p.cx}
-							cy={p.cy}
-							r={p.r}
-							fill={p.label === 1
-								? ADABOOST_COLOR.replace('var(--color-belief, #06b6d4)', '#06b6d4')
-								: '#ef4444'}
-							stroke="rgba(255,255,255,0.5)"
-							stroke-width="0.7"
-							opacity="0.85"
+						<line
+							x1={PAD_L}
+							y1={PAD_T - 4}
+							x2={PAD_L}
+							y2={SVG_H - PAD_B + 3}
+							stroke="var(--color-border)"
+							stroke-width="0.5"
 						/>
-					{/each}
 
-					<!-- Axes -->
-					<line
-						x1={PAD_L}
-						y1={SVG_H - PAD_B + 3}
-						x2={SVG_W - PAD_R}
-						y2={SVG_H - PAD_B + 3}
-						stroke="var(--color-border)"
-						stroke-width="0.5"
-					/>
-					<line
-						x1={PAD_L}
-						y1={PAD_T - 4}
-						x2={PAD_L}
-						y2={SVG_H - PAD_B + 3}
-						stroke="var(--color-border)"
-						stroke-width="0.5"
-					/>
+						<!-- X-axis tick labels -->
+						{#each xTicks as tick}
+							<text x={tick.pos} y={SVG_H - 4} text-anchor="middle" class="axis-label"
+								>{tick.val.toFixed(1)}</text
+							>
+						{/each}
 
-					<!-- X-axis tick labels -->
-					{#each xTicks as tick}
-						<text x={tick.pos} y={SVG_H - 4} text-anchor="middle" class="axis-label"
-							>{tick.val.toFixed(1)}</text
-						>
-					{/each}
-
-					<!-- Y-axis tick labels -->
-					{#each yTicks as tick}
-						<text x={PAD_L - 6} y={tick.pos + 3} text-anchor="end" class="axis-label"
-							>{tick.val.toFixed(1)}</text
-						>
-					{/each}
-				</svg>
+						<!-- Y-axis tick labels -->
+						{#each yTicks as tick}
+							<text x={PAD_L - 6} y={tick.pos + 3} text-anchor="end" class="axis-label"
+								>{tick.val.toFixed(1)}</text
+							>
+						{/each}
+					</svg>
+				</div>
 
 				<!-- AdaBoost metrics -->
 				<div class="metrics-col">
@@ -781,8 +790,9 @@
 						{#if adaCurrentError !== null}
 							<span
 								class="metric-val"
-								style:color={adaCurrentError < 0.5 ? 'var(--color-positive, #10b981)' : '#ef4444'}
-								>{(adaCurrentError * 100).toFixed(1)}%</span
+								style:color={adaCurrentError < 0.5
+									? 'var(--color-positive, #10b981)'
+									: NEGATIVE_COLOR}>{(adaCurrentError * 100).toFixed(1)}%</span
 							>
 						{:else}
 							<span class="metric-val metric-empty">–</span>
@@ -804,8 +814,8 @@
 								style:color={adaCumulativeError === 0
 									? 'var(--color-positive, #10b981)'
 									: adaCumulativeError < 0.2
-										? ADABOOST_COLOR.replace('var(--color-belief, ', '').split(',')[0] || '#06b6d4'
-										: '#ef4444'}>{(adaCumulativeError * 100).toFixed(1)}%</span
+										? ADABOOST_COLOR
+										: NEGATIVE_COLOR}>{(adaCumulativeError * 100).toFixed(1)}%</span
 							>
 						{:else}
 							<span class="metric-val metric-empty">–</span>
@@ -821,88 +831,88 @@
 			<!-- Gradient Boosting panel (right) -->
 			<figure class="method-panel">
 				<div class="panel-title gb-title">Gradient Boosting</div>
-				<svg
-					viewBox={`0 0 ${SVG_W} ${SVG_H}`}
-					width="100%"
-					height={SVG_H}
-					role="img"
-					aria-label="Frontière de décision Gradient Boosting"
-				>
-					<!-- Grid cells -->
-					{#if gbGridCells.cells && gbGridCells.cells.length > 0}
-						{#each gbGridCells.cells as cell}
-							<rect
-								x={cell.sx}
-								y={cell.sy}
-								width={gbGridCells.cellW}
-								height={gbGridCells.cellH}
-								fill={cell.pred === 1
-									? 'rgba(59,130,246,0.18)'
-									: cell.pred === -1
-										? 'rgba(239,68,68,0.18)'
-										: 'transparent'}
+				<div class="plot-box">
+					<svg
+						viewBox={`0 0 ${SVG_W} ${SVG_H}`}
+						role="img"
+						aria-label="Frontière de décision Gradient Boosting"
+					>
+						<!-- Grid cells -->
+						{#if gbGridCells.cells && gbGridCells.cells.length > 0}
+							{#each gbGridCells.cells as cell}
+								<rect
+									x={cell.sx}
+									y={cell.sy}
+									width={gbGridCells.cellW}
+									height={gbGridCells.cellH}
+									fill={cell.pred === 1
+										? 'rgba(59,130,246,0.18)'
+										: cell.pred === -1
+											? 'rgba(239,68,68,0.18)'
+											: 'transparent'}
+								/>
+							{/each}
+						{/if}
+
+						<!-- Boundary edges -->
+						{#each gbEdges as edge}
+							<line
+								x1={edge.x1}
+								y1={edge.y1}
+								x2={edge.x2}
+								y2={edge.y2}
+								stroke="#a78bfa"
+								stroke-width="0.8"
+								opacity="0.45"
 							/>
 						{/each}
-					{/if}
 
-					<!-- Boundary edges -->
-					{#each gbEdges as edge}
+						<!-- Data points -->
+						{#each projectedPoints as p}
+							<circle
+								cx={p.cx}
+								cy={p.cy}
+								r={p.r}
+								fill={p.label === 1 ? ADABOOST_COLOR : NEGATIVE_COLOR}
+								stroke="rgba(255,255,255,0.5)"
+								stroke-width="0.7"
+								opacity="0.85"
+							/>
+						{/each}
+
+						<!-- Axes -->
 						<line
-							x1={edge.x1}
-							y1={edge.y1}
-							x2={edge.x2}
-							y2={edge.y2}
-							stroke="#a78bfa"
-							stroke-width="0.8"
-							opacity="0.45"
+							x1={PAD_L}
+							y1={SVG_H - PAD_B + 3}
+							x2={SVG_W - PAD_R}
+							y2={SVG_H - PAD_B + 3}
+							stroke="var(--color-border)"
+							stroke-width="0.5"
 						/>
-					{/each}
-
-					<!-- Data points -->
-					{#each projectedPoints as p}
-						<circle
-							cx={p.cx}
-							cy={p.cy}
-							r={p.r}
-							fill={p.label === 1 ? '#06b6d4' : '#ef4444'}
-							stroke="rgba(255,255,255,0.5)"
-							stroke-width="0.7"
-							opacity="0.85"
+						<line
+							x1={PAD_L}
+							y1={PAD_T - 4}
+							x2={PAD_L}
+							y2={SVG_H - PAD_B + 3}
+							stroke="var(--color-border)"
+							stroke-width="0.5"
 						/>
-					{/each}
 
-					<!-- Axes -->
-					<line
-						x1={PAD_L}
-						y1={SVG_H - PAD_B + 3}
-						x2={SVG_W - PAD_R}
-						y2={SVG_H - PAD_B + 3}
-						stroke="var(--color-border)"
-						stroke-width="0.5"
-					/>
-					<line
-						x1={PAD_L}
-						y1={PAD_T - 4}
-						x2={PAD_L}
-						y2={SVG_H - PAD_B + 3}
-						stroke="var(--color-border)"
-						stroke-width="0.5"
-					/>
+						<!-- X-axis tick labels -->
+						{#each xTicks as tick}
+							<text x={tick.pos} y={SVG_H - 4} text-anchor="middle" class="axis-label"
+								>{tick.val.toFixed(1)}</text
+							>
+						{/each}
 
-					<!-- X-axis tick labels -->
-					{#each xTicks as tick}
-						<text x={tick.pos} y={SVG_H - 4} text-anchor="middle" class="axis-label"
-							>{tick.val.toFixed(1)}</text
-						>
-					{/each}
-
-					<!-- Y-axis tick labels -->
-					{#each yTicks as tick}
-						<text x={PAD_L - 6} y={tick.pos + 3} text-anchor="end" class="axis-label"
-							>{tick.val.toFixed(1)}</text
-						>
-					{/each}
-				</svg>
+						<!-- Y-axis tick labels -->
+						{#each yTicks as tick}
+							<text x={PAD_L - 6} y={tick.pos + 3} text-anchor="end" class="axis-label"
+								>{tick.val.toFixed(1)}</text
+							>
+						{/each}
+					</svg>
+				</div>
 
 				<!-- GB metrics -->
 				<div class="metrics-col">
@@ -915,7 +925,7 @@
 									? 'var(--color-positive, #10b981)'
 									: gbCurrentError < 0.2
 										? GB_COLOR
-										: '#ef4444'}>{(gbCurrentError * 100).toFixed(1)}%</span
+										: NEGATIVE_COLOR}>{(gbCurrentError * 100).toFixed(1)}%</span
 							>
 						{:else}
 							<span class="metric-val metric-empty">–</span>
@@ -1045,7 +1055,6 @@
 
 	.demo-header {
 		text-align: center;
-		max-width: 640px;
 	}
 
 	.demo-header h2 {
@@ -1081,7 +1090,6 @@
 		grid-template-columns: 1fr 1fr;
 		gap: 1rem;
 		width: 100%;
-		max-width: 560px;
 	}
 
 	.method-panel {
@@ -1115,11 +1123,19 @@
 		background: color-mix(in srgb, #f59e0b 12%, transparent);
 	}
 
-	.method-panel svg {
+	/* ─── Plot container: fixed aspect-ratio so the flex/grid layout
+	       can never collapse the SVG's rendered height regardless of
+	       what the SVG's own attributes resolve to. ── */
+	.plot-box {
 		width: 100%;
-		max-width: 246px;
-		user-select: none;
+		aspect-ratio: 266 / 218;
+	}
+
+	.plot-box svg {
 		display: block;
+		width: 100%;
+		height: 100%;
+		user-select: none;
 	}
 
 	/* ─── Metrics columns ───────────────────────────── */
@@ -1230,7 +1246,6 @@
 		flex-direction: column;
 		gap: 0.5rem;
 		width: 100%;
-		max-width: 420px;
 		padding: 0.75rem;
 		border: 1px solid var(--color-border);
 		border-radius: var(--radius-md, 8px);
@@ -1260,7 +1275,6 @@
 
 	/* ─── Educational caption ──────────────────────── */
 	.caption-note {
-		max-width: 620px;
 		text-align: center;
 		font-size: 0.75rem;
 		color: var(--color-text-muted);

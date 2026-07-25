@@ -36,7 +36,7 @@
 	// AdaBoost algorithm formulas
 	const initWeights = 'w_i^{(1)} = \\frac{1}{n}, \\quad i = 1,\\dots,n';
 	const weightedError =
-		'\\varepsilon_t = \\sum_{i=1}^{n} w_i^{(t)} \\; [h_t(X_i) \\neq Y_i] = \\mathbb{E}_{w^{(t)}}[h_t(X) \\neq Y]';
+		'\\varepsilon_t = \\sum_{i=1}^{n} w_i^{(t)} \\; 1\\{h_t(X_i) \\neq Y_i\\} = \\mathbb{E}_{w^{(t)}}[h_t(X) \\neq Y]';
 	const alphaT =
 		'\\alpha_t = \\frac{1}{2}\\,\\ln\\!\\left(\\frac{1 - \\varepsilon_t}{\\varepsilon_t}\\right)';
 	const weightUpdate =
@@ -49,7 +49,7 @@
 
 	// AdaBoost training error bound — Theorem 7.1
 	const trainingErrorBound =
-		'\\frac{1}{n}\\sum_{i=1}^{n} [H(X_i) \\neq Y_i] \\leq \\prod_{t=1}^{T} Z_t';
+		'\\frac{1}{n}\\sum_{i=1}^{n} 1\\{H(X_i) \\neq Y_i\\} \\leq \\prod_{t=1}^{T} Z_t';
 	const expLossBound = '\\exp\\bigl(-Y_i F(X_i)\\bigr)';
 
 	// Inline references — AdaBoost section
@@ -91,15 +91,13 @@
 	const marginZero = 'm_i = 0';
 
 	// Callout — loss 0-1 indicator
-	const loss01Indicator = '\\mathbb{1}[y\\,f(x) < 0]';
+	const loss01Indicator = '\\mathbb{1}\\{y\\,f(x) < 0\\}';
 
 	// Generalization bound by margins — Theorem 7.2
 	const generalizationMarginBound =
-		'\\mathbb{E}_{S}\\bigl[\\text{err}_{\\text{gen}}(H_S)\\bigr] \\leq (1 + \\rho) \\cdot O\\!\\left(\\frac{T}{n} \\log n\\right)';
+		'\\mathrm{err}_{gen}(H) \\leq \\frac{N_{\\rho}(T)}{n} + O\\left(\\sqrt{\\frac{d\\log(n/d)+\\log(1/\\delta)}{n\\rho^2}}\\right)';
 	const rhoGt0 = '\\rho > 0';
 	const N_rho_T = 'N_{\\rho}(T)';
-	const rhoSym = '\\rho';
-	const nSym = 'n';
 
 	// Geometric margin — Definition 7.3
 	const geometricMarginDef = '\\bar{m}_i = \\frac{Y_i F(X_i)}{\\sum_{t=1}^{T} |\\alpha_t|}';
@@ -187,19 +185,20 @@
 			<p>
 				Tandis que le bagging repose sur la <strong>distribution du risque</strong> (diversifier les
 				erreurs), le boosting repose sur l'<strong>accumulation progressive de savoir-faire</strong
-				>. Les apprenants faibles deviennent, par itération, un classifieur puissant — comme un
-				élève qui progresse en se concentrant sur ses points faibles.
+				>. Les apprenants faibles deviennent, par itération, un classifieur puissant.
 			</p>
 		</Callout>
 
 		<h3>Les apprenants faibles</h3>
 		<p>
 			L'idée centrale du boosting est qu'il suffit d'<strong>apprenants faibles</strong> — des
-			modèles légèrement meilleurs que le hasard (taux d'erreur strictement inférieur à 50 %) pour
-			la classification binaire. En les combinant de manière intelligente, on obtient un
+			modèles légèrement meilleurs que le hasard (taux d'erreur strictement inférieur à 50 % pour la
+			classification binaire). En les combinant de manière intelligente, on obtient un
 			<em>apprenant fort</em>
-			dont l'erreur peut être rendue arbitrairement petite. Ce résultat contre-intuitif a été rigoureusement
-			démontré par Freund et Schapire en 1995 avec la naissance d'<strong>AdaBoost</strong>.
+			dont l'erreur d'apprentissage peut être rendue arbitrairement petite. Ce résultat contre-intuitif
+			a été rigoureusement démontré par Freund et Schapire en 1995 avec la naissance d'<strong
+				>AdaBoost</strong
+			>.
 		</p>
 
 		<Callout type="summary" title="Points clés">
@@ -209,8 +208,7 @@
 					<strong>Réduction de biais</strong> : on affine progressivement la frontière de décision
 				</li>
 				<li>
-					<strong>Apprenants faibles</strong> : stumps (arbres de profondeur 1), régressions linéaires
-					simples…
+					<strong>Apprenants faibles</strong> : stumps (arbres de profondeur 1)...
 				</li>
 			</ul>
 		</Callout>
@@ -220,10 +218,10 @@
 	<TheorySection>
 		<h2>L'algorithme AdaBoost</h2>
 		<p>
-			AdaBoost (Adaptive Boosting) est le premier algorithme de boosting théoriquement garanti. Il
-			fonctionne par répondération adaptative des exemples : à chaque itération, les points mal
-			classés voient leur poids augmenter, forçant l'apprenant faible suivant à s'en préoccuper
-			davantage.
+			AdaBoost (Adaptive Boosting) est le premier algorithme de boosting avec des garanties
+			théoriques. Il fonctionne par répondération adaptative des exemples : à chaque itération, les
+			points mal classés voient leur poids augmenter, forçant l'apprenant faible suivant à s'en
+			préoccuper davantage.
 		</p>
 
 		<DefinitionBlock number="7.1" title="AdaBoost (Adaptive Boosting)">
@@ -335,10 +333,9 @@
 	<TheorySection>
 		<h2>Perte exponentielle et margins</h2>
 		<p>
-			Une interprétation profonde d'AdaBoost est qu'il minimise la <strong
-				>perte exponentielle</strong
-			>. Ce n'est pas un choix arbitraire : cette perte agit comme une surrogate de la perte 0-1
-			(qui compte les erreurs), mais offre un critère différentiable et convexe.
+			Une interprétation d'AdaBoost est qu'il minimise la <strong>perte exponentielle</strong>. Ce
+			n'est pas un choix arbitraire : cette perte agit comme une surrogate de la perte 0-1 (qui
+			compte les erreurs), mais offre un critère différentiable et convexe.
 		</p>
 
 		<h3>Perte exponentielle</h3>
@@ -391,7 +388,7 @@
 
 	<!-- SECTION 4 : DISTRIBUTION DES MARGINS ET GÉNÉRALISATION -->
 	<TheorySection>
-		<h2>Distribution des margins et généralisation</h2>
+		<h2>Distribution des <em>margins</em> et généralisation</h2>
 		<p>
 			Si l'erreur d'entraînement décroît exponentiellement avec AdaBoost, le risque de
 			surapprentissage est réel. La théorie des margins fournit une réponse : la généralisation
@@ -400,24 +397,25 @@
 			> dans l'espace des observations.
 		</p>
 
-		<TheoremBlock number="7.2" title="Borne de généralisation par les margins">
+		<TheoremBlock number="7.2" title="Borne de généralisation par les marges">
 			<p>
-				Soit <KatexInline formula={rhoGt0} /> un paramètre de marge et <KatexInline
-					formula={N_rho_T}
-				/> le nombre d'exemples avec une marge fonctionnelle inférieure à <KatexInline
-					formula={rhoSym}
-				/>. Alors, pour tout ensemble de taille <KatexInline formula={nSym} />, l'erreur de
-				généralisation est bornée par :
+				Soit <KatexInline formula={rhoGt0} /> un seuil de marge et
+				<KatexInline formula={N_rho_T} /> le nombre d'exemples d'entraînement dont la marge fonctionnelle
+				vérifie
+				<KatexInline formula={'y_i F(X_i) \\leq \\rho'} />. Alors, avec grande probabilité :
 			</p>
+
 			<KatexBlock formula={generalizationMarginBound} />
+
 			<p>
-				Schapire et al. (1998) montrent que le boosting ne se contente pas d'annuler l'erreur
-				d'entraînement — il tend simultanément à <strong>maximiser les margins</strong>. C'est cette
-				propriété qui explique sa capacité de généralisation malgré un grand nombre d'itérations.
+				La borne dépend donc de la proportion d'exemples ayant une petite marge. Schapire et al.
+				(1998) montrent que le boosting améliore la généralisation en déplaçant progressivement la
+				distribution des marges vers des valeurs positives élevées, et pas seulement en réduisant
+				l'erreur d'entraînement.
 			</p>
 		</TheoremBlock>
 
-		<h3>Maximisation des margins</h3>
+		<h3>Maximisation des <em>margins</em></h3>
 		<p>
 			Une observation empirique clé : après convergence de l'erreur d'entraînement (celle-ci atteint
 			0), AdaBoost continue à augmenter le minimum et la moyenne des margins. Ce phénomène, appelé <em
@@ -482,7 +480,7 @@
 		<h2>Gradient Boosting (Friedman, 2001)</h2>
 		<p>
 			Les travaux de Jerome Friedman généralisent le boosting au-delà d'AdaBoost et de la perte
-			exponentielle. L'idée majeure : considérer l'apprentissage comme un <strong
+			exponentielle. Gradient Boosting consiste à voir le problème comme une <strong
 				>descente de gradient dans l'espace des fonctions</strong
 			>. Au lieu d'ajuster des paramètres, on ajuste progressivement une fonction <KatexInline
 				formula={F_x}
@@ -506,7 +504,7 @@
 		<p>
 			où <KatexInline formula={etaSymbol} /> est le taux d'apprentissage et <KatexInline
 				formula={h_t}
-			/> approxime la direction du gradient négatif.
+			/> approxime le gradient de la fonction de perte.
 		</p>
 
 		<DefinitionBlock number="7.4" title="Algorithme Gradient Boosting">
@@ -514,7 +512,7 @@
 				<h3>Gradient Boosting Machine</h3>
 				<p>
 					<strong>Initialisation :</strong>
-					<KatexInline formula={gbInit} /> (moyenne pour la perte quadratique)
+					<KatexInline formula={gbInit} />
 				</p>
 				<ol>
 					<li>Pour chaque itération <KatexInline formula={tRange} /> :</li>
@@ -620,9 +618,9 @@
 
 		<Callout type="warning" title="Surapprentissage et régularisation">
 			<p>
-				Le boosting est notoirement susceptible au <strong>suroptimisation</strong>. Au-delà d'un
-				certain nombre d'itérations, le modèle commence à mémoriser le bruit. Trois techniques
-				principales limitent ce risque :
+				Le boosting est sensible à la <strong>suroptimisation</strong>. Au-delà d'un certain nombre
+				d'itérations, le modèle commence à mémoriser le bruit. Trois techniques principales limitent
+				ce risque :
 			</p>
 			<ol>
 				<li>
