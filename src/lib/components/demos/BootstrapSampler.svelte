@@ -124,7 +124,7 @@
 		if (runningConvergence) return;
 		runningConvergence = true;
 
-		const sizes = [5, 10, 15, 20, 30, 40, 50, 75, 100];
+		const sizes = [5, 10, 15, 20, 30, 40, 50, 75, 100, 500, 1000, 10000];
 		convergenceSizes = [];
 		convergenceEmpirical = [];
 
@@ -336,33 +336,42 @@
 			<figcaption class="panel-title">Convergence empirique vers 1 − 1/e ≈ 63,2 %</figcaption>
 
 			<div class="conv-chart">
-				<div class="conv-ref-line" style:bottom="{THEORETICAL_INCLUSION * 100}%"></div>
-				<span class="conv-ref-label" style:bottom="{THEORETICAL_INCLUSION * 100}%">
-					théorique: {(THEORETICAL_INCLUSION * 100).toFixed(1)}%
-				</span>
+				<div class="conv-plot">
+					<!-- Ligne de référence à 63.2% sur une échelle max de 80% (0.63212 / 0.8 * 100 = 79.0%) -->
+					<div class="conv-ref-line" style:bottom="{(THEORETICAL_INCLUSION / 0.8) * 100}%"></div>
+					<span class="conv-ref-label" style:bottom="{(THEORETICAL_INCLUSION / 0.8) * 100}%">
+						théorique: {(THEORETICAL_INCLUSION * 100).toFixed(1)}%
+					</span>
 
-				{#each convergenceSizes as size, i (i)}
-					{@const emp = convergenceEmpirical[i] ?? 0}
-					<div class="conv-bar-wrapper">
-						<div
-							class="conv-bar"
-							style:height="{emp * 100}%"
-							style:opacity={runningConvergence && !convergenceEmpirical[i] ? 0 : 1}
-						>
-							{#if !runningConvergence || convergenceEmpirical[i]}
-								<span class="conv-bar-value">{(emp * 100).toFixed(1)}%</span>
-							{/if}
+					{#each convergenceEmpirical as empiricalValue, i (i)}
+						{@const emp = empiricalValue ?? 0}
+						<div class="conv-bar-wrapper">
+							<div
+								class="conv-bar"
+								style:height="{(emp / 0.8) * 100}%"
+								style:opacity={runningConvergence && !convergenceEmpirical[i] ? 0 : 1}
+							>
+								{#if !runningConvergence || convergenceEmpirical[i]}
+									<span class="conv-bar-value">{(emp * 100).toFixed(1)}%</span>
+								{/if}
+							</div>
 						</div>
-						<span class="conv-x-label">N={size}</span>
-					</div>
-				{/each}
+					{/each}
 
-				<div class="conv-y-axis">
-					<span class="conv-y-tick" style:bottom="100%">80%</span>
-					<span class="conv-y-tick" style:bottom="63.2%">≈ 63%</span>
-					<span class="conv-y-tick" style:bottom="40%">40%</span>
-					<span class="conv-y-tick" style:bottom="20%">20%</span>
-					<span class="conv-y-tick conv-y-zero">0%</span>
+					<!-- Axe Y linéaire de 0% à 80% (hauteur projetée sur 80% max) -->
+					<div class="conv-y-axis">
+						<span class="conv-y-tick" style:bottom="100%">80%</span>
+						<span class="conv-y-tick" style:bottom="{(0.63212 / 0.8) * 100}%">≈ 63%</span>
+						<span class="conv-y-tick" style:bottom="{(0.4 / 0.8) * 100}%">40%</span>
+						<span class="conv-y-tick" style:bottom="{(0.2 / 0.8) * 100}%">20%</span>
+						<span class="conv-y-tick conv-y-zero" style:bottom="0%">0%</span>
+					</div>
+				</div>
+
+				<div class="conv-x-labels">
+					{#each convergenceSizes as size (size)}
+						<span class="conv-x-label">N={size}</span>
+					{/each}
 				</div>
 			</div>
 
@@ -411,7 +420,7 @@
 
 	.anim-progress {
 		position: relative;
-		height: 6px;
+		height: 15px;
 		background: var(--color-surface-2);
 		border-radius: 3px;
 		overflow: hidden;
@@ -732,11 +741,24 @@
 	.conv-chart {
 		position: relative;
 		height: 180px;
+		display: grid;
+		grid-template-rows: minmax(0, 1fr) auto;
+		overflow-x: auto;
+	}
+
+	.conv-plot,
+	.conv-x-labels {
 		display: flex;
-		align-items: flex-end;
 		gap: 6px;
 		padding-left: 3rem;
-		overflow-x: auto;
+		box-sizing: border-box;
+		min-width: 100%;
+	}
+
+	.conv-plot {
+		position: relative;
+		align-items: flex-end;
+		min-height: 0;
 	}
 
 	.conv-y-axis {
@@ -797,11 +819,14 @@
 	}
 
 	.conv-x-label {
+		flex: 1;
+		min-width: 20px;
+		max-width: 40px;
 		font-family: var(--font-mono);
 		font-size: 0.5625rem;
 		color: var(--color-text-muted);
-		margin-top: auto;
 		padding-top: 4px;
+		text-align: center;
 	}
 
 	.conv-ref-line {
@@ -820,7 +845,7 @@
 			left: 0;
 			right: 0;
 			height: 10px;
-			border-top: 2px dashed var(--color-surprise);
+			/*border-top: 2px dashed var(--color-surprise);*/
 		}
 	}
 

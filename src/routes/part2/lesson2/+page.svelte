@@ -15,6 +15,8 @@
 
 	import { getPageByPath, getNextPage, getPrevPage, type PageMeta } from '$lib/navigation.js';
 	import { createPageTracker } from '$lib/stores/progress.svelte';
+	import type { TocEntry } from '$lib/components/narrative/TableOfContents.svelte';
+	import TableOfContents from '$lib/components/narrative/TableOfContents.svelte';
 
 	const meta = getPageByPath('/part2/lesson2');
 	const tracker = createPageTracker(meta as PageMeta);
@@ -61,11 +63,40 @@
 	const fTDef = '\\mathcal{F}_t \\subset \\{1, \\ldots, d\\}, \\ |\\mathcal{F}_t| = m';
 
 	const errTestFormula =
-		'\\text{Erreur}_{\\text{test}}(m) \\approx \\underbrace{\\text{biais}(m)}_{\\nearrow \\text{ en } m} + \\underbrace{\\bar\\rho(m)\\,\\sigma^2}_{\\searrow \\text{ en } m}';
+		'\\text{Erreur}_{\\text{test}}(m) \\approx \\underbrace{\\text{biais}(m)}_{\\nearrow \\text{ quand } m \\searrow} + \\underbrace{\\bar\\rho(m)\\,\\sigma^2}_{\\searrow \\text{ quand } m \\nearrow}';
 	const importanceImpurityFormula =
 		'\\text{Importance}(x_j) = \\frac{1}{M} \\sum_{k=1}^{M} \\sum_{t \\in T_k : split(t)=j} \\Delta \\text{Impureté}_t';
 	const importancePermFormula =
 		'\\text{Importance}_{perm}(x_j) = \\frac{1}{P} \\sum_{p=1}^{P} \\bigl( \\text{Score}(X^{orig}) - \\text{Score}(X^{perm, j}_p) \\bigr)';
+
+	// Table of Content
+
+	const tocEntries: TocEntry[] = [
+		{
+			id: 'motivation',
+			label: 'Motivation du Random Forest',
+			description: 'Comprendre le besoin de décorréler structurellement les arbres.',
+			color: 'epistemic'
+		},
+		{
+			id: 'algorithme',
+			label: 'Algorithme complet',
+			description: 'Le double mécanisme de bootstrap et de restriction des features.',
+			color: 'positive'
+		},
+		{
+			id: 'choix-features',
+			label: 'Le paramètre de division m',
+			description: 'Règles de sélection et arbitrage biais/décorrélation.',
+			color: 'surprise'
+		},
+		{
+			id: 'importance',
+			label: 'Importance des features',
+			description: 'Calculer la contribution de chaque variable (MDI & MDA).',
+			color: 'agent'
+		}
+	];
 </script>
 
 <svelte:head>
@@ -82,7 +113,8 @@
 	<!-- Section 1 : Motivation — Pourquoi Random Forest ? -->
 	<!-- ═══════════════════════════════════════════════ -->
 	<TheorySection>
-		<h2>Motivation du Random Forest</h2>
+		<TableOfContents entries={tocEntries} />
+		<h2 id="motivation">Motivation du Random Forest</h2>
 
 		<p>
 			Dans la leçon précédente, nous avons établi le résultat central du bagging (Théorème 5.6) :
@@ -125,8 +157,7 @@
 			<strong>sous-ensemble aléatoire de features</strong>
 			pour choisir la meilleure division. Cette contrainte force les arbres à explorer différentes dimensions
 			du problème et réduit fortement la corrélation <KatexInline formula={rhoBar} />
-			entre modèles — ce qui, comme nous allons le démontrer formellement, amplifie directement l'effet
-			de réduction de variance.
+			entre modèles.
 		</p>
 
 		<h3>Formalisation : la variance en fonction de la corrélation</h3>
@@ -182,8 +213,8 @@
 		</p>
 		<KatexBlock formula={varLimitInfty} />
 		<p>
-			Le Random Forest agit donc en réduisant directement <KatexInline formula={rhoBar} /> — le terme
-			qui borne le gain asymptotique — là où le bagging pur ne réduit que le second terme, <KatexInline
+			Le Random Forest agit donc en réduisant directement <KatexInline formula={rhoBar} /> là où le bagging
+			pur ne réduit que le second terme, <KatexInline
 				formula={String.raw`(1-\bar\rho)\sigma^2/M`}
 			/>, par l'effet limité du bootstrap seul.
 		</p>
@@ -197,7 +228,7 @@
 	<!-- Section 2 : Algorithme Random Forest -->
 	<!-- ═══════════════════════════════════════════════ -->
 	<TheorySection>
-		<h2>Algorithme du Random Forest</h2>
+		<h2 id="algorithme">Algorithme du Random Forest</h2>
 
 		<p>
 			Avant de formaliser l'algorithme complet, rappelons brièvement comment un arbre de décision
@@ -228,8 +259,8 @@
 		</DefinitionBlock>
 
 		<p>
-			C'est exactement cette dernière étape — maximiser sur <strong>toutes</strong> les features —
-			que le Random Forest modifie. Le Random Forest combine deux mécanismes aléatoires : le
+			C'est cette dernière étape (maximisation) que le Random Forest modifie. Le Random Forest
+			combine deux mécanismes aléatoires : le
 			<strong>bootstrap des données</strong> (comme le bagging classique, Définition 5.5) et la
 			<strong>sélection aléatoire de features</strong> à chaque nœud.
 		</p>
@@ -273,8 +304,8 @@
 		</div>
 
 		<p>
-			La différence cruciale avec le bagging pur est que chaque arbre n'a accès qu'à un
-			sous-ensemble aléatoire de features pour chaque décision. Cette contrainte locale force une
+			La différence avec le bagging pur est que chaque arbre n'a accès qu'à un sous-ensemble
+			aléatoire de features pour chaque décision. Cette contrainte locale force une
 			<strong>décorrélation structurelle</strong> : même si tous les arbres voient potentiellement les
 			mêmes données (ou des données très similaires, via le bootstrap), ils explorent des espaces de partition
 			différents à chaque nœud.
@@ -325,7 +356,7 @@
 	<!-- Section 3 : Choix des hyperparamètres m → √d -->
 	<!-- ═══════════════════════════════════════════════ -->
 	<TheorySection>
-		<h2>Choix du nombre de features par division</h2>
+		<h2 id="choix-features">Choix du nombre de features par division</h2>
 
 		<p>
 			L'hyperparamètre <KatexInline formula={mSym} /> est le levier principal du Random Forest. Le Théorème
@@ -385,17 +416,6 @@
 
 		<KatexBlock formula={errTestFormula} />
 
-		<p>
-			Le premier terme (biais) croît quand <KatexInline formula={mSym} /> diminue — moins de features
-			disponibles signifie des divisions individuellement moins bonnes. Le second terme (la borne de variance
-			du Théorème 6.1) décroît quand <KatexInline formula={mSym} /> diminue — plus de diversité forcée
-			signifie une corrélation <KatexInline formula={rhoBar} /> plus faible. L'optimum empirique <KatexInline
-				formula={sqrtD}
-			/> (Définition 6.4) se situe précisément là où cet arbitrage est le plus favorable pour la plupart
-			des jeux de données rencontrés en pratique — mais rien ne garantit qu'il soit optimal pour un problème
-			donné : c'est un point de départ raisonnable, à ajuster par validation croisée si nécessaire.
-		</p>
-
 		<ExampleBlock number="6.4.1" title="Cas extrême : une seule feature vraiment informative">
 			<p>
 				Supposons que, parmi <KatexInline formula="d = 100" /> features, une seule, disons <KatexInline
@@ -428,7 +448,7 @@
 	<!-- Section 4 : Importance des features -->
 	<!-- ═══════════════════════════════════════════════ -->
 	<TheorySection>
-		<h2>Estimation de l'importance des variables</h2>
+		<h2 id="importance">Estimation de l'importance des variables</h2>
 
 		<p>
 			L'un des atouts majeurs du Random Forest est sa capacité à fournir une mesure d'<strong
@@ -495,7 +515,7 @@
 	<!-- Section 5 : Avantages et synthèse -->
 	<!-- ═══════════════════════════════════════════════ -->
 	<TheorySection>
-		<h2>Avantages des Random Forest</h2>
+		<h2 id="avantages">Avantages des Random Forest</h2>
 
 		<p>
 			Le Random Forest est l'un des algorithmes les plus utilisés en pratique grâce à plusieurs
@@ -697,6 +717,17 @@
 		color: var(--color-positive);
 		margin-bottom: 0.25rem;
 		font-size: 0.9rem;
+	}
+
+	ul {
+		list-style-type: disc;
+		padding-left: 1.5rem;
+		margin-top: 0.5rem;
+		margin-bottom: 0.5rem;
+	}
+
+	li {
+		margin-bottom: 0.25rem;
 	}
 
 	@media (max-width: 640px) {

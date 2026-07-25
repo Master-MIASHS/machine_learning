@@ -493,7 +493,6 @@
 		flex-direction: column;
 		gap: 0.25rem;
 		width: 100%;
-		max-width: 540px;
 	}
 
 	.subtitle {
@@ -590,7 +589,6 @@
 		flex-direction: column;
 		gap: 0.75rem;
 		width: 100%;
-		max-width: 540px;
 		padding: 0.75rem;
 		border: 1px solid var(--color-border);
 		border-radius: var(--radius-md, 8px);
@@ -620,7 +618,6 @@
 		background: color-mix(in srgb, var(--color-belief) 8%, transparent);
 		border-radius: 6px;
 		width: 100%;
-		max-width: 540px;
 	}
 
 	.insight-box p {

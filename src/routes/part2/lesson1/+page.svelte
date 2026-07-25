@@ -178,8 +178,9 @@
 		<h2 id="introduction">Introduction aux méthodes ensemblistes</h2>
 		<p>
 			La Partie I de ce cours s'est concentrée sur un seul modèle à la fois : comment garantir
-			l'existence d'un minimum (Leçon 1), quand la convexité permet de le trouver globalement (Leçon
-			2), et par quels algorithmes on l'atteint en pratique (Leçons 3 et 4). Cette nouvelle partie
+			l'existence d'un minimum (Leçon 1), le cas particulier des fonctions de perte en <em
+				>machine learning</em
+			>, et par quels algorithmes on atteint le minimum (Leçons 3 et 4). Cette nouvelle partie
 			change de perspective : plutôt que d'optimiser <em>un</em> modèle du mieux possible, les
 			<strong>méthodes ensemblistes</strong> combinent plusieurs modèles, chacun potentiellement imparfait,
 			pour obtenir des performances supérieures à celles de n'importe lequel d'entre eux pris isolément.
@@ -275,9 +276,9 @@
 
 		<ExampleBlock number="5.1.1" title="Le cas réaliste : erreurs corrélées">
 			<p>
-				En pratique, les prédicteurs <KatexInline formula="h_j" /> sont tous entraînés sur des données
-				issues de la même distribution, et souvent avec le même algorithme — leurs erreurs ne sont donc
-				jamais parfaitement indépendantes. Si l'on suppose une corrélation constante
+				En pratique, les prédicteurs <KatexInline formula="h_j" /> sont tous entraînés sur un même jeu
+				de données ou partageant une grande partie, et souvent avec le même algorithme — leurs erreurs
+				ne sont donc jamais parfaitement indépendantes. Si l'on suppose une corrélation constante
 				<KatexInline formula={rhoSym} /> entre chaque paire d'erreurs, un calcul similaire à la démonstration
 				ci-dessus donne :
 			</p>
@@ -470,7 +471,7 @@
 					/> sur le jeu d'entraînement, d'y ajouter le log-prior <KatexInline
 						formula={String.raw`\log p(\mathcal{M}_j)`}
 					/> (nul si le prior est uniforme), puis de normaliser via la formule de la Callout ci-dessus
-					(le terme <KatexInline formula={String.raw`\text{\{logsumexp\}	`} /> évite les débordements numériques
+					(le terme <KatexInline formula={String.raw`\text{logsumexp}	`} /> évite les débordements numériques
 					de l'exponentiation).
 				</p>
 			{/snippet}

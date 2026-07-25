@@ -607,7 +607,10 @@
 		</ExpertPanel>
 
 		<h3>Régularisation Ridge</h3>
-
+		<Callout type="note">
+			Nous étudierons en détail la régression Ridge dans le chapitre sur la régularisation, où nous
+			aborderons ses propriétés théoriques et son comportement dans différents scénarios.
+		</Callout>
 		<p>
 			Lorsque <KatexInline formula={String.raw`X^\top X`} /> n'est pas inversible, ou simplement pour
 			améliorer la généralisation du modèle, on ajoute un terme de pénalité quadratique sur les poids
@@ -701,7 +704,13 @@
 				</li>
 			</ol>
 		</ExercisePanel>
+
 		<h3>Régression Lasso</h3>
+
+		<Callout type="note">
+			Nous étudierons en détail la régression Lasso dans le chapitre sur la régularisation, où nous
+			aborderons ses propriétés théoriques et son comportement dans différents scénarios.
+		</Callout>
 
 		<p>
 			Le <strong>Lasso</strong> (Least Absolute Shrinkage and Selection Operator) ajoute une pénalité
@@ -709,10 +718,10 @@
 		</p>
 		<KatexBlock
 			formula={String.raw`
-\min_{w \in \mathbb{R}^d}\left(\frac{1}{2n}\|Xw - y\|^2 + \lambda\,\|w\|_1\right),
-\quad
-\|w\|_1 = \sum_{j=1}^d |w_j|.
-			`}
+		\min_{w \in \mathbb{R}^d}\left(\frac{1}{2n}\|Xw - y\|^2 + \lambda\,\|w\|_1\right),
+		\quad
+		\|w\|_1 = \sum_{j=1}^d |w_j|.
+					`}
 		/>
 		<p>
 			Pour des features orthonormées (<KatexInline formula={String.raw`X^\top X = I`} />), la
@@ -720,6 +729,7 @@
 				>opérateur de seuillage doux</strong
 			> :
 		</p>
+
 		<KatexBlock
 			formula={String.raw`
 w_j^*(\lambda)
