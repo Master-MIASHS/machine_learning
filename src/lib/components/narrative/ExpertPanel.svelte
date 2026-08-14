@@ -34,7 +34,7 @@
 		background: rgba(167, 139, 250, 0.06);
 		border-radius: var(--radius-lg);
 		padding: 1.25rem;
-		margin-bottom: 0.5rem;
+		margin-bottom: 1.5rem;
 	}
 
 	.expert-header {

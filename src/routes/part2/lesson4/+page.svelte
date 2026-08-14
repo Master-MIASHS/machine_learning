@@ -33,12 +33,31 @@
 
 	// ── Formula variables (stored in script so Svelte never parses backslashes) ──
 
+	// Statistical model behind the loss — this is what was missing: the least-squares
+	// term is not "just a distance", it is (up to a constant) the negative log-likelihood
+	// under a linear-Gaussian model. Everything else in the page follows from this.
+	const dataModel =
+		'y = X w^{\\star} + \\varepsilon, \\qquad \\varepsilon \\sim \\mathcal{N}(0, \\sigma^2 I_n)';
+	const negLogLik =
+		'-\\log p(y \\mid X, w) = \\frac{1}{2\\sigma^2} \\|y - Xw\\|_2^2 + \\text{cste}(\\sigma^2)';
+
 	// General regularized objective
 	const generalObjective = '\\mathcal{L}(w) = \\frac{1}{n}\\|y - Xw\\|^2_2 + \\lambda \\, R(w)';
 
-	// Bias-variance decomposition
+	// Bayesian / MAP derivation of Ridge and Lasso from priors on w
+	const mapGeneral =
+		'\\hat{w}_{\\text{MAP}} = \\arg\\max_w \\; \\log p(y \\mid X, w) + \\log p(w) = \\arg\\min_w \\; \\|y - Xw\\|_2^2 - 2\\sigma^2 \\log p(w)';
+	const mapRidgePrior = 'w_j \\overset{\\text{iid}}{\\sim} \\mathcal{N}(0, \\tau^2)';
+	const mapRidgeResult =
+		'\\hat{w}_{\\text{MAP}} = \\arg\\min_w \\; \\|y - Xw\\|_2^2 + \\frac{\\sigma^2}{\\tau^2} \\|w\\|_2^2 \\quad\\Longrightarrow\\quad \\lambda = \\frac{\\sigma^2}{\\tau^2}';
+	const mapLassoPrior = 'w_j \\overset{\\text{iid}}{\\sim} \\text{Laplace}(0, b)';
+	const mapLassoResult =
+		'\\hat{w}_{\\text{MAP}} = \\arg\\min_w \\; \\|y - Xw\\|_2^2 + \\frac{2\\sigma^2}{b} \\|w\\|_1 \\quad\\Longrightarrow\\quad \\lambda = \\frac{2\\sigma^2}{b}';
+
+	// Bias-variance decomposition — conditioning made explicit: expectation is over
+	// draws of the training set D, at a fixed query point x0, y0 = f(x0) + noise.
 	const biasVarianceDecomp =
-		'\\mathbb{E}[(y - \\hat{y})^2] = \\operatorname{Bias}^2(\\hat{f}(x)) + \\operatorname{Var}(\\hat{f}(x)) + \\sigma^2';
+		'\\mathbb{E}_{D}\\bigl[(y_0 - \\hat{f}_D(x_0))^2 \\mid x_0\\bigr] = \\operatorname{Bias}^2\\bigl(\\hat{f}(x_0)\\bigr) + \\operatorname{Var}_D\\bigl(\\hat{f}(x_0)\\bigr) + \\sigma^2';
 
 	// Ridge objective
 	const ridgeObjective = '\\min_{w} \\; \\|y - Xw\\|^2_2 + \\lambda \\, \\|w\\|^2_2';
@@ -52,6 +71,12 @@
 
 	// Shrinkage factor
 	const shrinkageFactor = 'S_i(\\lambda) = \\frac{d_i}{d_i + \\lambda}';
+
+	// Effective degrees of freedom of Ridge — the classical (non-CV) bridge to AIC/Cp
+	const effectiveDf =
+		'\\operatorname{df}(\\lambda) = \\sum_{i=1}^{p} \\frac{d_i}{d_i + \\lambda} = \\operatorname{tr}\\bigl(X(X^TX+\\lambda I)^{-1}X^T\\bigr)';
+	const aicRidge =
+		'\\operatorname{AIC}(\\lambda) = n \\log(\\hat\\sigma^2_\\lambda) + 2\\,\\operatorname{df}(\\lambda)';
 
 	// Lasso objective
 	const lassoObjective = '\\min_{w} \\; \\|y - Xw\\|^2_2 + \\lambda \\, \\|w\\|_1';
@@ -75,15 +100,18 @@
 	const lambdaOpt =
 		'\\hat{\\lambda}_{\\text{opt}} = \\operatorname*{arg\\,min}_{\\lambda} \\; \\operatorname{CV}(\\lambda)';
 
-	// One standard error rule
+	// One standard error rule (s_opt is now defined here too, so it is never typed
+	// inline again — that inline copy was the source of the KaTeX escaping bug below)
 	const oneSeRule =
 		'\\hat{\\lambda}_{1se} = \\max \\bigl\\{ \\lambda : \\operatorname{CV}(\\lambda) \\leq \\operatorname{CV}(\\hat{\\lambda}_{\\text{opt}}) + s_{\\text{opt}} \\bigr\\}';
+	const sOptDef = 's_{\\text{opt}}';
 
-	// Ridge constraint geometry
-	const ridgeConstraint = '\\sum_{i=1}^{d} w_i^2 \\leq t';
+	// Ridge constraint geometry — was inconsistently using "d" for the ambient
+	// dimension while the rest of the page (and DefinitionBlock 8.1/8.2) uses "p"
+	const ridgeConstraint = '\\sum_{i=1}^{p} w_i^2 \\leq t';
 
 	// Lasso constraint geometry
-	const lassoConstraint = '\\sum_{i=1}^{d} |w_i| \\leq t';
+	const lassoConstraint = '\\sum_{i=1}^{p} |w_i| \\leq t';
 
 	// Coordinate descent update for Lasso
 	const coordDescentUpdate = 'w_j^{(k+1)} = \\frac{S\\bigl(z_j, \\lambda\\bigr)}{X_j^T X_j}';
@@ -111,7 +139,7 @@
 	next={nextMeta}
 >
 	<!-- ═══════════════════════════════════════════ -->
-	<!-- SECTION 1 : Introduction & Bias-Variance   -->
+	<!-- SECTION 1 : Modèle, introduction & Bias-Variance -->
 	<!-- ═══════════════════════════════════════════ -->
 
 	<TheorySection>
@@ -126,23 +154,61 @@
 			entre biais et variance.
 		</p>
 
+		<h3>Le modèle statistique sous-jacent</h3>
+
+		<p>
+			Avant d'écrire la moindre pénalité, il faut fixer ce que l'on suppose sur les données. On se
+			place dans le modèle linéaire gaussien classique :
+		</p>
+
+		<KatexBlock formula={dataModel} />
+
+		<p>
+			où <KatexInline formula={'w^{\\star}'} /> est le vecteur de coefficients inconnu que l'on cherche
+			à estimer. Sous ce modèle, la vraisemblance des données est gaussienne, et sa log-vraisemblance
+			négative s'écrit :
+		</p>
+
+		<KatexBlock formula={negLogLik} />
+
+		<DefinitionBlock number="8.0" title="Moindres carrés = maximum de vraisemblance">
+			<p>
+				Minimiser <KatexInline formula={'\\|y - Xw\\|_2^2'} /> n'est donc pas un choix arbitraire de distance
+				: c'est exactement le <strong>maximum de vraisemblance (MLE)</strong> sous le modèle
+				linéaire gaussien. Cette observation est ce qui permet, plus loin, d'interpréter la
+				régularisation comme l'ajout d'un <strong>a priori</strong> sur w plutôt que comme une pénalité
+				ad hoc.
+			</p>
+		</DefinitionBlock>
+
+		<Callout type="warning" title="Standardiser avant de régulariser">
+			<p>
+				Le terme de pénalité <KatexInline formula={'R(w)'} /> traite chaque coefficient symétriquement,
+				mais <KatexInline formula={'w_j'} /> dépend de l'échelle de la variable
+				<KatexInline formula={'X_j'} />. Sans standardisation (centrer-réduire chaque colonne de X),
+				<KatexInline formula={'\\lambda'} /> pénalise arbitrairement plus fort les variables mesurées
+				dans de petites unités. En pratique, on standardise systématiquement X avant Ridge, Lasso ou Elastic
+				Net, et on ne pénalise jamais l'intercept.
+			</p>
+		</Callout>
+
 		<h3>Décomposition biais-variance</h3>
 
 		<p>
 			Pour comprendre pourquoi la régularisation fonctionne, il faut d'abord rappeler la
-			décomposition classique de l'erreur quadratique moyenne attendue :
+			décomposition classique de l'erreur quadratique moyenne attendue, en un point de requête
+			<KatexInline formula={'x_0'} /> fixé, l'espérance étant prise sur les tirages aléatoires de l'ensemble
+			d'entraînement <KatexInline formula={'D'} /> :
 		</p>
 
 		<KatexBlock formula={biasVarianceDecomp} />
 
 		<p>
 			Où <strong>Biais</strong> mesure à quel point notre estimateur est systématiquement éloigné de
-			la vérité,
-			<strong>Variance</strong> mesure sa sensibilité aux fluctuations des données d'entraînement,
-			et
-			<KatexInline formula={'\\sigma^2'} /> est le bruit irréductible. La régularisation agit en augmentant
-			légèrement le biais pour réduire drastiquement la variance — ce qui, dans l'ensemble, diminue l'erreur
-			totale.
+			la vérité (erreur asymptotique),
+			<strong>Variance</strong> mesure sa sensibilité aux fluctuations de D, et
+			<KatexInline formula={'\\sigma^2'} /> est le bruit irréductible, hérité du modèle ci-dessus. La
+			régularisation agit en augmentant légèrement le biais pour réduire drastiquement la variance.
 		</p>
 
 		<h3>Forme générale d'un problème régularisé</h3>
@@ -161,14 +227,39 @@
 			de la régularisation : plus il est élevé, plus les coefficients sont contraints vers zéro.
 		</p>
 
-		<Callout type="intuition" title="Pourquoi régulariser ?">
+		<ExpertPanel title="Dérivation bayésienne : régularisation comme MAP">
 			<p>
-				Penser à la régularisation comme un <strong>prior statistique</strong>. Le terme L2 impose
-				implicitement que les coefficients sont petits (a priori gaussiens), tandis que le terme L1
-				impose qu'ils sont rares (a priori de Laplace). En limitant l'espace des solutions
-				possibles, on réduit la variance sans augmenter trop le biais.
+				L'intuition « la pénalité L2 est un prior gaussien, la pénalité L1 est un prior de Laplace »
+				n'est pas une métaphore : c'est une dérivation exacte. Sous un prior <KatexInline
+					formula={'p(w)'}
+				/> sur les coefficients, l'estimateur du <strong>maximum a posteriori (MAP)</strong> maximise
+				la log-vraisemblance plus le log-prior, ce qui, en combinant avec la log-vraisemblance gaussienne
+				ci-dessus, donne :
 			</p>
-		</Callout>
+			<KatexBlock formula={mapGeneral} />
+			<p>
+				<strong>Cas Ridge.</strong> Sous un prior gaussien indépendant sur chaque coefficient,
+			</p>
+			<KatexBlock formula={mapRidgePrior} />
+			<p>
+				le MAP se réduit exactement à l'objectif Ridge, avec une correspondance explicite entre λ et
+				le rapport des variances :
+			</p>
+			<KatexBlock formula={mapRidgeResult} />
+			<p>
+				<strong>Cas Lasso.</strong> Sous un prior de Laplace (double-exponentielle), dont la densité a
+				un pic pointu en zéro,
+			</p>
+			<KatexBlock formula={mapLassoPrior} />
+			<p>le MAP se réduit à l'objectif Lasso :</p>
+			<KatexBlock formula={mapLassoResult} />
+			<p>
+				C'est ce pic pointu du prior de Laplace en <KatexInline formula={'w_j = 0'} /> — la densité gaussienne,
+				elle, est plate en zéro — qui est la raison probabiliste profonde pour laquelle le MAP sous Laplace
+				produit des coefficients exactement nuls alors que le MAP sous gaussien n'en produit jamais. L'argument
+				géométrique du diamant, présenté plus loin, en est la contrepartie visuelle.
+			</p>
+		</ExpertPanel>
 
 		<InteractiveSection tag="Démo 8.1 — Décomposition biais-variance">
 			<BiasVarianceDecomposition />
@@ -191,8 +282,8 @@
 		<DefinitionBlock number="8.1" title="Ridge Regression">
 			<p>
 				Soit <KatexInline formula={'y \\in \\mathbb{R}^n'} /> le vecteur réponse et
-				<KatexInline formula={'X \\in \\mathbb{R}^{n \\times p}'} /> la matrice de design. Le solveur
-				Ridge minimise :
+				<KatexInline formula={'X \\in \\mathbb{R}^{n \\times p}'} /> la matrice de design, dont les colonnes
+				sont supposées centrées-réduites. Le solveur Ridge minimise :
 			</p>
 			<KatexBlock formula={ridgeObjective} />
 			<p>
@@ -255,6 +346,25 @@
 			<ShrinkageFactorDemo />
 		</InteractiveSection>
 
+		<h3>Degrés de liberté effectifs</h3>
+
+		<p>
+			Sommer les facteurs de rétrécissement sur toutes les directions propres donne une quantité qui
+			généralise, pour Ridge, la notion de « nombre de paramètres » d'un modèle linéaire classique :
+		</p>
+
+		<KatexBlock formula={effectiveDf} />
+
+		<p>
+			<KatexInline formula={'\\operatorname{df}(\\lambda)'} /> vaut exactement p quand
+			<KatexInline formula={'\\lambda = 0'} /> (OLS complet) et tend vers 0 quand
+			<KatexInline formula={'\\lambda \\to +\\infty'} />. C'est ce qui permet, sans recourir à la
+			validation croisée, de sélectionner λ par un critère classique de type AIC ou C<sub>p</sub> de Mallows
+			:
+		</p>
+
+		<KatexBlock formula={aicRidge} />
+
 		<Callout type="summary" title="Ridge en résumé">
 			<ul>
 				<li><strong>Solution fermée :</strong> toujours calculable via la formule matricielle</li>
@@ -282,7 +392,7 @@
 		<h3>1. Le conditionnement d'un système linéaire</h3>
 		<p>
 			Considérons le système linéaire <KatexInline formula={String.raw`Ax = y`} /> où
-			<KatexInline formula={String.raw`A \in \mathbb{R}^{d \times d}`} /> est une matrice inversible.
+			<KatexInline formula={String.raw`A \in \mathbb{R}^{p \times p}`} /> est une matrice inversible.
 			Supposons que le vecteur de mesures
 			<KatexInline formula={String.raw`y`} /> soit entaché d'une perturbation minuscule <KatexInline
 				formula={String.raw`\delta y`}
@@ -402,7 +512,7 @@
 			/>, avec des valeurs propres <KatexInline formula={String.raw`d_i \ge 0`} />. Les valeurs
 			propres de la matrice régularisée deviennent :
 		</p>
-		<KatexBlock formula={String.raw`\text{Sp}(X^\top X + \lambda I) = \{d_i + \lambda\}_{i=1}^d`} />
+		<KatexBlock formula={String.raw`\text{Sp}(X^\top X + \lambda I) = \{d_i + \lambda\}_{i=1}^p`} />
 		<p>Par conséquent, le nouveau conditionnement du système régularisé s'écrit :</p>
 		<KatexBlock
 			formula={String.raw`\kappa(X^\top X + \lambda I) = \frac{d_{\max} + \lambda}{d_{\min} + \lambda}`}
@@ -486,7 +596,8 @@
 				<em>sommets</em>, il y a une probabilité non nulle que le contact se produise exactement sur
 				un sommet, c'est-à-dire sur un coin où un coefficient est exactement zéro. Avec Ridge
 				(cercle lisse), cela ne peut pas arriver — le contact se fait toujours sur une arête courbe,
-				produisant deux coefficients non nuls.
+				produisant deux coefficients non nuls. C'est la contrepartie géométrique du prior de Laplace
+				pointu en zéro évoqué plus haut.
 			</p>
 		</Callout>
 
@@ -581,17 +692,6 @@
 		<InteractiveSection tag="Démo 8.4 — Mélange Elastic Net">
 			<ElasticNetBlend />
 		</InteractiveSection>
-
-		<ExpertPanel title="Conseil pratique : Elastic Net par défaut">
-			<p>
-				Dans de nombreux cas pratiques, l'Elastic Net avec <KatexInline
-					formula={'\\alpha \\approx 0.1'}
-				/> est un bon point de départ. La petite composante L2 garantit que la matrice reste bien conditionnée,
-				même quand des variables sont fortement corrélées ou redondantes. Le paramètre <KatexInline
-					formula={'\\alpha'}
-				/> peut ensuite être ajusté par validation croisée.
-			</p>
-		</ExpertPanel>
 	</TheorySection>
 
 	<!-- ═══════════════════════════════════════════ -->
@@ -611,6 +711,20 @@
 				formula={'\\lambda'}
 			/>.
 		</p>
+
+		<Callout type="intuition" title="CV n'est pas la seule route">
+			<p>
+				Pour Ridge, la section précédente a montré que <KatexInline
+					formula={'\\operatorname{df}(\\lambda)'}
+				/> se calcule en forme close, ce qui rend possible une sélection de λ par AIC, BIC ou C<sub
+					>p</sub
+				> de Mallows, sans repasser plusieurs fois sur les données. Pour Lasso, la notion de degrés de
+				liberté effectifs existe aussi (le nombre de coefficients non nuls le long du chemin LARS en est
+				un estimateur non biaisé sous conditions, Zou, Hastie &amp; Tibshirani 2007), mais elle est plus
+				fragile — la validation croisée reste, en pratique, le choix par défaut le plus robuste pour Lasso
+				et Elastic Net.
+			</p>
+		</Callout>
 
 		<h3>Procédure de validation croisée à K plis</h3>
 
@@ -651,10 +765,9 @@
 		<KatexBlock formula={oneSeRule} />
 
 		<p>
-			Où <KatexInline formula={'s_{\text{opt}}'} /> est l'écart-type de l'erreur croisée à l'optimum.
-			Cette règle produit un modèle parcimonieux (moins de variables non nulles) tout en restant dans
-			une marge statistiquement acceptable de performance. C'est un compromis classique entre simplicité
-			du modèle et précision.
+			Où <KatexInline formula={sOptDef} /> est l'écart-type de l'erreur croisée à l'optimum. Cette règle
+			produit un modèle parcimonieux (moins de variables non nulles) tout en restant dans une marge statistiquement
+			acceptable de performance. C'est un compromis classique entre simplicité du modèle et précision.
 		</p>
 
 		<Callout type="warning" title="Le piège du surajustement de λ">
@@ -723,12 +836,14 @@
 		<Callout type="summary" title="Ridge vs Lasso vs Elastic Net — tableau comparatif">
 			<ul>
 				<li>
-					<strong>Ridge (L2) :</strong> rétrécit uniformément, jamais de zéros exacts. Idéal pour stabiliser
-					l'inversion matricielle et gérer la multicolinéarité
+					<strong>Ridge (L2) :</strong> rétrécit uniformément, jamais de zéros exacts. Prior
+					gaussien. Idéal pour stabiliser l'inversion matricielle et gérer la multicolinéarité.
+					Degrés de liberté et sélection de λ en forme close disponibles (AIC/C<sub>p</sub>)
 				</li>
 				<li>
-					<strong>Lasso (L1) :</strong> produit des zéros exacts via le soft-thresholding. Permet une
-					sélection automatique de variables mais peut être instable avec des corrélations fortes
+					<strong>Lasso (L1) :</strong> produit des zéros exacts via le soft-thresholding. Prior de Laplace.
+					Permet une sélection automatique de variables mais peut être instable avec des corrélations
+					fortes, et son inférence post-sélection n'est pas standard
 				</li>
 				<li>
 					<strong>Elastic Net :</strong> combine les deux approches. Sélection de variables (L1) + stabilité
@@ -737,7 +852,8 @@
 			</ul>
 			<p style="margin-top: 0.5rem;">
 				Dans tous les cas, la sélection du paramètre <KatexInline formula={'\\lambda'} /> par validation
-				croisée est une étape obligatoire et critique pour obtenir un bon compromis biais-variance.
+				croisée est une étape obligatoire et critique pour obtenir un bon compromis biais-variance, et
+				les variables doivent être standardisées en amont.
 			</p>
 		</Callout>
 
@@ -762,6 +878,20 @@
 				title="Ridge Regression: Biased Estimation for Nonorthogonal Problems"
 				journal="Technometrics, 12(1), 55–67."
 				link="https://doi.org/10.1080/00401706.1970.10488634"
+			/>
+			<BibElement
+				authors={['Zou, H.', 'Hastie, T.', 'Tibshirani, R.']}
+				year={2007}
+				title="On the 'Degrees of Freedom' of the Lasso"
+				journal="The Annals of Statistics, 35(5), 2173–2192."
+				link="https://doi.org/10.1214/009053607000000127"
+			/>
+			<BibElement
+				authors={['Lee, J.D.', 'Sun, D.L.', 'Sun, Y.', 'Taylor, J.E.']}
+				year={2016}
+				title="Exact Post-Selection Inference, with Application to the Lasso"
+				journal="The Annals of Statistics, 44(3), 907–927."
+				link="https://doi.org/10.1214/15-AOS1371"
 			/>
 			<BibElement
 				authors={['Hastie, T.', 'Tibshirani, R.', 'Friedman, J.']}

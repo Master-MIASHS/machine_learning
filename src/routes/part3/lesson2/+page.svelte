@@ -4,6 +4,7 @@
 	import InteractiveSection from '$lib/components/narrative/InteractiveSection.svelte';
 	import Callout from '$lib/components/narrative/Callout.svelte';
 	import ExpertPanel from '$lib/components/narrative/ExpertPanel.svelte';
+	import DefinitionBlock from '$lib/components/narrative/DefinitionBlock.svelte';
 	import Bibliography from '$lib/components/narrative/bib/Bibliography.svelte';
 	import BibElement from '$lib/components/narrative/bib/BibElement.svelte';
 	import KatexBlock from '$lib/components/narrative/KatexBlock.svelte';
@@ -43,6 +44,7 @@
 	const F_EXCH_DATA = String.raw`(X_1, Y_1), \dots, (X_n, Y_n), (X, Y)`;
 	const F_COVERAGE_THEOREM = String.raw`\mathbb{P}\big(Y \in \mathcal{C}(X)\big) \geq 1 - \alpha`;
 	const F_COVERAGE_UPPER = String.raw`1 - \alpha \;\leq\; \mathbb{P}\big(Y \in \mathcal{C}(X)\big) \;\leq\; 1 - \alpha + \frac{1}{n+1}`;
+	const F_COND_COVERAGE_WANTED = String.raw`\mathbb{P}\big(Y \in \mathcal{C}(X) \;\big|\; X = x\big) \geq 1 - \alpha \quad \text{pour (presque) tout } x`;
 	const F_RANK_SCORE = String.raw`s(x, y) = \text{rang de } y \text{ parmi les classes, triées par } \hat{p} \text{ décroissant}`;
 	const F_1MINUSP = String.raw`s(x, y) = 1 - \hat{p}_y(x)`;
 	const F_CUMULATIVE = String.raw`s(x, y) = 1 - \sum_{j \,:\, \hat{p}_j(x) \geq \hat{p}_y(x)} \hat{p}_j(x)`;
@@ -75,16 +77,23 @@
 
 		<p>
 			L'idée centrale est simple : utiliser un ensemble de calibration pour mesurer à quel point
-			chaque paire (prédiction, étiquette) est « conforme » au modèle appris, puis employer cette
-			mesure pour décider quelles classes inclure dans l'ensemble de prédiction d'un nouvel
-			échantillon.
+			chaque paire (prédiction, étiquette) est <em>atypique</em> vis-à-vis du modèle appris, puis
+			employer cette mesure pour décider quelles classes inclure dans l'ensemble de prédiction d'un
+			nouvel échantillon. La variante présentée ici — un unique ensemble de calibration, disjoint de
+			l'entraînement — est la <strong>prédiction conformelle scindée</strong> (<em
+				>split conformal</em
+			>). Elle est nettement moins coûteuse que la version originale (<em>full conformal</em>, Vovk
+			et al. 2005), qui réentraîne le modèle pour chaque étiquette candidate, au prix d'ensembles en
+			général légèrement plus larges.
 		</p>
 
-		<Callout type="definition" title="Score de conformité">
-			Un <strong>score de conformité</strong> est une fonction
+		<Callout type="definition" title="Score de non-conformité">
+			Un <strong>score de non-conformité</strong> (le terme standard de la littérature, cf. Vovk et
+			al. 2005 — on parle parfois improprement de « score de conformité ») est une fonction
 			<KatexInline formula={F_SCORE_DEF} />
-			qui mesure à quel point une paire <KatexInline formula="(x, y)" /> est cohérente avec le modèle
-			appris. Plus le score est <em>faible</em>, plus la paire est conforme.
+			qui mesure à quel point une paire <KatexInline formula="(x, y)" /> est <em>atypique</em> pour
+			le modèle appris. Plus le score est <em>faible</em>, plus la paire est conforme — le nom du
+			score porte sur ce qu'il mesure (l'atypicité), pas sur le sens de l'échelle.
 		</Callout>
 	</TheorySection>
 
@@ -104,7 +113,7 @@
 				<KatexInline formula={F_HAT_F} /> sur <KatexInline formula={F_DTRAIN} />.
 			</p>
 			<p>
-				<strong>Étape 2 — Calibration :</strong> Calculer les scores de conformité sur
+				<strong>Étape 2 — Calibration :</strong> Calculer les scores de non-conformité sur
 				<KatexInline formula={F_DCAL} /> :
 			</p>
 			<KatexBlock formula={F_SI} />
@@ -159,11 +168,40 @@
 			grandit.
 		</p>
 
+		<DefinitionBlock number="10.1" title="Couverture marginale vs. couverture conditionnelle">
+			<p>
+				Il faut lire <KatexInline formula={F_COVERAGE_THEOREM} /> précisément : la probabilité est prise
+				sur le tirage conjoint de <KatexInline formula="(X, Y)" /> — c'est une garantie
+				<strong>marginale</strong>, moyennée sur toute la population des <KatexInline
+					formula="x"
+				/>. Ce que l'on voudrait souvent, une garantie <strong>conditionnelle</strong> valable pour
+				chaque <KatexInline formula="x" /> individuellement,
+			</p>
+			<KatexBlock formula={F_COND_COVERAGE_WANTED} />
+			<p>
+				n'est <strong>pas</strong> ce que le théorème fournit, et ne peut en général pas être
+				obtenue sans hypothèse supplémentaire sur <KatexInline formula={String.raw`\hat{p}`} /> ou sur
+				<KatexInline formula={String.raw`P`} /> : Foygel Barber, Candès, Ramdas &amp; Tibshirani (2021)
+				montrent qu'aucune méthode distribution-free non triviale n'atteint la couverture conditionnelle
+				exacte pour toute distribution continue de <KatexInline formula="X" />. En pratique, un
+				ensemble peut donc sous-couvrir fortement sur certaines régions de
+				<KatexInline formula="X" /> tout en respectant la moyenne globale — c'est précisément ce que les
+				scores adaptatifs (section suivante) atténuent, sans l'éliminer complètement.
+			</p>
+		</DefinitionBlock>
+
 		<Callout type="intuition" title="Quand l'échangeabilité tient-elle ?">
-			Les données i.i.d. sont toujours échangeables. L'échangeabilité est également satisfaite dans
-			certains cas de séries temporelles (permutation sans changement de distribution) ou pour des
-			échantillons provenant de la même population. En pratique, on considère souvent l'hypothèse
-			satisfaite si les données de calibration et de test proviennent d'une même distribution.
+			Les données i.i.d. sont toujours échangeables. En pratique, on considère souvent l'hypothèse
+			satisfaite si les données de calibration et de test proviennent d'une même distribution — mais
+			c'est précisément ce qui échoue pour des données spatialement ou temporellement structurées :
+			l'autocorrélation spatiale (typique en SDM) ou un déplacement de distribution dans le temps (<em
+				>covariate shift</em
+			>, dérive de concept) rompent l'échangeabilité, et la garantie de couverture n'est alors plus
+			assurée telle quelle. Une série temporelle n'est échangeable que sous stationnarité stricte,
+			une hypothèse forte et rarement vérifiée en pratique. La
+			<strong>prédiction conformelle pondérée</strong> (Tibshirani, Barber, Candès &amp; Ramdas 2019)
+			corrige la couverture sous covariate shift lorsque le ratio de densités est connu ou estimable ;
+			l'extension à l'autocorrélation spatiale reste un axe de recherche actif.
 		</Callout>
 	</TheorySection>
 
@@ -174,7 +212,7 @@
 
 	<!-- ═══════════ Score de rang ═══════════ -->
 	<TheorySection>
-		<h2>Score de conformité par rang</h2>
+		<h2>Score de non-conformité par rang</h2>
 
 		<p>
 			Le choix le plus naturel en classification est le <strong>rang de la vraie classe</strong>
@@ -229,6 +267,9 @@
 			<strong>minimise la taille moyenne</strong>
 			<KatexInline formula={String.raw`\mathbb{E}[|\mathcal{C}(X)|]`} />. C'est l'exact pendant,
 			côté couverture fixée, du résultat de la leçon précédente sur le Top-K à cardinalité fixée.
+			Noter que cette optimalité, comme le théorème de couverture lui-même, est
+			<strong>marginale</strong>
+			— elle ne dit rien de la taille optimale conditionnelle à un <KatexInline formula="x" /> donné.
 		</Callout>
 
 		<p>
@@ -264,7 +305,7 @@
 
 	<!-- ═══════════ Scores probabilistes ═══════════ -->
 	<TheorySection>
-		<h2>Scores de conformité probabilistes</h2>
+		<h2>Scores de non-conformité probabilistes</h2>
 
 		<p>
 			Pour exploiter l'information quantitative des probabilités, on peut utiliser des scores plus
@@ -277,10 +318,14 @@
 			<KatexInline formula={F_ORACLE_SCORE} /> introduit ci-dessus.
 		</Callout>
 
-		<Callout type="definition" title="Score cumulatif">
+		<Callout type="definition" title="Score cumulatif (APS)">
 			<KatexInline formula={F_CUMULATIVE} /> — Somme des probabilités des classes au moins aussi probables
 			que
-			<KatexInline formula="y" />, puis complément à 1.
+			<KatexInline formula="y" />, puis complément à 1. C'est le score
+			<strong>Adaptive Prediction Sets</strong> de Romano, Sesia &amp; Candès (2020), introduit
+			précisément pour améliorer la couverture conditionnelle par rapport au score
+			<KatexInline formula={F_1MINUSP} /> — sans l'atteindre exactement, pour la raison donnée plus haut
+			(10.1).
 		</Callout>
 
 		<p>
@@ -334,25 +379,29 @@
 
 		<p>
 			La prédiction conformelle transforme un classificateur standard en un dispositif de
-			<strong>prédiction d'ensembles</strong> avec garantie probabiliste. Les trois ingrédients essentiels
-			sont :
+			<strong>prédiction d'ensembles</strong> avec garantie probabiliste <em>marginale</em>. Les
+			trois ingrédients essentiels sont :
 		</p>
 
 		<ul>
-			<li>Un <strong>score de conformité</strong> qui mesure la cohérence d'une paire (x, y)</li>
+			<li>
+				Un <strong>score de non-conformité</strong> qui mesure à quel point (x, y) est atypique
+			</li>
 			<li>Un <strong>ensemble de calibration</strong> indépendant pour estimer le seuil</li>
 			<li>Un <strong>quantile</strong> qui garantit la couverture à un niveau choisi</li>
 		</ul>
 
 		<p>
-			Le choix du score influence la taille des ensembles : le score de rang produit des ensembles
-			discrets (Top-K), tandis que les scores probabilistes adaptent la taille à chaque échantillon.
-			Dans les deux cas, la structure sous-jacente est la même : un ensemble de niveau de
+			Le choix du score influence la taille des ensembles et leur adaptativité : le score de rang
+			produit des ensembles discrets (Top-K), tandis que les scores probabilistes comme l'APS
+			adaptent la taille à chaque échantillon, se rapprochant — sans l'atteindre — de la couverture
+			conditionnelle. Dans les deux cas, la structure sous-jacente est la même : un ensemble de
+			niveau de
 			<KatexInline formula={String.raw`\eta(x)`} />, contrainte soit par sa cardinalité (Top-K),
 			soit par sa couverture (conforme). La différence entre les deux leçons n'est donc pas de
 			nature, mais de <em>quelle contrainte on fixe</em> — et la prédiction conformelle a l'avantage
-			de rester valide même quand <KatexInline formula={String.raw`\eta`} /> est mal estimée. La méthode
-			s'étend naturellement à la régression, où elle produit des
+			de rester valide même quand <KatexInline formula={String.raw`\eta`} /> est mal estimée, à condition
+			que l'échangeabilité tienne. La méthode s'étend naturellement à la régression, où elle produit des
 			<strong>intervalles de prédiction</strong> — comme nous le verrons dans la prochaine leçon.
 		</p>
 	</TheorySection>
@@ -378,6 +427,20 @@
 			title="Classification with Valid and Adaptive Coverage"
 			journal="Advances in Neural Information Processing Systems (NeurIPS)."
 			link="https://arxiv.org/abs/2006.02544"
+		/>
+		<BibElement
+			authors={['Barber, R.F.', 'Candès, E.J.', 'Ramdas, A.', 'Tibshirani, R.J.']}
+			year={2021}
+			title="The Limits of Distribution-Free Conditional Predictive Inference"
+			journal="Information and Inference: A Journal of the IMA, 10(2), 455–482."
+			link="https://arxiv.org/abs/1903.04684"
+		/>
+		<BibElement
+			authors={['Tibshirani, R.J.', 'Barber, R.F.', 'Candès, E.J.', 'Ramdas, A.']}
+			year={2019}
+			title="Conformal Prediction Under Covariate Shift"
+			journal="Advances in Neural Information Processing Systems (NeurIPS)."
+			link="https://arxiv.org/abs/1904.06019"
 		/>
 	</Bibliography>
 </PageTemplate>
