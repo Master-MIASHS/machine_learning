@@ -14,6 +14,7 @@
 	import IntervalQualityDashboard from '$lib/components/demos/IntervalQualityDashboard.svelte';
 	import { getPageByPath, getNextPage, getPrevPage, type PageMeta } from '$lib/navigation.js';
 	import { createPageTracker } from '$lib/stores/progress.svelte';
+	import TableOfContents from '$lib/components/narrative/TableOfContents.svelte';
 
 	const meta = getPageByPath('/part3/lesson3');
 	const tracker = createPageTracker(meta as PageMeta);
