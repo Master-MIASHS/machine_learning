@@ -20,9 +20,63 @@
 	const prevMeta = $derived(getPrevPage(meta?.index ?? 0));
 	const nextMeta = $derived(getNextPage(meta?.index ?? 0));
 
-	$effect(() => {
-		tracker.trackInteraction();
-	});
+	interface TocEntry {
+		id: string;
+		label: string;
+		description: string;
+		color: 'epistemic' | 'positive' | 'neutral' | 'belief' | 'surprise' | 'agent';
+	}
+
+	const tocEntries: TocEntry[] = [
+		{
+			id: 'intervalles-constants',
+			label: 'Intervalles de largeur constante',
+			description: 'Fondements et intuition',
+			color: 'neutral'
+		},
+		{
+			id: 'impl-constants',
+			label: 'Implémentation des intervalles constants',
+			description: 'Algorithme pas à pas',
+			color: 'epistemic'
+		},
+		{
+			id: 'regime-oracle',
+			label: 'Le régime oracle : régions de densité maximale',
+			description: "L'optimalité théorique",
+			color: 'belief'
+		},
+		{
+			id: 'intervalles-adaptatifs',
+			label: 'Intervalles adaptatifs',
+			description: "Adaptation à l'hétéroscédasticité",
+			color: 'positive'
+		},
+		{
+			id: 'incertitude-locale',
+			label: "Estimation de l'incertitude locale",
+			description: 'Bootstrap et variance locale',
+			color: 'surprise'
+		},
+		{
+			id: 'cqr',
+			label: 'Régression quantile conforme (CQR)',
+			description: 'Correction des quantiles entraînés',
+			color: 'epistemic'
+		},
+		{
+			id: 'evaluation-intervalles',
+			label: 'Évaluation des intervalles de prédiction',
+			description: 'Métriques de couverture et de largeur',
+			color: 'neutral'
+		},
+		{
+			id: 'synthese',
+			label: 'Synthèse',
+			description: 'Récapitulatif sur la régression conformelle',
+			color: 'neutral'
+		}
+	];
 
 	// ─── Formula constants ─────────────────────────────
 	// Same fix as the previous two lessons: curly braces inside <script> are never
@@ -59,12 +113,13 @@
 
 <PageTemplate
 	title={meta?.title ?? 'Intervalles de prédiction'}
-	subtitle="Partie III — Prédiction d'ensembles"
+	subtitle="Construire des intervalles fiables : largeur constante, adaptation locale et régression quantile conforme"
 	prev={prevMeta}
 	next={nextMeta}
 >
 	<!-- ═══════════ Introduction ═══════════ -->
 	<TheorySection>
+		<TableOfContents entries={tocEntries} />
 		<p>
 			La prédiction conformelle en classification construit des ensembles de classes à partir de
 			<KatexInline formula={String.raw`\eta_c(x) = \mathbb{P}(Y = c \mid X = x)`} />. En
@@ -93,7 +148,7 @@
 
 	<!-- ═══════════ Intervalles de largeur constante ═══════════ -->
 	<TheorySection>
-		<h2>Intervalles de largeur constante</h2>
+		<h2 id="intervalles-constants">Intervalles de largeur constante</h2>
 
 		<p>
 			L'approche la plus simple utilise un score de conformité basé sur l'<strong
@@ -128,13 +183,17 @@
 	</TheorySection>
 
 	<!-- ═══════════ Démo 11.1 — Visualisation des intervalles ═══════════ -->
-	<InteractiveSection tag="Démo 11.1">
+	<InteractiveSection
+		number="11.1"
+		title="Visualisation des intervalles"
+		onInteract={tracker.trackInteraction}
+	>
 		<PredictionIntervalVisualizer />
 	</InteractiveSection>
 
 	<!-- ═══════════ Implémentation des intervalles constants ═══════════ -->
 	<TheorySection>
-		<h2>Implémentation des intervalles constants</h2>
+		<h2 id="impl-constants">Implémentation des intervalles constants</h2>
 
 		<p>
 			L'algorithme se décompose en trois étapes nettes, directement calquées sur le cadre général de
@@ -170,7 +229,7 @@
 
 	<!-- ═══════════ Le régime oracle : régions de densité maximale ═══════════ -->
 	<TheorySection>
-		<h2>Le régime oracle : régions de densité maximale</h2>
+		<h2 id="regime-oracle">Le régime oracle : régions de densité maximale</h2>
 
 		<p>
 			Comme en classification, il est instructif de se demander ce que ferait la méthode si l'on
@@ -234,7 +293,7 @@
 
 	<!-- ═══════════ Intervalles adaptatifs ═══════════ -->
 	<TheorySection>
-		<h2>Intervalles adaptatifs</h2>
+		<h2 id="intervalles-adaptatifs">Intervalles adaptatifs</h2>
 
 		<p>
 			Les intervalles constants souffrent d'un défaut majeur : ils ne tiennent aucun compte de l'<em
@@ -274,13 +333,17 @@
 	</TheorySection>
 
 	<!-- ═══════════ Démo 11.2 — Comparaison constant vs adaptatif ═══════════ -->
-	<InteractiveSection tag="Démo 11.2">
+	<InteractiveSection
+		number="11.2"
+		title="Comparaison constant vs adaptatif"
+		onInteract={tracker.trackInteraction}
+	>
 		<AdaptiveIntervalDemo />
 	</InteractiveSection>
 
 	<!-- ═══════════ Estimation de l'incertitude locale ═══════════ -->
 	<TheorySection>
-		<h2>Estimation de l'incertitude locale</h2>
+		<h2 id="incertitude-locale">Estimation de l'incertitude locale</h2>
 
 		<p>
 			L'utilisation du score adaptatif pose la question pratique : comment estimer
@@ -318,13 +381,17 @@
 	</TheorySection>
 
 	<!-- ═══════════ Démo 11.3 — Bootstrap ═══════════ -->
-	<InteractiveSection tag="Démo 11.3">
+	<InteractiveSection
+		number="11.3"
+		title="Incertitude par Bootstrap"
+		onInteract={tracker.trackInteraction}
+	>
 		<BootstrapUncertainty />
 	</InteractiveSection>
 
 	<!-- ═══════════ Régression quantile conforme (CQR) ═══════════ -->
 	<TheorySection>
-		<h2>Régression quantile conforme (CQR)</h2>
+		<h2 id="cqr">Régression quantile conforme (CQR)</h2>
 
 		<p>
 			Le score adaptatif <KatexInline formula={F_SCORE_ADAPTIVE} /> approxime l'adaptation à l'hétéroscédasticité
@@ -377,7 +444,7 @@
 
 	<!-- ═══════════ Évaluation des intervalles ═══════════ -->
 	<TheorySection>
-		<h2>Évaluation des intervalles de prédiction</h2>
+		<h2 id="evaluation-intervalles">Évaluation des intervalles de prédiction</h2>
 
 		<p>
 			La validation d'une méthode d'intervalles de prédiction repose sur plusieurs métriques
@@ -431,13 +498,17 @@
 	</TheorySection>
 
 	<!-- ═══════════ Démo 11.4 — Dashboard qualité ═══════════ -->
-	<InteractiveSection tag="Démo 11.4">
+	<InteractiveSection
+		number="11.4"
+		title="Dashboard de qualité des intervalles"
+		onInteract={tracker.trackInteraction}
+	>
 		<IntervalQualityDashboard />
 	</InteractiveSection>
 
 	<!-- ═══════════ Synthèse ═══════════ -->
 	<TheorySection>
-		<h2>Synthèse</h2>
+		<h2 id="synthese">Synthèse</h2>
 
 		<p>
 			La régression conformelle étend le cadre de la prédiction d'ensembles au cas continu, en

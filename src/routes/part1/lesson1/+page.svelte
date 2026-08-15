@@ -16,8 +16,11 @@
 	import ConvexityDemo from '$lib/components/demos/ConvexityDemo.svelte';
 	import CoercivityVisualizer from '$lib/components/demos/CoercivityVisualizer.svelte';
 	import { getPageByPath, getNextPage, getPrevPage } from '$lib/navigation.js';
+	import { createPageTracker } from '$lib/stores/progress.svelte';
+	import type { PageMeta } from '$lib/navigation.js';
 
 	const meta = getPageByPath('/part1/lesson1');
+	const tracker = createPageTracker(meta as PageMeta);
 	const prevMeta = $derived(getPrevPage(meta?.index ?? 0));
 	const nextMeta = $derived(getNextPage(meta?.index ?? 0));
 
@@ -279,7 +282,11 @@
 			minimum global dans la section sur la coercivité, en fin de leçon.
 		</Callout>
 
-		<InteractiveSection tag="Explorez">
+		<InteractiveSection
+			number="1.1"
+			title="Paysage d'optimisation"
+			onInteract={tracker.trackInteraction}
+		>
 			<ContourLandscape />
 		</InteractiveSection>
 
@@ -373,7 +380,11 @@
 			</p>
 		</div>
 
-		<InteractiveSection tag="Champ de gradient">
+		<InteractiveSection
+			number="1.2"
+			title="Champ de gradient"
+			onInteract={tracker.trackInteraction}
+		>
 			<GradientField />
 		</InteractiveSection>
 
@@ -442,7 +453,11 @@
 			</p>
 		</ExampleBlock>
 
-		<InteractiveSection tag="Courbure du Hessien">
+		<InteractiveSection
+			number="1.3"
+			title="Courbure du Hessien"
+			onInteract={tracker.trackInteraction}
+		>
 			<HessianExplorer />
 		</InteractiveSection>
 
@@ -480,7 +495,11 @@
 			suivante, en lien avec la régularisation Ridge.
 		</Callout>
 
-		<InteractiveSection tag="Visualiser la convexité">
+		<InteractiveSection
+			number="1.4"
+			title="Visualiser la convexité"
+			onInteract={tracker.trackInteraction}
+		>
 			<ConvexityDemo />
 		</InteractiveSection>
 
@@ -724,7 +743,11 @@
 			</p>
 		</ExampleBlock>
 
-		<InteractiveSection tag="Visualiser la coercivité">
+		<InteractiveSection
+			number="1.5"
+			title="Visualiser la coercivité"
+			onInteract={tracker.trackInteraction}
+		>
 			<CoercivityVisualizer />
 		</InteractiveSection>
 

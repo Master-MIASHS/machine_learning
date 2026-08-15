@@ -25,7 +25,7 @@
 		width = 400,
 		height = 350,
 		gridSize = 12,
-		maxArrowLength = 18,
+		maxArrowLength = 15,
 		showAxes = true,
 		showLabels = false
 	}: Props = $props();
@@ -83,9 +83,11 @@
 				let mag = Math.sqrt(dx * dx + dy * dy);
 				if (!isFinite(mag)) continue;
 
-				// Normalize and clamp arrow length
-				const scale = Math.min(maxArrowLength / maxMagnitude, 1);
-				const len = mag * scale;
+				// Perceptual length scale: sqrt boosts short vectors relatively
+				// more than long ones, so low-magnitude arrows stay readable
+				// instead of shrinking to near-invisible slivers. The longest
+				// arrow on the grid still maps to exactly maxArrowLength.
+				const len = maxArrowLength * Math.sqrt(mag / maxMagnitude);
 
 				const [px1, py1] = project(x, y);
 				const nx = dx / (mag || 1); // normalized direction
@@ -167,17 +169,16 @@
 			<feDropShadow dx="0" dy="8" stdDeviation="12" flood-opacity="0.25" />
 		</filter>
 
-		<!-- Arrowhead -->
 		<marker
 			id="arrowhead"
-			viewBox="0 0 10 10"
-			refX="9"
+			viewBox="0 0 15 15"
+			refX="2"
 			refY="5"
-			markerWidth="5"
-			markerHeight="5"
+			markerWidth="8"
+			markerHeight="8"
 			orient="auto"
 		>
-			<path d="M0,0 L10,5 L0,10 Z" fill="url(#vectorGradient)" />
+			<path d="M0,1.5 L10,5 L0,8.5 Z" fill="url(#vectorGradient)" />
 		</marker>
 
 		<pattern id="grid" width="24" height="24" patternUnits="userSpaceOnUse">

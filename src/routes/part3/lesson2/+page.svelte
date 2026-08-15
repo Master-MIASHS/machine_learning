@@ -12,6 +12,7 @@
 	import ConformalPredictionDemo from '$lib/components/demos/ConformalPredictionDemo.svelte';
 	import ConformityScoreComparison from '$lib/components/demos/ConformityScoreComparison.svelte';
 	import QuantileThresholdVisualizer from '$lib/components/demos/QuantileThresholdVisualizer.svelte';
+	import TableOfContents from '$lib/components/narrative/TableOfContents.svelte';
 	import { getPageByPath, getNextPage, getPrevPage, type PageMeta } from '$lib/navigation.js';
 	import { createPageTracker } from '$lib/stores/progress.svelte';
 
@@ -20,9 +21,57 @@
 	const prevMeta = $derived(getPrevPage(meta?.index ?? 0));
 	const nextMeta = $derived(getNextPage(meta?.index ?? 0));
 
-	$effect(() => {
-		tracker.trackInteraction();
-	});
+	interface TocEntry {
+		id: string;
+		label: string;
+		description: string;
+		color: 'epistemic' | 'positive' | 'neutral' | 'belief' | 'surprise' | 'agent';
+	}
+
+	const tocEntries: TocEntry[] = [
+		{
+			id: 'algo-conformal',
+			label: 'Algorithme de prédiction conformelle',
+			description: 'Split de calibration et scores',
+			color: 'epistemic'
+		},
+		{
+			id: 'garantie-couverture',
+			label: 'Garantie de couverture',
+			description: 'Échangeabilité et validité',
+			color: 'belief'
+		},
+		{
+			id: 'score-rang',
+			label: 'Score de non-conformité par rang',
+			description: 'Lien avec le Top-K',
+			color: 'positive'
+		},
+		{
+			id: 'oracle-dual',
+			label: 'Le prédicteur oracle et le dual du Top-K',
+			description: 'Optimalité et ensemble de niveau',
+			color: 'surprise'
+		},
+		{
+			id: 'scores-probabilistes',
+			label: 'Scores de non-conformité probabilistes',
+			description: 'APS et scores 1-p',
+			color: 'neutral'
+		},
+		{
+			id: 'seuil-quantile',
+			label: 'Le seuil quantile',
+			description: 'Calcul du quantile de calibration',
+			color: 'epistemic'
+		},
+		{
+			id: 'synthese',
+			label: 'Synthèse',
+			description: 'Récapitulatif sur la prédiction conformelle',
+			color: 'neutral'
+		}
+	];
 
 	// ─── Formula constants ─────────────────────────────
 	// NOTE: curly braces here do NOT need backslash-escaping. Svelte's brace-parsing only
@@ -62,12 +111,13 @@
 
 <PageTemplate
 	title={meta?.title ?? 'Prédiction conformelle'}
-	subtitle="Partie III — Prédiction d'ensembles"
+	subtitle="Garantir la couverture par scores de non-conformité, calibration et seuils quantiles"
 	prev={prevMeta}
 	next={nextMeta}
 >
 	<!-- ═══════════ Introduction ═══════════ -->
 	<TheorySection>
+		<TableOfContents entries={tocEntries} />
 		<p>
 			La classification Top-K précédente retourne un ensemble de taille fixe. La
 			<strong>prédiction conformelle</strong> va plus loin : elle construit des ensembles de
@@ -99,7 +149,7 @@
 
 	<!-- ═══════════ Algorithme ═══════════ -->
 	<TheorySection>
-		<h2>Algorithme de prédiction conformelle</h2>
+		<h2 id="algo-conformal">Algorithme de prédiction conformelle</h2>
 
 		<p>
 			Soit un modèle entraîné sur
@@ -130,13 +180,17 @@
 	</TheorySection>
 
 	<!-- ═══════════ Démo 10.1 — Pipeline animé ═══════════ -->
-	<InteractiveSection tag="Démo 10.1">
+	<InteractiveSection
+		number="10.1"
+		title="Construction conforme pas à pas"
+		onInteract={tracker.trackInteraction}
+	>
 		<ConformalPredictionDemo />
 	</InteractiveSection>
 
 	<!-- ═══════════ Garantie théorique ═══════════ -->
 	<TheorySection>
-		<h2>Garantie de couverture</h2>
+		<h2 id="garantie-couverture">Garantie de couverture</h2>
 
 		<Callout type="definition" title="Théorème — Garantie de couverture">
 			Sous l'hypothèse
@@ -212,7 +266,7 @@
 
 	<!-- ═══════════ Score de rang ═══════════ -->
 	<TheorySection>
-		<h2>Score de non-conformité par rang</h2>
+		<h2 id="score-rang">Score de non-conformité par rang</h2>
 
 		<p>
 			Le choix le plus naturel en classification est le <strong>rang de la vraie classe</strong>
@@ -238,7 +292,7 @@
 
 	<!-- ═══════════ Le prédicteur oracle : lien avec η(x) ═══════════ -->
 	<TheorySection>
-		<h2>Le prédicteur oracle et le dual du Top-K</h2>
+		<h2 id="oracle-dual">Le prédicteur oracle et le dual du Top-K</h2>
 
 		<p>
 			On peut pousser le lien avec la leçon précédente jusqu'à sa forme la plus nette en se
@@ -305,7 +359,7 @@
 
 	<!-- ═══════════ Scores probabilistes ═══════════ -->
 	<TheorySection>
-		<h2>Scores de non-conformité probabilistes</h2>
+		<h2 id="scores-probabilistes">Scores de non-conformité probabilistes</h2>
 
 		<p>
 			Pour exploiter l'information quantitative des probabilités, on peut utiliser des scores plus
@@ -336,13 +390,17 @@
 	</TheorySection>
 
 	<!-- ═══════════ Démo 10.2 — Comparaison des scores ═══════════ -->
-	<InteractiveSection tag="Démo 10.2">
+	<InteractiveSection
+		number="10.2"
+		title="Séries de confiance"
+		onInteract={tracker.trackInteraction}
+	>
 		<ConformityScoreComparison />
 	</InteractiveSection>
 
 	<!-- ═══════════ Le quantile ═══════════ -->
 	<TheorySection>
-		<h2>Le seuil quantile</h2>
+		<h2 id="seuil-quantile">Le seuil quantile</h2>
 
 		<p>
 			Le paramètre critique de la méthode est le <strong>quantile</strong>
@@ -369,13 +427,17 @@
 	</TheorySection>
 
 	<!-- ═══════════ Démo 10.4 — Visualisation du quantile ═══════════ -->
-	<InteractiveSection tag="Démo 10.4">
+	<InteractiveSection
+		number="10.4"
+		title="L'effet du niveau de confiance"
+		onInteract={tracker.trackInteraction}
+	>
 		<QuantileThresholdVisualizer />
 	</InteractiveSection>
 
 	<!-- ═══════════ Synthèse ═══════════ -->
 	<TheorySection>
-		<h2>Synthèse</h2>
+		<h2 id="synthese">Synthèse</h2>
 
 		<p>
 			La prédiction conformelle transforme un classificateur standard en un dispositif de

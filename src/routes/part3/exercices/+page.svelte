@@ -6,17 +6,11 @@
 	import KatexInline from '$lib/components/narrative/KatexInline.svelte';
 	import KatexBlock from '$lib/components/narrative/KatexBlock.svelte';
 	import Callout from '$lib/components/narrative/Callout.svelte';
-	import { getPageByPath, getNextPage, getPrevPage, type PageMeta } from '$lib/navigation.js';
-	import { createPageTracker } from '$lib/stores/progress.svelte';
+	import { getPageByPath, getNextPage, getPrevPage } from '$lib/navigation.js';
 
 	const meta = getPageByPath('/part3/exercices');
-	const tracker = createPageTracker(meta as PageMeta);
 	const prevMeta = $derived(getPrevPage(meta?.index ?? 0));
 	const nextMeta = $derived(getNextPage(meta?.index ?? 0));
-
-	$effect(() => {
-		tracker.trackInteraction();
-	});
 
 	const tocEntries: TocEntry[] = [
 		{
@@ -57,7 +51,7 @@
 
 <PageTemplate
 	title={meta?.title ?? 'Feuille d’exercices — Partie III'}
-	subtitle="Partie III — Prédiction d'ensembles"
+	subtitle="Exercices sur Top-K, étalonnage, prédiction conforme et intervalles de régression"
 	prev={prevMeta}
 	next={nextMeta}
 >

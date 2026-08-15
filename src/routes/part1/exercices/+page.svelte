@@ -238,7 +238,7 @@
 
 <PageTemplate
 	title={meta?.title ?? "Exercices — Conditions d'existence d'un minimum"}
-	subtitle="Partie I"
+	subtitle="Optimisation"
 	prev={prevMeta}
 	next={nextMeta}
 >

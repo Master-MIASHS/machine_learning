@@ -167,10 +167,6 @@
 	const lipschitzSumProof =
 		'\\|\\nabla f(x) - \\nabla f(y)\\| = \\left\\|\\frac{1}{n}\\sum_{i=1}^n \\big[\\nabla f_i(x) - \\nabla f_i(y)\\big]\\right\\| \\le \\frac{1}{n}\\sum_{i=1}^n \\|\\nabla f_i(x) - \\nabla f_i(y)\\| \\le \\frac{1}{n}\\sum_{i=1}^n L_i \\|x-y\\|';
 	const lipschitzLBound = 'L = \\frac{1}{n}\\sum_{i=1}^n L_i';
-
-	$effect(() => {
-		tracker.trackInteraction();
-	});
 </script>
 
 <svelte:head>
@@ -241,7 +237,11 @@
 			l'outil ci-dessous.
 		</p>
 
-		<InteractiveSection tag="Explorer">
+		<InteractiveSection
+			number="2.1"
+			title="Exploration des fonctions de perte"
+			onInteract={tracker.trackInteraction}
+		>
 			<LossFunctionExplorer />
 		</InteractiveSection>
 	</TheorySection>
@@ -286,7 +286,11 @@
 			<p>Donc <KatexInline formula={fSym} /> est convexe. ∎</p>
 		</div>
 
-		<InteractiveSection tag="Visualiser">
+		<InteractiveSection
+			number="2.2"
+			title="Sommes de fonctions convexes"
+			onInteract={tracker.trackInteraction}
+		>
 			<ConvexSumVisualizer />
 		</InteractiveSection>
 
@@ -509,7 +513,11 @@
 			de façon unique.
 		</Callout>
 
-		<InteractiveSection tag="Ajuster">
+		<InteractiveSection
+			number="2.3"
+			title="Ajustement linéaire"
+			onInteract={tracker.trackInteraction}
+		>
 			<LinearRegressionFit />
 		</InteractiveSection>
 
@@ -653,7 +661,11 @@
 			</p>
 		</div>
 
-		<InteractiveSection tag="Explorer">
+		<InteractiveSection
+			number="2.4"
+			title="Chemin de régularisation Ridge"
+			onInteract={tracker.trackInteraction}
+		>
 			<RidgePathExplorer />
 		</InteractiveSection>
 
@@ -665,7 +677,11 @@
 			de gradient.
 		</p>
 
-		<InteractiveSection tag="Conditionnement">
+		<InteractiveSection
+			number="2.5"
+			title="Conditionnement du Hessien"
+			onInteract={tracker.trackInteraction}
+		>
 			<HessianConditionNumber />
 		</InteractiveSection>
 
@@ -754,7 +770,11 @@ w_j^*(\lambda)
 			{/snippet}
 		</Callout>
 
-		<InteractiveSection tag="Explorer">
+		<InteractiveSection
+			number="2.6"
+			title="Chemin de régularisation Lasso"
+			onInteract={tracker.trackInteraction}
+		>
 			<LassoPathExplorer />
 		</InteractiveSection>
 

@@ -61,7 +61,7 @@
 	prev={prevMeta}
 	next={nextMeta}
 	title={meta?.title ?? 'Exercices — Boosting et régularisation'}
-	subtitle="Partie II"
+	subtitle="Entraînement sur bagging, forêts aléatoires, boosting et régularisation L1/L2"
 >
 	<TheorySection>
 		<TableOfContents entries={tocEntries} />

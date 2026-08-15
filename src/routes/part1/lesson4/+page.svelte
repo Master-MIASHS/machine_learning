@@ -25,8 +25,11 @@
 
 	// ── Navigation ──
 	import { getPageByPath, getNextPage, getPrevPage } from '$lib/navigation.js';
+	import { createPageTracker } from '$lib/stores/progress.svelte';
+	import type { PageMeta } from '$lib/navigation.js';
 
 	const meta = getPageByPath('/part1/lesson4');
+	const tracker = createPageTracker(meta as PageMeta);
 	const prevMeta = $derived(getPrevPage(meta?.index ?? 0));
 	const nextMeta = $derived(getNextPage(meta?.index ?? 0));
 
@@ -39,6 +42,12 @@
 	}
 
 	const tocEntries: TocEntry[] = [
+		{
+			id: 'introduction',
+			label: 'Introduction',
+			description: 'Contexte et contraintes pratiques',
+			color: 'neutral'
+		},
 		{
 			id: 'sgd',
 			label: 'Descente de gradient stochastique (SGD)',
@@ -140,7 +149,7 @@
 	<TheorySection>
 		<TableOfContents entries={tocEntries} />
 
-		<h2>Introduction</h2>
+		<h2 id="introduction">Introduction</h2>
 
 		<p>
 			Les trois leçons précédentes ont établi les fondements théoriques de l'optimisation sans
@@ -293,7 +302,11 @@
 			comparable en termes de temps de calcul total.
 		</Callout>
 
-		<InteractiveSection tag="Comparer">
+		<InteractiveSection
+			number="4.1"
+			title="Comparaison SGD vs GD"
+			onInteract={tracker.trackInteraction}
+		>
 			<SGDvsGDComparison />
 		</InteractiveSection>
 
@@ -339,7 +352,11 @@
 			du problème et du matériel disponible.
 		</Callout>
 
-		<InteractiveSection tag="Explorer">
+		<InteractiveSection
+			number="4.2"
+			title="Variance du gradient stochastique"
+			onInteract={tracker.trackInteraction}
+		>
 			<GradientVarianceDemo />
 		</InteractiveSection>
 
@@ -465,7 +482,11 @@
 			classique.
 		</p>
 
-		<InteractiveSection tag="Animer">
+		<InteractiveSection
+			number="4.3"
+			title="Animation du Coordinate Descent"
+			onInteract={tracker.trackInteraction}
+		>
 			<CoordinateDescentAnim />
 		</InteractiveSection>
 
@@ -573,7 +594,11 @@
 			inefficace.
 		</p>
 
-		<InteractiveSection tag="Animer">
+		<InteractiveSection
+			number="4.4"
+			title="Animation de la méthode de Newton"
+			onInteract={tracker.trackInteraction}
+		>
 			<NewtonAnimator />
 		</InteractiveSection>
 
@@ -723,7 +748,11 @@
 			bruitée de SGD.
 		</p>
 
-		<InteractiveSection tag="Comparer">
+		<InteractiveSection
+			number="4.5"
+			title="Course de convergence"
+			onInteract={tracker.trackInteraction}
+		>
 			<ConvergenceRace />
 		</InteractiveSection>
 

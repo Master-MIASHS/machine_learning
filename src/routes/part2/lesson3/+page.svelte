@@ -19,6 +19,7 @@
 	import GradientBoostingDemo from '$lib/components/demos/GradientBoostingDemo.svelte';
 	import BoostingComparison from '$lib/components/demos/BoostingComparison.svelte';
 
+	import TableOfContents from '$lib/components/narrative/TableOfContents.svelte';
 	import { getPageByPath, getNextPage, getPrevPage, type PageMeta } from '$lib/navigation.js';
 	import { createPageTracker } from '$lib/stores/progress.svelte';
 
@@ -27,9 +28,51 @@
 	const prevMeta = $derived(getPrevPage(meta?.index ?? 0));
 	const nextMeta = $derived(getNextPage(meta?.index ?? 0));
 
-	$effect(() => {
-		tracker.trackInteraction();
-	});
+	interface TocEntry {
+		id: string;
+		label: string;
+		description: string;
+		color: 'epistemic' | 'positive' | 'neutral' | 'belief' | 'surprise' | 'agent';
+	}
+
+	const tocEntries: TocEntry[] = [
+		{
+			id: 'introduction-boosting',
+			label: 'Introduction au Boosting',
+			description: 'Séquentialité vs parallélisme',
+			color: 'neutral'
+		},
+		{
+			id: 'adaboost',
+			label: "L'algorithme AdaBoost",
+			description: 'Répondération adaptative et apprentissage faible',
+			color: 'epistemic'
+		},
+		{
+			id: 'perte-exponentielle',
+			label: 'Perte exponentielle et margins',
+			description: 'Surrogates, convexité et margins',
+			color: 'belief'
+		},
+		{
+			id: 'distribution-margins',
+			label: 'Distribution des margins et généralisation',
+			description: 'Risque de surapprentissage et théorie',
+			color: 'positive'
+		},
+		{
+			id: 'gradient-boosting',
+			label: 'Gradient Boosting',
+			description: "Descente de gradient dans l'espace des fonctions",
+			color: 'surprise'
+		},
+		{
+			id: 'comparaison-synthese',
+			label: 'Comparaison et synthèse',
+			description: 'Choisir entre AdaBoost et Gradient Boosting',
+			color: 'neutral'
+		}
+	];
 
 	// ── Formula variables (stored in script so Svelte never parses backslashes) ──
 
@@ -149,13 +192,14 @@
 
 <PageTemplate
 	title={meta?.title ?? 'Boosting (AdaBoost, Gradient Boosting)'}
-	subtitle="Partie II — Régularisation"
+	subtitle="Apprentissage séquentiel : AdaBoost, pertes exponentielles, marges et gradient boosting"
 	prev={prevMeta}
 	next={nextMeta}
 >
 	<!-- SECTION 1 : INTRODUCTION AU BOOSTING -->
 	<TheorySection>
-		<h2>Introduction au Boosting</h2>
+		<TableOfContents entries={tocEntries} />
+		<h2 id="introduction-boosting">Introduction au Boosting</h2>
 		<p>
 			Les méthodes de <strong>boosting</strong> constituent une famille d'algorithmes ensemblistes
 			séquentiels. Contrairement au bagging, qui entraîne des modèles <em>en parallèle</em>, le
@@ -216,7 +260,7 @@
 
 	<!-- SECTION 2 : L'ALGORITHME ADA BOOST -->
 	<TheorySection>
-		<h2>L'algorithme AdaBoost</h2>
+		<h2 id="adaboost">L'algorithme AdaBoost</h2>
 		<p>
 			AdaBoost (Adaptive Boosting) est le premier algorithme de boosting avec des garanties
 			théoriques. Il fonctionne par répondération adaptative des exemples : à chaque itération, les
@@ -324,14 +368,18 @@
 			</p>
 		</Callout>
 
-		<InteractiveSection tag="AdaBoost pas à pas">
+		<InteractiveSection
+			number="7.1"
+			title="AdaBoost pas à pas"
+			onInteract={tracker.trackInteraction}
+		>
 			<AdaBoostStepByStep />
 		</InteractiveSection>
 	</TheorySection>
 
 	<!-- SECTION 3 : PERTE EXPONENTIELLE ET MARGINS -->
 	<TheorySection>
-		<h2>Perte exponentielle et margins</h2>
+		<h2 id="perte-exponentielle">Perte exponentielle et margins</h2>
 		<p>
 			Une interprétation d'AdaBoost est qu'il minimise la <strong>perte exponentielle</strong>. Ce
 			n'est pas un choix arbitraire : cette perte agit comme une surrogate de la perte 0-1 (qui
@@ -381,14 +429,18 @@
 			</p>
 		</Callout>
 
-		<InteractiveSection tag="Perte exponentielle">
+		<InteractiveSection
+			number="7.2"
+			title="Perte exponentielle"
+			onInteract={tracker.trackInteraction}
+		>
 			<ExponentialLossVisualizer />
 		</InteractiveSection>
 	</TheorySection>
 
 	<!-- SECTION 4 : DISTRIBUTION DES MARGINS ET GÉNÉRALISATION -->
 	<TheorySection>
-		<h2>Distribution des <em>margins</em> et généralisation</h2>
+		<h2 id="distribution-margins">Distribution des <em>margins</em> et généralisation</h2>
 		<p>
 			Si l'erreur d'entraînement décroît exponentiellement avec AdaBoost, le risque de
 			surapprentissage est réel. La théorie des margins fournit une réponse : la généralisation
@@ -449,7 +501,11 @@
 			</ul>
 		</Callout>
 
-		<InteractiveSection tag="Histogramme des margins">
+		<InteractiveSection
+			number="7.3"
+			title="Histogramme des margins"
+			onInteract={tracker.trackInteraction}
+		>
 			<MarginDistribution />
 		</InteractiveSection>
 
@@ -477,7 +533,7 @@
 
 	<!-- SECTION 5 : GRADIENT BOOSTING -->
 	<TheorySection>
-		<h2>Gradient Boosting (Friedman, 2001)</h2>
+		<h2 id="gradient-boosting">Gradient Boosting (Friedman, 2001)</h2>
 		<p>
 			Les travaux de Jerome Friedman généralisent le boosting au-delà d'AdaBoost et de la perte
 			exponentielle. Gradient Boosting consiste à voir le problème comme une <strong
@@ -554,14 +610,18 @@
 			</p>
 		</Callout>
 
-		<InteractiveSection tag="Gradient Boosting pas à pas">
+		<InteractiveSection
+			number="7.4"
+			title="Gradient Boosting pas à pas"
+			onInteract={tracker.trackInteraction}
+		>
 			<GradientBoostingDemo />
 		</InteractiveSection>
 	</TheorySection>
 
 	<!-- SECTION 6 : COMPARAISON ET SYNTHÈSE -->
 	<TheorySection>
-		<h2>Comparaison et synthèse</h2>
+		<h2 id="comparaison-synthese">Comparaison et synthèse</h2>
 		<p>
 			AdaBoost et le Gradient Boosting partagent la même philosophie séquentielle mais diffèrent sur
 			plusieurs points fondamentaux. Comprendre ces différences guide le choix du bon algorithme
@@ -639,7 +699,11 @@
 			</ol>
 		</Callout>
 
-		<InteractiveSection tag="Comparaison AdaBoost vs GBM">
+		<InteractiveSection
+			number="7.5"
+			title="Comparaison AdaBoost vs GBM"
+			onInteract={tracker.trackInteraction}
+		>
 			<BoostingComparison />
 		</InteractiveSection>
 

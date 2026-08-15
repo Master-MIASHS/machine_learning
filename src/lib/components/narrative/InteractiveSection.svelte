@@ -1,10 +1,36 @@
 <script lang="ts">
 	import type { Snippet } from 'svelte';
-	let { children, tag }: { children: Snippet; tag?: string } = $props();
+
+	interface Props {
+		children: Snippet;
+		tag?: string;
+		number?: string;
+		title?: string;
+		onInteract?: () => void;
+	}
+
+	let { children, tag, number, title, onInteract }: Props = $props();
+
+	let hasInteracted = false;
+
+	function handleInteraction() {
+		if (hasInteracted) return;
+		hasInteracted = true;
+		onInteract?.();
+	}
+
+	const interactionEvents = ['pointerdown', 'click', 'input', 'change', 'keydown'] as const;
+	const eventHandlers = Object.fromEntries(
+		interactionEvents.map((ev) => [`on${ev}`, handleInteraction])
+	);
 </script>
 
-<section class="page-interactive">
-	{#if tag}
+<section class="page-interactive" {...eventHandlers}>
+	{#if number && title}
+		<span class="interactive-title">Démo {number} — {title}</span>
+	{:else if title}
+		<span class="interactive-title">Démo — {title}</span>
+	{:else if tag}
 		<span class="interactive-title">{tag}</span>
 	{/if}
 	{@render children()}

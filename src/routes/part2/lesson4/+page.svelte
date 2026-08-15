@@ -17,19 +17,56 @@
 	import LassoPathExplorer from '$lib/components/demos/LassoPathExplorer.svelte';
 	import ElasticNetBlend from '$lib/components/demos/ElasticNetBlend.svelte';
 	import ShrinkageFactorDemo from '$lib/components/demos/ShrinkageFactorDemo.svelte';
+	import IllConditionningExplosionDemo from '$lib/components/demos/IllConditionningExplosionDemo.svelte';
 
+	import TableOfContents from '$lib/components/narrative/TableOfContents.svelte';
 	import { getPageByPath, getNextPage, getPrevPage, type PageMeta } from '$lib/navigation.js';
 	import { createPageTracker } from '$lib/stores/progress.svelte';
-	import IllConditionningExplosionDemo from '$lib/components/demos/IllConditionningExplosionDemo.svelte';
 
 	const meta = getPageByPath('/part2/lesson4');
 	const tracker = createPageTracker(meta as PageMeta);
 	const prevMeta = $derived(getPrevPage(meta?.index ?? 0));
 	const nextMeta = $derived(getNextPage(meta?.index ?? 0));
 
-	$effect(() => {
-		tracker.trackInteraction();
-	});
+	interface TocEntry {
+		id: string;
+		label: string;
+		description: string;
+		color: 'epistemic' | 'positive' | 'neutral' | 'belief' | 'surprise' | 'agent';
+	}
+
+	const tocEntries: TocEntry[] = [
+		{
+			id: 'introduction-reg',
+			label: 'Introduction à la régularisation',
+			description: 'Overfitting et compromis biais-variance',
+			color: 'neutral'
+		},
+		{
+			id: 'ridge-regression',
+			label: 'Ridge Regression (L2)',
+			description: 'Pénalité quadratique et solution fermée',
+			color: 'epistemic'
+		},
+		{
+			id: 'lasso-regression',
+			label: 'Lasso Regression (L1)',
+			description: 'Solution sparse',
+			color: 'belief'
+		},
+		{
+			id: 'elastic-net',
+			label: 'Elastic Net (L1 + L2)',
+			description: 'Combinaison de Ridge et Lasso',
+			color: 'positive'
+		},
+		{
+			id: 'synthese',
+			label: 'Synthèse',
+			description: 'Comparatif Ridge, Lasso et Elastic Net',
+			color: 'neutral'
+		}
+	];
 
 	// ── Formula variables (stored in script so Svelte never parses backslashes) ──
 
@@ -134,7 +171,7 @@
 
 <PageTemplate
 	title={meta?.title ?? 'Régularisation L1/L2/Elastic Net'}
-	subtitle="Partie II — Régularisation"
+	subtitle="Contrôler le biais-variance avec Ridge, Lasso, Elastic Net et validation croisée"
 	prev={prevMeta}
 	next={nextMeta}
 >
@@ -143,7 +180,8 @@
 	<!-- ═══════════════════════════════════════════ -->
 
 	<TheorySection>
-		<h2>Introduction à la régularisation</h2>
+		<TableOfContents entries={tocEntries} />
+		<h2 id="introduction-reg">Introduction à la régularisation</h2>
 
 		<p>
 			Lorsque le nombre de variables <strong>p</strong> approche ou dépasse celui des observations
@@ -261,7 +299,11 @@
 			</p>
 		</ExpertPanel>
 
-		<InteractiveSection tag="Démo 8.1 — Décomposition biais-variance">
+		<InteractiveSection
+			number="8.1"
+			title="Décomposition biais-variance"
+			onInteract={tracker.trackInteraction}
+		>
 			<BiasVarianceDecomposition />
 		</InteractiveSection>
 	</TheorySection>
@@ -271,7 +313,7 @@
 	<!-- ═══════════════════════════════════════════ -->
 
 	<TheorySection>
-		<h2>Ridge Regression (Régularisation L2)</h2>
+		<h2 id="ridge-regression">Ridge Regression (Régularisation L2)</h2>
 
 		<p>
 			Introduite par Hoerl &amp; Kennard en 1970, la <strong>Ridge Regression</strong> ajoute une pénalité
@@ -315,7 +357,11 @@
 			forçant les coefficients vers zéro sans jamais les atteindre exactement.
 		</p>
 
-		<InteractiveSection tag="Démo 8.2 — Contours de régularisation">
+		<InteractiveSection
+			number="8.2"
+			title="Contours de régularisation"
+			onInteract={tracker.trackInteraction}
+		>
 			<RegularizationContour />
 		</InteractiveSection>
 
@@ -342,7 +388,11 @@
 			propres sont plus fortement réduites, ce qui stabilise l'inversion matricielle.
 		</p>
 
-		<InteractiveSection tag="Démo 8.5 — Facteurs de rétrécissement">
+		<InteractiveSection
+			number="8.5"
+			title="Facteurs de rétrécissement"
+			onInteract={tracker.trackInteraction}
+		>
 			<ShrinkageFactorDemo />
 		</InteractiveSection>
 
@@ -536,7 +586,11 @@
 			/> de la démo ci-dessous.
 		</Callout>
 
-		<InteractiveSection tag="Démo 8.5 bis - Conditionnement">
+		<InteractiveSection
+			number="8.5.bis"
+			title="Conditionnement"
+			onInteract={tracker.trackInteraction}
+		>
 			<IllConditionningExplosionDemo />
 		</InteractiveSection>
 	</ExpertPanel>
@@ -546,7 +600,7 @@
 	<!-- ═══════════════════════════════════════════ -->
 
 	<TheorySection>
-		<h2>Lasso Regression (Régularisation L1)</h2>
+		<h2 id="lasso-regression">Lasso Regression (Régularisation L1)</h2>
 
 		<p>
 			Proposé par <strong>Tibshirani en 1996</strong>, le Lasso (<em
@@ -623,7 +677,11 @@
 			soft-thresholding garantit que les petits coefficients sont éliminés.
 		</p>
 
-		<InteractiveSection tag="Démo 8.3 — Parcours des coefficients Lasso">
+		<InteractiveSection
+			number="8.3"
+			title="Parcours des coefficients Lasso"
+			onInteract={tracker.trackInteraction}
+		>
 			<LassoPathExplorer />
 		</InteractiveSection>
 
@@ -642,7 +700,7 @@
 	<!-- ═══════════════════════════════════════════ -->
 
 	<TheorySection>
-		<h2>Elastic Net (Mélange L1 et L2)</h2>
+		<h2 id="elastic-net">Elastic Net (Mélange L1 et L2)</h2>
 
 		<p>
 			L'<strong>Elastic Net</strong>, proposé par Zou &amp; Hastie en 2005, combine les avantages de
@@ -689,7 +747,11 @@
 			sont peu corrélées, et plus faible quand elles le sont.
 		</p>
 
-		<InteractiveSection tag="Démo 8.4 — Mélange Elastic Net">
+		<InteractiveSection
+			number="8.4"
+			title="Mélange Elastic Net"
+			onInteract={tracker.trackInteraction}
+		>
 			<ElasticNetBlend />
 		</InteractiveSection>
 	</TheorySection>
@@ -831,7 +893,7 @@
 	<!-- ═══════════════════════════════════════════ -->
 
 	<TheorySection>
-		<h2>Synthèse</h2>
+		<h2 id="synthese">Synthèse</h2>
 
 		<Callout type="summary" title="Ridge vs Lasso vs Elastic Net — tableau comparatif">
 			<ul>

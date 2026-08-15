@@ -25,10 +25,6 @@
 	const prevMeta = $derived(getPrevPage(meta?.index ?? 0));
 	const nextMeta = $derived(getNextPage(meta?.index ?? 0));
 
-	$effect(() => {
-		tracker.trackInteraction();
-	});
-
 	// ── Table of Contents ──
 
 	interface TocEntry {
@@ -167,7 +163,7 @@
 
 <PageTemplate
 	title={meta?.title ?? 'Méthodes ensemblistes et Bagging'}
-	subtitle="Partie II — Régularisation"
+	subtitle="Agrégation de modèles : réduction de variance, vote, BMA, bootstrap et erreur out-of-bag"
 	prev={prevMeta}
 	next={nextMeta}
 >
@@ -301,7 +297,11 @@
 			</p>
 		</ExampleBlock>
 
-		<InteractiveSection tag="Variance par agrégation">
+		<InteractiveSection
+			number="5.1"
+			title="Variance par agrégation"
+			onInteract={tracker.trackInteraction}
+		>
 			<VarianceReductionDemo />
 		</InteractiveSection>
 	</TheorySection>
@@ -326,7 +326,11 @@
 			<p>où <KatexInline formula={indicatorFn} /> est la fonction indicatrice.</p>
 		</DefinitionBlock>
 
-		<InteractiveSection tag="Frontières de décision">
+		<InteractiveSection
+			number="5.2"
+			title="Frontières de décision"
+			onInteract={tracker.trackInteraction}
+		>
 			<EnsembleBoundaryVisualizer />
 		</InteractiveSection>
 
@@ -523,7 +527,11 @@
 			</ul>
 		</DefinitionBlock>
 
-		<InteractiveSection tag="Échantillonnage Bootstrap">
+		<InteractiveSection
+			number="5.3"
+			title="Échantillonnage Bootstrap"
+			onInteract={tracker.trackInteraction}
+		>
 			<BootstrapSampler />
 		</InteractiveSection>
 
@@ -565,7 +573,11 @@
 			</ol>
 		</div>
 
-		<InteractiveSection tag="Convergence du Bagging">
+		<InteractiveSection
+			number="5.4"
+			title="Convergence du Bagging"
+			onInteract={tracker.trackInteraction}
+		>
 			<BaggingConvergence />
 		</InteractiveSection>
 
@@ -620,7 +632,11 @@
 			</p>
 		</DefinitionBlock>
 
-		<InteractiveSection tag="Erreur Out-of-Bag">
+		<InteractiveSection
+			number="5.5"
+			title="Erreur Out-of-Bag"
+			onInteract={tracker.trackInteraction}
+		>
 			<OOBErrorTracker />
 		</InteractiveSection>
 

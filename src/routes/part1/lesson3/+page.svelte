@@ -19,8 +19,11 @@
 	import MomentumVisualizer from '$lib/components/demos/MomentumVisualizer.svelte';
 	import NesterovExplorer from '$lib/components/demos/NesterovExplorer.svelte';
 	import TaylorStepVisualizer from '$lib/components/demos/TaylorStepVisualizer.svelte';
+	import { createPageTracker } from '$lib/stores/progress.svelte';
+	import type { PageMeta } from '$lib/navigation.js';
 
 	const meta = getPageByPath('/part1/lesson3');
+	const tracker = createPageTracker(meta as PageMeta);
 	const prevMeta = $derived(getPrevPage(meta?.index ?? 0));
 	const nextMeta = $derived(getNextPage(meta?.index ?? 0));
 
@@ -210,7 +213,11 @@
 			exponentiel, le step decay, et le warm-up suivi de decay.
 		</Callout>
 
-		<InteractiveSection tag="Animer">
+		<InteractiveSection
+			number="3.1"
+			title="Animation de la descente de gradient"
+			onInteract={tracker.trackInteraction}
+		>
 			<GradientDescentAnimator />
 		</InteractiveSection>
 	</TheorySection>
@@ -270,7 +277,11 @@
 			pas suffit à diminuer localement la fonction.
 		</Callout>
 
-		<InteractiveSection tag="Explorer">
+		<InteractiveSection
+			number="3.2"
+			title="Visualisation du pas de Taylor"
+			onInteract={tracker.trackInteraction}
+		>
 			<TaylorStepVisualizer />
 		</InteractiveSection>
 	</TheorySection>
@@ -314,7 +325,11 @@
 			<li>Utilisé en pratique avec des variantes adaptatives (Adam, RMSprop)</li>
 		</ul>
 
-		<InteractiveSection tag="Comparer">
+		<InteractiveSection
+			number="3.3"
+			title="Comparaison des pas d'apprentissage"
+			onInteract={tracker.trackInteraction}
+		>
 			<LearningRateComparison />
 		</InteractiveSection>
 	</TheorySection>
@@ -385,7 +400,11 @@
 			Le momentum donne plus de poids aux gradients récents (décroissance exponentielle en βⁱ).
 		</TheoremBlock>
 
-		<InteractiveSection tag="Visualiser">
+		<InteractiveSection
+			number="3.4"
+			title="Effet du momentum"
+			onInteract={tracker.trackInteraction}
+		>
 			<MomentumVisualizer />
 		</InteractiveSection>
 	</TheorySection>
@@ -415,7 +434,11 @@
 			!
 		</Callout>
 
-		<InteractiveSection tag="Comparer">
+		<InteractiveSection
+			number="3.5"
+			title="Comparaison Nesterov vs Classique"
+			onInteract={tracker.trackInteraction}
+		>
 			<NesterovExplorer />
 		</InteractiveSection>
 

@@ -10,18 +10,49 @@
 	import KatexInline from '$lib/components/narrative/KatexInline.svelte';
 	import TopKExplorer from '$lib/components/demos/TopKExplorer.svelte';
 	import ConfidenceCalibration from '$lib/components/demos/ConfidenceCalibration.svelte';
+	import ExampleBlock from '$lib/components/narrative/ExampleBlock.svelte';
+	import TableOfContents from '$lib/components/narrative/TableOfContents.svelte';
 	import { getPageByPath, getNextPage, getPrevPage, type PageMeta } from '$lib/navigation.js';
 	import { createPageTracker } from '$lib/stores/progress.svelte';
-	import ExampleBlock from '$lib/components/narrative/ExampleBlock.svelte';
 
 	const meta = getPageByPath('/part3/lesson1');
 	const tracker = createPageTracker(meta as PageMeta);
 	const prevMeta = $derived(getPrevPage(meta?.index ?? 0));
 	const nextMeta = $derived(getNextPage(meta?.index ?? 0));
 
-	$effect(() => {
-		tracker.trackInteraction();
-	});
+	interface TocEntry {
+		id: string;
+		label: string;
+		description: string;
+		color: 'epistemic' | 'positive' | 'neutral' | 'belief' | 'surprise' | 'agent';
+	}
+
+	const tocEntries: TocEntry[] = [
+		{
+			id: 'risque-topk',
+			label: 'Le risque Top-K bayésien',
+			description: 'Exactitude bayésienne et risque',
+			color: 'epistemic'
+		},
+		{
+			id: 'choix-adaptatif',
+			label: 'Choix adaptatif de K',
+			description: 'Seuil de précision cible et optimalité',
+			color: 'belief'
+		},
+		{
+			id: 'calibration-confiance',
+			label: 'Calibration de la confiance',
+			description: 'Classement vs valeurs, ECE',
+			color: 'positive'
+		},
+		{
+			id: 'synthese',
+			label: 'Synthèse',
+			description: 'Récapitulatif sur la classification Top-K',
+			color: 'neutral'
+		}
+	];
 </script>
 
 <svelte:head>
@@ -30,11 +61,12 @@
 
 <PageTemplate
 	title={meta?.title ?? 'Classification Top-K'}
-	subtitle="Partie III — Prédiction d'ensembles"
+	subtitle="Décider avec plusieurs classes candidates : risque Top-K, choix adaptatif et calibration"
 	prev={prevMeta}
 	next={nextMeta}
 >
 	<TheorySection>
+		<TableOfContents entries={tocEntries} />
 		<p>
 			La classification usuelle retient une unique prédiction : la classe la plus probable. Cette
 			approche, appelée <strong>Top-1</strong>, est simple mais rigide — elle ne donne aucune marge
@@ -95,7 +127,7 @@
 	</TheorySection>
 
 	<TheorySection>
-		<h2>Le risque Top-K bayésien</h2>
+		<h2 id="risque-topk">Le risque Top-K bayésien</h2>
 
 		<p>
 			<KatexInline formula={String.raw`\text{Acc@}K`} /> est une quantité <em>empirique</em>,
@@ -236,7 +268,11 @@
 		</p>
 	</TheorySection>
 
-	<InteractiveSection tag="Démo 9.1">
+	<InteractiveSection
+		number="9.1"
+		title="Classification Top-K"
+		onInteract={tracker.trackInteraction}
+	>
 		<TopKExplorer />
 	</InteractiveSection>
 
@@ -255,7 +291,7 @@
 	</TheorySection>
 
 	<TheorySection>
-		<h2>Choix adaptatif de K</h2>
+		<h2 id="choix-adaptatif">Choix adaptatif de K</h2>
 
 		<p>
 			La question pratique est : <em>quel K choisir ?</em> Un K trop petit risque de manquer la
@@ -307,7 +343,7 @@
 	</InteractiveSection> -->
 
 	<TheorySection>
-		<h2>Calibration de la confiance</h2>
+		<h2 id="calibration-confiance">Calibration de la confiance</h2>
 
 		<p>
 			On a vu que l'ensemble Top-K bayésien <KatexInline
@@ -382,12 +418,16 @@
 		</ExpertPanel>
 	</TheorySection>
 
-	<InteractiveSection tag="Démo 9.3">
+	<InteractiveSection
+		number="9.3"
+		title="Calibration de la confiance"
+		onInteract={tracker.trackInteraction}
+	>
 		<ConfidenceCalibration />
 	</InteractiveSection>
 
 	<TheorySection>
-		<h2>Synthèse</h2>
+		<h2 id="synthese">Synthèse</h2>
 
 		<p>
 			La classification Top-K généralise la classification standard en renvoyant un ensemble de

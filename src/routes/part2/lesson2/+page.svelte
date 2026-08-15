@@ -23,10 +23,6 @@
 	const prevMeta = $derived(getPrevPage(meta?.index ?? 0));
 	const nextMeta = $derived(getNextPage(meta?.index ?? 0));
 
-	$effect(() => {
-		tracker.trackInteraction();
-	});
-
 	// ── KaTeX formulas (stored as JS variables to avoid Svelte escape issues) ────
 	const mSym = 'm';
 	const dSym = 'd';
@@ -105,7 +101,7 @@
 
 <PageTemplate
 	title={meta?.title ?? 'Random Forest & sélection de features'}
-	subtitle="Partie II — Régularisation"
+	subtitle="Décorréler les arbres par bootstrap et sélection aléatoire de variables"
 	prev={prevMeta}
 	next={nextMeta}
 >
@@ -220,7 +216,7 @@
 		</p>
 	</TheorySection>
 
-	<InteractiveSection tag="Stump de décision">
+	<InteractiveSection number="6.1" title="Stump de décision" onInteract={tracker.trackInteraction}>
 		<DeferredDemo load={() => import('$lib/components/demos/DecisionTreeStump.svelte')} />
 	</InteractiveSection>
 
@@ -348,7 +344,11 @@
 		</ExercisePanel>
 	</TheorySection>
 
-	<InteractiveSection tag="Croissance d'une forêt">
+	<InteractiveSection
+		number="6.2"
+		title="Croissance d'une forêt"
+		onInteract={tracker.trackInteraction}
+	>
 		<DeferredDemo load={() => import('$lib/components/demos/ForestGrowthAnimation.svelte')} />
 	</InteractiveSection>
 
@@ -507,7 +507,11 @@
 		</Callout>
 	</TheorySection>
 
-	<InteractiveSection tag="Importance des features">
+	<InteractiveSection
+		number="6.3"
+		title="Importance des features"
+		onInteract={tracker.trackInteraction}
+	>
 		<DeferredDemo load={() => import('$lib/components/demos/FeatureImportanceChart.svelte')} />
 	</InteractiveSection>
 
