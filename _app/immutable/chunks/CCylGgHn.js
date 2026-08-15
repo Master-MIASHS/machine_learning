@@ -1,1 +1,0 @@
-import{aB as h,ap as k,bd as l,aO as f}from"./8hNFRJam.js";function o(e,a,d=a){h(e,"change",c=>{var r=c?e.defaultChecked:e.checked;d(r)}),(k&&e.defaultChecked!==e.checked||l(a)==null)&&d(e.checked),f(()=>{var c=a();e.checked=!!c})}export{o as b};
