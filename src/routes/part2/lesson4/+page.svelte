@@ -192,7 +192,7 @@
 
 <PageTemplate
 	title={meta?.title ?? 'Régularisation L1/L2/Elastic Net'}
-	subtitle="Contrôler le biais-variance avec Ridge, Lasso, Elastic Net et validation croisée"
+	subtitle="Contrôler le biais-variance avec Ridge, Lasso, Elastic Net et validation croisée + weight decay en deep learning"
 	prev={prevMeta}
 	next={nextMeta}
 >
