@@ -295,7 +295,7 @@
 		<Callout type="intuition" title="Le compromis coût / bruit en une phrase">
 			Le calcul d'une seule étape de GD nécessite l'évaluation du gradient sur les <KatexInline
 				formula={nSym}
-			/> données, tandis qu'un pas de SGD utilise un seul échantillon. Une itération de GD est donc
+			/> données, tandis qu'un pas de SGD utilise un seul exemple. Une itération de GD est donc
 			<KatexInline formula={nSym} /> fois plus coûteuse qu'une itération de SGD — mais chaque pas de SGD
 			est beaucoup plus bruité. L'expérience ci-dessous permet de visualiser directement ce compromis
 			: la trajectoire de SGD est visiblement plus erratique que celle de GD, mais progresse à une vitesse
@@ -317,8 +317,8 @@
 		<h3>1.2 Mini-batch : le compromis pratique</h3>
 
 		<p>
-			Entre les deux extrêmes — le SGD pur, qui utilise un seul échantillon et produit une
-			trajectoire très bruitée, et le gradient exact, dont le coût par itération explose avec
+			Entre les deux extrêmes — le SGD pur, qui utilise un seul exemple et produit une trajectoire
+			très bruitée, et le gradient exact, dont le coût par itération explose avec
 			<KatexInline formula={nSym} /> — la pratique standard consiste à utiliser un
 			<strong>mini-lot</strong> (mini-batch) de taille intermédiaire.
 		</p>
