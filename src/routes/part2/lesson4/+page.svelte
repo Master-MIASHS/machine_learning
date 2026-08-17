@@ -65,6 +65,12 @@
 			label: 'Synthèse',
 			description: 'Comparatif Ridge, Lasso et Elastic Net',
 			color: 'neutral'
+		},
+		{
+			id: 'weight-decay',
+			label: 'Weight decay',
+			description: 'Régularisation L2 en deep lerning',
+			color: 'agent'
 		}
 	];
 
@@ -163,6 +169,21 @@
 	// Exercise formulas
 	const exW_ols = 'w^{OLS} = \\begin{pmatrix} 3.0 \\\\ -1.5 \\\\ 0.8 \\end{pmatrix}';
 	const exLambdaVal = '\\lambda = 1.0';
+
+	// Weight decay — descente de gradient sur la perte L2-régularisée
+	const l2GradObjective =
+		'\\mathcal{L}_{\\text{reg}}(w) = \\mathcal{L}(w) + \\frac{\\lambda}{2} \\|w\\|_2^2';
+	const l2GradUpdate = 'w_{t+1} = w_t - \\eta \\nabla_w \\mathcal{L}(w_t) - \\eta \\lambda \\, w_t';
+	const weightDecayUpdate =
+		'w_{t+1} = \\underbrace{(1 - \\eta\\lambda)}_{\\text{decay factor} \\, < 1} \\, w_t \\; - \\; \\eta \\nabla_w \\mathcal{L}(w_t)';
+	const pureDecayLimit =
+		'\\nabla_w \\mathcal{L}(w_t) = 0 \\;\\Longrightarrow\\; w_{t+1} = (1-\\eta\\lambda)\\, w_t';
+
+	// AdamW — decoupled weight decay (Loshchilov & Hutter 2019)
+	const adamL2Coupled =
+		'\\tilde{g}_t = \\nabla_w \\mathcal{L}(w_t) + \\lambda w_t \\quad (\\text{puis } \\tilde{g}_t \\text{ passe dans Adam})';
+	const adamWDecoupled =
+		'w_{t+1} = w_t - \\eta \\, \\hat{m}_t / (\\sqrt{\\hat{v}_t} + \\epsilon) \\; - \\; \\eta \\lambda \\, w_t';
 </script>
 
 <svelte:head>
@@ -918,50 +939,186 @@
 				les variables doivent être standardisées en amont.
 			</p>
 		</Callout>
-
-		<Bibliography>
-			<BibElement
-				authors={['Tibshirani, R.']}
-				year={1996}
-				title="Regression Shrinkage and Selection via the Lasso"
-				journal="Journal of the Royal Statistical Society, Series B, 58(1), 267–288."
-				link="https://doi.org/10.1111/j.2517-6161.1996.tb02080.x"
-			/>
-			<BibElement
-				authors={['Zou, H.', 'Hastie, T.']}
-				year={2005}
-				title="Regularization and Variable Selection via the Elastic Net"
-				journal="Journal of the Royal Statistical Society, Series B, 67(2), 301–320."
-				link="https://doi.org/10.1111/j.1467-9868.2005.00503.x"
-			/>
-			<BibElement
-				authors={['Hoerl, A.E.', 'Kennard, R.W.']}
-				year={1970}
-				title="Ridge Regression: Biased Estimation for Nonorthogonal Problems"
-				journal="Technometrics, 12(1), 55–67."
-				link="https://doi.org/10.1080/00401706.1970.10488634"
-			/>
-			<BibElement
-				authors={['Zou, H.', 'Hastie, T.', 'Tibshirani, R.']}
-				year={2007}
-				title="On the 'Degrees of Freedom' of the Lasso"
-				journal="The Annals of Statistics, 35(5), 2173–2192."
-				link="https://doi.org/10.1214/009053607000000127"
-			/>
-			<BibElement
-				authors={['Lee, J.D.', 'Sun, D.L.', 'Sun, Y.', 'Taylor, J.E.']}
-				year={2016}
-				title="Exact Post-Selection Inference, with Application to the Lasso"
-				journal="The Annals of Statistics, 44(3), 907–927."
-				link="https://doi.org/10.1214/15-AOS1371"
-			/>
-			<BibElement
-				authors={['Hastie, T.', 'Tibshirani, R.', 'Friedman, J.']}
-				year={2009}
-				title="The Elements of Statistical Learning: Data Mining, Inference, and Prediction"
-				journal="Springer. 2ᵉ édition."
-				link="https://web.stanford.edu/~hastie/ElemStatLearn/"
-			/>
-		</Bibliography>
 	</TheorySection>
+
+	<!-- ═══════════════════════════════════════════ -->
+	<!-- SECTION : Deep Learning — Weight Decay      -->
+	<!-- ═══════════════════════════════════════════ -->
+
+	<TheorySection>
+		<h2 id="weight-decay">Régularisation en Deep Learning : le Weight Decay</h2>
+
+		<p>
+			En deep learning, on ne parle presque jamais de « pénalité Ridge » mais de
+			<strong>weight decay</strong>. Ce n'est pas un simple changement de vocabulaire : c'est la
+			même pénalité L2 vue à travers la lentille de la <em>descente de gradient</em>, ce qui donne à
+			l'objet un nom directement lisible dans la règle de mise à jour.
+		</p>
+
+		<h3>D'où vient le nom</h3>
+
+		<p>
+			Reprenons l'objectif régularisé en norme L2, appliqué cette fois à un réseau de neurones dont
+			les poids sont <KatexInline formula={'w'} /> et la perte (cross-entropy, MSE, etc.) est <KatexInline
+				formula={'\\mathcal{L}(w)'}
+			/> :
+		</p>
+
+		<KatexBlock formula={l2GradObjective} />
+
+		<p>
+			En optimisation par moindres carrés, on résolvait ce problème par une formule fermée. En deep
+			learning, on ne dispose pas de solution fermée : on descend le gradient. Le gradient de la
+			pénalité <KatexInline formula={'\\frac{\\lambda}{2}\\|w\\|_2^2'} /> par rapport à <KatexInline
+				formula={'w'}
+			/> vaut simplement <KatexInline formula={'\\lambda w'} />, donc une étape de descente de
+			gradient sur l'objectif régularisé s'écrit :
+		</p>
+
+		<KatexBlock formula={l2GradUpdate} />
+
+		<p>Qu'on peut regrouper en factorisant le terme en <KatexInline formula={'w_t'} /> :</p>
+
+		<KatexBlock formula={weightDecayUpdate} />
+
+		<DefinitionBlock number="8.6" title="Weight decay">
+			<p>
+				À chaque pas d'optimisation, le poids <KatexInline formula={'w_t'} /> est d'abord
+				<strong>multiplié</strong> par un facteur <KatexInline
+					formula={'(1 - \\eta\\lambda) < 1'}
+				/>
+				— indépendamment du gradient de la tâche — avant que la mise à jour usuelle
+				<KatexInline formula={'-\\eta \\nabla_w \\mathcal{L}(w_t)'} /> ne soit appliquée. C'est cette
+				érosion multiplicative géométrique, pas à pas, qui donne son nom au « weight decay » : les poids
+				<em>décroissent</em> vers zéro à chaque itération, exactement comme une désintégration exponentielle,
+				sauf quand le gradient de la tâche les tire dans l'autre sens.
+			</p>
+		</DefinitionBlock>
+
+		<p>
+			Le cas limite est éclairant : si le gradient de la perte de tâche est nul en un point donné
+			(un minimum local plat, ou un poids qui ne contribue plus à la prédiction), la mise à jour se
+			réduit à :
+		</p>
+
+		<KatexBlock formula={pureDecayLimit} />
+
+		<p>
+			c'est-à-dire une pure décroissance géométrique vers 0. Le weight decay est donc exactement le
+			Ridge de la Section 2, mais formulé comme une règle de mise à jour locale plutôt que comme un
+			problème d'optimisation global — la seule différence est le point de vue : algébrique
+			(solution fermée) contre itératif (une étape de gradient à la fois).
+		</p>
+
+		<Callout type="intuition" title="Pourquoi cette forme est-elle intuitive ?">
+			<p>
+				Sans pénalité, un poids inutile ne bouge plus une fois que son gradient s'annule — rien ne
+				le pousse vers zéro. Avec le weight decay, même un poids au gradient nul continue de
+				rétrécir à chaque itération. C'est un mécanisme d'« oubli actif » : en l'absence de signal
+				disant explicitement de garder un poids grand, le réseau le laisse décroître. Cela favorise
+				des solutions à faible norme, exactement comme l'argument bayésien MAP sous prior gaussien
+				vu en introduction — sauf qu'ici le prior agit littéralement à chaque pas de gradient plutôt
+				qu'une seule fois au moment de résoudre le système.
+			</p>
+		</Callout>
+
+		<ExpertPanel title="Le piège moderne : weight decay ≠ L2 avec Adam">
+			<p>
+				Cette équivalence <em>weight decay = L2</em> n'est exacte que pour la descente de gradient
+				(SGD) simple. Avec des optimiseurs adaptatifs comme <strong>Adam</strong>, elle se brise —
+				et pendant des années, la plupart des implémentations de deep learning l'ont ignoré, ce qui
+				a dégradé silencieusement les performances de généralisation.
+			</p>
+			<p>
+				L'implémentation naïve (« L2 régularisation ») ajoute <KatexInline formula={'\\lambda w'} />
+				au gradient <em>avant</em> qu'Adam ne le fasse passer dans ses moments adaptatifs :
+			</p>
+			<KatexBlock formula={adamL2Coupled} />
+			<p>
+				Le problème : Adam renormalise chaque coordonnée par sa variance historique de gradient
+				<KatexInline formula={'\\sqrt{\\hat{v}_t}'} />. Les poids qui reçoivent de gros gradients de
+				tâche voient donc leur pénalité <KatexInline formula={'\\lambda w'} /> automatiquement
+				<strong>atténuée</strong> par cette renormalisation — l'intensité effective de la régularisation
+				dépend alors de la géométrie du gradient, ce qui n'était jamais l'intention.
+			</p>
+			<p>
+				<strong>AdamW</strong> (Loshchilov &amp; Hutter, 2019) corrige cela en
+				<strong>découplant</strong>
+				la décroissance de poids du calcul du gradient adaptatif : le pas d'Adam se calcule normalement
+				sur le gradient de tâche seul, puis le terme <KatexInline formula={'-\\eta\\lambda w_t'} /> est
+				appliqué séparément, en dehors de la renormalisation :
+			</p>
+			<KatexBlock formula={adamWDecoupled} />
+			<p>
+				C'est ce découplage qui restaure la propriété originale du weight decay — une décroissance
+				géométrique uniforme, indépendante de l'historique du gradient — et qui explique pourquoi
+				AdamW est aujourd'hui l'optimiseur par défaut pour l'entraînement des grands réseaux
+				(Transformers compris) plutôt qu'Adam avec pénalité L2 classique.
+			</p>
+		</ExpertPanel>
+
+		<Callout type="summary" title="Weight decay en résumé">
+			<ul>
+				<li>
+					<strong>Même pénalité, autre point de vue :</strong> le weight decay est la pénalité L2 (Ridge)
+					vue comme une règle de mise à jour itérative plutôt que comme un problème résolu en forme fermée
+				</li>
+				<li>
+					<strong>Le nom vient de la mise à jour :</strong> chaque pas multiplie le poids par un
+					facteur
+					<KatexInline formula={'(1-\\eta\\lambda) < 1'} />, une décroissance géométrique explicite
+					dans l'équation elle-même
+				</li>
+				<li>
+					<strong>Équivalence conditionnelle :</strong> exacte sous SGD, rompue sous les optimiseurs adaptatifs
+					(Adam) sauf si le weight decay est découplé du gradient adaptatif (AdamW)
+				</li>
+			</ul>
+		</Callout>
+	</TheorySection>
+
+	<Bibliography>
+		<BibElement
+			authors={['Tibshirani, R.']}
+			year={1996}
+			title="Regression Shrinkage and Selection via the Lasso"
+			journal="Journal of the Royal Statistical Society, Series B, 58(1), 267–288."
+			link="https://doi.org/10.1111/j.2517-6161.1996.tb02080.x"
+		/>
+		<BibElement
+			authors={['Zou, H.', 'Hastie, T.']}
+			year={2005}
+			title="Regularization and Variable Selection via the Elastic Net"
+			journal="Journal of the Royal Statistical Society, Series B, 67(2), 301–320."
+			link="https://doi.org/10.1111/j.1467-9868.2005.00503.x"
+		/>
+		<BibElement
+			authors={['Hoerl, A.E.', 'Kennard, R.W.']}
+			year={1970}
+			title="Ridge Regression: Biased Estimation for Nonorthogonal Problems"
+			journal="Technometrics, 12(1), 55–67."
+			link="https://doi.org/10.1080/00401706.1970.10488634"
+		/>
+		<BibElement
+			authors={['Zou, H.', 'Hastie, T.', 'Tibshirani, R.']}
+			year={2007}
+			title="On the 'Degrees of Freedom' of the Lasso"
+			journal="The Annals of Statistics, 35(5), 2173–2192."
+			link="https://doi.org/10.1214/009053607000000127"
+		/>
+		<BibElement
+			authors={['Lee, J.D.', 'Sun, D.L.', 'Sun, Y.', 'Taylor, J.E.']}
+			year={2016}
+			title="Exact Post-Selection Inference, with Application to the Lasso"
+			journal="The Annals of Statistics, 44(3), 907–927."
+			link="https://doi.org/10.1214/15-AOS1371"
+		/>
+		<BibElement
+			authors={['Hastie, T.', 'Tibshirani, R.', 'Friedman, J.']}
+			year={2009}
+			title="The Elements of Statistical Learning: Data Mining, Inference, and Prediction"
+			journal="Springer. 2ᵉ édition."
+			link="https://web.stanford.edu/~hastie/ElemStatLearn/"
+		/>
+	</Bibliography>
 </PageTemplate>
