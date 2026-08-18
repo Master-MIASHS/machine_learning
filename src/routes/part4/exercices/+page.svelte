@@ -10,7 +10,7 @@
 	import InteractiveSection from '$lib/components/narrative/InteractiveSection.svelte';
 	import ClassificationIsEasierThanRegression from '$lib/components/demos/ClassificationIsEasierThanRegression.svelte';
 
-	const meta = getPageByPath('/part1/exercices');
+	const meta = getPageByPath('/part4/exercices');
 	const prevMeta = $derived(getPrevPage(meta?.index ?? 0));
 	const nextMeta = $derived(getNextPage(meta?.index ?? 0));
 
