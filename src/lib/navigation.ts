@@ -36,7 +36,8 @@ const RAW_PAGES = [
 	{ path: '/part3/exercices', title: 'Exercices', part: 3 },
 
 	// Partie IV – Bayes optimum
-	{ path: '/part4/lesson1', title: 'Classifieur optimal', part: 4 }
+	{ path: '/part4/lesson1', title: 'Classifieur optimal', part: 4 },
+	{ path: '/part4/exercices', title: 'Exercices', part: 4 }
 ] as const;
 
 // 2. Hydrate indices and inject runtime resolved path property
