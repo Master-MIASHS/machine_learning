@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
-import { bayesUpdate, bayesUpdateMultiple, numericalPosterior, linspace } from '../math/bayes.js';
+import { bayesUpdate, bayesUpdateMultiple, numericalPosterior } from '../math/bayes.js';
 import { gaussianPDF } from '../math/gaussian.js';
+import { linspace } from './util.js';
 
 describe('bayesUpdate', () => {
 	it('pulls posterior mean toward the observation', () => {

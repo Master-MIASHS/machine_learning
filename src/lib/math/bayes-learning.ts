@@ -71,6 +71,47 @@ function assertValidDistribution(dist: ConditionalDistribution): void {
 	}
 }
 
+/** Minimal deterministic PRNG (mulberry32) — reproducible across runs for a given seed. */
+function mulberry32(seed: number): () => number {
+	let a = seed;
+	return function (): number {
+		a |= 0;
+		a = (a + 0x6d2b79f5) | 0;
+		let t = Math.imul(a ^ (a >>> 15), 1 | a);
+		t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+		return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+	};
+}
+
+/**
+ * Draw `n` i.i.d. samples of Y from a discrete ConditionalDistribution via
+ * inverse-CDF sampling with a seeded PRNG — deterministic for a given seed,
+ * so the scatter in ConditionalRegressionExplorer.svelte doesn't reshuffle
+ * on every re-render. `seed` defaults to 1.
+ */
+export function sampleConditionalDistribution(
+	dist: ConditionalDistribution,
+	n: number,
+	seed = 1
+): number[] {
+	assertValidDistribution(dist);
+	const rand = mulberry32(seed);
+	const cumulative: number[] = [];
+	let acc = 0;
+	for (const p of dist.probabilities) {
+		acc += p;
+		cumulative.push(acc);
+	}
+	const samples: number[] = [];
+	for (let i = 0; i < n; i++) {
+		const u = rand();
+		let idx = cumulative.findIndex((c) => u <= c);
+		if (idx === -1) idx = dist.values.length - 1;
+		samples.push(dist.values[idx]);
+	}
+	return samples;
+}
+
 /** E[(Y - c)^2 | X = x] for a discrete conditional distribution. */
 export function conditionalSquaredRisk(dist: ConditionalDistribution, c: number): number {
 	assertValidDistribution(dist);
@@ -120,4 +161,38 @@ export function conditionalRiskCurve(
 		squaredRisk: conditionalSquaredRisk(dist, c),
 		absoluteRisk: conditionalAbsoluteRisk(dist, c)
 	}));
+}
+
+// ---------------------------------------------------------------------------
+// Modèle jouet : séparabilité / bruit via un sigmoïde symétrique
+// ---------------------------------------------------------------------------
+
+/**
+ * Symmetric sigmoid model of eta(x) = P(Y=1|X=x):
+ *   eta(x) = 1 / (1 + exp(-x / temperature))
+ * centered at x = 0, so eta(0) = 1/2 for every temperature > 0 — the Bayes
+ * boundary never moves in this family, only the sharpness around it does.
+ *   temperature -> 0+  : eta approaches a step function -> separable (R* -> 0)
+ *   temperature -> +oo : eta flattens toward 1/2 everywhere -> noisy (R* -> 1/2)
+ * Used by BayesRiskNoiseDemo.svelte.
+ */
+export function sigmoidEta(x: number, temperature: number): number {
+	if (temperature <= 0) throw new Error(`temperature must be > 0, got ${temperature}`);
+	return 1 / (1 + Math.exp(-x / temperature));
+}
+
+/** eta(x) evaluated over a grid of x for the symmetric sigmoid model above. */
+export function sigmoidEtaCurve(
+	xGrid: number[],
+	temperature: number
+): { x: number; eta: number }[] {
+	return xGrid.map((x) => ({ x, eta: sigmoidEta(x, temperature) }));
+}
+
+/**
+ * Bayes decision boundary for the symmetric sigmoid model: always x = 0,
+ * since eta(0) = 1/2 regardless of temperature (Théorème 1.1 threshold).
+ */
+export function sigmoidBayesBoundary(): number {
+	return 0;
 }
