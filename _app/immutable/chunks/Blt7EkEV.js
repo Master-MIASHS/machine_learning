@@ -1,1 +1,0 @@
-import{u as r}from"./BWE-WaQL.js";import{a as t}from"./DOs-Ag71.js";const e={get error(){return r.error},get status(){return r.status},get url(){return r.url}};t.updated.check;const o=e;export{o as p};
