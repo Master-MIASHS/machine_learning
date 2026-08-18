@@ -3,6 +3,9 @@
  * Import individual modules for tree-shaking; this barrel is for convenience.
  */
 
+// ── Utilities ──
+export * from './util.js';
+
 // ── Statistical distributions & information theory ──
 export * from './gaussian.js';
 export * from './discrete.js';
@@ -36,3 +39,6 @@ export * from './prediction-sets.js';
 export * from './conformal.js';
 export * from './regression-conformal.js';
 export * from './bootstrap.js';
+
+// --- Part IV – Optimum de Bayes
+export * from './bayes-learning.js';
