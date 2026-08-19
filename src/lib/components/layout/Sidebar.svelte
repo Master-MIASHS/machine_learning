@@ -44,7 +44,7 @@
 		<div class="sidebar-logo">
 			<a href={resolve('/')} class="logo-link">
 				<span class="logo-icon">R</span>
-				<span class="logo-text">Fondation de l'apprentissage statistique</span>
+				<span class="logo-text">Fondations de l'apprentissage statistique</span>
 			</a>
 			<button
 				class="collapse-btn"
