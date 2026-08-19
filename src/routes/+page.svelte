@@ -8,7 +8,7 @@
 
 <main class="home">
 	<div class="hero">
-		<h1>Régularisation et Optimisation</h1>
+		<h1>Fondations de l'Apprentissage Statistique</h1>
 		<p class="tagline">Maximilien Servajean</p>
 		<p></p>
 
