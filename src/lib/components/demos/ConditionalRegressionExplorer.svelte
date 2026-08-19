@@ -150,7 +150,7 @@
 					width="140"
 					height="62"
 					rx="5"
-					fill="var(--color-background)"
+					fill="var(--color-bg)"
 					stroke="var(--color-border)"
 					opacity="0.94"
 				/>
