@@ -12,6 +12,8 @@
 	import { getPageByPath, getNextPage, getPrevPage } from '$lib/navigation.js';
 	import { createPageTracker } from '$lib/stores/progress.svelte';
 	import type { PageMeta } from '$lib/navigation.js';
+	import Bibliography from '$lib/components/narrative/bib/Bibliography.svelte';
+	import BibElement from '$lib/components/narrative/bib/BibElement.svelte';
 
 	const meta = getPageByPath('/part5/lesson1');
 	const tracker = createPageTracker(meta as PageMeta);
@@ -229,10 +231,10 @@
 		<p>
 			La consistance de <KatexInline formula={String.raw`(h_n)`} /> exige que la
 			<strong>somme</strong>
-			de ces deux termes tende vers 0 — ce qui n'arrive que si le terme d'approximation est nul ou
-			négligeable, <em>et</em> si le terme d'estimation s'annule effectivement avec <KatexInline
-				formula={String.raw`n`}
-			/>. Une classe trop pauvre a un terme d'approximation qui ne bougera jamais, quel que soit
+			de ces deux termes tende vers 0 — ce qui n'arrive que si le terme d'approximation est nul ou négligeable,
+			<em>et</em>
+			si le terme d'estimation s'annule effectivement avec <KatexInline formula={String.raw`n`} />.
+			Une classe trop pauvre a un terme d'approximation qui ne bougera jamais, quel que soit
 			<KatexInline formula={String.raw`n`} /> ; une classe trop riche a un terme d'estimation qui décroît
 			trop lentement pour un <KatexInline formula={String.raw`n`} /> donné.
 		</p>
@@ -257,4 +259,20 @@
 			/>.
 		</Callout>
 	</TheorySection>
+	<Bibliography>
+		<BibElement
+			authors={['Devroye, L.', 'Györfi, L.', 'Lugosi, G.']}
+			year={1996}
+			title="A Probabilistic Theory of Pattern Recognition"
+			journal="Springer Series in Statistics."
+			link="https://link.springer.com/book/10.1007/978-1-4612-0221-5"
+		/>
+		<BibElement
+			authors={['Vapnik, V. N.']}
+			year={1998}
+			title="Statistical Learning Theory"
+			journal="Wiley."
+			link="https://www.wiley.com/en-us/Statistical+Learning+Theory-p-9780471152125"
+		/>
+	</Bibliography>
 </PageTemplate>

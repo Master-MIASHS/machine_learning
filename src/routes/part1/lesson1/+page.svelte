@@ -18,6 +18,8 @@
 	import { getPageByPath, getNextPage, getPrevPage } from '$lib/navigation.js';
 	import { createPageTracker } from '$lib/stores/progress.svelte';
 	import type { PageMeta } from '$lib/navigation.js';
+	import Bibliography from '$lib/components/narrative/bib/Bibliography.svelte';
+	import BibElement from '$lib/components/narrative/bib/BibElement.svelte';
 
 	const meta = getPageByPath('/part1/lesson1');
 	const tracker = createPageTracker(meta as PageMeta);
@@ -876,6 +878,29 @@
 			<em>avant</em> de lancer un algorithme, précisément pour savoir à quoi s'attendre de sa convergence.
 		</Callout>
 	</TheorySection>
+	<Bibliography>
+		<BibElement
+			authors={['Boyd, S.', 'Vandenberghe, L.']}
+			year={2004}
+			title="Convex Optimization"
+			journal="Cambridge University Press."
+			link="https://web.stanford.edu/~boyd/cvxbook/"
+		/>
+		<BibElement
+			authors={['Nocedal, JC.', 'Wright, S.']}
+			year={2006}
+			title="Numerical Optimization"
+			journal="Springer Science & Business Media."
+			link="https://link.springer.com/book/10.1007/978-0-387-40065-5"
+		/>
+		<BibElement
+			authors={['Rockafellar, R. T.']}
+			year={1970}
+			title="Convex Analysis"
+			journal="Princeton University Press."
+			link="https://press.princeton.edu/book/4350"
+		/>
+	</Bibliography>
 </PageTemplate>
 
 <style>

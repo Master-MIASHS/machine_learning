@@ -11,6 +11,8 @@
 	import { getPageByPath, getNextPage, getPrevPage } from '$lib/navigation.js';
 	import { createPageTracker } from '$lib/stores/progress.svelte';
 	import type { PageMeta } from '$lib/navigation.js';
+	import Bibliography from '$lib/components/narrative/bib/Bibliography.svelte';
+	import BibElement from '$lib/components/narrative/bib/BibElement.svelte';
 
 	const meta = getPageByPath('/part4/lesson2');
 	const tracker = createPageTracker(meta as PageMeta);
@@ -261,6 +263,22 @@
 			— est le fil conducteur qui reliera aussi les leçons sur la consistance et la généralisation.
 		</Callout>
 	</TheorySection>
+	<Bibliography>
+		<BibElement
+			authors={['Hastie, T.', 'Tibshirani, R.', 'Friedman, J.']}
+			year={2009}
+			title="The Elements of Statistical Learning: Data Mining, Inference, and Prediction"
+			journal="Springer Science & Business Media."
+			link="https://hastie.su.domains/ElemStatLearn/"
+		/>
+		<BibElement
+			authors={['Bishop, C. M.']}
+			year={2006}
+			title="Pattern Recognition and Machine Learning"
+			journal="Springer."
+			link="https://www.microsoft.com/en-us/research/uploads/prod/2006/01/biszman.pdf"
+		/>
+	</Bibliography>
 </PageTemplate>
 
 <style>

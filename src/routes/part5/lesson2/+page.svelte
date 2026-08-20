@@ -13,6 +13,8 @@
 	import { getPageByPath, getNextPage, getPrevPage } from '$lib/navigation.js';
 	import { createPageTracker } from '$lib/stores/progress.svelte';
 	import type { PageMeta } from '$lib/navigation.js';
+	import Bibliography from '$lib/components/narrative/bib/Bibliography.svelte';
+	import BibElement from '$lib/components/narrative/bib/BibElement.svelte';
 
 	const meta = getPageByPath('/part5/lesson2');
 	const tracker = createPageTracker(meta as PageMeta);
@@ -255,4 +257,27 @@
 			<em>à quelle vitesse</em>, via les bornes de généralisation.
 		</Callout>
 	</TheorySection>
+	<Bibliography>
+		<BibElement
+			authors={['Stone, C. J.']}
+			year={1977}
+			title="Consistent Nonparametric Regression"
+			journal="The Annals of Statistics, Vol. 5, No. 4, pp. 595-620."
+			link="https://projecteuclid.org/journals/annals-of-statistics/volume-5/issue-4/Consistent-Nonparametric-Regression/10.1214/aos/1176343886.full"
+		/>
+		<BibElement
+			authors={['Cover, T. M.', 'Hart, P. E.']}
+			year={1967}
+			title="Nearest neighbor pattern classification"
+			journal="IEEE Transactions on Information Theory, Vol. 13, No. 1, pp. 21-27."
+			link="https://ieeexplore.ieee.org/document/1053964"
+		/>
+		<BibElement
+			authors={['Devroye, L.', 'Györfi, L.', 'Lugosi, G.']}
+			year={1996}
+			title="A Probabilistic Theory of Pattern Recognition"
+			journal="Springer."
+			link="https://link.springer.com/book/10.1007/978-1-4612-0221-5"
+		/>
+	</Bibliography>
 </PageTemplate>
