@@ -55,8 +55,7 @@
 
 	// ── Formula variables (kept in script so Svelte never parses backslashes) ──
 
-	const universalConsistDef =
-		'\\text{consistant pour {\\bf toute} distribution } P_{X,Y} \\text{ sur } \\mathcal{X}\\times\\{0,1\\}';
+	const universalConsistDef = 'P_{X,Y} \\text{ sur } \\mathcal{X}\\times\\{0,1\\}';
 
 	const stoneSetup =
 		'(X_i,Y_i)_{i=1}^n \\text{ i.i.d. de loi } P_{X,Y} \\text{ sur } \\mathbb{R}^d\\times\\{0,1\\}';
@@ -107,9 +106,9 @@
 			<p>
 				Un algorithme est dit <strong>universellement consistant</strong> si <KatexInline
 					formula={String.raw`(h_n)`}
-				/> est <KatexInline formula={universalConsistDef} />, sans hypothèse sur <KatexInline
-					formula={String.raw`\eta(x)`}
-				/>.
+				/> est consistant pour <strong>toute</strong> distribution <KatexInline
+					formula={universalConsistDef}
+				/>, sans hypothèse sur <KatexInline formula={String.raw`\eta(x)`} />.
 			</p>
 		</DefinitionBlock>
 
