@@ -66,9 +66,10 @@
 
 		<div class="sidebar-scroll">
 			<div class="sidebar-section">
-				{#each PAGES.filter((p) => p.part === null) as p (p.path)}
+				{#each PAGES.filter((p) => p.part === null && (!p.expert || $settings.expertMode)) as p (p.path)}
 					<SidebarItem
 						page={p}
+						expert={p.expert}
 						active={page.url.pathname === p.resolvedPath}
 						visited={$progress.visited.has(p.resolvedPath)}
 						interacted={$progress.interacted.has(p.resolvedPath)}
@@ -81,9 +82,10 @@
 				<div class="sidebar-part">
 					<h2 class="part-label">{PART_NAMES[partNum]}</h2>
 					<div class="part-pages">
-						{#each PAGES.filter((p) => p.part === partNum) as p (p.path)}
+						{#each PAGES.filter((p) => p.part === partNum && (!p.expert || $settings.expertMode)) as p (p.path)}
 							<SidebarItem
 								page={p}
+								expert={p.expert}
 								active={page.url.pathname === p.resolvedPath}
 								visited={$progress.visited.has(p.resolvedPath)}
 								interacted={$progress.interacted.has(p.resolvedPath)}

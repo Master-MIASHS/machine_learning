@@ -1,19 +1,22 @@
 <script lang="ts">
 	import type { PageMeta } from '$lib/navigation.js';
+	import { settings } from '$lib/stores';
 
 	interface Props {
 		page: PageMeta;
+		expert?: boolean;
 		active: boolean;
 		visited: boolean;
 		interacted: boolean;
 		onClick?: () => void;
 	}
 
-	let { page, active, visited, interacted, onClick }: Props = $props();
+	let { page, expert, active, visited, interacted, onClick }: Props = $props();
 </script>
 
 <a
 	href={page.resolvedPath}
+	class:expert-style={expert && $settings.expertMode}
 	class="sidebar-item"
 	class:active
 	class:visited
@@ -62,5 +65,12 @@
 		font-size: 0.75rem;
 		color: var(--color-positive);
 		flex-shrink: 0;
+	}
+	.expert-style {
+		color: var(--color-surprise);
+		font-style: italic;
+		border-left: 1px solid var(--color-surprise);
+		border-radius: 0.15rem;
+		padding-left: 0.5rem;
 	}
 </style>

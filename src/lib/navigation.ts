@@ -7,6 +7,7 @@ export interface PageMeta {
 	title: string;
 	part: number | null; // null for home and intro
 	index: number | null;
+	expert?: boolean;
 	readonly resolvedPath: string;
 }
 
