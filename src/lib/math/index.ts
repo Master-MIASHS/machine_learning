@@ -42,3 +42,6 @@ export * from './bootstrap.js';
 
 // --- Part IV – Optimum de Bayes
 export * from './bayes-learning.js';
+
+// --- Part V – Consistance
+export * from './consistency';
