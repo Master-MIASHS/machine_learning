@@ -50,7 +50,7 @@
 		{
 			id: 'pourquoi-k-fixe-echoue',
 			label: 'Pourquoi k fixe ne suffit pas',
-			description: "L'exemple du 1-NN et la borne de Cover-Hart",
+			description: "L'exemple du 1-NN",
 			color: 'surprise'
 		}
 	];
@@ -66,8 +66,7 @@
 	const stoneConclusion =
 		'\\forall P_{X,Y}, \\quad \\mathbb{E}\\big[R(h_n^{k\\text{-NN}})\\big] \\xrightarrow[n\\to+\\infty]{} R^*';
 
-	const coverHartBound =
-		'\\limsup_{n\\to+\\infty} \\mathbb{E}\\big[R(h_n^{1\\text{-NN}})\\big] \\;\\le\\; 2R^*(1-R^*) \\;\\le\\; 2R^*';
+	const coverHartBound = String.raw`\limsup_{n\to+\infty} \mathbb{E}\big[R(h_n^{1\text{-NN}})\big] \;=\; 2\mathbb{E}\big[\eta(X)(1-\eta(X))\big] \;\ge\; R^*`;
 </script>
 
 <svelte:head>
@@ -199,45 +198,51 @@
 
 		<p>
 			Les deux conditions du Théorème 2.1 sont-elles vraiment nécessaires, ou une suite plus simple
-			— par exemple <KatexInline formula={String.raw`k(n)=k`} /> constant — suffirait-elle ? L'exercice
-			suivant montre que non : sans <KatexInline formula={String.raw`k(n) \to +\infty`} />, la
-			variance ne s'annule jamais, et le risque asymptotique reste strictement supérieur à <KatexInline
-				formula={String.raw`R^*`}
-			/> dans le cas général.
+			— par exemple <KatexInline formula={String.raw`k(n)=k`} /> constant — suffirait-elle ? La réponse
+			est non.
 		</p>
 
-		<ExercisePanel number="2.1" title="Pourquoi ne peut-on pas prendre k fixe (ex. k=1) ?">
+		<Callout type="insight" title="Erreur du 1-NN">
+			<p>
+				Pour le classifieur du plus proche voisin (<KatexInline formula={String.raw`1`} />-NN,
+				<KatexInline formula={String.raw`k=1`} /> fixé), en supposant <KatexInline
+					formula={String.raw`\mathbb{P}_X`}
+				/> à densité (cela garantit que plus n est grand, plus le plus proche voisin est effectivement
+				proche) le risque asymptotique dépend de <KatexInline formula={String.raw`R^*`} /> et est donné
+				par :
+			</p>
+			<KatexBlock formula={coverHartBound} />
+			<p>
+				Cette borne est stricte dès que <KatexInline
+					formula={String.raw`R^\star\not\in\{0,0.5\}`}
+				/> (le problème n'est pas parfaitement séparable, mais qu'il y a du signal). En outre, nous avons
+				:
+				<KatexBlock
+					formula={String.raw`\limsup_{n\to+\infty} \mathbb{E}\big[R(h_n^{1\text{-NN}})\big] \;\le\; 2(R^\star)(1-R^\star) \;\le\; 2R^\star`}
+				/>
+			</p>
+		</Callout>
+
+		<ExercisePanel number="2.1" title="Calcul d'erreur">
 			{#snippet solution()}
 				<p>
-					Pour le <KatexInline formula={String.raw`1`} />-NN (le plus proche voisin, <KatexInline
-						formula={String.raw`k=1`}
-					/> fixé), un résultat classique (Cover et Hart, 1967) borne le risque asymptotique en fonction
-					du seul risque de Bayes <KatexInline formula={String.raw`R^*`} /> :
-				</p>
-				<KatexBlock formula={coverHartBound} />
-				<p>
-					Cette borne est <strong>atteinte</strong> dans le cas général (elle n'est pas seulement
-					une majoration lâche) : dès que <KatexInline formula={String.raw`R^* > 0`} /> (le problème n'est
-					pas parfaitement séparable), le risque asymptotique du 1-NN reste strictement supérieur à
-					<KatexInline formula={String.raw`R^*`} />, quelle que soit la quantité de données.
-					Intuitivement, avec
-					<KatexInline formula={String.raw`k=1`} /> fixé, on ne moyenne jamais sur plus d'un point : la
-					variance de l'estimation locale de <KatexInline formula={String.raw`\eta(x)`} /> ne diminue
-					<strong>jamais</strong>, même quand <KatexInline formula={String.raw`n\to+\infty`} /> rapproche
-					le plus proche voisin arbitrairement près de <KatexInline formula={String.raw`x`} />.
-					C'est exactement la condition <KatexInline formula={String.raw`k(n)\to+\infty`} /> du Théorème
-					2.1 qui fait défaut ici — et sans elle, la consistance universelle est impossible.
+					Avec <KatexInline formula={String.raw`R^*=0.1`} /> par exemple, la borne de Cover-Hart donne
+					<KatexInline formula={String.raw`2R^*(1-R^*) = 2\times0.1\times0.9 = 0.18`} /> : le risque asymptotique
+					du 1-NN peut atteindre <KatexInline formula={String.raw`0.18`} />, soit près du double du
+					risque de Bayes. Plus généralement, la borne
+					<KatexInline formula={coverHartBound} /> montre que l'écart au risque de Bayes ne s'annule que
+					dans le cas séparable (<KatexInline formula={String.raw`R^*=0`} />) : dès que <KatexInline
+						formula={String.raw`R^*>0`}
+					/>, un <KatexInline formula={String.raw`k`} /> fixé laisse un écart résiduel strictement positif,
+					quel que soit <KatexInline formula={String.raw`n`} />. C'est cette impossibilité générale
+					— pas seulement l'exemple numérique — qui rend la condition <KatexInline
+						formula={String.raw`k(n)\to+\infty`}
+					/> du Théorème 2.1 nécessaire, et pas seulement une commodité technique de la démonstration.
 				</p>
 			{/snippet}
 			<p>
-				Pourquoi ne peut-on pas prendre <KatexInline formula={String.raw`k`} /> fixe (par exemple
-				<KatexInline formula={String.raw`k=1`} />) pour assurer la consistance universelle ?
-			</p>
-			<p class="exercise-hint">
-				<em
-					>Indice : calculez (ou rappelez) l'erreur asymptotique du 1-NN en fonction du risque de
-					Bayes <KatexInline formula={String.raw`R^*`} />.</em
-				>
+				En utilisant le résultat énoncé ci-dessus, calculez le risque asymptotique maximal du 1-NN
+				pour <KatexInline formula={String.raw`R^*=0.1`} />.
 			</p>
 		</ExercisePanel>
 
@@ -249,9 +254,11 @@
 			dès que
 			<KatexInline formula={String.raw`k(n)\to+\infty`} /> (contrôle de la variance) et
 			<KatexInline formula={String.raw`k(n)/n\to0`} /> (contrôle du biais) — deux conditions purement
-			quantitatives sur une seule suite <KatexInline formula={String.raw`k(n)`} />. Ce résultat clôt
-			la partie consacrée à la consistance ; la partie suivante s'attaque à une question
-			complémentaire : non plus
+			quantitatives sur une seule suite <KatexInline formula={String.raw`k(n)`} />. La borne de
+			Cover-Hart montre que la première condition n'est pas une simple facilité de preuve : sans
+			elle, un écart résiduel au risque de Bayes subsiste pour toujours. Ce résultat clôt la partie
+			consacrée à la consistance ; la partie suivante s'attaque à une question complémentaire : non
+			plus
 			<em>si</em>
 			un algorithme converge vers <KatexInline formula={String.raw`R^*`} />, mais
 			<em>à quelle vitesse</em>, via les bornes de généralisation.

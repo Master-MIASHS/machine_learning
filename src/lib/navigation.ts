@@ -43,7 +43,11 @@ const RAW_PAGES = [
 
 	// Partie V – Convergence
 	{ path: '/part5/lesson1', title: 'Convergence', part: 5 },
-	{ path: '/part5/lesson2', title: 'Consistance k-NN', part: 5 }
+	{ path: '/part5/lesson2', title: 'Consistance k-NN', part: 5 },
+	{ path: '/part5/exercices', title: 'Exercices', part: 5 },
+
+	// Part VI – Généralisation
+	{ path: '/part6/lesson1', title: 'Concentration et risque empirique', part: 6 }
 ] as const;
 
 // 2. Hydrate indices and inject runtime resolved path property
