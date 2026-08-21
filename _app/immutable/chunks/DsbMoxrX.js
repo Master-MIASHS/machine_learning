@@ -1,0 +1,1 @@
+function c(r){let n=r;return function(){n|=0,n=n+1831565813|0;let e=Math.imul(n^n>>>15,1|n);return e=e+Math.imul(e^e>>>7,61|e)^e,((e^e>>>14)>>>0)/4294967296}}function l(r,n){return r*2654435761+n*40503>>>0}function o(r,n,e){if(e<=1)return[r];const t=(n-r)/(e-1);return Array.from({length:e},(i,u)=>r+u*t)}export{l as c,o as l,c as m};
