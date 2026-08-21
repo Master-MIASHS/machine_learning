@@ -2,35 +2,7 @@
  * Linear regression solvers (OLS, Ridge) with matrix utilities.
  */
 
-// ─── Matrix helpers ──────────────────────────────────────
-
-function transpose(M: number[][], m: number, n: number): number[][] {
-	const T = Array.from({ length: n }, () => new Array(m).fill(0));
-	for (let i = 0; i < m; i++) for (let j = 0; j < n; j++) T[j][i] = M[i][j];
-	return T;
-}
-
-function matVec(M: number[][], v: number[]): number[] {
-	const m = M.length,
-		n = M[0].length;
-	const result = new Array(m);
-	for (let i = 0; i < m; i++) {
-		let s = 0;
-		for (let j = 0; j < n; j++) s += M[i][j] * v[j];
-		result[i] = s;
-	}
-	return result;
-}
-
-function matMul(A: number[][], B: number[][]): number[][] {
-	const m = A.length,
-		n = A[0].length,
-		p = B[0].length;
-	const C = Array.from({ length: m }, () => new Array(p).fill(0));
-	for (let i = 0; i < m; i++)
-		for (let k = 0; k < n; k++) for (let j = 0; j < p; j++) C[i][j] += A[i][k] * B[k][j];
-	return C;
-}
+import { matMul, matVec, transpose } from './util.js';
 
 function solveLinearSystem(A: number[][], b: number[]): number[] {
 	// Gaussian elimination with partial pivoting

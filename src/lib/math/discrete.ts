@@ -87,14 +87,6 @@ export function logSoftmax(logits: number[]): number[] {
 }
 
 /**
- * Matrix-vector multiplication: A (m×n) · v (n) → result (m).
- * A[i] is the i-th row of A, each row has length n.
- */
-export function matVecMul(A: number[][], v: number[]): number[] {
-	return A.map((row) => row.reduce((sum, a, j) => sum + a * v[j], 0));
-}
-
-/**
  * Outer product: u (m) ⊗ v (n) → matrix (m×n).
  */
 export function outerProduct(u: number[], v: number[]): number[][] {

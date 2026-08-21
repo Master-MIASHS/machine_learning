@@ -5,33 +5,7 @@
  * polynomial regression and Ridge regularization demos (Leçon 8).
  */
 
-// ─── Matrix helpers ──────────────────────────────────────────────
-
-function transpose(M: number[][], m: number, n: number): number[][] {
-	const T = Array.from({ length: n }, () => new Array(m).fill(0));
-	for (let i = 0; i < m; i++) for (let j = 0; j < n; j++) T[j][i] = M[i][j];
-	return T;
-}
-
-function matMul(A: number[][], B: number[][]): number[][] {
-	const m = A.length,
-		n = A[0].length,
-		p = B[0].length;
-	const C = Array.from({ length: m }, () => new Array(p).fill(0));
-	for (let i = 0; i < m; i++)
-		for (let k = 0; k < n; k++) for (let j = 0; j < p; j++) C[i][j] += A[i][k] * B[k][j];
-	return C;
-}
-
-function matVec(M: number[][], v: number[]): number[] {
-	const result = new Array(M.length);
-	for (let i = 0; i < M.length; i++) {
-		let s = 0;
-		for (let j = 0; j < M[0].length; j++) s += M[i][j] * v[j];
-		result[i] = s;
-	}
-	return result;
-}
+import { matMul, matVec, transpose } from './util.js';
 
 /** Solve Ax = b via Gaussian elimination with partial pivoting. */
 function solveLinearSystem(A: number[][], b: number[]): number[] {

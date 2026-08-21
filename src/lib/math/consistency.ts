@@ -12,26 +12,7 @@
 // this lesson (ConsistencyConvergenceDemo, ApproximationEstimationDemo,
 // KNNConsistencyDemo), not formulas drawn from the course text.
 
-/**
- * Deterministic seeded PRNG (mulberry32) — reproducible across runs for a
- * given seed. Duplicated from bayes-learning.ts (kept private there); move
- * to util.ts if a third module ends up needing it too.
- */
-function mulberry32(seed: number): () => number {
-	let a = seed;
-	return function (): number {
-		a |= 0;
-		a = (a + 0x6d2b79f5) | 0;
-		let t = Math.imul(a ^ (a >>> 15), 1 | a);
-		t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
-		return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
-	};
-}
-
-/** Deterministically combine a base seed with an integer n into a new seed, so calls at different n don't share a PRNG stream. */
-function combineSeed(seed: number, n: number): number {
-	return (seed * 2654435761 + n * 40503) >>> 0;
-}
+import { combineSeed, mulberry32 } from './util';
 
 // ---------------------------------------------------------------------------
 // Toy excess-risk model: R(h_n) - R* ~ Exponential(mean = scale(n))

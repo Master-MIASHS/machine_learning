@@ -8,9 +8,9 @@ import {
 	softmax,
 	logSoftmax,
 	safeLog,
-	matVecMul,
 	outerProduct
 } from '../math/discrete.js';
+import { matVec } from './util.js';
 
 describe('normalize', () => {
 	it('sums to 1', () => {
@@ -157,14 +157,14 @@ describe('safeLog', () => {
 	});
 });
 
-describe('matVecMul', () => {
+describe('matVec', () => {
 	it('computes correct result for identity matrix', () => {
 		const I = [
 			[1, 0],
 			[0, 1]
 		];
 		const v = [3, 7];
-		const result = matVecMul(I, v);
+		const result = matVec(I, v);
 		expect(result).toEqual([3, 7]);
 	});
 
@@ -174,7 +174,7 @@ describe('matVecMul', () => {
 			[1, 2],
 			[3, 4]
 		];
-		const result = matVecMul(A, [1, 1]);
+		const result = matVec(A, [1, 1]);
 		expect(result[0]).toBeCloseTo(3, 12);
 		expect(result[1]).toBeCloseTo(7, 12);
 	});

@@ -8,6 +8,8 @@
 // Reference: theorie.typ — "Prédicteurs optimaux de Bayes",
 // "Le cadre de la décision Bayésienne", "Cas de la régression".
 
+import { mulberry32 } from './util';
+
 /** Action space for binary classification. */
 export type BinaryAction = 0 | 1;
 
@@ -69,18 +71,6 @@ function assertValidDistribution(dist: ConditionalDistribution): void {
 	if (Math.abs(total - 1) > 1e-9) {
 		throw new Error(`probabilities must sum to 1, got ${total}`);
 	}
-}
-
-/** Minimal deterministic PRNG (mulberry32) — reproducible across runs for a given seed. */
-function mulberry32(seed: number): () => number {
-	let a = seed;
-	return function (): number {
-		a |= 0;
-		a = (a + 0x6d2b79f5) | 0;
-		let t = Math.imul(a ^ (a >>> 15), 1 | a);
-		t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
-		return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
-	};
 }
 
 /**
