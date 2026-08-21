@@ -1,0 +1,1 @@
+import{aD as h,as as k,bg as l,aR as f}from"./EzwuwntH.js";function o(e,a,d=a){h(e,"change",c=>{var r=c?e.defaultChecked:e.checked;d(r)}),(k&&e.defaultChecked!==e.checked||l(a)==null)&&d(e.checked),f(()=>{var c=a();e.checked=!!c})}export{o as b};
