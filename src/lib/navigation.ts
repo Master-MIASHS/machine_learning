@@ -20,6 +20,7 @@ const RAW_PAGES = [
 	{ path: '/part1/lesson1', title: "Conditions d'un minimum", part: 1 },
 	{ path: '/part1/lesson2', title: "Fonctions d'optimisation en ML", part: 1 },
 	{ path: '/part1/lesson3', title: 'Descente de gradient & accélération', part: 1 },
+	{ path: '/part1/lesson3-adam', title: 'Adam : comprendre l’optimiseur adaptatif', part: 1, expert: true },
 	{ path: '/part1/lesson4', title: 'SGD, CD & Newton', part: 1 },
 	{ path: '/part1/exercices', title: 'Exercices', part: 1 },
 	{ path: '/part1/practice/travaux-pratiques', title: 'Travaux pratiques', part: 1 },

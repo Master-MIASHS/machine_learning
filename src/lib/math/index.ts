@@ -21,6 +21,7 @@ export * from './gradient-descent.js';
 export * from './stochastic.js';
 export * from './coordinate-descent.js';
 export * from './newton.js';
+export * from './adam.js';
 
 // ── Part II — Ensembles & Regularization ──
 export * from './synthetic-data.js';

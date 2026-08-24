@@ -1,10 +1,8 @@
 <script lang="ts">
 	import PageTemplate from '$lib/components/layout/PageTemplate.svelte';
-	import { getPageByPath, getNextPage, getPrevPage, type PageMeta } from '$lib/navigation.js';
-	import { createPageTracker } from '$lib/stores/progress.svelte';
+	import { getPageByPath, getNextPage, getPrevPage } from '$lib/navigation.js';
 
 	const meta = getPageByPath('/part1/practice/travaux-pratiques');
-	const tracker = createPageTracker(meta as PageMeta);
 	const prevMeta = $derived(getPrevPage(meta?.index ?? 0));
 	const nextMeta = $derived(getNextPage(meta?.index ?? 0));
 </script>

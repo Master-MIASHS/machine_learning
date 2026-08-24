@@ -1,0 +1,8 @@
+<script lang="ts">
+	import Slider from '$lib/components/controls/Slider.svelte';
+	import KatexInline from '$lib/components/narrative/KatexInline.svelte';
+	let g1=$state(.1); let g2=$state(10); let alpha=$state(.1); let epsilon=$state(1e-8);
+	const rates=$derived([alpha/(Math.abs(g1)+epsilon),alpha/(Math.abs(g2)+epsilon)]); const updates=$derived([rates[0]*g1,rates[1]*g2]);
+</script>
+<div class="demo"><div class="controls"><Slider bind:value={g1} min={.01} max={10} step={.01} label="gradient g₁"/><Slider bind:value={g2} min={.01} max={10} step={.01} label="gradient g₂"/><Slider bind:value={alpha} min={.01} max={.5} step={.01} label="α global"/></div><div class="cards">{#each [0,1] as i}<div><b>coordonnée {i+1}</b><span>g = {[g1,g2][i].toFixed(2)}</span><span>α eff ≈ {rates[i].toFixed(4)}</span><strong>mise à jour ≈ {updates[i].toFixed(4)}</strong></div>{/each}</div><p class="note">Dans un régime stationnaire, <KatexInline formula={'m/\\sqrt{v}'} /> rend le ratio peu sensible à une rescaling commune du gradient ; α reste toutefois le facteur global.</p></div>
+<style>.demo{display:grid;gap:1rem}.controls{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem}.cards{display:grid;grid-template-columns:1fr 1fr;gap:1rem}.cards div{display:grid;gap:.35rem;padding:1rem;border:1px solid var(--color-border);border-radius:var(--radius-md);background:var(--color-surface)}.cards span{font-family:var(--font-mono);font-size:.85rem}.cards strong{color:var(--color-positive)}.note{color:var(--color-text-muted);font-size:.9rem}@media(max-width:650px){.controls,.cards{grid-template-columns:1fr}}</style>

@@ -1,0 +1,7 @@
+<script lang="ts">
+	import Slider from '$lib/components/controls/Slider.svelte';
+	let beta2=$state(.999); let switchAt=$state(6); const gradients=[.2,.2,.2,.2,.2,.2,4,4,4,4,4,4];
+	const values=$derived.by(()=>{let v=0;return gradients.map((g)=>{v=beta2*v+(1-beta2)*g*g;return {g,v,step:1/(Math.sqrt(v)+1e-8)};});});
+</script>
+<div class="demo"><div class="controls"><Slider bind:value={beta2} min={.9} max={.999} step={.001} label="β₂"/><Slider bind:value={switchAt} min={2} max={10} step={1} label="changement de régime"/></div><svg viewBox="0 0 720 240" role="img" aria-label="Mémoire du second moment après changement de régime"><line x1="30" y1="120" x2="710" y2="120" stroke="var(--color-border)"/><line x1={40+switchAt*58} y1="20" x2={40+switchAt*58} y2="220" stroke="var(--color-surprise)" stroke-dasharray="5 4"/>{#each values as point,i}<circle cx={40+i*58} cy={120-point.g*20} r="4" fill="var(--color-surprise)"/><circle cx={40+i*58} cy={120-point.v*18} r="4" fill="var(--color-belief)"/><circle cx={40+i*58} cy={120-Math.min(point.step,5)*18} r="4" fill="var(--color-agent)"/>{/each}</svg><p class="note">Après le saut de gradient, β₂ élevé conserve longtemps l’ancienne échelle : la mémoire stabilise, mais ralentit l’adaptation.</p></div>
+<style>.demo{display:grid;gap:1rem}.controls{display:grid;grid-template-columns:1fr 1fr;gap:1rem}svg{width:100%;background:var(--color-surface);border-radius:var(--radius-md)}.note{color:var(--color-text-muted);font-size:.9rem}@media(max-width:650px){.controls{grid-template-columns:1fr}}</style>
