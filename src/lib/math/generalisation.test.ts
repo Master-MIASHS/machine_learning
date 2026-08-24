@@ -11,6 +11,10 @@ import {
 	generateGenericHypothesisClass,
 	simulateEmpiricalRisks,
 	doubleDescentCurve,
+	estimateParameterCount,
+	neuralVCDimEstimate,
+	neuralVCGeneralizationEstimate,
+	neuralNormBasedEstimate,
 	type SyntheticHypothesis
 } from './generalization';
 
@@ -308,5 +312,79 @@ describe('doubleDescentCurve', () => {
 		expect(() => doubleDescentCurve([10], 10, 0, 1, 100, 1)).toThrow();
 		expect(() => doubleDescentCurve([10], 10, 5, 1, 0, 1)).toThrow();
 		expect(() => doubleDescentCurve([0], 10, 5, 1, 100, 1)).toThrow();
+	});
+});
+
+describe('estimateParameterCount', () => {
+	it('matches depth * width^2 directly', () => {
+		expect(estimateParameterCount(4, 10)).toBe(400);
+	});
+
+	it('throws for non-positive depth or width', () => {
+		expect(() => estimateParameterCount(0, 10)).toThrow();
+		expect(() => estimateParameterCount(4, 0)).toThrow();
+	});
+});
+
+describe('neuralVCDimEstimate', () => {
+	it('matches W*L*log(W) directly', () => {
+		const W = 1000;
+		const L = 5;
+		expect(neuralVCDimEstimate(W, L)).toBeCloseTo(W * L * Math.log(W), 6);
+	});
+
+	it('increases with both paramCount and depth', () => {
+		expect(neuralVCDimEstimate(2000, 5)).toBeGreaterThan(neuralVCDimEstimate(1000, 5));
+		expect(neuralVCDimEstimate(1000, 10)).toBeGreaterThan(neuralVCDimEstimate(1000, 5));
+	});
+
+	it('throws for paramCount <= 1 or non-positive depth', () => {
+		expect(() => neuralVCDimEstimate(1, 5)).toThrow();
+		expect(() => neuralVCDimEstimate(1000, 0)).toThrow();
+	});
+});
+
+describe('neuralVCGeneralizationEstimate', () => {
+	it('matches sqrt(vcDimEstimate/n) directly', () => {
+		expect(neuralVCGeneralizationEstimate(400, 100)).toBeCloseTo(2, 10);
+	});
+
+	it('becomes vacuous (>> 1) for realistic large-network, small-n combinations', () => {
+		// A stand-in for W ~ 1e8: this is exactly the "VC bound is useless in
+		// practice" point theorie.typ makes.
+		const W = 1e8;
+		const L = 10;
+		const vcDim = neuralVCDimEstimate(W, L);
+		const bound = neuralVCGeneralizationEstimate(vcDim, 1e6);
+		expect(bound).toBeGreaterThan(1);
+	});
+
+	it('throws for negative vcDimEstimate or non-positive n', () => {
+		expect(() => neuralVCGeneralizationEstimate(-1, 100)).toThrow();
+		expect(() => neuralVCGeneralizationEstimate(100, 0)).toThrow();
+	});
+});
+
+describe('neuralNormBasedEstimate', () => {
+	it('shrinks toward 0 as depth grows when weightNorm < 1 (contractive layers)', () => {
+		const shallow = neuralNormBasedEstimate(2, 0.8, 1000);
+		const deep = neuralNormBasedEstimate(20, 0.8, 1000);
+		expect(deep).toBeLessThan(shallow);
+	});
+
+	it('explodes as depth grows when weightNorm > 1', () => {
+		const shallow = neuralNormBasedEstimate(2, 1.5, 1000);
+		const deep = neuralNormBasedEstimate(20, 1.5, 1000);
+		expect(deep).toBeGreaterThan(shallow);
+	});
+
+	it('decreases as n grows, for fixed depth and weightNorm', () => {
+		expect(neuralNormBasedEstimate(5, 1, 10000)).toBeLessThan(neuralNormBasedEstimate(5, 1, 100));
+	});
+
+	it('throws for non-positive depth, weightNorm, or n', () => {
+		expect(() => neuralNormBasedEstimate(0, 1, 100)).toThrow();
+		expect(() => neuralNormBasedEstimate(5, 0, 100)).toThrow();
+		expect(() => neuralNormBasedEstimate(5, 1, 0)).toThrow();
 	});
 });

@@ -20,7 +20,12 @@ const RAW_PAGES = [
 	{ path: '/part1/lesson1', title: "Conditions d'un minimum", part: 1 },
 	{ path: '/part1/lesson2', title: "Fonctions d'optimisation en ML", part: 1 },
 	{ path: '/part1/lesson3', title: 'Descente de gradient & accélération', part: 1 },
-	{ path: '/part1/lesson3-adam', title: 'Adam : comprendre l’optimiseur adaptatif', part: 1, expert: true },
+	{
+		path: '/part1/lesson3-adam',
+		title: 'Adam : comprendre l’optimiseur adaptatif',
+		part: 1,
+		expert: true
+	},
 	{ path: '/part1/lesson4', title: 'SGD, CD & Newton', part: 1 },
 	{ path: '/part1/exercices', title: 'Exercices', part: 1 },
 	{ path: '/part1/practice/travaux-pratiques', title: 'Travaux pratiques', part: 1 },
@@ -50,7 +55,8 @@ const RAW_PAGES = [
 	{ path: '/part5/exercices', title: 'Exercices', part: 5 },
 
 	// Part VI – Généralisation
-	{ path: '/part6/lesson1', title: 'Concentration et risque empirique', part: 6 }
+	{ path: '/part6/lesson1', title: 'Concentration et risque empirique', part: 6 },
+	{ path: '/part6/lesson2', title: 'Généralisation pour une classe finie', part: 6 }
 ] as const;
 
 // 2. Hydrate indices and inject runtime resolved path property

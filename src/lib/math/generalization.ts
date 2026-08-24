@@ -6,12 +6,11 @@
 // "Limites de la théorie VC pour les réseaux de neurones" (double descente,
 // Belkin et al. 2019 — the pseudo-inverse linear regression figure,
 // d=50, 50 répétitions, bruit irréductible sigma^2=1).
-
-import { mulberry32 } from './util';
-
 // ---------------------------------------------------------------------------
 // Cas séparable (Théorème 3.1)
 // ---------------------------------------------------------------------------
+
+import { mulberry32 } from './util';
 
 /**
  * Union-bound probability that at least one "bad" hypothesis (R(h) > epsilon)
@@ -405,4 +404,60 @@ export function doubleDescentCurve(
 		}
 		return { n, trainRisk: trainSum / repetitions, testRisk: testSum / repetitions };
 	});
+}
+
+// ---------------------------------------------------------------------------
+// Indicative neural-network bounds (illustrative, NOT exact constants)
+//
+// theorie.typ ("Limites de la théorie VC pour les réseaux de neurones"):
+// - Bartlett (1998): VCdim = O(W*L*log W) for W parameters, L layers
+//   (threshold activations).
+// - Bartlett/Foster/Telgarsky (2017): a norm-based bound depending on
+//   per-layer weight norms rather than raw parameter count.
+// Both are reproduced here WITHOUT their O(.)/tilde-O(.) constants — these
+// are order-of-magnitude illustrations for NeuralGeneralizationExplorer.svelte,
+// not rigorous bounds to quote as exact. The norm-based version additionally
+// assumes a single uniform per-layer norm (both spectral and Frobenius),
+// since the demo exposes one "weight norm" slider rather than per-layer
+// values.
+// ---------------------------------------------------------------------------
+
+/** Rough parameter-count estimate for an L-layer fully-connected network of uniform width: W ≈ L * width^2. */
+export function estimateParameterCount(depth: number, width: number): number {
+	if (depth <= 0) throw new Error(`depth must be positive, got ${depth}`);
+	if (width <= 0) throw new Error(`width must be positive, got ${width}`);
+	return depth * width * width;
+}
+
+/** Indicative VC-dimension order of magnitude (Bartlett 1998, no constant): W*L*log(W). */
+export function neuralVCDimEstimate(paramCount: number, depth: number): number {
+	if (paramCount <= 1) throw new Error(`paramCount must be > 1, got ${paramCount}`);
+	if (depth <= 0) throw new Error(`depth must be positive, got ${depth}`);
+	return paramCount * depth * Math.log(paramCount);
+}
+
+/** Indicative VC-based generalization gap estimate: sqrt(vcDimEstimate/n), no constant. */
+export function neuralVCGeneralizationEstimate(vcDimEstimate: number, n: number): number {
+	if (vcDimEstimate < 0) throw new Error(`vcDimEstimate must be >= 0, got ${vcDimEstimate}`);
+	if (n <= 0) throw new Error(`n must be positive, got ${n}`);
+	return Math.sqrt(vcDimEstimate / n);
+}
+
+/**
+ * Indicative norm-based generalization gap estimate (Bartlett/Foster/
+ * Telgarsky 2017 shape, no constant), assuming every layer shares the same
+ * spectral norm AND the same Frobenius norm, both equal to `weightNorm`:
+ *   weightNorm^depth * (depth * weightNorm^(2/3))^(3/2) / sqrt(n)
+ * Small weightNorm (<1) shrinks toward 0 as depth grows (contractive
+ * layers); weightNorm > 1 explodes with depth — deliberately, to illustrate
+ * why controlling weight norms (regularization) matters for this bound to
+ * stay meaningful.
+ */
+export function neuralNormBasedEstimate(depth: number, weightNorm: number, n: number): number {
+	if (depth <= 0) throw new Error(`depth must be positive, got ${depth}`);
+	if (weightNorm <= 0) throw new Error(`weightNorm must be positive, got ${weightNorm}`);
+	if (n <= 0) throw new Error(`n must be positive, got ${n}`);
+	const spectralProduct = Math.pow(weightNorm, depth);
+	const frobeniusSum = Math.pow(depth * Math.pow(weightNorm, 2 / 3), 3 / 2);
+	return (spectralProduct * frobeniusSum) / Math.sqrt(n);
 }
