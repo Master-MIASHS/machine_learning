@@ -7,25 +7,25 @@
 @import 'katex/dist/katex.min.css';
 
 :root {
-	/* Fond */
-	--color-bg: #09090b; /* Zinc 950 */
-	--color-surface: #18181b; /* Zinc 900 */
-	--color-surface-2: #27272a; /* Zinc 800 */
-	--color-surface-3: #3f3f46; /* Zinc 750 */
-	--color-border: #3f3f46; /* Zinc 700 */
+	/* Fond — clean neutral slate (cool) */
+	--color-bg: #0c0c10; /* Cool near-black */
+	--color-surface: #16161c; /* Cool dark surface */
+	--color-surface-2: #23232c; /* Cool mid surface */
+	--color-surface-3: #343440; /* Cool raised surface */
+	--color-border: #3f3f4b; /* Cool border */
 
-	/* Texte */
-	--color-text: #f4f4f5; /* Zinc 100 */
-	--color-text-muted: #a1a1aa; /* Zinc 400 */
+	/* Texte — bright, crisp */
+	--color-text: #f3f3f6; /* Bright off-white */
+	--color-text-muted: #a4a4b3; /* Muted cool gray */
 
 	/* Accents sémantiques — ne pas les interchanger */
-	--color-belief: #06b6d4; /* Cyan 500  — croyances, distributions q */
-	--color-evidence: #f4f4f5; /* Blanc     — réalité, distribution p */
-	--color-positive: #10b981; /* Emerald 500 — énergie, ressources */
-	--color-surprise: #f43f5e; /* Rose 500  — erreur, surprise */
-	--color-epistemic: #a78bfa; /* Violet 400 — incertitude, exploration */
-	--color-neutral: #fb923c; /* Orange 400 — action, planification */
-	--color-agent: #6366f1; /* Indigo 500 — agent, T-maze */
+	--color-belief: #22d3ee; /* Bright Cyan-400 — croyances, distributions q */
+	--color-evidence: #f3f3f6; /* White — réalité, distribution p */
+	--color-positive: #34d399; /* Fresh Mint-400 — énergie, ressources */
+	--color-surprise: #fb7185; /* Cheerful Rose-400 — erreur, surprise */
+	--color-epistemic: #a78bfa; /* Sunny Violet-400 — incertitude, exploration */
+	--color-neutral: #fbbf24; /* Happy Amber-400 — action, planification */
+	--color-agent: #818cf8; /* Soft Indigo-400 — agent, T-maze */
 
 	/* Typographie */
 	--font-sans: 'Inter', system-ui, sans-serif;
@@ -42,20 +42,20 @@
 
 @media (prefers-color-scheme: light) {
 	:root {
-		/* Fond (Lightened) */
-		--color-bg: #f4f4f5; /* Zinc 100 */
+		/* Fond (Lightened) — clean, pristine neutral */
+		--color-bg: #f6f6f8; /* Cool light gray */
 		--color-surface: #ffffff; /* White */
-		--color-surface-2: #f4f4f5; /* Zinc 200 */
-		--color-surface-3: #e8e8e9; /* Zinc 250 */
-		--color-border: #d4d4d8; /* Zinc 300 */
+		--color-surface-2: #f0f0f4; /* Cool light gray */
+		--color-surface-3: #e9e9ef; /* Cool raised */
+		--color-border: #d8d8e0; /* Cool border */
 
-		/* Texte (Darkened) */
-		--color-text: #09090b; /* Zinc 950 */
-		--color-text-muted: #71717a; /* Zinc 500 */
+		/* Texte (Darkened) — crisp near-black */
+		--color-text: #161618; /* Cool near-black */
+		--color-text-muted: #6f6f7d; /* Muted cool gray */
 
 		/* Accents sémantiques (Adjusted for contrast on light backgrounds) */
-		--color-belief: #0891b2; /* Cyan 600 (Darkened slightly for readability) */
-		--color-evidence: #09090b; /* Zinc 950 (Black-ish in light mode) */
+		--color-belief: #0891b2; /* Cyan 600 — pops on light */
+		--color-evidence: #161618; /* Near-black (reality, distribution p) */
 		--color-positive: #059669; /* Emerald 600 */
 		--color-surprise: #e11d48; /* Rose 600 */
 		--color-epistemic: #7c3aed; /* Violet 600 */

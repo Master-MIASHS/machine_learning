@@ -196,8 +196,6 @@
 		return pts.join(' ');
 	});
 
-	const markers = $derived([ols, solutionPoint]);
-
 	/* ------------------------------------------------------------------ */
 
 	const types = [

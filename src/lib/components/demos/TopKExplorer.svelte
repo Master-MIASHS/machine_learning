@@ -1,6 +1,5 @@
 <script lang="ts">
 	import { topK, accuracyAtK } from '$lib/math/prediction-sets';
-	import DensityChart from '$lib/components/charts/DensityChart.svelte';
 	import Figure from '$lib/components/charts/Figure.svelte';
 	import SliderGrid from '$lib/components/layout/SliderGrid.svelte';
 	import Slider from '$lib/components/controls/Slider.svelte';

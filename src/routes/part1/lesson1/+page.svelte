@@ -898,7 +898,6 @@
 			year={1970}
 			title="Convex Analysis"
 			journal="Princeton University Press."
-			link="https://press.princeton.edu/book/4350"
 		/>
 	</Bibliography>
 </PageTemplate>

@@ -818,7 +818,7 @@
 			year={2004}
 			title="Introductory Lectures on Convex Optimization: A Basic Course"
 			journal="Kluwer Academic Publishers."
-			link="https://doi.org/10.1007/978-1-4615-1437-7"
+			link="https://link.springer.com/book/10.1007/978-1-4419-8853-9"
 		/>
 
 		<BibElement

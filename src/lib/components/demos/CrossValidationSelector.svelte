@@ -6,7 +6,6 @@
 	import KatexInline from '$lib/components/narrative/KatexInline.svelte';
 
 	import {
-		crossValidateRidge,
 		generateSyntheticData,
 		polyEval,
 		ridgeSolver,

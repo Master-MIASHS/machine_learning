@@ -522,7 +522,6 @@
 			year={1983}
 			title="A method of solving a convex programming problem with convergence rate O(1/k²)"
 			journal="Soviet Mathematics Doklady, 27(2), 372–376."
-			link="https://doi.org/10.1070/sm1983v046n02abeft"
 		/>
 
 		<BibElement

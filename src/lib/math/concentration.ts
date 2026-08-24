@@ -112,6 +112,27 @@ export function empiricalExceedanceProbability(
 	return count / samples.length;
 }
 
+/**
+ * Empirical P(Z - mean >= epsilon) — the ONE-SIDED exceedance, as opposed to
+ * empiricalExceedanceProbability's two-sided |Z-mean|>=epsilon. Markov's
+ * inequality applied directly to a nonnegative Z naturally bounds this
+ * one-sided event; Chebyshev and Hoeffding are stated in theorie.typ in
+ * their two-sided form, which remains a valid (if slightly conservative)
+ * upper bound on this smaller one-sided event too, since
+ * {Z-mean>=epsilon} subset {|Z-mean|>=epsilon}. Used by
+ * ConcentrationInequalityExplorer.svelte to compare all three bounds against
+ * the same empirical curve.
+ */
+export function empiricalOneSidedExceedanceProbability(
+	samples: number[],
+	mean: number,
+	epsilon: number
+): number {
+	if (samples.length === 0) return 0;
+	const count = samples.filter((z) => z - mean >= epsilon).length;
+	return count / samples.length;
+}
+
 // ---------------------------------------------------------------------------
 // Risk control for a single FIXED classifier
 //
@@ -137,4 +158,51 @@ export function fixedClassifierRiskBoundUniform(n: number, epsilon: number): num
 	if (n <= 0) throw new Error(`n must be positive, got ${n}`);
 	if (epsilon <= 0) throw new Error(`epsilon must be positive, got ${epsilon}`);
 	return 1 / (4 * n * epsilon * epsilon);
+}
+
+// ---------------------------------------------------------------------------
+// Small helpers for EmpiricalMeanConvergenceDemo.svelte
+// ---------------------------------------------------------------------------
+
+/** Standard error of the empirical mean: sqrt(variance/n) — the shrinking half-width of a mean ± k*SE confidence envelope. */
+export function empiricalMeanStandardError(n: number, variance: number): number {
+	if (n <= 0) throw new Error(`n must be positive, got ${n}`);
+	if (variance < 0) throw new Error(`variance must be >= 0, got ${variance}`);
+	return Math.sqrt(variance / n);
+}
+
+export interface HistogramBin {
+	binStart: number;
+	binEnd: number;
+	count: number;
+}
+
+/**
+ * Bucket `samples` into `bins` equal-width bins spanning [min(samples),
+ * max(samples)] (or an explicit [rangeMin, rangeMax] if given). Generic —
+ * not specific to empirical means, but currently only used by
+ * EmpiricalMeanConvergenceDemo's final-value histogram.
+ */
+export function histogram(
+	samples: number[],
+	bins: number,
+	range?: [number, number]
+): HistogramBin[] {
+	if (bins <= 0) throw new Error(`bins must be positive, got ${bins}`);
+	if (samples.length === 0) return [];
+	const [rangeMin, rangeMax] = range ?? [Math.min(...samples), Math.max(...samples)];
+	if (rangeMax <= rangeMin) throw new Error('range must have rangeMax > rangeMin');
+	const width = (rangeMax - rangeMin) / bins;
+	const counts = new Array(bins).fill(0);
+	for (const s of samples) {
+		let idx = Math.floor((s - rangeMin) / width);
+		if (idx < 0) idx = 0;
+		if (idx >= bins) idx = bins - 1;
+		counts[idx]++;
+	}
+	return counts.map((count, i) => ({
+		binStart: rangeMin + i * width,
+		binEnd: rangeMin + (i + 1) * width,
+		count
+	}));
 }
