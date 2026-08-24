@@ -22,6 +22,7 @@ const RAW_PAGES = [
 	{ path: '/part1/lesson3', title: 'Descente de gradient & accélération', part: 1 },
 	{ path: '/part1/lesson4', title: 'SGD, CD & Newton', part: 1 },
 	{ path: '/part1/exercices', title: 'Exercices', part: 1 },
+	{ path: '/part1/practice/travaux-pratiques', title: 'Travaux pratiques', part: 1 },
 
 	// Partie II — Régularisation
 	{ path: '/part2/lesson1', title: 'Méthodes ensemblistes et Bagging', part: 2 },
@@ -29,6 +30,7 @@ const RAW_PAGES = [
 	{ path: '/part2/lesson3', title: 'Boosting (AdaBoost, Gradient Boosting)', part: 2 },
 	{ path: '/part2/lesson4', title: 'Régularisation L1/L2/Elastic Net', part: 2 },
 	{ path: '/part2/exercices', title: 'Exercices', part: 2 },
+	{ path: '/part2/practice/travaux-pratiques', title: 'Travaux pratiques', part: 2 },
 
 	// Partie III — Prédiction d'ensembles
 	{ path: '/part3/lesson1', title: 'Classification Top-K', part: 3 },
