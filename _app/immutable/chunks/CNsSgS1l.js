@@ -1,0 +1,1 @@
+import{bl as c,a1 as t,aE as a,bi as o}from"./CYmogArz.js";function l(e){throw new Error("https://svelte.dev/e/lifecycle_outside_component")}function u(e){t===null&&l(),a&&t.l!==null?i(t).m.push(e):c(()=>{const n=o(e);if(typeof n=="function")return n})}function f(e){t===null&&l(),u(()=>()=>o(e))}function i(e){var n=e.l;return n.u??={a:[],b:[],m:[]}}export{u as a,f as o};
