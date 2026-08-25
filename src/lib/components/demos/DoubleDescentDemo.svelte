@@ -11,10 +11,10 @@
 	// first — those are far cheaper levers than lowering d's range, which is
 	// the one number tied to matching the course figure.
 
-	// TODO: confirm these paths/names against your actual files.
 	import Figure from '$lib/components/charts/Figure.svelte';
 	import CurveChart from '$lib/components/charts/CurveChart.svelte';
 	import Slider from '$lib/components/controls/Slider.svelte';
+	import SelectOption from '$lib/components/controls/RadioButton.svelte';
 	import Metrics from '$lib/components/layout/Metrics.svelte';
 
 	import { doubleDescentCurve } from '$lib/math/generalization';
@@ -27,6 +27,10 @@
 	const GRID_POINTS = 20;
 
 	let d = $state(30);
+
+	// The risks span several decades (train risk ≈ 0 at the threshold, test
+	// risk ~10–30 there, converging to σ² = 1): log is the informative default.
+	let yScaleType = $state<'linear' | 'log'>('log');
 
 	// Grid spans [0.2d, 3d] log-spaced, with d itself forced in — so the
 	// interpolation threshold always has an exact (not interpolated) charted
@@ -51,10 +55,29 @@
 
 	const atThreshold = $derived(curve.find((p) => p.n === d));
 	const atLargestN = $derived(curve[curve.length - 1]);
+
+	// Log mode gets an explicit domain: the pseudo-inverse interpolates exactly
+	// for n <= d (train risk ~1e-29, a floating-point zero), so the generic
+	// auto log domain would span ~30 empty decades. The floor 1e-2 clamps those
+	// zero values to the bottom of the chart (still visually "≈ 0"), and the
+	// ceiling tracks the threshold spike so its magnitude stays visible.
+	const peakTestRisk = $derived(Math.max(...curve.map((p) => p.testRisk)));
+	const logYDomain = $derived([1e-2, 10 ** Math.ceil(Math.log10(peakTestRisk * 1.5))] as [
+		number,
+		number
+	]);
 </script>
+
+<div class="scale-picker">
+	<span class="scale-label">Échelle y :</span>
+	<SelectOption value="linear" label="lin" bind:groupValue={yScaleType} />
+	<SelectOption value="log" label="log" bind:groupValue={yScaleType} />
+</div>
 
 <Figure type="chart">
 	<CurveChart
+		yScaleType={yScaleType}
+		yDomain={yScaleType === 'log' ? logYDomain : undefined}
 		curves={[
 			{ points: trainPoints, stroke: 'var(--color-belief)', strokeWidth: 2 },
 			{ points: testPoints, stroke: 'var(--color-surprise)', strokeWidth: 2 },
@@ -87,8 +110,10 @@
 		Régression linéaire par pseudo-inverse, d = {d} paramètres, moyennée sur {REPETITIONS}
 		répétitions. Sous-paramétré (n ≪ d) : la courbe en U classique du compromis biais-variance. Au seuil
 		n=d : interpolation exacte (risque train ≈ 0) mais système presque singulier — le risque test explose.
-		Sur-paramétré (n ≫ d) : le risque test redescend et converge vers le bruit irréductible σ². Ce dernier
-		régime est ce que la théorie VC classique n'explique pas.
+	Sur-paramétré (n ≫ d) : le risque test redescend et converge vers le bruit irréductible σ². Ce dernier
+	régime est ce que la théorie VC classique n'explique pas. En échelle logarithmique, le risque train ≈ 0
+	au seuil et la convergence vers σ² restent lisibles ; en échelle linéaire, le pic du seuil domine le
+	graphique.
 	{/snippet}
 </Figure>
 
@@ -108,3 +133,18 @@
 		<span class="value">{atLargestN.testRisk.toFixed(3)}</span>
 	</div>
 </Metrics>
+
+<style>
+	.scale-picker {
+		display: flex;
+		align-items: center;
+		flex-wrap: wrap;
+		gap: 0.5rem;
+		margin-bottom: 0.75rem;
+	}
+
+	.scale-label {
+		font-size: 0.875rem;
+		color: var(--color-text-muted);
+	}
+</style>

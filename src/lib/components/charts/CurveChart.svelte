@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { scaleLinear, line, curveBasis } from 'd3';
+	import { scaleLinear, scaleLog, line, curveBasis } from 'd3';
 	import type { Snippet } from 'svelte';
 
 	// ─── Curve layer ──────────────────────────────────────────────────────────────
@@ -97,8 +97,15 @@
 		curves: CurveLayer[];
 		/** Explicit x domain [min, max]. If omitted the domain is inferred from curves[].points. */
 		xDomain?: [number, number];
-		/** Explicit y domain [min, max]. If omitted both ends are auto-inferred from curve points with 10% padding. */
+		/** Explicit y domain [min, max]. If omitted both ends are auto-inferred from curve points with 10% padding. Must be positive when `yScaleType` is 'log'. */
 		yDomain?: [number, number];
+		/**
+		 * Y scale type. 'log' uses a base-10 log scale, for data spanning several
+		 * decades: the auto domain becomes [minPositive / 10, max * 1.5] and
+		 * non-positive points are clamped to the domain floor. If the data has no
+		 * positive values the scale silently falls back to linear. Default 'linear'.
+		 */
+		yScaleType?: 'linear' | 'log';
 		/** Chart height in CSS px. Default 200. */
 		height?: number;
 		/** How many x-axis ticks to aim for. Default 5. */
@@ -125,6 +132,7 @@
 		curves,
 		xDomain,
 		yDomain,
+		yScaleType = 'linear',
 		height = 200,
 		nTicks = 5,
 		nYTicks = 3,
@@ -156,19 +164,41 @@
 		return [Math.min(...allX), Math.max(...allX)];
 	});
 
+	// A log scale needs a positive domain, so it is only active when the data
+	// actually contains positive values; otherwise fall back to linear.
+	const useLog = $derived(
+		yScaleType === 'log' && curves.some((c) => c.points.some((p) => p[1] > 0))
+	);
+
 	const computedYDomain = $derived.by((): [number, number] => {
 		if (yDomain) return yDomain;
 		const allY = curves.flatMap((c) => c.points.map((p) => p[1]));
 		if (allY.length === 0) return [-1, 1];
 		const min = Math.min(...allY);
 		const max = Math.max(...allY);
+		if (useLog) {
+			// ±10% linear padding can go negative (breaking the log domain), so
+			// pad multiplicatively instead: one decade below the smallest
+			// positive value, modest headroom above the maximum.
+			const minPositive = Math.min(...allY.filter((y) => y > 0));
+			return [minPositive / 10, max * 1.5];
+		}
 		const padding = (max - min) * 0.1 || 0.5;
 		return [min - padding, max + padding];
 	});
 
-	const yScale = $derived(scaleLinear().domain(computedYDomain).range([baseline, pad.top]));
+	const yScale = $derived.by(() => {
+		const scale = useLog ? scaleLog().clamp(true) : scaleLinear();
+		return scale.domain(computedYDomain).range([baseline, pad.top]);
+	});
 
-	const yTicks = $derived(yScale.ticks(nYTicks));
+	const yTicks = $derived.by(() => {
+		if (!useLog) return yScale.ticks(nYTicks);
+		// A fixed small count would leave the upper decades unlabeled on a log
+		// axis: aim for ~one tick per decade instead.
+		const decades = Math.log10(computedYDomain[1] / computedYDomain[0]);
+		return yScale.ticks(Math.min(14, Math.max(nYTicks, Math.round(decades))));
+	});
 
 	// Left margin grows with the widest y-tick label: labels are middle-anchored
 	// at padLeft - 16, so anything past x = 0 is clipped by the wrapper.
