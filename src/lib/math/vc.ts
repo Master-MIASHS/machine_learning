@@ -69,17 +69,27 @@ export function isIntervalRealizable(points: Point1D[], labeling: Labeling): boo
 	return true;
 }
 
+/** A witness hyperplane: h_{w,b}(x) = 1{w.x >= b}. */
+export interface Hyperplane2D {
+	w: [number, number];
+	b: number;
+}
+
 /**
- * Are two finite point sets in R^2 linearly separable? Tests candidate
- * separator normal directions perpendicular to every pair of points (a
- * standard finite reduction: the optimal separator's normal, when one
- * exists, is always achievable this way for points in general position),
- * then checks for a projection gap. Exact for generic point configurations;
- * may be imprecise for exactly collinear or otherwise degenerate ones — this
- * is a small pedagogical check, not a general-purpose LP solver.
+ * Finds a hyperplane separating two finite 2D point sets (pointsA gets
+ * label 1, pointsB gets label 0), if one exists. Tests candidate normal
+ * directions perpendicular to every pair of points (a standard finite
+ * reduction: the optimal separator's normal, when one exists, is always
+ * achievable this way for points in general position), then checks for a
+ * projection gap and derives (w,b) from it. Exact for generic point
+ * configurations; may be imprecise for exactly collinear or otherwise
+ * degenerate ones — this is a small pedagogical search, not a
+ * general-purpose LP solver.
  */
-function isLinearlySeparable(pointsA: Point2D[], pointsB: Point2D[]): boolean {
-	if (pointsA.length === 0 || pointsB.length === 0) return true;
+function searchSeparatingHyperplane(pointsA: Point2D[], pointsB: Point2D[]): Hyperplane2D | null {
+	if (pointsA.length === 0) return { w: [0, 1], b: 1e6 }; // nothing reaches this threshold -> everyone predicted 0
+	if (pointsB.length === 0) return { w: [0, 1], b: -1e6 }; // everyone clears this threshold -> everyone predicted 1
+
 	const all = [...pointsA, ...pointsB];
 	const candidates: Point2D[] = [];
 	for (let i = 0; i < all.length; i++) {
@@ -98,15 +108,23 @@ function isLinearlySeparable(pointsA: Point2D[], pointsB: Point2D[]): boolean {
 		const minA = Math.min(...projA);
 		const maxB = Math.max(...projB);
 		const minB = Math.min(...projB);
-		if (maxA < minB || maxB < minA) return true;
+
+		if (maxB < minA) {
+			// A already reads "high" along (wx,wy) — use it as-is.
+			return { w: [wx, wy], b: (maxB + minA) / 2 };
+		}
+		if (maxA < minB) {
+			// A reads "low" along (wx,wy) — negate so A reads "high" instead.
+			return { w: [-wx, -wy], b: -(maxA + minB) / 2 };
+		}
 	}
-	return false;
+	return null;
 }
 
 /**
  * Halfspaces on R^2: h_{w,b}(x) = 1{w.x >= b}. Realizable iff the two
  * labeled classes are linearly separable. VCdim = 3 (more generally d+1 on
- * R^d, but only the 2D case is implemented here — see isLinearlySeparable).
+ * R^d, but only the 2D case is implemented here — see searchSeparatingHyperplane).
  */
 export function isHalfspaceRealizable(points: Point2D[], labeling: Labeling): boolean {
 	if (points.length !== labeling.length) {
@@ -114,7 +132,57 @@ export function isHalfspaceRealizable(points: Point2D[], labeling: Labeling): bo
 	}
 	const classA = points.filter((_, i) => labeling[i] === 1);
 	const classB = points.filter((_, i) => labeling[i] === 0);
-	return isLinearlySeparable(classA, classB);
+	return searchSeparatingHyperplane(classA, classB) !== null;
+}
+
+/**
+ * Same check as isHalfspaceRealizable, but returns an actual witness
+ * hyperplane (w,b) realizing the labeling instead of just a boolean — so a
+ * demo can draw the separating line, not only report yes/no. Returns null if
+ * unrealizable.
+ */
+export function findSeparatingHyperplane2D(
+	points: Point2D[],
+	labeling: Labeling
+): Hyperplane2D | null {
+	if (points.length !== labeling.length) {
+		throw new Error('points and labeling must have the same length');
+	}
+	const classA = points.filter((_, i) => labeling[i] === 1);
+	const classB = points.filter((_, i) => labeling[i] === 0);
+	return searchSeparatingHyperplane(classA, classB);
+}
+
+/**
+ * A theta realizing `labeling` for the thresholds family (h(x)=1{x>=theta}),
+ * or null if unrealizable. Not unique — returns the midpoint of the
+ * transition (or a point safely beyond all data if the labeling is constant).
+ */
+export function findThresholdBoundary(points: Point1D[], labeling: Labeling): number | null {
+	if (!isThresholdRealizable(points, labeling)) return null;
+	if (points.length === 0) return 0;
+	const order = points.map((x, i) => ({ x, y: labeling[i] })).sort((a, b) => a.x - b.x);
+	const lastZero = [...order].reverse().find((p) => p.y === 0);
+	const firstOne = order.find((p) => p.y === 1);
+	if (!firstOne) return order[order.length - 1].x + 1; // all labeled 0
+	if (!lastZero) return order[0].x - 1; // all labeled 1
+	return (lastZero.x + firstOne.x) / 2;
+}
+
+/**
+ * An [a,b] interval realizing `labeling` for the intervals family
+ * (h(x)=1{a<=x<=b}), or null if unrealizable or if no point is labeled 1
+ * (the empty interval realizes an all-zero labeling, but there's nothing
+ * meaningful to draw for it).
+ */
+export function findIntervalBoundary(
+	points: Point1D[],
+	labeling: Labeling
+): [number, number] | null {
+	if (!isIntervalRealizable(points, labeling)) return null;
+	const ones = points.filter((_, i) => labeling[i] === 1);
+	if (ones.length === 0) return null;
+	return [Math.min(...ones), Math.max(...ones)];
 }
 
 export type HypothesisFamily = 'thresholds' | 'intervals' | 'halfspaces2d';

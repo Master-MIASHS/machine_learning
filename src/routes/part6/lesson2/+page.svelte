@@ -121,8 +121,8 @@
 		<p>
 			La leçon précédente s'est arrêtée sur une limitation précise : la borne de Tchebychev contrôle <KatexInline
 				formula={empiricalRisk}
-			/> pour un <KatexInline formula={hypothesisClass} /> fixé à l'avance, mais rien ne garantit qu'elle
-			s'applique au classifieur
+			/> pour un <KatexInline formula={String.raw`h\in\mathcal{H}`} /> fixé à l'avance, mais rien ne garantit
+			qu'elle s'applique au classifieur
 			<KatexInline formula={ermDef} /> effectivement choisi par minimisation du risque empirique — puisque
 			<KatexInline formula={ermDef} /> dépend précisément des données sur lesquelles on voudrait le contrôler.
 			Il faut donc une garantie

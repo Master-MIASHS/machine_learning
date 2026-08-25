@@ -56,7 +56,12 @@ const RAW_PAGES = [
 
 	// Part VI – Généralisation
 	{ path: '/part6/lesson1', title: 'Concentration et risque empirique', part: 6 },
-	{ path: '/part6/lesson2', title: 'Généralisation pour une classe finie', part: 6 }
+	{ path: '/part6/lesson2', title: 'Généralisation pour une classe finie', part: 6 },
+	{
+		path: '/part6/lesson3',
+		title: 'Dimension VC, Sauer-Shelah et SVM',
+		part: 6
+	}
 ] as const;
 
 // 2. Hydrate indices and inject runtime resolved path property
