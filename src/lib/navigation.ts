@@ -66,7 +66,8 @@ const RAW_PAGES = [
 		path: '/part6/lesson4',
 		title: 'Limites de VC et double descente',
 		part: 6
-	}
+	},
+	{ path: '/part6/exercices', title: 'Exercices', part: 6 }
 ] as const;
 
 // 2. Hydrate indices and inject runtime resolved path property

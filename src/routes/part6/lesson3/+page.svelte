@@ -113,13 +113,14 @@
 
 		<p>
 			Les bornes de la leçon précédente reposent entièrement sur <KatexInline
-				formula={String.raw``}
-			/> — inutilisable dès que <KatexInline formula={String.raw``} /> est infinie, ce qui est le cas
-			de la quasi-totalité des classes utilisées en pratique : hyperplans de <KatexInline
-				formula={String.raw``}
+				formula={String.raw`|\mathcal H|`}
+			/> — inutilisable dès que <KatexInline formula={String.raw`|\mathcal H|`} /> est infinie, ce
+			qui est le cas de la quasi-totalité des classes utilisées en pratique : hyperplans de
+			<KatexInline
+				formula={String.raw`\mathbb R^d`}
 			/>, réseaux de neurones, ou plus généralement toute classe paramétrée par des réels. Il faut
 			une notion de complexité qui ne mesure pas le <em>cardinal</em> de <KatexInline
-				formula={String.raw``}
+				formula={String.raw`\mathcal H`}
 			/> mais sa capacité à <strong>discriminer des points</strong> — c'est l'objet de la dimension de
 			Vapnik-Chervonenkis.
 		</p>
@@ -128,43 +129,44 @@
 
 		<DefinitionBlock title="Brisure">
 			<p>
-				On dit que <KatexInline formula={String.raw``} /> <strong>brise</strong> un ensemble fini
-				<KatexInline formula={String.raw``} /> si tout étiquetage est réalisable :
+				On dit que <KatexInline formula={String.raw`\mathcal H`} /> <strong>brise</strong> un
+				ensemble fini <KatexInline formula={String.raw`C = \{x_1,\dots,x_m\}`} /> si tout
+				étiquetage est réalisable :
 			</p>
 			<KatexBlock formula={shatteringDef} />
-			<p>Autrement dit, <KatexInline formula={String.raw``} /> réalise toutes les dichotomies :</p>
+			<p>Autrement dit, <KatexInline formula={String.raw`\mathcal H`} /> réalise toutes les
+			dichotomies :</p>
 			<KatexBlock formula={shatteringCount} />
 		</DefinitionBlock>
 
 		<DefinitionBlock title="Dimension de Vapnik-Chervonenkis">
 			<KatexBlock formula={vcdimDef} />
 			<p>
-				Si <KatexInline formula={String.raw``} /> brise des ensembles de taille arbitraire, on pose
-				<KatexInline formula={String.raw``} />.
+				Si <KatexInline formula={String.raw`\mathcal H`} /> brise des ensembles de taille
+				arbitraire, on pose <KatexInline formula={String.raw`\mathrm{VCdim}(\mathcal H) = +\infty`} />.
 			</p>
 		</DefinitionBlock>
 
 		<ExampleBlock title="Trois exemples de dimension VC croissante">
 			<p>
-				<strong>Seuils sur <KatexInline formula={String.raw``} /></strong> (<KatexInline
+				<strong>Seuils sur <KatexInline formula={String.raw`\mathbb R`} /></strong> (<KatexInline
 					formula={thresholdsFamily}
 				/>) : tout singleton est brisé, mais aucune paire ordonnée <KatexInline
-					formula={String.raw``}
-				/> ne l'est (l'étiquetage <KatexInline formula={String.raw``} /> est impossible). <KatexInline
-					formula={String.raw``}
-				/>.
+					formula={String.raw`\{x_1, x_2\}`}
+				/> ne l'est (l'étiquetage <KatexInline formula={String.raw`(1, 0)`} /> est impossible).
+				<KatexInline formula={String.raw`\mathrm{VCdim}(\mathcal H) = 1`} />.
 			</p>
 			<p>
-				<strong>Intervalles sur <KatexInline formula={String.raw``} /></strong> (<KatexInline
+				<strong>Intervalles sur <KatexInline formula={String.raw`\mathbb R`} /></strong> (<KatexInline
 					formula={intervalsFamily}
-				/>) : toute paire est brisée, mais aucun triplet ordonné ne l'est (<KatexInline
-					formula={String.raw``}
-				/> impossible). <KatexInline formula={String.raw``} />.
+				/>) : toute paire est brisée, mais aucun triplet ordonné ne l'est (l'étiquetage
+				<KatexInline formula={String.raw`(1, 0, 1)`} /> est impossible). <KatexInline
+					formula={String.raw`\mathrm{VCdim}(\mathcal H) = 2`} />.
 			</p>
 			<p>
-				<strong>Hyperplans de <KatexInline formula={String.raw``} /></strong> (<KatexInline
+				<strong>Hyperplans de <KatexInline formula={String.raw`\mathbb R^d`} /></strong> (<KatexInline
 					formula={hyperplanesFamily}
-				/>) : <KatexInline formula={String.raw``} />.
+				/>) : <KatexInline formula={String.raw`\mathrm{VCdim}(\mathcal H) = d+1`} />.
 			</p>
 		</ExampleBlock>
 
@@ -186,29 +188,30 @@
 		<DefinitionBlock title="Coefficient de brisure">
 			<KatexBlock formula={growthCoeffDef} />
 			<p>
-				C'est le nombre maximal de dichotomies que <KatexInline formula={String.raw``} /> peut réaliser
-				sur <KatexInline formula={String.raw``} /> points quelconques.
+				C'est le nombre maximal de dichotomies que <KatexInline
+					formula={String.raw`\mathcal H`} /> peut réaliser sur
+				<KatexInline formula={String.raw`m`} /> points quelconques.
 			</p>
 		</DefinitionBlock>
 
 		<TheoremBlock title="Lemme de Sauer-Shelah (1972)">
 			<p>
-				Si <KatexInline formula={String.raw``} />, alors pour tout
-				<KatexInline formula={String.raw``} /> :
+				Si <KatexInline formula={String.raw`\mathrm{VCdim}(\mathcal H) = d < +\infty`} />, alors
+				pour tout <KatexInline formula={String.raw`m \in \mathbb N`} /> :
 			</p>
 			<KatexBlock formula={sauerShelahStatement} />
-			<p>En particulier, pour <KatexInline formula={String.raw``} /> :</p>
+			<p>En particulier, pour <KatexInline formula={String.raw`m \ge d`} /> :</p>
 			<KatexBlock formula={sauerShelahEnvelope} />
 		</TheoremBlock>
 
 		<Callout type="insight" title="Le point essentiel">
 			Le coefficient de brisure est <strong>polynomial</strong> en <KatexInline
-				formula={String.raw``}
+				formula={String.raw`m`}
 			/>
-			(de degré <KatexInline formula={String.raw``} />) dès que la dimension VC est finie — contre
-			<KatexInline formula={String.raw``} /> dans le cas général. C'est ce basculement, de la croissance
-			exponentielle à la croissance polynomiale exactement au rang <KatexInline
-				formula={String.raw``}
+			(de degré <KatexInline formula={String.raw`d`} />) dès que la dimension VC est finie — contre
+			<KatexInline formula={String.raw`2^m`} /> dans le cas général. C'est ce basculement, de la
+			croissance exponentielle à la croissance polynomiale exactement au rang <KatexInline
+				formula={String.raw`d`}
 			/>, qui rend une borne de généralisation possible même pour une classe infinie.
 		</Callout>
 
@@ -224,31 +227,31 @@
 
 		<p>
 			On peut maintenant énoncer une borne de généralisation valable même pour <KatexInline
-				formula={String.raw``}
-			/>, en remplaçant <KatexInline formula={String.raw``} /> par un terme faisant intervenir
-			<KatexInline formula={String.raw``} /> — c'est le rôle joué par le lemme de Sauer-Shelah dans la
-			démonstration (omise ici, elle raffine l'argument d'union bound de la leçon précédente en l'appliquant
-			non plus à <KatexInline formula={String.raw``} /> tout entier mais aux dichotomies effectivement
+				formula={String.raw`\mathcal H`}
+			/>, en remplaçant <KatexInline formula={String.raw`\log|\mathcal H|`} /> par un terme faisant
+			intervenir <KatexInline formula={String.raw`\mathrm{VCdim}(\mathcal H)`} /> — c'est le rôle joué
+			par le lemme de Sauer-Shelah dans la démonstration (omise ici, elle raffine l'argument d'union
+			bound de la leçon précédente en l'appliquant non plus à
+			<KatexInline formula={String.raw`\mathcal H`} /> tout entier mais aux dichotomies effectivement
 			réalisables sur l'échantillon).
 		</p>
 
 		<TheoremBlock number="3.3" title="Borne VC">
 			<p>
-				Soit <KatexInline formula={String.raw``} /> de dimension VC finie <KatexInline
-					formula={String.raw``}
-				/>. Pour tout <KatexInline formula={String.raw``} />, avec probabilité <KatexInline
-					formula={String.raw``}
-				/> :
+				Soit <KatexInline formula={String.raw`\mathcal H`} /> de dimension VC finie <KatexInline
+					formula={String.raw`d`}
+				/>. Pour tout <KatexInline formula={String.raw`\delta \in (0,1)`} />, avec probabilité
+				<KatexInline formula={String.raw`1-\delta`} /> :
 			</p>
 			<KatexBlock formula={vcBoundStatement} />
 		</TheoremBlock>
 
 		<p>
-			La structure est la même qu'au Théorème 3.2 (racine d'un terme de complexité sur <KatexInline
-				formula={String.raw``}
-			/>), à ceci près que <KatexInline formula={String.raw``} /> a été remplacé par
-			<KatexInline formula={String.raw``} /> — un terme qui, lui, reste fini même quand
-			<KatexInline formula={String.raw``} /> ne l'est pas.
+			La structure est la même qu'au Théorème 3.2 (racine d'un terme de complexité sur
+			<KatexInline formula={String.raw`n`} />), à ceci près que
+			<KatexInline formula={String.raw`\log|\mathcal H|`} /> a été remplacé par
+			<KatexInline formula={String.raw`d\log(2en/d)`} /> — un terme qui, lui, reste fini même quand
+			<KatexInline formula={String.raw`|\mathcal H|`} /> ne l'est pas.
 		</p>
 
 		<h2 id="application-svm">Application : borne VC pour le SVM</h2>
@@ -256,38 +259,39 @@
 		<p>
 			Le SVM (Support Vector Machine) cherche l'hyperplan de marge maximale. La théorie VC en donne
 			une borne de généralisation particulièrement élégante, car la dimension VC dépend de la marge
-			— pas de la dimension ambiante <KatexInline formula={String.raw``} /> de l'espace d'entrée.
+			— pas de la dimension ambiante <KatexInline formula={String.raw`d`} /> de l'espace d'entrée.
 		</p>
 
 		<DefinitionBlock title="Classifieur à marge">
 			<p>
-				Soit <KatexInline formula={String.raw``} />. Le classifieur <KatexInline
+				Soit <KatexInline formula={String.raw`\mathcal X = \mathbb R^d`} />. Le classifieur
+				<KatexInline
 					formula={marginClassifierDef}
-				/> classe l'échantillon avec marge <KatexInline formula={String.raw``} /> si :
+				/> classe l'échantillon avec marge <KatexInline formula={String.raw`\gamma > 0`} /> si :
 			</p>
 			<KatexBlock formula={marginCondition} />
 			<p>
-				On note <KatexInline formula={String.raw``} /> la classe des classifieurs linéaires de norme <KatexInline
-					formula={String.raw``}
-				/> séparant les données avec marge <KatexInline formula={String.raw``} /> :
+				On note <KatexInline formula={String.raw`\mathcal H_\gamma`} /> la classe des classifieurs
+				linéaires de norme <KatexInline formula={String.raw`\|w\|_2 = 1`} /> qui séparent les
+				données avec marge <KatexInline formula={String.raw`\gamma`} /> :
 			</p>
 			<KatexBlock formula={marginFamily} />
 		</DefinitionBlock>
 
 		<TheoremBlock number="3.4" title="Borne VC pour le SVM (Vapnik, 1995)">
 			<p>
-				Supposons <KatexInline formula={svmVCDimBound} />. En appliquant le Théorème 3.3, pour tout <KatexInline
-					formula={String.raw``}
-				/>, avec probabilité <KatexInline formula={String.raw``} /> :
+				Supposons <KatexInline formula={svmVCDimBound} />. En appliquant le Théorème 3.3, pour tout
+				<KatexInline formula={String.raw`\delta \in (0,1)`} />, avec probabilité <KatexInline
+					formula={String.raw`1-\delta`} /> :
 			</p>
 			<KatexBlock formula={svmFullBound} />
 		</TheoremBlock>
 
 		<Callout type="insight" title="Ce que cette borne dit vraiment">
-			La dimension VC de <KatexInline formula={String.raw``} /> ne dépend <strong>pas</strong> de <KatexInline
-				formula={String.raw``}
-			/>, la dimension de l'espace d'entrée — seulement du rapport
-			<KatexInline formula={String.raw``} /> entre le rayon des données et la marge obtenue. Un SVM peut
+			La dimension VC de <KatexInline formula={String.raw`\mathcal H_\gamma`} /> ne dépend
+			<strong>pas</strong> de <KatexInline formula={String.raw`d`} />, la dimension de l'espace
+			d'entrée — seulement du rapport <KatexInline formula={String.raw`R^2/\gamma^2`} /> entre le
+			rayon des données et la marge obtenue. Un SVM peut
 			ainsi généraliser correctement même en très grande dimension (voire en dimension infinie, via le
 			kernel trick), à condition d'obtenir une marge suffisamment grande relative à l'échelle des données.
 			C'est tout l'intérêt de maximiser la marge plutôt que de se contenter d'une séparation quelconque.
@@ -303,12 +307,12 @@
 
 		<Callout type="summary" title="Retenir">
 			La dimension VC mesure la complexité d'une classe par sa capacité à discriminer des points,
-			pas par son cardinal — elle reste finie pour des classes infinies comme les hyperplans (<KatexInline
-				formula={String.raw``}
-			/>). Le lemme de Sauer-Shelah transforme cette borne combinatoire en une borne polynomiale sur
-			le nombre de dichotomies réalisables, ce qui permet d'étendre le théorème de généralisation à <KatexInline
-				formula={String.raw``}
-			/>. Appliquée aux classifieurs à marge, cette théorie explique pourquoi le SVM généralise bien
+			pas par son cardinal — elle reste finie pour des classes infinies comme les hyperplans
+			(<KatexInline formula={String.raw`\mathrm{VCdim} = d+1`} />). Le lemme de Sauer-Shelah
+			transforme cette borne combinatoire en une borne polynomiale sur le nombre de dichotomies
+			réalisables, ce qui permet d'étendre le théorème de généralisation à
+			<KatexInline formula={String.raw`\mathcal H`} />. Appliquée aux classifieurs à marge, cette
+			théorie explique pourquoi le SVM généralise bien
 			indépendamment de la dimension ambiante — un résultat qui ne tiendra plus, comme le montrera
 			la leçon suivante, face aux réseaux de neurones modernes.
 		</Callout>

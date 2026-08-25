@@ -46,3 +46,8 @@ export * from './bayes-learning.js';
 
 // --- Part V – Consistance
 export * from './consistency';
+
+// ── Part VI — Généralisation
+export * from './concentration';
+export * from './generalization';
+export * from './vc';
