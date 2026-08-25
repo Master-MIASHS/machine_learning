@@ -360,8 +360,4 @@
 		color: var(--color-text-muted);
 		text-align: justify;
 	}
-
-	.cap strong {
-		color: inherit;
-	}
 </style>

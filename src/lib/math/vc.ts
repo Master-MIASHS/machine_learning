@@ -78,13 +78,18 @@ export interface Hyperplane2D {
 /**
  * Finds a hyperplane separating two finite 2D point sets (pointsA gets
  * label 1, pointsB gets label 0), if one exists. Tests candidate normal
- * directions perpendicular to every pair of points (a standard finite
- * reduction: the optimal separator's normal, when one exists, is always
- * achievable this way for points in general position), then checks for a
- * projection gap and derives (w,b) from it. Exact for generic point
- * configurations; may be imprecise for exactly collinear or otherwise
- * degenerate ones — this is a small pedagogical search, not a
- * general-purpose LP solver.
+ * directions from a finite reduction: for every pair of points, both the
+ * perpendicular [-dy, dx] and the parallel [dx, dy] direction. This covers
+ * the two support-vector configurations of a max-margin separator in 2D —
+ * both support points on the same side (normal perpendicular to their
+ * connecting line) and one per side (normal parallel to it). The parallel
+ * direction is essential in the two-points-only case: the perpendicular
+ * alone projects both points to the same value (zero separation) and would
+ * wrongly report that two differently-labeled points are not separable.
+ * For each candidate, checks for a projection gap and derives (w,b) from
+ * it. Exact for separable configurations, including separable collinear
+ * ones; this is a small pedagogical search, not a general-purpose LP
+ * solver.
  */
 function searchSeparatingHyperplane(pointsA: Point2D[], pointsB: Point2D[]): Hyperplane2D | null {
 	if (pointsA.length === 0) return { w: [0, 1], b: 1e6 }; // nothing reaches this threshold -> everyone predicted 0
@@ -97,6 +102,7 @@ function searchSeparatingHyperplane(pointsA: Point2D[], pointsB: Point2D[]): Hyp
 			const dx = all[j][0] - all[i][0];
 			const dy = all[j][1] - all[i][1];
 			candidates.push([-dy, dx]);
+			candidates.push([dx, dy]);
 		}
 	}
 	if (candidates.length === 0) candidates.push([1, 0]);

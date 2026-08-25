@@ -4,6 +4,7 @@ import {
 	isThresholdRealizable,
 	isIntervalRealizable,
 	isHalfspaceRealizable,
+	findSeparatingHyperplane2D,
 	shatters,
 	countRealizedDichotomies,
 	trivialGrowthBound,
@@ -82,6 +83,43 @@ describe('halfspaces2d — VCdim = 3', () => {
 	it('realizes all-same-label trivially', () => {
 		expect(isHalfspaceRealizable(triangle, [1, 1, 1])).toBe(true);
 		expect(isHalfspaceRealizable(triangle, [0, 0, 0])).toBe(true);
+	});
+
+	it('shatters any two distinct points (the parallel-candidate case)', () => {
+		const twoPts: [number, number][] = [
+			[0, 0],
+			[1, 1]
+		];
+		expect(isHalfspaceRealizable(twoPts, [1, 0])).toBe(true);
+		expect(isHalfspaceRealizable(twoPts, [0, 1])).toBe(true);
+		expect(shatters('halfspaces2d', twoPts)).toBe(true);
+		expect(countRealizedDichotomies('halfspaces2d', twoPts)).toBe(4);
+	});
+
+	it('handles separable collinear configurations', () => {
+		const collinear: [number, number][] = [
+			[0, 0],
+			[1, 0],
+			[2, 0]
+		];
+		expect(isHalfspaceRealizable(collinear, [1, 0, 0])).toBe(true);
+		// 1-0-1 along a line is not halfspace-realizable (the middle point is
+		// a convex combination of the two outer ones).
+		expect(isHalfspaceRealizable(collinear, [1, 0, 1])).toBe(false);
+	});
+
+	it('findSeparatingHyperplane2D returns a witness that actually classifies the points', () => {
+		const twoPts: [number, number][] = [
+			[0, 0],
+			[3, 0]
+		];
+		const h = findSeparatingHyperplane2D(twoPts, [1, 0]);
+		expect(h).not.toBeNull();
+		const [wx, wy] = h!.w;
+		expect(wx * twoPts[0][0] + wy * twoPts[0][1] >= h!.b).toBe(true);
+		expect(wx * twoPts[1][0] + wy * twoPts[1][1] < h!.b).toBe(true);
+		expect(findSeparatingHyperplane2D(triangle, [1, 1, 0])).not.toBeNull();
+		expect(findSeparatingHyperplane2D(triangle, [0, 0, 1])).not.toBeNull();
 	});
 });
 
