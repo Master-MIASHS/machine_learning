@@ -51,6 +51,10 @@
 
 	const xTicks = $derived(xScale.ticks(5));
 	const yTicks = $derived(yScale.ticks(4));
+
+	function formatTick(v: number): string {
+		return Math.abs(v) >= 1e5 ? v.toExponential(1) : v.toFixed(1);
+	}
 </script>
 
 <svg {width} {height} role="img" aria-label="Line chart">
@@ -101,7 +105,7 @@
 			fill="var(--color-text-muted)"
 			font-size="10"
 			font-family="var(--font-mono)"
-		>{tick.toFixed(1)}</text>
+		>{formatTick(tick)}</text>
 	{/each}
 
 	<!-- X ticks -->

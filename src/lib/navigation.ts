@@ -61,6 +61,11 @@ const RAW_PAGES = [
 		path: '/part6/lesson3',
 		title: 'Dimension VC, Sauer-Shelah et SVM',
 		part: 6
+	},
+	{
+		path: '/part6/lesson4',
+		title: 'Limites de VC et double descente',
+		part: 6
 	}
 ] as const;
 

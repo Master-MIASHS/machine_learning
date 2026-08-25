@@ -141,7 +141,7 @@
 
 	let containerWidth = $state(0);
 
-	const pad = { top: 15, right: 20, bottom: 35, left: 20 };
+	const pad = { top: 15, right: 20, bottom: 35 };
 
 	const vbW = $derived(containerWidth || 560);
 	const vbH = $derived(height);
@@ -166,13 +166,26 @@
 		return [min - padding, max + padding];
 	});
 
+	const yScale = $derived(scaleLinear().domain(computedYDomain).range([baseline, pad.top]));
+
+	const yTicks = $derived(yScale.ticks(nYTicks));
+
+	// Left margin grows with the widest y-tick label: labels are middle-anchored
+	// at padLeft - 16, so anything past x = 0 is clipped by the wrapper.
+	// (Mono digit ≈ 6.5px at the 10.5px tick font.)
+	const padLeft = $derived.by(() => {
+		if (!yAxis) return 20;
+		const widest = Math.max(0, ...yTicks.map((t) => String(t).length));
+		return Math.max(20, Math.ceil(16 + (widest * 6.5) / 2 + 3));
+	});
+
 	const xScale = $derived(
 		scaleLinear()
 			.domain(computedXDomain)
-			.range([pad.left, Math.max(pad.left, vbW - pad.right)])
+			.range([padLeft, Math.max(padLeft, vbW - pad.right)])
 	);
 
-	const yScale = $derived(scaleLinear().domain(computedYDomain).range([baseline, pad.top]));
+	const ticks = $derived(xScale.ticks(nTicks));
 
 	// ─── Path generation ─────────────────────────────────────────────────────────
 
@@ -193,9 +206,6 @@
 			return { curvePath, layer: c };
 		});
 	});
-
-	const ticks = $derived(xScale.ticks(nTicks));
-	const yTicks = $derived(yScale.ticks(nYTicks));
 
 	// ─── Fill-between paths ───────────────────────────────────────────────────────
 
@@ -330,7 +340,7 @@
 
 			<!-- ④ X, Y axis -->
 			<line
-				x1={pad.left}
+				x1={padLeft}
 				y1={baseline}
 				x2={vbW - pad.right}
 				y2={baseline}
@@ -349,16 +359,16 @@
 			{/each}
 			{#if yAxis}
 				<line
-					x1={pad.left}
+					x1={padLeft}
 					y1={baseline}
-					x2={pad.left}
+					x2={padLeft}
 					y2={pad.top}
 					stroke="var(--color-border)"
 					stroke-width="1.5"
 				/>
 				{#each yTicks as tick (tick)}
 					<text
-						x={pad.left - 16}
+						x={padLeft - 16}
 						y={yScale(tick).toFixed(2)}
 						text-anchor="middle"
 						fill="var(--color-text-muted)"

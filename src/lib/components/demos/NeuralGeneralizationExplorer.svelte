@@ -1,13 +1,14 @@
 <script lang="ts">
-	// Part VI — Limites de la théorie VC pour les réseaux de neurones.
+	// Part VI — VC theory limits for neural networks.
 	//
-	// NOTE: no bar-chart component was available, so the VC-vs-norm
-	// comparison below is hand-drawn SVG bars (log10-scaled, since the two
-	// bounds can differ by many orders of magnitude — a linear scale would
-	// make one invisible). Same fallback approach as earlier hand-rolled
-	// visualizations in this project.
+	// The VC-vs-norm comparison below stays a hand-rolled SVG: BarChart.svelte
+	// exists but is linear-scale ([0, yMax], bars anchored at the baseline)
+	// and cannot show a bound *below* 1 on a log10 axis with a "bound = 1"
+	// threshold in the middle of the plot. The SVG is responsive — the
+	// viewBox width tracks the measured container width (same pattern as
+	// GradientBoostingDemo.svelte and BarChart.svelte) — so it fills the
+	// figure without being stretched.
 
-	// TODO: confirm these paths/names against your actual files.
 	import Figure from '$lib/components/charts/Figure.svelte';
 	import LineChart from '$lib/components/charts/LineChart.svelte';
 	import Slider from '$lib/components/controls/Slider.svelte';
@@ -24,6 +25,13 @@
 	let width = $state(64);
 	let weightNorm = $state(1);
 	let n = $state(10000);
+
+	// Measured figure width. LineChart draws its coordinate system at this
+	// exact size (it has no viewBox, so width must match the rendered box);
+	// the bar comparison uses it as its viewBox width.
+	let containerWidth = $state(0);
+	const chartWidth = $derived(containerWidth);
+	const chartHeight = $derived(Math.round(containerWidth * 0.5));
 
 	const paramCount = $derived(estimateParameterCount(depth, width));
 	const vcDimEstimate = $derived(neuralVCDimEstimate(paramCount, depth));
@@ -44,26 +52,50 @@
 	);
 	const normSeries = $derived(depthSweep.map((L) => neuralNormBasedEstimate(L, weightNorm, n)));
 
-	// ─── Hand-drawn log-scale bar comparison at the CURRENT settings ────────
-	const BAR_WIDTH = 260;
-	const BAR_HEIGHT = 160;
-	const BAR_PAD = { top: 10, right: 16, bottom: 24, left: 40 };
-	const LOG_MIN = -4;
-	const LOG_MAX = 8;
+	// ─── Responsive log-scale bar comparison at the CURRENT settings ─────────
+	// The two bounds span roughly 10^-17 to 10^10 across the slider range, so
+	// they are compared on a log10 axis with a "bound = 1" threshold: below it
+	// the bound is informative, above it the bound is trivial (the risk is
+	// bounded by 1 anyway).
+	const BAR_HEIGHT = 170;
+	const BAR_PAD = { top: 18, right: 16, bottom: 28, left: 44 };
+	const LOG_MIN = -6;
+	const LOG_MAX = 10;
+	const LOG_TICKS = [-6, -4, -2, 0, 2, 4, 6, 8, 10];
 
+	const barVBW = $derived(containerWidth || 560);
+	const barPlotW = $derived(barVBW - BAR_PAD.left - BAR_PAD.right);
+	const barPlotH = BAR_HEIGHT - BAR_PAD.top - BAR_PAD.bottom;
+	const barSlotW = $derived(barPlotW / 2);
+	const barW = $derived(Math.min(80, barSlotW * 0.58));
+	const barBaseline = BAR_HEIGHT - BAR_PAD.bottom;
+
+	function valueLog(value: number): number {
+		return Math.log10(Math.max(value, 1e-300));
+	}
 	function clampLog(value: number): number {
-		const log = Math.log10(Math.max(value, 1e-300));
-		return Math.min(LOG_MAX, Math.max(LOG_MIN, log));
+		return Math.min(LOG_MAX, Math.max(LOG_MIN, valueLog(value)));
+	}
+	function logY(log: number): number {
+		return BAR_PAD.top + ((LOG_MAX - log) / (LOG_MAX - LOG_MIN)) * barPlotH;
 	}
 	function barY(value: number): number {
-		const clamped = clampLog(value);
-		return (
-			BAR_PAD.top +
-			((LOG_MAX - clamped) / (LOG_MAX - LOG_MIN)) * (BAR_HEIGHT - BAR_PAD.top - BAR_PAD.bottom)
-		);
+		return logY(clampLog(value));
 	}
-	const barBaseline = BAR_HEIGHT - BAR_PAD.bottom;
-	const zeroLine = $derived(barY(1)); // log10(1) = 0 — the "bound = 1" (vacuous) threshold
+	function barX(i: number): number {
+		return BAR_PAD.left + i * barSlotW + (barSlotW - barW) / 2;
+	}
+	function barMidX(i: number): number {
+		return BAR_PAD.left + (i + 0.5) * barSlotW;
+	}
+	function fmtExp(value: number): string {
+		return value.toExponential(1);
+	}
+
+	const bars = $derived([
+		{ value: vcBound, color: 'var(--color-belief)', label: 'VC' },
+		{ value: normBound, color: 'var(--color-surprise)', label: 'Normes' }
+	]);
 </script>
 
 <div class="disclaimer">
@@ -73,19 +105,19 @@
 	différentes par couche. Les ordres de grandeur relatifs comptent ici, pas les valeurs exactes.
 </div>
 
-<Figure type="chart">
-	<LineChart
-		series={[
-			{ values: vcSeries, color: 'var(--color-belief)', label: 'borne VC (Bartlett 1998)' },
-			{
-				values: normSeries,
-				color: 'var(--color-surprise)',
-				label: 'borne fondée sur les normes (BFT 2017)'
-			}
-		]}
-		xLabel="profondeur L (1 à la valeur actuelle)"
-		yLabel="borne indicative"
-	/>
+<Figure type="chart" bind:containerWidth>
+	{#if containerWidth > 0}
+		<LineChart
+			series={[
+				{ values: vcSeries, color: 'var(--color-belief)', label: 'VC' },
+				{ values: normSeries, color: 'var(--color-surprise)', label: 'Normes' }
+			]}
+			xLabel="profondeur L (1 à la valeur actuelle)"
+			yLabel="borne indicative"
+			width={chartWidth}
+			height={chartHeight}
+		/>
+	{/if}
 
 	{#snippet caption()}
 		Les deux bornes en fonction de la profondeur, à largeur / norme des poids / n fixées au réglage
@@ -120,74 +152,113 @@
 	label="Taille d'échantillon n"
 />
 
-<Figure type="chart">
-	<svg
-		viewBox={`0 0 ${BAR_WIDTH} ${BAR_HEIGHT}`}
-		width="100%"
-		height={BAR_HEIGHT}
-		role="img"
-		aria-label="Comparaison des deux bornes, échelle log10"
-	>
-		<line
-			x1={BAR_PAD.left}
-			y1={zeroLine}
-			x2={BAR_WIDTH - BAR_PAD.right}
-			y2={zeroLine}
-			stroke="var(--color-text-muted)"
-			stroke-width="1"
-			stroke-dasharray="3 3"
-		/>
-		<text
-			x={BAR_WIDTH - BAR_PAD.right}
-			y={zeroLine - 3}
-			text-anchor="end"
-			font-size="9"
-			fill="var(--color-text-muted)"
+<Figure type="chart" bind:containerWidth>
+	{#if containerWidth > 0}
+		<svg
+			viewBox={`0 0 ${barVBW} ${BAR_HEIGHT}`}
+			width="100%"
+			role="img"
+			aria-label="Comparaison des bornes VC et fondée sur les normes, échelle log10"
 		>
-			borne = 1 (triviale)
-		</text>
+			<!-- Y grid lines + 10^k tick labels -->
+			{#each LOG_TICKS as tick (tick)}
+				{@const ty = logY(tick)}
+				<line
+					x1={BAR_PAD.left}
+					y1={ty}
+					x2={barVBW - BAR_PAD.right}
+					y2={ty}
+					stroke="var(--color-border)"
+					stroke-width="0.5"
+					opacity="0.6"
+				/>
+				<text
+					x={BAR_PAD.left - 6}
+					y={ty}
+					text-anchor="end"
+					dominant-baseline="middle"
+					font-size="9"
+					font-family="var(--font-mono)"
+					fill="var(--color-text-muted)"
+				>
+					10<tspan dy="-3" font-size="7">{tick}</tspan>
+				</text>
+			{/each}
 
-		<rect
-			x={BAR_PAD.left + 20}
-			y={barY(vcBound)}
-			width={60}
-			height={barBaseline - barY(vcBound)}
-			fill="var(--color-belief)"
-			opacity="0.8"
-		/>
-		<text
-			x={BAR_PAD.left + 50}
-			y={barBaseline + 14}
-			text-anchor="middle"
-			font-size="9"
-			fill="var(--color-text)">VC</text
-		>
+			<!-- Left axis + baseline -->
+			<line
+				x1={BAR_PAD.left}
+				y1={BAR_PAD.top}
+				x2={BAR_PAD.left}
+				y2={barBaseline}
+				stroke="var(--color-border)"
+				stroke-width="1"
+			/>
+			<line
+				x1={BAR_PAD.left}
+				y1={barBaseline}
+				x2={barVBW - BAR_PAD.right}
+				y2={barBaseline}
+				stroke="var(--color-border)"
+				stroke-width="1"
+			/>
 
-		<rect
-			x={BAR_PAD.left + 140}
-			y={barY(normBound)}
-			width={60}
-			height={barBaseline - barY(normBound)}
-			fill="var(--color-surprise)"
-			opacity="0.8"
-		/>
-		<text
-			x={BAR_PAD.left + 170}
-			y={barBaseline + 14}
-			text-anchor="middle"
-			font-size="9"
-			fill="var(--color-text)">Normes</text
-		>
+			<!-- "bound = 1" threshold (vacuous bound level) -->
+			<line
+				x1={BAR_PAD.left}
+				y1={logY(0)}
+				x2={barVBW - BAR_PAD.right}
+				y2={logY(0)}
+				stroke="var(--color-text-muted)"
+				stroke-width="1"
+				stroke-dasharray="3 3"
+			/>
+			{#if barVBW >= 560}
+				<text
+					x={barVBW - BAR_PAD.right}
+					y={logY(0) - 4}
+					text-anchor="end"
+					font-size="9"
+					fill="var(--color-text-muted)"
+				>
+					borne = 1 (triviale)
+				</text>
+			{/if}
 
-		<line
-			x1={BAR_PAD.left}
-			y1={barBaseline}
-			x2={BAR_WIDTH - BAR_PAD.right}
-			y2={barBaseline}
-			stroke="var(--color-border)"
-			stroke-width="1"
-		/>
-	</svg>
+			<!-- Bars: value annotation above, category label below -->
+			{#each bars as bar, i (bar.label)}
+				{@const top = barY(bar.value)}
+				{@const log = valueLog(bar.value)}
+				<rect
+					x={barX(i)}
+					y={top}
+					width={barW}
+					height={Math.max(2, barBaseline - top)}
+					fill={bar.color}
+					opacity="0.8"
+				/>
+				<text
+					x={barMidX(i)}
+					y={Math.max(top - 6, 10)}
+					text-anchor="middle"
+					font-size="10"
+					font-family="var(--font-mono)"
+					fill={bar.color}
+				>
+					{fmtExp(bar.value)}{log > LOG_MAX ? ' ↑' : log < LOG_MIN ? ' ↓' : ''}
+				</text>
+				<text
+					x={barMidX(i)}
+					y={barBaseline + 16}
+					text-anchor="middle"
+					font-size="10"
+					fill="var(--color-text)"
+				>
+					{bar.label}
+				</text>
+			{/each}
+		</svg>
+	{/if}
 
 	{#snippet caption()}
 		Comparaison en échelle log₁₀ (les deux bornes peuvent différer de plusieurs ordres de grandeur).
