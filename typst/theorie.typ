@@ -1317,7 +1317,7 @@ On note :
   du $phi$-risque global (sans contrainte de classe)
 - $R_phi^* = R_phi (f^(**))$ : le $phi$-risque de Bayes
 
-=== Décomposition en quatre termes
+=== Décomposition en trois termes
 
 #block(
   fill: rgb("#e8f4f8"),

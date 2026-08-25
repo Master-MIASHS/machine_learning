@@ -45,7 +45,15 @@ export * from './bootstrap.js';
 export * from './bayes-learning.js';
 
 // --- Part V – Consistance
-export * from './consistency';
+export * from './consistency.js';
+
+// --- Part VI – Généralisation
+export * from './concentration.js';
+export * from './generalization.js';
+export * from './vc.js';
+
+// --- Part VII – Fonctions de perte
+export * from './calibration.js';
 
 // ── Part VI — Généralisation
 export * from './concentration';
