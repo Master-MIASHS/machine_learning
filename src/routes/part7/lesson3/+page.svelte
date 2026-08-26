@@ -7,6 +7,8 @@
 	import InteractiveSection from '$lib/components/narrative/InteractiveSection.svelte';
 	import KatexInline from '$lib/components/narrative/KatexInline.svelte';
 	import KatexBlock from '$lib/components/narrative/KatexBlock.svelte';
+	import Bibliography from '$lib/components/narrative/bib/Bibliography.svelte';
+	import BibElement from '$lib/components/narrative/bib/BibElement.svelte';
 	import RiskDecompositionDemo from '$lib/components/demos/RiskDecompositionDemo.svelte';
 	import { getPageByPath, getNextPage, getPrevPage } from '$lib/navigation.js';
 	import { createPageTracker } from '$lib/stores/progress.svelte';
@@ -272,6 +274,15 @@
 			est calibrée ; dans ce cas favorable, seul le terme d'estimation demeure.
 		</Callout>
 	</TheorySection>
+
+	<Bibliography>
+		<BibElement
+			authors={['Bartlett, P. L.', 'Jordan, M. I.', 'McAuliffe, J.']}
+			year={2006}
+			title="Convexity, Classification, and Risk Bounds"
+			journal="Journal of the American Statistical Association, 101(473), 138-156."
+		/>
+	</Bibliography>
 </PageTemplate>
 
 <style>

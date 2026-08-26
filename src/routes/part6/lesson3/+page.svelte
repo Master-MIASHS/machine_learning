@@ -9,6 +9,8 @@
 	import InteractiveSection from '$lib/components/narrative/InteractiveSection.svelte';
 	import KatexInline from '$lib/components/narrative/KatexInline.svelte';
 	import KatexBlock from '$lib/components/narrative/KatexBlock.svelte';
+	import Bibliography from '$lib/components/narrative/bib/Bibliography.svelte';
+	import BibElement from '$lib/components/narrative/bib/BibElement.svelte';
 	import VCShatteringExplorer from '$lib/components/demos/VCShatteringExplorer.svelte';
 	import SauerGrowthDemo from '$lib/components/demos/SauerGrowthDemo.svelte';
 	import MarginVCExplorer from '$lib/components/demos/MarginVCExplorer.svelte';
@@ -317,4 +319,28 @@
 			la leçon suivante, face aux réseaux de neurones modernes.
 		</Callout>
 	</TheorySection>
+
+	<Bibliography>
+		<BibElement
+			authors={['Vapnik, V. N.']}
+			year={1998}
+			title="Statistical Learning Theory"
+			journal="Wiley."
+			link="https://www.wiley.com/en-us/Statistical+Learning+Theory-p-9780471152125"
+		/>
+		<BibElement
+			authors={['Shalev-Shwartz, S.', 'Ben-David, S.']}
+			year={2014}
+			title="Understanding Machine Learning: From Theory to Algorithms"
+			journal="Cambridge University Press."
+			link="https://www.cs.huji.ac.il/~shais/UnderstandingMachineLearning/"
+		/>
+		<BibElement
+			authors={['Vapnik, V. N.']}
+			year={1995}
+			title="The Nature of Statistical Learning Theory"
+			journal="Springer-Verlag."
+			link="https://doi.org/10.1007/978-1-4757-3276-1"
+		/>
+	</Bibliography>
 </PageTemplate>

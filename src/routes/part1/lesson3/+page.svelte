@@ -549,7 +549,7 @@
 		/>
 
 		<BibElement
-			authors={['Duchi, J.', 'Hazan, E.', 'Singh, S.']}
+			authors={['Duchi, J.', 'Hazan, E.', 'Singer, Y.']}
 			year={2011}
 			title="Adaptive subgradient methods for online learning and stochastic optimization"
 			journal="Journal of Machine Learning Research, 12(Jul), 2121–2159."

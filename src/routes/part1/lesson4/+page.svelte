@@ -830,14 +830,6 @@
 		/>
 
 		<BibElement
-			authors={['Boyd, S.', 'Candes, E.']}
-			year={2019}
-			title="Introductory Lectures on Convex Optimization: A Basic Course"
-			journal="EE364a Lecture Notes."
-			link="https://web.stanford.edu/~boyd/cvxbook/bv_opt_cookbook.pdf"
-		/>
-
-		<BibElement
 			authors={['Bubeck, S.']}
 			year={2015}
 			title="Convex Optimization: Algorithms and Complexity"

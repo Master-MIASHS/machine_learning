@@ -470,6 +470,13 @@
 
 	<Bibliography>
 		<BibElement
+			authors={['Angelopoulos, A. N.', 'Bates, S.']}
+			year={2021}
+			title="A Gentle Introduction to Conformal Prediction and Distribution-Free Uncertainty Quantification"
+			journal="arXiv preprint arXiv:2107.07511."
+			link="https://arxiv.org/abs/2107.07511"
+		/>
+		<BibElement
 			authors={['Vovk, V.', 'Gammerman, A.', 'Shafer, G.']}
 			year={2005}
 			title="Algorithmic Learning in a Random World"

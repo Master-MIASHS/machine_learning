@@ -694,11 +694,11 @@
 			link="https://doi.org/10.1023/A:1010933404324"
 		/>
 		<BibElement
-			authors={['Hastie, T., Tibshirani, R., Friedman, J.']}
+			authors={['Hastie, T.', 'Tibshirani, R.', 'Friedman, J.']}
 			year={2009}
-			title="The Elements of Statistical Learning"
-			journal="Springer."
-			link="https://hastie.su.domains/Papers/ESLII.pdf"
+			title="The Elements of Statistical Learning: Data Mining, Inference, and Prediction"
+			journal="Springer Science & Business Media, Second Edition."
+			link="https://hastie.su.domains/ElemStatLearn/"
 		/>
 	</Bibliography>
 </PageTemplate>

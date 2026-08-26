@@ -8,6 +8,8 @@
 	import InteractiveSection from '$lib/components/narrative/InteractiveSection.svelte';
 	import KatexInline from '$lib/components/narrative/KatexInline.svelte';
 	import KatexBlock from '$lib/components/narrative/KatexBlock.svelte';
+	import Bibliography from '$lib/components/narrative/bib/Bibliography.svelte';
+	import BibElement from '$lib/components/narrative/bib/BibElement.svelte';
 	import CalibratedLossExplorer from '$lib/components/demos/CalibratedLossExplorer.svelte';
 	import { getPageByPath, getNextPage, getPrevPage } from '$lib/navigation.js';
 	import { createPageTracker } from '$lib/stores/progress.svelte';
@@ -386,6 +388,29 @@
 			question.
 		</p>
 	</TheorySection>
+
+	<Bibliography>
+		<BibElement
+			authors={['Bartlett, P. L.', 'Jordan, M. I.', 'McAuliffe, J.']}
+			year={2006}
+			title="Convexity, Classification, and Risk Bounds"
+			journal="Journal of the American Statistical Association, 101(473), 138-156."
+		/>
+		<BibElement
+			authors={['Shalev-Shwartz, S.', 'Ben-David, S.']}
+			year={2014}
+			title="Understanding Machine Learning: From Theory to Algorithms"
+			journal="Cambridge University Press."
+			link="https://www.cs.huji.ac.il/~shais/UnderstandingMachineLearning/"
+		/>
+		<BibElement
+			authors={['Hastie, T.', 'Tibshirani, R.', 'Friedman, J.']}
+			year={2009}
+			title="The Elements of Statistical Learning: Data Mining, Inference, and Prediction"
+			journal="Springer Science & Business Media, Second Edition."
+			link="https://hastie.su.domains/ElemStatLearn/"
+		/>
+	</Bibliography>
 </PageTemplate>
 
 <style>

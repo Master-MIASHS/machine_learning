@@ -447,7 +447,7 @@
 
 	<Bibliography>
 		<BibElement
-			authors={['Guo, C.', 'Gill, G. K.', 'Averbeck, T.', 'Kalai, A. T.']}
+			authors={['Guo, C.', 'Pleiss, G.', 'Sun, Y.', 'Weinberger, K. Q.']}
 			year={2017}
 			title="On Calibration of Modern Neural Networks"
 			journal="Proceedings of the 34th International Conference on Machine Learning (ICML)."

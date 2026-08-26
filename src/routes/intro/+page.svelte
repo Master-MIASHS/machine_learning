@@ -229,19 +229,47 @@
 			link="https://arxiv.org/abs/1405.4980"
 		/>
 		<BibElement
-			authors={['Duchi, J.', 'Hazan, E.', 'Singh, S.']}
+			authors={['Duchi, J.', 'Hazan, E.', 'Singer, Y.']}
 			year={2011}
 			title="Adaptive subgradient methods for online learning and stochastic optimization"
 			journal="Journal of Machine Learning Research, 12(Jul), 2121–2159."
 			link="https://jmlr.org/papers/v12/duchi11a.html"
 		/>
+
+		<!-- Optimisation adaptative : Adam -->
 		<BibElement
-			authors={['Boyd, S.', 'Candes, E.']}
-			year={2019}
-			title="Introductory Lectures on Convex Optimization: A Basic Course"
-			journal="EE364a Lecture Notes."
-			link="https://web.stanford.edu/~boyd/cvxbook/bv_opt_cookbook.pdf"
+			authors={['Kingma, D. P.', 'Ba, J.']}
+			year={2015}
+			title="Adam: A Method for Stochastic Optimization"
+			journal="ICLR"
+			link="https://arxiv.org/abs/1412.6980"
 		/>
+		<BibElement
+			authors={['Reddi, S. J.', 'Kale, S.', 'Kumar, S.']}
+			year={2018}
+			title="On the Convergence of Adam and Beyond"
+			journal="ICLR"
+		/>
+		<BibElement
+			authors={['Wilson, A. C.', 'Roelofs, R.', 'Stern, M.', 'Srebro, N.', 'Recht, B.']}
+			year={2017}
+			title="The Marginal Value of Adaptive Gradient Methods in Machine Learning"
+			journal="NeurIPS"
+		/>
+		<BibElement
+			authors={['Loshchilov, I.', 'Hutter, F.']}
+			year={2019}
+			title="Decoupled Weight Decay Regularization"
+			journal="ICLR"
+		/>
+		<BibElement
+			authors={['Sahu, S.', 'Sarkar, A.', 'Hogan, C. J.', 'Wells, M. T.']}
+			year={2026}
+			title="Adapt or Forget: Provable Tradeoffs Between Adam and SGD in Nonstationary Optimization"
+			journal="arXiv preprint"
+			link="https://arxiv.org/abs/2605.04269"
+		/>
+
 		<BibElement
 			authors={['Shalev-Shwartz, S.', 'Ben-David, S.']}
 			year={2014}
@@ -338,11 +366,25 @@
 
 		<!-- Calibration et Prédictions Conformelles -->
 		<BibElement
-			authors={['Guo, C.', 'Pleshesskich, G.', 'Sun, Y.', 'Weinberger, K. Q.']}
+			authors={['Guo, C.', 'Pleiss, G.', 'Sun, Y.', 'Weinberger, K. Q.']}
 			year={2017}
 			title="On Calibration of Modern Neural Networks"
 			journal="International Conference on Machine Learning (ICML), PMLR, pp. 1321-1330."
 			link="https://arxiv.org/abs/1706.04599"
+		/>
+		<BibElement
+			authors={['Noble, A.']}
+			year={2014}
+			title="How Not To Evaluate Your Detector"
+			journal="Proceedings of the British Machine Vision Conference (BMVC)."
+			link="https://www.alexander-noble.com/static/img/Noble-2014-How_Not.pdf"
+		/>
+		<BibElement
+			authors={['Lapin, M.', 'Hein, M.', 'Schiele, B.']}
+			year={2016}
+			title="Loss Functions for Top-k Error: Analysis and Insights"
+			journal="Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition (CVPR), pp. 1468–1477."
+			link="https://arxiv.org/abs/1512.00486"
 		/>
 		<BibElement
 			authors={['Angelopoulos, A. N.', 'Bates, S.']}
@@ -385,6 +427,13 @@
 			title="Predictive Inference with the Jackknife+"
 			journal="Annals of Statistics, 49(1), 486–507."
 			link="https://arxiv.org/abs/1905.02928"
+		/>
+		<BibElement
+			authors={['Barber, R.F.', 'Candès, E.J.', 'Ramdas, A.', 'Tibshirani, R.J.']}
+			year={2021}
+			title="The Limits of Distribution-Free Conditional Predictive Inference"
+			journal="Information and Inference: A Journal of the IMA, 10(2), 455–482."
+			link="https://arxiv.org/abs/1903.04684"
 		/>
 		<BibElement
 			authors={['Tibshirani, R.J.', 'Barber, R.F.', 'Candès, E.J.', 'Ramdas, A.']}
@@ -470,6 +519,51 @@
 			title="Matrix Computations (4th ed.)"
 			journal="Johns Hopkins University Press."
 			link="https://www.cs.cornell.edu/cv/GVL4/"
+		/>
+
+		<!-- Généralisation en deep learning et pertes proxy -->
+		<BibElement
+			authors={['Bartlett, P. L.']}
+			year={1998}
+			title="The sample complexity of pattern classification with neural networks: the size of the weights is more important than the size of the network"
+			journal="IEEE Transactions on Information Theory, 44(2), 525-536."
+		/>
+		<BibElement
+			authors={['Belkin, M.', 'Hsu, D.', 'Ma, S.', 'Mandal, S.']}
+			year={2019}
+			title="Reconciling modern machine-learning practice and the classical bias–variance trade-off"
+			journal="PNAS, 116(32), 15849-15854."
+		/>
+		<BibElement
+			authors={['Bartlett, P. L.', 'Foster, D. J.', 'Telgarsky, M.']}
+			year={2017}
+			title="Spectrally-normalized margin bounds for neural networks"
+			journal="NeurIPS 2017."
+		/>
+		<BibElement
+			authors={['Zhang, C.', 'Bengio, S.', 'Hardt, M.', 'Recht, B.', 'Vinyals, O.']}
+			year={2017}
+			title="Understanding deep learning requires rethinking generalization"
+			journal="ICLR 2017."
+		/>
+		<BibElement
+			authors={['Soudry, D.', 'Hoffer, E.', 'Nacson, M. S.', 'Gunasekar, S.', 'Srebro, N.']}
+			year={2018}
+			title="The implicit bias of gradient descent on separable data"
+			journal="Journal of Machine Learning Research, 19(1), 2822-2878."
+		/>
+		<BibElement
+			authors={['Bartlett, P. L.', 'Jordan, M. I.', 'McAuliffe, J.']}
+			year={2006}
+			title="Convexity, Classification, and Risk Bounds"
+			journal="Journal of the American Statistical Association, 101(473), 138-156."
+		/>
+		<BibElement
+			authors={['Vapnik, V. N.']}
+			year={1995}
+			title="The Nature of Statistical Learning Theory"
+			journal="Springer-Verlag."
+			link="https://doi.org/10.1007/978-1-4757-3276-1"
 		/>
 	</Bibliography>
 </PageTemplate>

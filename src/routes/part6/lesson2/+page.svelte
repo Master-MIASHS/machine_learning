@@ -8,6 +8,8 @@
 	import InteractiveSection from '$lib/components/narrative/InteractiveSection.svelte';
 	import KatexInline from '$lib/components/narrative/KatexInline.svelte';
 	import KatexBlock from '$lib/components/narrative/KatexBlock.svelte';
+	import Bibliography from '$lib/components/narrative/bib/Bibliography.svelte';
+	import BibElement from '$lib/components/narrative/bib/BibElement.svelte';
 	import FiniteClassGeneralizationDemo from '$lib/components/demos/FiniteClassGeneralizationDemo.svelte';
 	import UniformConvergenceDemo from '$lib/components/demos/UniformConvergenceDemo.svelte';
 	import { getPageByPath, getNextPage, getPrevPage } from '$lib/navigation.js';
@@ -372,6 +374,23 @@
 			dimension de Vapnik-Chervonenkis.
 		</Callout>
 	</TheorySection>
+
+	<Bibliography>
+		<BibElement
+			authors={['Shalev-Shwartz, S.', 'Ben-David, S.']}
+			year={2014}
+			title="Understanding Machine Learning: From Theory to Algorithms"
+			journal="Cambridge University Press."
+			link="https://www.cs.huji.ac.il/~shais/UnderstandingMachineLearning/"
+		/>
+		<BibElement
+			authors={['Boucheron, S.', 'Lugosi, G.', 'Massart, P.']}
+			year={2013}
+			title="Concentration Inequalities: A Nonasymptotic Theory of Independence"
+			journal="Oxford University Press."
+			link="https://global.oup.com/academic/product/concentration-inequalities-9780199535255"
+		/>
+	</Bibliography>
 </PageTemplate>
 
 <style>
