@@ -125,19 +125,20 @@
 	{#snippet caption()}
 		Régression linéaire par pseudo-inverse, n = {n} observations, moyennée sur {REPETITIONS}
 		répétitions. Le paramètre vrai, de carré de norme <KatexInline formula={String.raw`1`} />
-		(comparable au bruit <KatexInline formula={String.raw`\sigma^2 = 1`} />), vit dans 3n
-		dimensions ; le modèle de dimension d n'en utilise que les d premières. Sous-paramétré
-		(<KatexInline formula="d< n" />) : compromis biais-variance classique — le biais (part du
-		signal non modélisée) décroît avec d, la variance croît. Au seuil d = n : système carré mal
-		conditionné — interpolation exacte (risque train ≈ 0) mais le risque test explose.
-		Sur-paramétré (<KatexInline formula="d > n" />) : la pseudo-inverse retient la solution de
-		norme minimale ; le risque test redescend vers un niveau bas, légèrement au-dessus du bruit
-		irréductible — en d = 3n le modèle contient tout le signal, mais la solution de norme
-		minimale ne capture que sa composante dans le sous-espace de rang n engendré par les
-		observations (biais résiduel <KatexInline
-			formula={String.raw`(1 - n/d)\,\|\beta\|`} />) — le régime que la théorie VC classique
-		n'explique pas. En échelle logarithmique, le risque train ≈ 0 au seuil et la descente après
-		le seuil restent lisibles ; en échelle linéaire, le pic du seuil domine le graphique.
+		(comparable au bruit <KatexInline formula={String.raw`\sigma^2 = 1`} />), vit dans 3n dimensions
+		; le modèle de dimension d n'en utilise que les d premières. Sous-paramétré (<KatexInline
+			formula="d< n"
+		/>) : compromis biais-variance classique — le biais (part du signal non modélisée) décroît avec
+		d, la variance croît. Au seuil d = n : système carré mal conditionné — interpolation exacte
+		(risque train ≈ 0) mais le risque test explose. Sur-paramétré (<KatexInline formula="d > n" />)
+		: la pseudo-inverse retient la solution de norme minimale ; le risque test redescend vers un
+		niveau bas, légèrement au-dessus du bruit irréductible — en d = 3n le modèle contient tout le
+		signal, mais la solution de norme minimale ne capture que sa composante dans le sous-espace de
+		rang n engendré par les observations (biais résiduel <KatexInline
+			formula={String.raw`(1 - n/d)\,\|\beta\|`}
+		/>) — le régime que la théorie VC classique n'explique pas. En échelle logarithmique, le risque
+		train ≈ 0 au seuil et la descente après le seuil restent lisibles ; en échelle linéaire, le pic
+		du seuil domine le graphique.
 	{/snippet}
 </Figure>
 
