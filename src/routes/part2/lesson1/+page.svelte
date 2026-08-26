@@ -174,9 +174,9 @@
 		<h2 id="introduction">Introduction aux méthodes ensemblistes</h2>
 		<p>
 			La Partie I de ce cours s'est concentrée sur un seul modèle à la fois : comment garantir
-			l'existence d'un minimum (Leçon 1), le cas particulier des fonctions de perte en <em
-				>machine learning</em
-			>, et par quels algorithmes on atteint le minimum (Leçons 3 et 4). Cette nouvelle partie
+			l'existence d'un minimum (Leçon 1 de la Partie I), le cas particulier des fonctions de perte en
+			<em>machine learning</em>, et par quels algorithmes on atteint le minimum (Leçons 3 et 4 de la
+			Partie I). Cette nouvelle partie
 			change de perspective : plutôt que d'optimiser <em>un</em> modèle du mieux possible, les
 			<strong>méthodes ensemblistes</strong> combinent plusieurs modèles, chacun potentiellement imparfait,
 			pour obtenir des performances supérieures à celles de n'importe lequel d'entre eux pris isolément.

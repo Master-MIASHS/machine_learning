@@ -479,7 +479,7 @@
 			<em>marginale</em> garantie par le théorème de la leçon précédente ne peut pas détecter.
 		</p>
 
-		<Callout type="warning" title="Exercice 11.1">
+		<Callout type="warning" title="Exercice d'application">
 			<p>
 				Comparez les intervalles constants et adaptatifs (ou CQR) sur un jeu de données
 				<strong>hétéroscédastique</strong> :

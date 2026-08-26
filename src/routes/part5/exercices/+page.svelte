@@ -410,7 +410,8 @@
 						formula={String.raw`n`}
 					/> — c'est exactement la situation étudiée pour <KatexInline
 						formula={String.raw`k_0=1`}
-					/> dans l'exercice 2.1 de la Leçon 2.
+					/> dans la Leçon 2 (section « Pourquoi k fixe ne suffit pas »), et quantifiée à
+					l'exercice 2.10.
 				</p>
 			{/snippet}
 			<p>

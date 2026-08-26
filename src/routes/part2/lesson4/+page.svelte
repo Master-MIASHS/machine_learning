@@ -797,7 +797,7 @@
 
 		<Callout type="intuition" title="CV n'est pas la seule route">
 			<p>
-				Pour Ridge, la section précédente a montré que <KatexInline
+				Pour Ridge, la section Ridge a montré que <KatexInline
 					formula={'\\operatorname{df}(\\lambda)'}
 				/> se calcule en forme close, ce qui rend possible une sélection de λ par AIC, BIC ou C<sub
 					>p</sub

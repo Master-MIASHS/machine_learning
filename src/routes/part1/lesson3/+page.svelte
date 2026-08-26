@@ -508,7 +508,8 @@
 		<Callout type="summary" title="Retenir">
 			Le gradient négatif donne la direction de plus forte descente locale. Le choix du pas α et
 			l'utilisation de momentum/Nesterov sont les leviers pratiques pour accélérer la convergence.
-			La leçon suivante aborde le SGD, la coordinate descent et la méthode de Newton-Raphson.
+			Une leçon experte optionnelle sur l'optimiseur Adam suit cette leçon ; la leçon 4 de la partie
+			aborde ensuite le SGD, la coordinate descent et la méthode de Newton-Raphson.
 		</Callout>
 	</TheorySection>
 

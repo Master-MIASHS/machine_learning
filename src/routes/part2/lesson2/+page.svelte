@@ -551,7 +551,8 @@
 			</div>
 			<div class="advantage-card">
 				<strong>✓ Estimation OOB</strong>
-				Les échantillons hors-bag (environ 36,8% de chaque itération bootstrap, cf. Leçon 5) fournissent
+				Les échantillons hors-bag (environ 36,8% de chaque itération bootstrap, cf. la leçon
+				précédente) fournissent
 				une estimation gratuite de la performance sans validation croisée séparée.
 			</div>
 			<div class="advantage-card">

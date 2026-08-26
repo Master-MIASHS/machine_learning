@@ -206,7 +206,7 @@
 			<em>comment reconnaître et garantir l'existence d'un minimum ?</em>
 		</p>
 
-		<p>À l'issue de ce chapitre, vous devrez être capable de :</p>
+		<p>À l'issue de cette leçon, vous devrez être capable de :</p>
 
 		<ol>
 			<li>
@@ -562,8 +562,8 @@
 				d'après un critère équivalent à la Définition 1.6 (convexité via la Hessienne, que nous
 				établirons formellement dans la leçon suivante), suffit à garantir la convexité de <KatexInline
 					formula={String.raw`f`}
-				/>. C'est exactement la structure de la perte des moindres carrés que nous retrouverons au
-				prochain chapitre.
+				/>. C'est exactement la structure de la perte des moindres carrés que nous retrouverons dans
+				la prochaine leçon.
 			</p>
 		</ExampleBlock>
 

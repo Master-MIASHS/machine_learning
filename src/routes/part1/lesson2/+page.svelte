@@ -616,7 +616,7 @@
 
 		<h3>Régularisation Ridge</h3>
 		<Callout type="note">
-			Nous étudierons en détail la régression Ridge dans le chapitre sur la régularisation, où nous
+			Nous étudierons en détail la régression Ridge dans la partie sur la régularisation, où nous
 			aborderons ses propriétés théoriques et son comportement dans différents scénarios.
 		</Callout>
 		<p>
@@ -724,7 +724,7 @@
 		<h3>Régression Lasso</h3>
 
 		<Callout type="note">
-			Nous étudierons en détail la régression Lasso dans le chapitre sur la régularisation, où nous
+			Nous étudierons en détail la régression Lasso dans la partie sur la régularisation, où nous
 			aborderons ses propriétés théoriques et son comportement dans différents scénarios.
 		</Callout>
 

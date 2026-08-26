@@ -600,7 +600,7 @@
 					Ici <KatexInline formula={String.raw`\Omega = [0, +\infty)`} /> est bien fermé et non vide.
 					Mais <KatexInline formula={f218lim} />, donc <KatexInline formula={`f`} /> n'est
 					<strong>pas coercive</strong>. On a <KatexInline formula={f218inf} />. Cet exercice
-					complète le précédent : même avec un domaine fermé (contrairement à l'exercice 2.17),
+					complète le précédent : même avec un domaine fermé (contrairement à l'exercice 1.17),
 					l'absence de coercivité suffit à elle seule à empêcher l'existence d'un minimum — les deux
 					hypothèses du théorème de Weierstrass sont indépendantes et toutes deux nécessaires.
 				</p>
@@ -641,14 +641,14 @@
 						formula={`0`}
 					/>, qui est bien la valeur minimale possible puisque <KatexInline formula={`f`} /> est un carré.
 					Tout point du cercle <KatexInline formula={`x^2+y^2=1`} /> est donc un minimum global. Contrairement
-					à l'exercice 2.11, <KatexInline formula={`f`} /> n'est pas strictement convexe (elle est même
+					à l'exercice 1.11, <KatexInline formula={`f`} /> n'est pas strictement convexe (elle est même
 					non-convexe), ce qui explique cette perte d'unicité : une <strong>continuité</strong>
 					de minimiseurs globaux, et non un point isolé.
 				</p>
 			{/snippet}
 			<p>
 				Soit <KatexInline formula={f220} />. Montrez qu'elle admet une infinité de minima globaux,
-				et expliquez en quoi cela ne contredit pas le résultat de l'exercice 2.11.
+				et expliquez en quoi cela ne contredit pas le résultat de l'exercice 1.11.
 			</p>
 		</ExercisePanel>
 		<ExercisePanel number="1.21" title="Existence et étude de la perte Logistique : log(1 + e⁻ˣ)">

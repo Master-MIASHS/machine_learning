@@ -1547,7 +1547,8 @@
 					vers la solution <strong>la plus régulière</strong> de la famille des solutions
 					interpolantes — ici, celle de marge maximale, qui est exactement la solution du SVM. Or
 					c'est précisément la régularité de la solution (la marge, les normes) qui contrôle la
-					généralisation (Théorème 3.4, bornes par normes). Le biais implicite explique donc une
+					généralisation : la marge via le Théorème 3.4, les normes via la borne par normes de la
+					Leçon 4 (Bartlett, Foster, Telgarsky, 2017). Le biais implicite explique donc une
 					part de la bonne généralisation des réseaux qui « sur-apprennent » leurs données.
 				</p>
 				<p>
