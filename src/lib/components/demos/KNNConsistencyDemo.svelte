@@ -10,6 +10,7 @@
 	import ScatterPlot from '$lib/components/charts/ScatterPlot.svelte';
 	import CurveChart from '$lib/components/charts/CurveChart.svelte';
 	import Slider from '$lib/components/controls/Slider.svelte';
+	import KatexInline from '$lib/components/narrative/KatexInline.svelte';
 	import Metrics from '$lib/components/layout/Metrics.svelte';
 
 	import {
@@ -222,7 +223,21 @@
 	</div>
 </Metrics>
 
+<p class="note">
+	Démonstration <strong>illustrative</strong>, pas une preuve : les points affichés proviennent
+	d'un tirage simulé à graine fixe (régénéré à chaque changement de <KatexInline
+		formula={'n'}
+	/>) ; la consistance universelle de k-NN est un énoncé du théorème de Stone, pas une
+	propriété de ce tirage particulier.
+</p>
+
 <style>
+	.note {
+		font-size: 0.8125rem;
+		color: var(--color-text-muted);
+		line-height: 1.5;
+		margin: 0.75rem 0 0;
+	}
 	.slider-row {
 		display: grid;
 		grid-template-columns: 1fr 1fr;

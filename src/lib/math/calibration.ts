@@ -289,6 +289,47 @@ export function decomposeExcessRisk(
 }
 
 // ---------------------------------------------------------------------------
+// Term C of Théorème 4.2 as a function of the loss alone: the 0-1 risk gap
+// between the classifier h_{f**} induced by the (pointwise) global
+// phi-minimizer and the Bayes classifier, under a discrete law on eta.
+//
+// f** minimizes C_phi(alpha, eta) pointwise, so the gap is 0 exactly when
+// phi is calibrated (pointwise calibration: the sign of alpha* tracks
+// eta - 1/2) and strictly positive otherwise — it is the "price of
+// non-calibration" displayed by the RiskDecompositionDemo.
+// ---------------------------------------------------------------------------
+
+/**
+ * 0-1 gap R(h_{f**}) - R* of the global phi-minimizer under a discrete law
+ * on eta given as (eta, weight) pairs (weights need not be normalized).
+ * Convention at alpha* = 0 (e.g. squared margin, which minimizes to alpha* = 0
+ * for every eta): h predicts +1, i.e. h_f = 1_{f >= 0}; on a symmetric eta law
+ * the value does not depend on this convention. Deterministic — built on
+ * conditionalPhiRiskMinimizer.
+ */
+export function phiMinimizerZeroOneGap(
+	loss: SurrogateLoss,
+	etaWeights: [eta: number, weight: number][]
+): number {
+	if (etaWeights.length === 0) throw new Error('etaWeights must not be empty');
+	const totalWeight = etaWeights.reduce((s, [, w]) => s + w, 0);
+	if (totalWeight <= 0) throw new Error(`weights must sum to a positive value, got ${totalWeight}`);
+	let riskPhiMin = 0;
+	let riskBayes = 0;
+	for (const [eta, weight] of etaWeights) {
+		if (eta < 0 || eta > 1) throw new Error(`eta must be in [0,1], got ${eta}`);
+		if (weight < 0) throw new Error(`weight must be >= 0, got ${weight}`);
+		const { alpha } = conditionalPhiRiskMinimizer(eta, loss);
+		// |alpha| < SIGN_TOLERANCE is numerically alpha = 0 -> predict +1
+		const predictOne = alpha > -SIGN_TOLERANCE;
+		const errorProb = predictOne ? 1 - eta : eta;
+		riskPhiMin += (weight / totalWeight) * errorProb;
+		riskBayes += (weight / totalWeight) * Math.min(eta, 1 - eta);
+	}
+	return Math.max(0, riskPhiMin - riskBayes);
+}
+
+// ---------------------------------------------------------------------------
 // Seeded simulation of the decomposition (illustrative, for the
 // RiskDecompositionDemo): a fixed distribution with Bayes risk bayesRisk, a
 // global phi-minimizer f** at calibrationGap above Bayes (0 for calibrated
@@ -343,4 +384,52 @@ export function simulateExcessRiskDecomposition(
 	// a 0-1 risk cannot exceed 1
 	const rHat = Math.min(1, rStar + estimation);
 	return { ...decomposeExcessRisk(rHat, rStar, rDoubleStar, bayesRisk), rHat, rStar, rDoubleStar, rBayes: bayesRisk };
+}
+
+/**
+ * Mean over nReplicates independent draws of the estimation term. Théorème
+ * 4.2 controls A in expectation (Part VI concentration bounds), and a single
+ * half-normal draw would be 0 for about half of the (seed, n) pairs — so the
+ * RiskDecompositionDemo displays this Monte-Carlo mean.
+ *
+ * The nReplicates standard-normal draws use streams combineSeed(seed, r),
+ * i.e. they are shared across n and only rescaled by sqrt(rStar(1-rStar)/n):
+ * the displayed A(n) = z̄ · sqrt(rStar(1-rStar)/n) is exactly proportional to
+ * 1/sqrt(n) — the rate the theory controls — instead of re-drawing (and
+ * drowning the trend in Monte-Carlo noise) at every sample size.
+ *
+ * All other fields (B, C, intermediate risks) are deterministic in the
+ * parameters. Deterministic for fixed params.
+ */
+export function simulateExcessRiskDecompositionMean(
+	params: ExcessRiskSimulationParams,
+	nReplicates: number
+): ExcessRiskSimulation {
+	if (!Number.isInteger(nReplicates) || nReplicates <= 0)
+		throw new Error(`nReplicates must be a positive integer, got ${nReplicates}`);
+	// also validates params and provides the deterministic risks
+	const single = simulateExcessRiskDecomposition({ ...params, seed: 1 });
+	const { rStar } = single;
+	const scale = Math.sqrt((rStar * (1 - rStar)) / params.n);
+	let sumMaxZ = 0;
+	let sumRHat = 0;
+	for (let r = 0; r < nReplicates; r++) {
+		const z = gaussianSample({ mu: 0, sigma2: 1 }, mulberry32(combineSeed(params.seed ?? 1, r)));
+		const estimation = Math.max(0, z) * scale;
+		sumMaxZ += estimation;
+		// a 0-1 risk cannot exceed 1
+		sumRHat += Math.min(1, rStar + estimation);
+	}
+	const estimation = sumMaxZ / nReplicates;
+	const rHat = sumRHat / nReplicates;
+	return {
+		estimation,
+		calibration: single.calibration,
+		approximation: single.approximation,
+		total: rHat - single.rBayes,
+		rHat,
+		rStar,
+		rDoubleStar: single.rDoubleStar,
+		rBayes: single.rBayes
+	};
 }

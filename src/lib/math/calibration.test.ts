@@ -9,7 +9,9 @@ import {
 	checkCalibration,
 	pointwiseCalibration,
 	decomposeExcessRisk,
+	phiMinimizerZeroOneGap,
 	simulateExcessRiskDecomposition,
+	simulateExcessRiskDecompositionMean,
 	REFERENCE_CLASS_GAP,
 	type LossId
 } from './calibration';
@@ -390,6 +392,52 @@ describe('decomposeExcessRisk (Théorème 4.2)', () => {
 	});
 });
 
+describe('phiMinimizerZeroOneGap (term C of Théorème 4.2)', () => {
+	const etaWeights: [number, number][] = [
+		[0.3, 0.5],
+		[0.7, 0.5]
+	];
+
+	it('is exactly 0 for the four calibrated losses (h_{f**} = h* a.s.)', () => {
+		for (const id of ['logistic', 'hinge', 'exponential', 'brier'] as const) {
+			expect(phiMinimizerZeroOneGap(getLoss(id), etaWeights)).toBe(0);
+		}
+	});
+
+	it('squared margin (alpha* = 0, predicts +1): risk 1/2, so C = 1/2 - R* = 0.2', () => {
+		expect(phiMinimizerZeroOneGap(getLoss('squaredMargin'), etaWeights)).toBeCloseTo(0.2, 10);
+	});
+
+	it('shifted squared (alpha* = 1 - 2 eta, wrong sign on both sides): C = 0.4', () => {
+		expect(phiMinimizerZeroOneGap(getLoss('shiftedSquared'), etaWeights)).toBeCloseTo(0.4, 10);
+	});
+
+	it('is symmetric under eta -> 1 - eta', () => {
+		const flipped = etaWeights.map(([e, w]): [number, number] => [1 - e, w]);
+		for (const id of ['logistic', 'squaredMargin', 'shiftedSquared'] as const) {
+			expect(phiMinimizerZeroOneGap(getLoss(id), flipped)).toBeCloseTo(
+				phiMinimizerZeroOneGap(getLoss(id), etaWeights),
+				10
+			);
+		}
+	});
+
+	it('accepts unnormalized weights (same gap as normalized)', () => {
+		expect(phiMinimizerZeroOneGap(getLoss('shiftedSquared'), [[0.3, 3], [0.7, 7]])).toBeCloseTo(
+			0.4,
+			10
+		);
+	});
+
+	it('rejects invalid inputs', () => {
+		expect(() => phiMinimizerZeroOneGap(getLoss('logistic'), [])).toThrow();
+		expect(() => phiMinimizerZeroOneGap(getLoss('logistic'), [[0.3, 0.5], [1.7, 0.5]])).toThrow();
+		expect(() => phiMinimizerZeroOneGap(getLoss('logistic'), [[-0.3, 0.5], [0.7, 0.5]])).toThrow();
+		expect(() => phiMinimizerZeroOneGap(getLoss('logistic'), [[0.3, -0.5], [0.7, 0.5]])).toThrow();
+		expect(() => phiMinimizerZeroOneGap(getLoss('logistic'), [[0.3, 0], [0.7, 0]])).toThrow();
+	});
+});
+
 describe('simulateExcessRiskDecomposition', () => {
 	const base = { n: 100, classCapacity: 0.5, calibrationGap: 0.02, bayesRisk: 0.2 };
 
@@ -460,5 +508,55 @@ describe('simulateExcessRiskDecomposition', () => {
 		expect(() =>
 			simulateExcessRiskDecomposition({ ...base, bayesRisk: 0.92, calibrationGap: 0.05, classCapacity: 0 })
 		).toThrow();
+	});
+});
+
+describe('simulateExcessRiskDecompositionMean', () => {
+	const base = { n: 200, classCapacity: 0.5, calibrationGap: 0.2, bayesRisk: 0.15 };
+
+	it('is deterministic for fixed parameters', () => {
+		const a = simulateExcessRiskDecompositionMean({ ...base, seed: 1 }, 200);
+		const b = simulateExcessRiskDecompositionMean({ ...base, seed: 1 }, 200);
+		expect(a).toEqual(b);
+	});
+
+	it('the estimation term is exactly proportional to 1/sqrt(n) (shared draws, rescaled)', () => {
+		const a10 = simulateExcessRiskDecompositionMean({ ...base, n: 10, seed: 1 }, 200).estimation;
+		const a2000 = simulateExcessRiskDecompositionMean({ ...base, n: 2000, seed: 1 }, 200).estimation;
+		expect(a10 / a2000).toBeCloseTo(Math.sqrt(200), 10);
+	});
+
+	it('the estimation mean converges to the half-normal mean scale/sqrt(2 pi)', () => {
+		const single = simulateExcessRiskDecomposition({ ...base, seed: 1 });
+		const scale = Math.sqrt((single.rStar * (1 - single.rStar)) / base.n);
+		const mean = simulateExcessRiskDecompositionMean({ ...base, seed: 1 }, 2000).estimation;
+		expect(mean).toBeCloseTo(scale / Math.sqrt(2 * Math.PI), 1);
+	});
+
+	it('the estimation mean is non-increasing in n over the demo slider grid', () => {
+		let prev = Infinity;
+		for (let n = 10; n <= 2000; n += 10) {
+			const e = simulateExcessRiskDecompositionMean({ ...base, n, seed: 1 }, 200).estimation;
+			expect(e).toBeLessThanOrEqual(prev + 1e-15);
+			prev = e;
+		}
+	});
+
+	it('deterministic fields match a single simulation; telescoping identity holds', () => {
+		const m = simulateExcessRiskDecompositionMean({ ...base, seed: 1 }, 200);
+		const s = simulateExcessRiskDecomposition({ ...base, seed: 1 });
+		expect(m.calibration).toBe(s.calibration);
+		expect(m.approximation).toBe(s.approximation);
+		expect(m.rStar).toBe(s.rStar);
+		expect(m.rDoubleStar).toBe(s.rDoubleStar);
+		expect(m.rBayes).toBe(s.rBayes);
+		expect(m.total).toBeCloseTo(m.estimation + m.calibration + m.approximation, 12);
+		expect(m.total).toBeCloseTo(m.rHat - m.rBayes, 12);
+	});
+
+	it('throws for invalid nReplicates', () => {
+		expect(() => simulateExcessRiskDecompositionMean(base, 0)).toThrow();
+		expect(() => simulateExcessRiskDecompositionMean(base, -3)).toThrow();
+		expect(() => simulateExcessRiskDecompositionMean(base, 2.5)).toThrow();
 	});
 });

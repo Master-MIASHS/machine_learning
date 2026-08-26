@@ -67,7 +67,13 @@ const RAW_PAGES = [
 		title: 'Limites de VC et double descente',
 		part: 6
 	},
-	{ path: '/part6/exercices', title: 'Exercices', part: 6 }
+	{ path: '/part6/exercices', title: 'Exercices', part: 6 },
+
+	// Partie VII – Fonctions de perte
+	{ path: '/part7/lesson1', title: 'De la perte 0-1 aux pertes proxy', part: 7 },
+	{ path: '/part7/lesson2', title: 'Calibration des pertes convexes', part: 7 },
+	{ path: '/part7/lesson3', title: 'Décomposition de l’erreur', part: 7 },
+	{ path: '/part7/exercices', title: 'Exercices — Fonctions de perte', part: 7 }
 ] as const;
 
 // 2. Hydrate indices and inject runtime resolved path property

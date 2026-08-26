@@ -197,7 +197,19 @@
 	{/if}
 </Metrics>
 
+<p class="note">
+	Démonstration <strong>illustrative</strong>, pas une preuve : les risques empiriques affichés
+	correspondent à des tirages simulés à graines fixes ; la convergence uniforme en probabilité est
+	l'énoncé du théorème de généralisation, pas une propriété qu'un tirage unique permet d'observer.
+</p>
+
 <style>
+	.note {
+		font-size: 0.8125rem;
+		color: var(--color-text-muted);
+		line-height: 1.5;
+		margin: 0.75rem 0 0;
+	}
 	.erm-toggle {
 		display: flex;
 		align-items: center;

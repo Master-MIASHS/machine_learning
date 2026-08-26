@@ -121,8 +121,9 @@
 	</div>
 </Metrics>
 
-<p class="note">
-	La borne |H|e⁻ⁿᵋ majore à la fois la probabilité qu'au moins une hypothèse trompeuse existe et le
+	<p class="note">
+		Démonstration <strong>illustrative</strong>, pas une preuve : la borne |H|e⁻ⁿᵋ majore à la fois
+		la probabilité qu'au moins une hypothèse trompeuse existe et le
 	nombre moyen attendu de telles hypothèses — le nombre observé ci-dessus, sur cet unique tirage,
 	n'a donc pas à rester en dessous à chaque essai, mais sa moyenne sur de nombreux tirages le
 	devrait. Le majorant de risque log(|H|/δ)/n (Metrics, à droite) est exactement la même borne,

@@ -14,6 +14,7 @@
 	import CurveChart from '$lib/components/charts/CurveChart.svelte';
 	import Slider from '$lib/components/controls/Slider.svelte';
 	import Metrics from '$lib/components/layout/Metrics.svelte';
+	import KatexInline from '$lib/components/narrative/KatexInline.svelte';
 
 	import {
 		simulateRiskPath,
@@ -116,3 +117,19 @@
 		<span class="value">{TRIALS} tirages</span>
 	</div>
 </Metrics>
+
+<p class="note">
+	Démonstration <strong>illustrative</strong>, pas une preuve : les trajectoires et les quantités
+	affichées sont simulées ({TRIALS} tirages, graines fixes) ; le théorème de Stone garantit la
+	convergence presque sûre pour tout <KatexInline formula={'k(n)'} /> vérifiant ses conditions,
+	indépendamment de cette visualisation.
+</p>
+
+<style>
+	.note {
+		font-size: 0.8125rem;
+		color: var(--color-text-muted);
+		line-height: 1.5;
+		margin: 0.75rem 0 0;
+	}
+</style>
