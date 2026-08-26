@@ -4,7 +4,7 @@
 	import Bibliography from '$lib/components/narrative/bib/Bibliography.svelte';
 	import BibElement from '$lib/components/narrative/bib/BibElement.svelte';
 	import { getPageByPath, getNextPage, getPrevPage } from '$lib/navigation.js';
-	import { asset } from '$app/paths';
+	import { asset, resolve } from '$app/paths';
 
 	const meta = getPageByPath('/intro');
 	const prevMeta = $derived(getPrevPage(meta?.index ?? 0));
@@ -48,6 +48,62 @@
 					<strong>Partie 3 :</strong> Évaluation & Prédictions Conformelles (PDF)
 				</a>
 			</li>
+			<li>
+				<a href={asset('/pdf/theory.pdf')} target="_blank" rel="noopener noreferrer">
+					<strong>Parties 4 à 7 :</strong> Théorie de l'Apprentissage Statistique —
+					optimum de Bayes, consistance, généralisation, fonctions de perte (PDF)
+				</a>
+			</li>
+		</ul>
+
+		<h2>Plan du cours</h2>
+
+		<ul>
+			<li>
+				<a href={resolve('/part1/lesson1')}>
+					<strong>Partie I — Optimisation :</strong> conditions d'un minimum, fonctions
+					d'optimisation en ML, descente de gradient et accélération (dont Adam), SGD,
+					descente par coordonnées et méthode de Newton.
+				</a>
+			</li>
+			<li>
+				<a href={resolve('/part2/lesson1')}>
+					<strong>Partie II — Régularisation :</strong> méthodes ensemblistes et Bagging,
+					Random Forest et sélection de features, Boosting (AdaBoost, Gradient Boosting),
+					régularisation L1/L2/Elastic Net.
+				</a>
+			</li>
+			<li>
+				<a href={resolve('/part3/lesson1')}>
+					<strong>Partie III — Set-valued / Prédictions conformelles :</strong>
+					classification Top-K, prédiction conformelle, intervalles de prédiction.
+				</a>
+			</li>
+			<li>
+				<a href={resolve('/part4/lesson1')}>
+					<strong>Partie IV — Optimum de Bayes :</strong> classifieur de Bayes,
+					régression optimale (L2/L1), risque de Bayes comme borne irréductible.
+				</a>
+			</li>
+			<li>
+				<a href={resolve('/part5/lesson1')}>
+					<strong>Partie V — Consistance :</strong> convergence des classifieurs appris
+					(en probabilité, en espérance, universelle), consistance du k-NN.
+				</a>
+			</li>
+			<li>
+				<a href={resolve('/part6/lesson1')}>
+					<strong>Partie VI — Généralisation :</strong> inégalités de concentration
+					(Markov, Tchebychev), bornes de généralisation pour classes finies, dimension VC
+					et lemme de Sauer–Shelah, SVM, limites de la théorie VC et double descente.
+				</a>
+			</li>
+			<li>
+				<a href={resolve('/part7/lesson1')}>
+					<strong>Partie VII — Fonctions de perte :</strong> de la perte 0-1 aux pertes
+					proxy convexes, calibration des pertes, décomposition de l'erreur.
+				</a>
+			</li>
 		</ul>
 
 		<h2>Objectifs du cours</h2>
@@ -75,6 +131,29 @@
 				et appliquer la
 				<em>Conformal Prediction</em> (prédiction conforme) pour construire des intervalles de prédiction
 				garantis à un niveau de confiance choisi, sans hypothèse forte sur la distribution des données.
+			</li>
+			<li>
+				<strong>Caractériser l'optimum :</strong> Dériver le classifieur de Bayes et la
+				régression optimale (espérance conditionnelle pour la perte L2, médiane conditionnelle
+				pour la perte L1) et identifier le risque de Bayes comme borne inférieure
+				irréductible de la performance.
+			</li>
+			<li>
+				<strong>Analyser la convergence :</strong> Définir la consistance d'une suite de
+				classifieurs appris (en probabilité, en espérance, universelle) et la vérifier pour
+				des algorithmes standards tels que le k-NN.
+			</li>
+			<li>
+				<strong>Bonder la généralisation :</strong> Appliquer les inégalités de concentration
+				(Markov, Tchebychev) et la théorie VC (dimension VC, lemme de Sauer–Shelah) pour
+				établir des bornes de généralisation (classes finies, SVM), et discuter les limites
+				de la théorie VC en deep learning (double descente).
+			</li>
+			<li>
+				<strong>Concevoir des pertes optimisables :</strong> Expliquer pourquoi la perte 0-1
+				ne s'optimise pas, choisir une perte proxy convexe (charnière, logistique), appliquer
+				le théorème de calibration et décomposer l'excès de risque en termes d'estimation,
+				de calibration et d'approximation.
 			</li>
 		</ul>
 	</TheorySection>
