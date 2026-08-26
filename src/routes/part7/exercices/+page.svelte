@@ -109,8 +109,8 @@
 </svelte:head>
 
 <PageTemplate
-	title={meta?.title ?? 'Exercices — Fonctions de perte et calibration'}
-	subtitle="Partie VII"
+	title={meta?.title ?? 'Exercices — Fonctions de perte'}
+	subtitle="12 exercices sur les trois leçons de la partie : pertes proxy, calibration des pertes convexes et décomposition de l'erreur"
 	prev={prevMeta}
 	next={nextMeta}
 >
