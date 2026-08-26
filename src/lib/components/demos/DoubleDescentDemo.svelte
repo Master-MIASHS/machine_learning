@@ -91,7 +91,7 @@
 		must land exactly on the d = n threshold; the default B-spline smoothing
 		lags sharp changes and would reach the floor only after it. -->
 	<CurveChart
-		curve="linear"
+		curve="linerar"
 		{yScaleType}
 		yDomain={yScaleType === 'log' ? logYDomain : undefined}
 		curves={[
