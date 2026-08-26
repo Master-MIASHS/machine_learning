@@ -160,7 +160,9 @@
 						formula={String.raw`\alpha^\star`}
 					/> : le signe d'<KatexInline formula={String.raw`\alpha^\star`} /> suit celui de <KatexInline
 						formula={String.raw`\eta - 1/2`}
-					/>.
+					/>. La courbe tracée est le risque conditionnel <KatexInline
+						formula={String.raw`C_\varphi(\alpha, \eta) = \eta\,\varphi(\alpha) + (1-\eta)\,\varphi(-\alpha)`}
+					/>, non la perte <KatexInline formula={String.raw`\varphi`} /> elle-même.
 				{/snippet}
 			</Figure>
 
@@ -252,7 +254,9 @@
 						formula={String.raw`\alpha^\star`}
 					/> : le signe d'<KatexInline formula={String.raw`\alpha^\star`} /> ne suit pas celui de <KatexInline
 						formula={String.raw`\eta - 1/2`}
-					/>.
+					/>. La courbe tracée est le risque conditionnel <KatexInline
+						formula={String.raw`C_\varphi(\alpha, \eta) = \eta\,\varphi(\alpha) + (1-\eta)\,\varphi(-\alpha)`}
+					/>, non la perte <KatexInline formula={String.raw`\varphi`} /> elle-même.
 				{/snippet}
 			</Figure>
 
@@ -363,7 +367,17 @@
 			formula={String.raw`\alpha^\star`}
 		/> est du mauvais signe des deux côtés de <KatexInline formula={String.raw`\eta = 1/2`} />. La
 		charnière est différentiable en 0 (son point d'angle est en t = 1), avec
-		<KatexInline formula="\varphi'(0) = -1" /> : elle est calibrée.
+		<KatexInline formula="\varphi'(0) = -1" /> : elle est calibrée. Les courbes tracées sont les
+		risques conditionnels <KatexInline
+			formula={String.raw`C_\varphi(\alpha, \eta) = \eta\,\varphi(\alpha) + (1-\eta)\,\varphi(-\alpha)`}
+		/>, et non les pertes <KatexInline formula={String.raw`\varphi`} /> elles-mêmes : pour
+		<KatexInline formula={String.raw`\eta \in (0,1)`} /> elles divergent en
+		<KatexInline formula={String.raw`\alpha \to \pm\infty`} /> — y compris pour une perte qui s'annule en
+		<KatexInline formula={String.raw`t \to +\infty`} />, le terme <KatexInline
+			formula={String.raw`\varphi(-\alpha)`}
+		/>
+		explosant quand <KatexInline formula={String.raw`\alpha \to +\infty`} /> — ce qui garantit un
+		minimiseur <KatexInline formula={String.raw`\alpha^\star`} /> fini.
 	</p>
 </div>
 

@@ -12,6 +12,7 @@
 	import BibElement from '$lib/components/narrative/bib/BibElement.svelte';
 	import ConditionalCalibrationDemo from '$lib/components/demos/ConditionalCalibrationDemo.svelte';
 	import CalibrationCriterionDemo from '$lib/components/demos/CalibrationCriterionDemo.svelte';
+	import CalibratedLossExplorer from '$lib/components/demos/CalibratedLossExplorer.svelte';
 	import { getPageByPath, getNextPage, getPrevPage } from '$lib/navigation.js';
 	import { createPageTracker } from '$lib/stores/progress.svelte';
 	import type { PageMeta } from '$lib/navigation.js';
@@ -100,6 +101,12 @@
 		'(C_\\varphi)\'_-(0) = (2\\eta-1)\\, \\varphi\'(0) > 0, \\quad \\text{donc} \\quad \\arg\\min_{\\alpha} C_\\varphi(\\alpha, \\eta) \\subset \\mathbb R_-^*';
 
 	const logisticDeriv = '\\varphi\'(t) = -\\frac{e^{-t}}{1+e^{-t}}';
+
+	const phiDivergesNeg = '\\varphi(t) \\to +\\infty \\;\\;\\text{quand}\\;\\; t \\to -\\infty';
+	const cphiDivergesAtEnds =
+		'C_\\varphi(\\alpha, \\eta) \\to +\\infty \\;\\;\\text{quand}\\;\\; \\alpha \\to \\pm\\infty';
+	const brierGrowth = '\\varphi(t) \\sim t^2 \\;\\;(t \\to +\\infty)';
+	const hingeZero = '\\varphi(t) = 0 \\;\\;\\text{dès}\\;\\; t \\ge 1';
 </script>
 
 <svelte:head>
@@ -175,6 +182,18 @@
 			Le <KatexInline formula={'\\varphi'} />-risque de Bayes conditionnel est :
 		</p>
 		<KatexBlock formula={conditionalBayesRisk} />
+
+		<p>
+			Pour les quatre pertes usuelles, <KatexInline formula={phiDivergesNeg} /> ; alors, pour
+			<KatexInline formula={'\\eta \\in (0,1)'} />, <KatexInline formula={cphiDivergesAtEnds} /> — le
+			terme <KatexInline formula={'\\varphi(-\\alpha)'} /> explose quand <KatexInline
+				formula={'\\alpha \\to +\\infty'}
+			/>
+			, et le terme <KatexInline formula={'\\varphi(\\alpha)'} /> quand <KatexInline
+				formula={'\\alpha \\to -\\infty'} /> — : l'infimum de la définition précédente est donc
+			atteint en un <KatexInline formula={'\\alpha^*'} /> fini, ce qui rend le minimiseur ponctuel bien
+			défini.
+		</p>
 
 		<DefinitionBlock title="Calibration ponctuelle">
 			<p>
@@ -363,6 +382,26 @@
 			</p>
 		</div>
 
+		<InteractiveSection
+			number="2.2"
+			title="La face perte du critère : φ et sa pente en 0"
+			onInteract={tracker.trackInteraction}
+		>
+			<p class="demo-guide">
+				<strong>À observer.</strong> La définition de la calibration est énoncée en termes du
+				minimiseur de <KatexInline formula={String.raw`C_\varphi(\alpha, \eta)`} />, mais le
+				théorème montre qu'elle ne dépend que de la perte <KatexInline formula={'\\varphi'} />
+				elle-même : sa pente en 0. Sélectionnez chaque perte et ramenez <KatexInline
+					formula={'t'}
+				/>
+				vers 0 : la valeur de <KatexInline formula={"\\varphi'(0)"} /> affichée est négative pour les
+				quatre (−1/2, −1, −1, −2) — c'est la face « perte » de l'équivalence, en contraste avec le
+				widget 2.1, qui montrait <KatexInline formula={String.raw`C_\varphi`} />. Le théorème est
+				précisément le pont entre les deux objets.
+			</p>
+			<CalibratedLossExplorer />
+		</InteractiveSection>
+
 		<h2 id="verification-exemples">Vérification sur les pertes usuelles</h2>
 
 		<ul>
@@ -389,6 +428,15 @@
 		</ul>
 
 		<p>
+			À noter : la Brier est la seule des quatre qui ne s'annule pas quand
+			<KatexInline formula={'t \\to +\\infty'} /> — elle croît comme <KatexInline
+				formula={brierGrowth}
+			/>
+			et pénalise donc aussi les grandes marges correctes (défaut connu du moindres carrés), tandis que
+			la charnière vaut <KatexInline formula={hingeZero} />.
+		</p>
+
+		<p>
 			Les quatre pertes de substitution de la leçon précédente sont donc calibrées : minimiser leur
 			<KatexInline formula={'\\varphi'} />-risque empirique jusqu'à sa borne inférieure conduit au
 			classifieur de Bayes. La leçon suivante quantifiera ce qui se passe quand on ne descend que
@@ -396,7 +444,7 @@
 		</p>
 
 		<InteractiveSection
-			number="2.2"
+			number="2.3"
 			title="Calibrée ou non : le signe du minimiseur en parallèle"
 			onInteract={tracker.trackInteraction}
 		>

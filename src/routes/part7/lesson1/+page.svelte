@@ -365,6 +365,19 @@
 			près.
 		</Callout>
 
+		<Callout type="note" title="Que veut dire « calibrée » ?">
+			<p>
+				On dit qu'une perte de substitution <KatexInline formula={'\\varphi'} /> est
+				<strong>calibrée</strong> quand elle « fonctionne » pour la classification : toute suite de
+				modèles qui amène le <KatexInline formula={'\\varphi'} />-risque vers sa borne inférieure
+				amène aussi le risque 0-1 vers la sienne — minimiser le proxy conduit alors bien au
+				classifieur de Bayes. La définition formelle, et le critère <KatexInline
+					formula={"\\varphi'(0) < 0"}
+				/>
+				qui caractérise les pertes convexes calibrées, font l'objet de la leçon suivante.
+			</p>
+		</Callout>
+
 		<p>
 			Il reste à répondre à la question posée en introduction : minimiser <KatexInline
 				formula={'R_\\phi'}

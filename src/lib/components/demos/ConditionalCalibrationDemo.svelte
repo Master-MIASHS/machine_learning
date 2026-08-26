@@ -101,7 +101,10 @@
 			Le minimiseur α* (pointillés bleus) est ce que la calibration ponctuelle contraint : son signe
 			doit correspondre à celui de η − 1/2 pour tout η ≠ 1/2. Le point noir suit le curseur α
 			ci-dessous, indépendamment du minimiseur — déplacez-le pour comparer un choix arbitraire au
-			minimum réel.
+			minimum réel. La courbe tracée est le risque conditionnel C_φ(α, η) = ηφ(α) + (1−η)φ(−α), et non
+			la perte φ elle-même : elle diverge en α → ±∞ même pour une perte qui s'annule en t → +∞
+			(logistique, charnière, exponentielle), car le terme φ(−α) explose quand α → +∞ — c'est
+			précisément ce qui garantit un minimiseur α* fini.
 		{/snippet}
 	</Figure>
 
