@@ -11,6 +11,7 @@ import {
 	generateGenericHypothesisClass,
 	simulateEmpiricalRisks,
 	doubleDescentCurve,
+	doubleDescentComplexityCurve,
 	estimateParameterCount,
 	neuralVCDimEstimate,
 	neuralVCGeneralizationEstimate,
@@ -284,17 +285,17 @@ describe('doubleDescentCurve', () => {
 		expect(curve.map((p) => p.n)).toEqual(nGrid);
 	});
 
-	it('interpolates near-perfectly (train risk ~ 0) in the underparameterized regime n < d', () => {
+	it('interpolates near-perfectly (train risk ~ 0) in the overparameterized regime n < d', () => {
 		const curve = doubleDescentCurve([Math.floor(d / 2)], d, 15, 1, 150, 3);
 		expect(curve[0].trainRisk).toBeLessThan(1e-6);
 	});
 
-	it('shows a generalization gap in the underparameterized regime (test > train)', () => {
+	it('shows a generalization gap in the overparameterized regime (test > train)', () => {
 		const curve = doubleDescentCurve([Math.floor(d / 2)], d, 15, 1, 150, 5);
 		expect(curve[0].testRisk).toBeGreaterThan(curve[0].trainRisk);
 	});
 
-	it('test risk in the far overparameterized regime approaches the irreducible noise variance', () => {
+	it('test risk in the far underparameterized regime approaches the irreducible noise variance', () => {
 		const noiseStd = 1;
 		const curve = doubleDescentCurve([d * 20], d, 15, noiseStd, 300, 9);
 		// Generous tolerance: this is a Monte-Carlo estimate, not an exact value.
@@ -312,6 +313,69 @@ describe('doubleDescentCurve', () => {
 		expect(() => doubleDescentCurve([10], 10, 0, 1, 100, 1)).toThrow();
 		expect(() => doubleDescentCurve([10], 10, 5, 1, 0, 1)).toThrow();
 		expect(() => doubleDescentCurve([0], 10, 5, 1, 100, 1)).toThrow();
+	});
+});
+
+describe('doubleDescentComplexityCurve', () => {
+	// Small n and moderate repetitions/testSize to keep the test suite fast
+	// while still exhibiting the phenomenon. The ground truth lives in
+	// D = max(dGrid) coordinates.
+	const n = 10;
+
+	it('is deterministic for a fixed seed', () => {
+		const dGrid = [3, 5, 10, 20, 30];
+		const a = doubleDescentComplexityCurve(dGrid, n, 8, 1, 150, 1, 42);
+		const b = doubleDescentComplexityCurve(dGrid, n, 8, 1, 150, 1, 42);
+		expect(a).toEqual(b);
+	});
+
+	it('returns one point per d, with matching d values', () => {
+		const dGrid = [3, 5, 10, 20];
+		const curve = doubleDescentComplexityCurve(dGrid, n, 8, 1, 150, 1, 7);
+		expect(curve.map((p) => p.d)).toEqual(dGrid);
+	});
+
+	it('interpolates near-perfectly (train risk ~ 0) in the overparameterized regime d > n', () => {
+		const curve = doubleDescentComplexityCurve([2 * n], n, 15, 1, 150, 1, 3);
+		expect(curve[0].trainRisk).toBeLessThan(1e-6);
+	});
+
+	it('leaves unmodeled signal when the model is small (test risk well above the noise floor)', () => {
+		// The ground truth (squared norm 1) lives in 3n coordinates; the
+		// d = n/2 model leaves most of it unmodeled, so the test risk is
+		// well above the noise floor.
+		const noiseStd = 1;
+		const [smallModel] = doubleDescentComplexityCurve([Math.floor(n / 2), 3 * n], n, 15, noiseStd, 300, 1, 5);
+		expect(smallModel.testRisk).toBeGreaterThan(noiseStd ** 2 * 2);
+	});
+
+	it('shows a generalization gap in the underparameterized regime (test > train)', () => {
+		const curve = doubleDescentComplexityCurve([Math.floor(n / 2), 3 * n], n, 15, 1, 300, 1, 5);
+		expect(curve[0].testRisk).toBeGreaterThan(curve[0].trainRisk);
+	});
+
+	it('test risk settles just above the noise floor once the model contains the whole signal (d = 3n)', () => {
+		// truthNorm = 1: at d = 3n the min-norm interpolator keeps a residual
+		// bias (1 - n/d)||beta||^2 = 2/3 plus the small variance term
+		// n/(d-n-1), so the risk is low but strictly above sigma^2.
+		const noiseStd = 1;
+		const curve = doubleDescentComplexityCurve([3 * n], n, 15, noiseStd, 300, 1, 9);
+		// Generous tolerance: this is a Monte-Carlo estimate, not an exact value.
+		expect(curve[0].testRisk).toBeGreaterThan(noiseStd ** 2 * 1.5);
+		expect(curve[0].testRisk).toBeLessThan(noiseStd ** 2 * 3);
+	});
+
+	it('test risk near the interpolation threshold d=n is elevated compared to the far overparameterized regime', () => {
+		const [atThreshold, farOver] = doubleDescentComplexityCurve([n, 3 * n], n, 15, 1, 300, 1, 11);
+		expect(atThreshold.testRisk).toBeGreaterThan(farOver.testRisk);
+	});
+
+	it('throws for non-positive n, repetitions, testSize, d, or negative truthNorm', () => {
+		expect(() => doubleDescentComplexityCurve([10], 0, 5, 1, 100, 1, 1)).toThrow();
+		expect(() => doubleDescentComplexityCurve([10], 10, 0, 1, 100, 1, 1)).toThrow();
+		expect(() => doubleDescentComplexityCurve([10], 10, 5, 1, 0, 1, 1)).toThrow();
+		expect(() => doubleDescentComplexityCurve([0], 10, 5, 1, 100, 1, 1)).toThrow();
+		expect(() => doubleDescentComplexityCurve([10], 10, 5, 1, 100, -1, 1)).toThrow();
 	});
 });
 

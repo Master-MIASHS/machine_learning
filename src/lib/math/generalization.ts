@@ -406,6 +406,100 @@ export function doubleDescentCurve(
 	});
 }
 
+export interface DoubleDescentComplexityPoint {
+	d: number;
+	trainRisk: number;
+	testRisk: number;
+}
+
+function doubleDescentComplexityTrial(
+	d: number,
+	dMax: number,
+	beta: number[],
+	n: number,
+	noiseStd: number,
+	testSize: number,
+	rand: () => number
+): { trainRisk: number; testRisk: number } {
+	// Features live in R^dMax; the d-dimensional model uses the first d
+	// coordinates, so coordinates d+1..dMax of the truth are unmodeled bias.
+	const XTrain = randomMatrix(n, dMax, rand);
+	const yTrain = matVecMul(XTrain, beta).map((v) => v + gaussianSample(rand) * noiseStd);
+	const XTrainModel = XTrain.map((row) => row.slice(0, d));
+	const betaHat = fitMinNormLeastSquares(XTrainModel, yTrain);
+	const trainRisk = meanSquaredError(yTrain, matVecMul(XTrainModel, betaHat));
+
+	const XTest = randomMatrix(testSize, dMax, rand);
+	const yTest = matVecMul(XTest, beta).map((v) => v + gaussianSample(rand) * noiseStd);
+	const XTestModel = XTest.map((row) => row.slice(0, d));
+	const testRisk = meanSquaredError(yTest, matVecMul(XTestModel, betaHat));
+
+	return { trainRisk, testRisk };
+}
+
+/**
+ * Train/test risk of pseudo-inverse linear regression across a grid of model
+ * dimensions d, for fixed sample size n — the "complexity" viewpoint of
+ * double descent (risk vs. number of parameters at fixed n, as defined in
+ * theorie.typ; the DoubleDescentDemo x-axis). Dual of doubleDescentCurve().
+ *
+ * Ground truth: one dense beta in R^D drawn once for the whole curve,
+ * D = max(dGrid), scaled so that E||beta||^2 = truthNorm (variance
+ * truthNorm/D per coordinate); the d-dimensional model uses the first d
+ * coordinates, so unmodeled coordinates d+1..D contribute approximation
+ * bias for d < D (the classic bias-variance tradeoff of the underparameterized
+ * branch). In the overparameterized branch the min-norm interpolator keeps a
+ * residual bias (1 - n/d)||beta||^2 — it projects the truth onto the
+ * n-dimensional row space of X — so the test risk settles just above the
+ * noise floor sigma^2 rather than on it (keep truthNorm comparable to
+ * sigma^2 for the standard double-descent shape). X and noise are redrawn
+ * independently each repetition and averaged. Deterministic for a given seed.
+ *
+ * Cost is O(repetitions * (n + testSize) * D + min(n,d)^3) per grid point —
+ * keep n, the grid size, and repetitions modest for interactive use.
+ */
+export function doubleDescentComplexityCurve(
+	dGrid: number[],
+	n = 20,
+	repetitions = 10,
+	noiseStd = 1,
+	testSize = 200,
+	truthNorm = 1,
+	seed = 1
+): DoubleDescentComplexityPoint[] {
+	if (n <= 0) throw new Error(`n must be positive, got ${n}`);
+	if (repetitions <= 0) throw new Error(`repetitions must be positive, got ${repetitions}`);
+	if (noiseStd < 0) throw new Error(`noiseStd must be >= 0, got ${noiseStd}`);
+	if (testSize <= 0) throw new Error(`testSize must be positive, got ${testSize}`);
+	if (truthNorm < 0) throw new Error(`truthNorm must be >= 0, got ${truthNorm}`);
+	if (dGrid.length === 0) throw new Error('dGrid must not be empty');
+
+	const dMax = Math.max(...dGrid);
+	const rand = mulberry32(seed);
+	// Fixed ground truth for the whole curve, scaled to E||beta||^2 = truthNorm.
+	const beta = randomVector(dMax, rand).map((v) => v * Math.sqrt(truthNorm / dMax));
+
+	return dGrid.map((d) => {
+		if (d <= 0) throw new Error(`d must be positive, got ${d}`);
+		let trainSum = 0;
+		let testSum = 0;
+		for (let r = 0; r < repetitions; r++) {
+			const { trainRisk, testRisk } = doubleDescentComplexityTrial(
+				d,
+				dMax,
+				beta,
+				n,
+				noiseStd,
+				testSize,
+				rand
+			);
+			trainSum += trainRisk;
+			testSum += testRisk;
+		}
+		return { d, trainRisk: trainSum / repetitions, testRisk: testSum / repetitions };
+	});
+}
+
 // ---------------------------------------------------------------------------
 // Indicative neural-network bounds (illustrative, NOT exact constants)
 //

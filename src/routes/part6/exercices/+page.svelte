@@ -1377,47 +1377,51 @@
 		<ExercisePanel number="4.3" title="Lire la courbe de double descente">
 			{#snippet solution()}
 				<p>
-					Dans la démo de la Leçon 4 (régression linéaire par pseudo-inverse, dimension
-					<KatexInline formula={String.raw`d = 50`} />, taille d'échantillon <KatexInline
-						formula={String.raw`n`}
-					/> variant autour du seuil <KatexInline formula={String.raw`n = d`} />) :
+					Dans la démo de la Leçon 4 (régression linéaire par pseudo-inverse, taille
+					d'échantillon <KatexInline formula={String.raw`n`} /> fixée par le curseur,
+					dimension <KatexInline formula={String.raw`d`} /> variant autour du seuil
+					<KatexInline formula={String.raw`d = n`} />) :
 				</p>
 				<ul>
 					<li>
-						<KatexInline formula={String.raw`n < d`} /> (régime sous-paramétré) : le système est
-						sous-déterminé, la pseudo-inverse choisit la solution de norme minimale parmi une
-						infinité de solutions — le risque empirique est nul (interpolation) mais l'erreur de
-						test est élevée.
+						<KatexInline formula={String.raw`d < n`} /> (régime sous-paramétré) : le système est
+						sur-déterminé, la pseudo-inverse calcule la solution aux moindres carrés ; l'erreur de
+						test suit le compromis biais-variance classique (biais décroissant, variance
+						croissante avec d).
 					</li>
 					<li>
-						<KatexInline formula={String.raw`n = d`} /> (seuil d'interpolation) : le système est
+						<KatexInline formula={String.raw`d = n`} /> (seuil d'interpolation) : le système est
 						exactement déterminé, la matrice de conception est mal conditionnée et l'erreur de
 						test <strong>explose</strong>.
 					</li>
-					<li>
-						<KatexInline formula={String.raw`n > d`} /> (régime sur-paramétré) : le système est
-						sur-déterminé, la pseudo-inverse calcule la solution aux moindres carrés ; l'erreur de
-						test redescend et converge vers l'erreur de Bayes irréductible
-						<KatexInline formula={String.raw`\sigma^2 = 1`} />.
-					</li>
+				<li>
+					<KatexInline formula={String.raw`d > n`} /> (régime sur-paramétré) : le système est
+					sous-déterminé, la pseudo-inverse choisit la solution de norme minimale parmi une
+					infinité de solutions — le risque empirique est nul (interpolation) ; l'erreur de
+					test, explosée au seuil, redescend avec d vers un niveau bas, légèrement supérieur
+					au bruit irréductible <KatexInline formula={String.raw`\sigma^2 = 1`} /> : la solution
+					de norme minimale ne capture que la composante du signal dans le sous-espace de rang
+					<KatexInline formula={String.raw`n`} /> engendré par les observations (biais résiduel
+					<KatexInline formula={String.raw`(1 - n/d)\,\|\beta\|`} />).
+				</li>
 				</ul>
 				<p>
 					Le risque empirique est nul (interpolation) pour <KatexInline
-						formula={String.raw`n \le d`} /> ; c'est l'erreur de <em>test</em> qui explose
+						formula={String.raw`d \ge n`} /> ; c'est l'erreur de <em>test</em> qui explose
 					précisément au seuil, et le minimum global de l'erreur de test est atteint
 					<em>après</em> le seuil, dans le régime sur-paramétré — d'où la « double descente ».
 				</p>
 			{/snippet}
 			<p>
 				Dans la démonstration interactive de la Leçon 4 (régression linéaire par pseudo-inverse,
-				dimension <KatexInline formula={String.raw`d = 50`} />, taille d'échantillon
-				<KatexInline formula={String.raw`n`} /> variant autour du seuil <KatexInline
-					formula={String.raw`n = d`}
-				/>), décrivez qualitativement ce qui arrive à l'erreur de test dans les trois régimes
-				<KatexInline formula={String.raw`n < d`} />, <KatexInline
-					formula={String.raw`n = d`}
-				/> et <KatexInline formula={String.raw`n > d`} />. Dans quel(s) régime(s) le modèle
-				interpole-t-il les données (risque empirique nul) ?
+				taille d'échantillon <KatexInline formula={String.raw`n`} /> fixée par le curseur,
+				dimension <KatexInline formula={String.raw`d`} /> variant autour du seuil
+				<KatexInline formula={String.raw`d = n`} />), décrivez qualitativement ce qui arrive à
+				l'erreur de test dans les trois régimes <KatexInline
+					formula={String.raw`d < n`}
+				/>, <KatexInline formula={String.raw`d = n`} /> et <KatexInline
+					formula={String.raw`d > n`}
+				/> . Dans quel(s) régime(s) le modèle interpole-t-il les données (risque empirique nul) ?
 			</p>
 		</ExercisePanel>
 

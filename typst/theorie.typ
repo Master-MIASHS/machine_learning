@@ -863,20 +863,20 @@ où :
     linéaire par pseudo-inverse en dimension $d = 50$, moyennée sur
     $50$ répétitions. La ligne verticale pointillée indique $n = d = 50$, le seuil
     d'interpolation.
-    Pour $n < d$ (régime sous-paramétré), le système est sous-déterminé :
+    Pour $n < d$ (régime sur-paramétré), le système est sous-déterminé :
     la pseudo-inverse trouve la solution de norme minimale parmi une
     infinité de solutions, et l'erreur de test est élevée.
     En $n = d$, le système est exactement déterminé : $hat(beta) = X^(-1) y$
     interpole parfaitement les données ($R_cal(S)_n = 0$) mais l'erreur de
     test explose car la matrice $X$ est mal conditionnée.
-    Pour $n > d$ (régime sur-paramétré), le système est sur-déterminé :
-    la pseudo-inverse calcule la solution aux moindres carrés, l'erreur
-    de test redescend et converge vers l'erreur de Bayes irréductible
+    Pour $n > d$ (régime sous-paramétré), le système est sur-déterminé :
+    la pseudo-inverse calcule la solution aux moindres carrés, l'erreur de
+    test redescend et converge vers l'erreur de Bayes irréductible
     $sigma^2 = 1$.
     Ce comportement illustre que la vision classique du compromis
     biais-variance (une seule montée de l'erreur de test) est insuffisante :
     le minimum global n'est pas atteint au seuil d'interpolation mais
-    *après*, dans le régime sur-paramétré.
+    *après*, dans le régime sous-paramétré.
   ]
 )
 

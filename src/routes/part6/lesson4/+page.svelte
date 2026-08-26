@@ -211,7 +211,7 @@
 			</p>
 			<ul>
 				<li>
-					Pour <KatexInline formula={nBelowD} /> (régime sous-paramétré), le système est sous-déterminé
+					Pour <KatexInline formula={nBelowD} /> (régime sur-paramétré), le système est sous-déterminé
 					: la pseudo-inverse trouve la solution de norme minimale parmi une infinité de solutions, et
 					l'erreur de test est élevée.
 				</li>
@@ -222,21 +222,23 @@
 					est mal conditionnée.
 				</li>
 				<li>
-					Pour <KatexInline formula={nAboveD} /> (régime sur-paramétré), le système est sur-déterminé
+					Pour <KatexInline formula={nAboveD} /> (régime sous-paramétré), le système est sur-déterminé
 					: la pseudo-inverse calcule la solution aux moindres carrés, l'erreur de test redescend et converge
 					vers l'erreur de Bayes irréductible <KatexInline formula={irreducibleNoise} />.
 				</li>
 			</ul>
 			<p>
 				Le minimum global de l'erreur de test n'est pas atteint au seuil d'interpolation mais
-				<em>après</em>, dans le régime sur-paramétré.
+				<em>après</em>, dans le régime sous-paramétré.
 			</p>
 			<p>
 				<strong>Remarque de lecture.</strong> La définition du phénomène fait varier le nombre de
-				paramètres <KatexInline formula={paramsW} /> à <KatexInline formula={nSym} /> fixe, tandis que
-				la démonstration ci-dessous fixe le nombre de paramètres <KatexInline formula={dimParam} /> et
-				fait varier <KatexInline formula={nSym} />. Les deux points de vue sont duaux : le seuil est
-				toujours l'égalité entre le nombre de paramètres et le nombre d'observations.
+				paramètres <KatexInline formula={paramsW} /> à <KatexInline formula={nSym} /> fixe — c'est le
+				point de vue de la démonstration ci-dessous, qui fixe <KatexInline formula={nSym} /> et fait
+				varier <KatexInline formula={dimParam} />. La figure du cours utilise le point de vue dual, qui
+				fixe <KatexInline formula={dimParam} /> et fait varier <KatexInline formula={nSym} />. Les deux
+				points de vue sont duaux : le seuil est toujours l'égalité entre le nombre de paramètres et le
+				nombre d'observations.
 			</p>
 		</ExampleBlock>
 

@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { scaleLinear, scaleLog, line, curveBasis } from 'd3';
+	import { scaleLinear, scaleLog, line, curveBasis, curveLinear } from 'd3';
 	import type { Snippet } from 'svelte';
 
 	// ─── Curve layer ──────────────────────────────────────────────────────────────
@@ -106,6 +106,14 @@
 		 * positive values the scale silently falls back to linear. Default 'linear'.
 		 */
 		yScaleType?: 'linear' | 'log';
+		/**
+		 * Interpolation between data points. 'basis' (default) smooths with a cubic
+		 * B-spline, which does NOT pass through the data points — good for noisy
+		 * data, but it lags sharp changes. 'linear' connects points exactly — use
+		 * it when values must land precisely on their x (e.g. a drop to zero at a
+		 * marked threshold, or a spike that must not be attenuated).
+		 */
+		curve?: 'basis' | 'linear';
 		/** Chart height in CSS px. Default 200. */
 		height?: number;
 		/** How many x-axis ticks to aim for. Default 5. */
@@ -133,6 +141,7 @@
 		xDomain,
 		yDomain,
 		yScaleType = 'linear',
+		curve = 'basis',
 		height = 200,
 		nTicks = 5,
 		nYTicks = 3,
@@ -225,7 +234,7 @@
 		line<Pt>()
 			.x((d) => xs(d.x))
 			.y((d) => ys(d.y))
-			.curve(curveBasis);
+			.curve(curve === 'linear' ? curveLinear : curveBasis);
 
 	const computedPaths = $derived.by(() => {
 		if (!containerWidth) return [];
