@@ -61,9 +61,9 @@
 		margin-bottom: 1rem;
 	}*/
 
-	.cta-wrapper {
+	/*.cta-wrapper {
 		margin-top: 2rem;
-	}
+	}*/
 
 	.start-course-btn {
 		display: inline-flex;
