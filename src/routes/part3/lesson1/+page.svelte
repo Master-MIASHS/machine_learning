@@ -454,13 +454,6 @@
 			link="https://arxiv.org/abs/1706.04599"
 		/>
 		<BibElement
-			authors={['Noble, A.']}
-			year={2014}
-			title="How Not To Evaluate Your Detector"
-			journal="Proceedings of the British Machine Vision Conference (BMVC)."
-			link="https://www.alexander-noble.com/static/img/Noble-2014-How_Not.pdf"
-		/>
-		<BibElement
 			authors={['Lapin, M.', 'Hein, M.', 'Schiele, B.']}
 			year={2016}
 			title="Loss Functions for Top-k Error: Analysis and Insights"

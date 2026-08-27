@@ -522,7 +522,7 @@
 			authors={['Nesterov, Y.']}
 			year={1983}
 			title="A method of solving a convex programming problem with convergence rate O(1/k²)"
-			journal="Soviet Mathematics Doklady, 27(2), 372–376."
+			journal="Soviet Mathematics Doklady, 27, 372–376."
 		/>
 
 		<BibElement
@@ -546,7 +546,6 @@
 			year={2010}
 			title="Large-scale machine learning with stochastic gradient descent"
 			journal="Proceedings of COMPSTAT'2010, 177–186."
-			link="https://doi.org/10.1007/978-3-642-13190-5_19"
 		/>
 
 		<BibElement

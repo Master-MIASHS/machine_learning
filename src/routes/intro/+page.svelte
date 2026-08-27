@@ -171,7 +171,7 @@
 			authors={['Nesterov, Y.']}
 			year={1983}
 			title="A method of solving a convex programming problem with convergence rate O(1/k²)"
-			journal="Soviet Mathematics Doklady, 27(2), 372–376."
+			journal="Soviet Mathematics Doklady, 27, 372–376."
 		/>
 		<BibElement
 			authors={['Nesterov, Y.']}
@@ -212,7 +212,6 @@
 			year={2010}
 			title="Large-scale machine learning with stochastic gradient descent"
 			journal="Proceedings of COMPSTAT'2010, 177–186."
-			link="https://doi.org/10.1007/978-3-642-13190-5_19"
 		/>
 		<BibElement
 			authors={['Bottou, L.', 'Curtis, F. E.', 'Nocedal, J.']}
@@ -358,7 +357,7 @@
 		/>
 		<BibElement
 			authors={['Louppe, G.', 'et al.']}
-			year={2013}
+			year={2014}
 			title="Understanding Random Forests: From Theory to Practice"
 			journal="arXiv preprint arXiv:1407.7502."
 			link="https://arxiv.org/abs/1407.7502"
@@ -371,13 +370,6 @@
 			title="On Calibration of Modern Neural Networks"
 			journal="International Conference on Machine Learning (ICML), PMLR, pp. 1321-1330."
 			link="https://arxiv.org/abs/1706.04599"
-		/>
-		<BibElement
-			authors={['Noble, A.']}
-			year={2014}
-			title="How Not To Evaluate Your Detector"
-			journal="Proceedings of the British Machine Vision Conference (BMVC)."
-			link="https://www.alexander-noble.com/static/img/Noble-2014-How_Not.pdf"
 		/>
 		<BibElement
 			authors={['Lapin, M.', 'Hein, M.', 'Schiele, B.']}
@@ -563,7 +555,6 @@
 			year={1995}
 			title="The Nature of Statistical Learning Theory"
 			journal="Springer-Verlag."
-			link="https://doi.org/10.1007/978-1-4757-3276-1"
 		/>
 	</Bibliography>
 </PageTemplate>

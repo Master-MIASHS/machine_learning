@@ -340,7 +340,6 @@
 			year={1995}
 			title="The Nature of Statistical Learning Theory"
 			journal="Springer-Verlag."
-			link="https://doi.org/10.1007/978-1-4757-3276-1"
 		/>
 	</Bibliography>
 </PageTemplate>
