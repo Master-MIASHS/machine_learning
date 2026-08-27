@@ -559,8 +559,8 @@
 				En effet, la Hessienne de <KatexInline formula={String.raw`f(x) = x^\top A x`} /> est constante
 				et égale à
 				<KatexInline formula={String.raw`2A`} />, donc semi-définie positive partout — ce qui,
-				d'après un critère équivalent à la Définition 1.6 (convexité via la Hessienne, que nous
-				établirons formellement dans la leçon suivante), suffit à garantir la convexité de <KatexInline
+				d'après un critère équivalent à la Définition 1.6 (convexité via la Hessienne, critère
+				standard, rappelé dans l'exercice 2.1 de la leçon suivante), suffit à garantir la convexité de <KatexInline
 					formula={String.raw`f`}
 				/>. C'est exactement la structure de la perte des moindres carrés que nous retrouverons dans
 				la prochaine leçon.
