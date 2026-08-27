@@ -107,10 +107,17 @@
 	const stepCosine =
 		'\\alpha_k = \\frac{\\alpha_{\\min}}{2} + \\frac{\\alpha_0 - \\alpha_{\\min}}{2} \\left(1 + \\cos(\\pi k / K)\\right)';
 	const gammaPos = '\\gamma > 0';
+	const sgdPropStep = '\\alpha_k = \\frac{\\alpha}{\\sqrt{k}}';
+	const sgdPropAvg = '\\bar{x}_K = \\frac{1}{K} \\sum_{k=1}^{K} x^{(k)}';
+	const sgdPropRate = '\\mathbb{E}[f(\\bar{x}_K)] - f(x^*) = O(1/\\sqrt{K})';
+	const batchTypical = 'B \\in \\{32, 64, 128, 256\\}';
 
 	// ── Section 2 : Coordinate Descent ──
 	const separableForm = 'f(x) = \\sum_{j=1}^d g_j(x_j)';
-	const cdUpdate = 'x^{(k+1)}_j = \\arg\\min_{t} f(x^{(k)}_1, \\dots, t, \\dots, x^{(k)}_d)';
+	const cdUpdate =
+		'x^{(k+1)}_j = \\arg\\min_{t}\\; f\\big(x^{(k+1)}_1, \\dots, x^{(k+1)}_{j-1},\\; t,\\; \\dots,\\; x^{(k)}_d\\big)';
+	const cdJacobi = 'x^{(k+1)}_i = \\arg\\min_t f(x^{(k)}_1, \\dots, t, \\dots, x^{(k)}_d)';
+	const cdGreedy = 'i = \\arg\\max_j \\left|\\tfrac{\\partial f}{\\partial x_j}(x)\\right|';
 	const cdRate = 'f(x^{(k)}) - f^* = O(d/k)';
 	const fRdToR = 'f : \\mathbb{R}^d \\to \\mathbb{R}';
 	const softThreshold = 'x_j^{(k+1)} = \\text{sign}(z_j)\\max(|z_j| - \\lambda, 0)';
@@ -342,9 +349,10 @@
 		</p>
 
 		<Callout type="intuition" title="Le compromis coût / variance">
-			En pratique, <KatexInline formula={String.raw`B \in [8, 256]`} /> donne le meilleur rapport précision/coût
-			pour la plupart des applications de deep learning. Augmenter <KatexInline formula={BSym} /> réduit
-			la variance du bruit de gradient — approximativement selon une loi en <KatexInline
+			En pratique, les tailles typiques en deep learning sont <KatexInline formula={batchTypical} /> —
+			elles donnent le meilleur rapport précision/coût pour la plupart des applications. Augmenter <KatexInline
+				formula={BSym}
+			/> réduit la variance du bruit de gradient — approximativement selon une loi en <KatexInline
 				formula={String.raw`1/B`}
 			/>, comme le montre le graphique interactif ci-dessous — mais augmente proportionnellement le
 			coût de calcul d'un pas. Doubler la taille du batch ne fait donc pas nécessairement progresser
@@ -422,6 +430,17 @@
 				</li>
 			</ul>
 		</ExampleBlock>
+
+		<TheoremBlock number="4.11" title="Convergence du SGD (Proposition 3.11 des notes)">
+			<p>
+				Pour une fonction convexe et <KatexInline formula={LSym} />-lisse, avec pas décroissant
+				<KatexInline formula={sgdPropStep} /> :
+			</p>
+			<KatexBlock formula={sgdPropRate} />
+			<p>
+				où <KatexInline formula={sgdPropAvg} /> est la moyenne des itérés.
+			</p>
+		</TheoremBlock>
 	</TheorySection>
 
 	<!-- ═══════════════════════════════════════ -->
@@ -468,10 +487,34 @@
 			<KatexBlock formula={cdUpdate} />
 			<p>
 				Autrement dit, on résout exactement le problème de minimisation à une seule variable obtenu
-				en fixant toutes les autres coordonnées de <KatexInline formula={String.raw`x^{k}`} /> à leur
-				valeur courante.
+				en fixant les coordonnées non encore traitées à leur valeur courante, tout en conservant,
+				pour les coordonnées déjà traitées, leurs valeurs fraîchement mises à jour.
+			</p>
+			<p>
+				Chaque valeur mise à jour est utilisée immédiatement pour les coordonnées suivantes : ce
+				n'est pas la méthode de Jacobi.
 			</p>
 		</DefinitionBlock>
+
+		<Callout type="note" title="Variante de Jacobi et stratégies de parcours (optionnel)">
+			<p>
+				La <strong>variante de Jacobi</strong> met à jour toutes les coordonnées à partir de l'état
+				à l'itération <KatexInline formula={String.raw`k`} /> :
+			</p>
+			<KatexBlock formula={cdJacobi} />
+			<p>
+				La descente par coordonnées, de style Gauss–Seidel, exploite au contraire les valeurs
+				fraîchement calculées dès qu'elles sont disponibles — c'est ce qui lui fait généralement
+				converger plus vite. Trois stratégies de parcours des coordonnées : <strong>cyclique</strong
+				>
+				(ordre fixe <KatexInline formula={String.raw`1, 2, \dots, d, 1, 2, \dots`} />,
+				<strong>aléatoire</strong>
+				(tirage uniforme d'une coordonnée à chaque itération) et
+				<strong>glouton</strong> (coordonnée de plus grande composante de gradient, <KatexInline
+					formula={cdGreedy}
+				/> — coûteux).
+			</p>
+		</Callout>
 
 		<p>
 			L'outil interactif ci-dessous anime cette procédure sur une fonction à deux variables : à
@@ -779,7 +822,7 @@
 				<li>
 					<strong>Mini-batch SGD</strong> réduit la variance du bruit (approximativement en
 					<KatexInline formula="1/B" />) tout en restant <KatexInline formula="O(B \times d)" /> par itération.
-					<KatexInline formula="B \in [8, 256]" /> est le standard en pratique.
+					<KatexInline formula={batchTypical} /> correspond aux tailles typiques en pratique.
 				</li>
 				<li>
 					<strong>Coordinate Descent</strong> optimise une coordonnée à la fois, exactement — efficace
