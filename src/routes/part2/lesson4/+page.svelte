@@ -105,6 +105,10 @@
 	// Ridge objective
 	const ridgeObjective = '\\min_{w} \\; \\|y - Xw\\|^2_2 + \\lambda \\, \\|w\\|^2_2';
 
+	// Scaled objective convention used in other parts of the site (same
+	// regularization paths up to a rescaling of λ)
+	const ridgeObjectiveScaled = '\\frac{1}{2n}\\,\\|Xw - y\\|^2_2 + \\lambda \\, \\|w\\|^2_2';
+
 	// Ridge closed-form solution
 	const ridgeSolution = 'w^{*}_{\\text{Ridge}} = (X^T X + \\lambda I)^{-1} X^T y';
 
@@ -142,6 +146,7 @@
 	// Lambda opt
 	const lambdaOpt =
 		'\\hat{\\lambda}_{\\text{opt}} = \\operatorname*{arg\\,min}_{\\lambda} \\; \\operatorname{CV}(\\lambda)';
+	const lambdaHat = '\\hat{\\lambda}_{\\text{opt}}';
 
 	// One standard error rule (s_opt is now defined here too, so it is never typed
 	// inline again — that inline copy was the source of the KaTeX escaping bug below)
@@ -356,6 +361,15 @@
 			<KatexBlock formula={ridgeConstraint} />
 		</DefinitionBlock>
 
+		<Callout type="note" title="Convention sur λ">
+			<p>
+				On écrit parfois <KatexInline formula={ridgeObjective} />. La convention
+				<KatexInline formula={ridgeObjectiveScaled} /> utilisée dans d'autres parties du site n'est qu'un
+				changement d'échelle de <KatexInline formula={'\\lambda'} /> : les chemins de régularisation sont
+				identiques.
+			</p>
+		</Callout>
+
 		<h3>Solution fermée</h3>
 
 		<p>Deriver l'objectif par rapport à w et égaliser à zéro donne une solution analytique :</p>
@@ -521,12 +535,12 @@
 		/>
 		<p>
 			Les valeurs singulières de <KatexInline formula={String.raw`A`} /> sont environ <KatexInline
-				formula={String.raw`\sigma_{\max} \approx 3.003`}
+				formula={String.raw`\sigma_{\max} \approx 3.153`}
 			/> et
-			<KatexInline formula={String.raw`\sigma_{\min} \approx 0.000067`} />, ce qui donne un
-			conditionnement gigantesque :
+			<KatexInline formula={String.raw`\sigma_{\min} \approx 6.3 \times 10^{-5}`} />, ce qui donne
+			un conditionnement gigantesque :
 		</p>
-		<KatexBlock formula={String.raw`\kappa(A) \approx 15\,000`} />
+		<KatexBlock formula={String.raw`\kappa(A) \approx 49\,700`} />
 		<p>
 			Une simple erreur d'arrondi sur la mesure de <KatexInline formula={String.raw`y`} />, passant
 			du vecteur exact <KatexInline formula={String.raw`y = (3.98, 2.01)`} /> à sa version arrondie
@@ -837,6 +851,13 @@
 		</p>
 
 		<KatexBlock formula={lambdaOpt} />
+
+		<p>
+			<strong>Étape 4 — modèle final :</strong> on réentraîne le modèle sur <em>toutes</em> les
+			données (l'ensemble complet, plis réassemblés) avec la valeur sélectionnée
+			<KatexInline formula={lambdaHat} />. C'est ce modèle réentraîné qui est finalement livré — les
+			K modèles de validation ne servent qu'à l'évaluation.
+		</p>
 
 		<h3>La règle du « une écart-type »</h3>
 

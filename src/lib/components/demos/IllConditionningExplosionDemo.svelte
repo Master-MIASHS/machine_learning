@@ -44,8 +44,8 @@
 			[-M[1][0] / det, M[0][0] / det]
 		];
 	}
-	// Real eigenvalues of a 2x2 matrix via trace/det (valid for both A itself,
-	// whose eigenvalues happen to be real here, and for the symmetric AtA + lambda*I).
+	// Real eigenvalues of a 2x2 matrix via trace/det (used here on the symmetric
+	// AtA and AtA + lambda*I, where the discriminant is non-negative by construction).
 	function eig2(M: Mat2): [number, number] {
 		const tr = M[0][0] + M[1][1];
 		const det = M[0][0] * M[1][1] - M[0][1] * M[1][0];
@@ -65,8 +65,8 @@
 	const Ainv = inv2(A);
 	const At = transpose(A);
 	const AtA = matMul(At, A);
-	const eigA = eig2(A);
-	const condA = eigA[0] / eigA[1];
+	const eigAtA = eig2(AtA); // AtA already computed at line 67
+	const condA = Math.sqrt(eigAtA[0] / eigAtA[1]); // κ = σ_max/σ_min ≈ 49 700
 
 	// ─── Interactive state ──────────────────────────────────────
 	let noiseScale = $state(1); // 0..2 ; 1 = exactly the real y_round - y perturbation
@@ -192,7 +192,7 @@
 	<!-- ═══════════ Conditioning badges ═══════════ -->
 	<div class="badge-row">
 		<div class="cond-badge danger">
-			<span class="cond-badge-label">Conditionnement κ(A) — valeurs propres</span>
+			<span class="cond-badge-label">Conditionnement κ(A) — valeurs singulières</span>
 			<span class="cond-badge-value">{fmtBig(condA)}</span>
 		</div>
 		<div class="cond-badge" class:danger={condAtALambda > 10000} class:ok={condAtALambda <= 10000}>
