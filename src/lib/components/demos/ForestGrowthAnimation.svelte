@@ -4,6 +4,8 @@
 	import Slider from '$lib/components/controls/Slider.svelte';
 	import Button from '$lib/components/controls/Button.svelte';
 	import { buildDecisionStump } from '$lib/math/random-forest';
+	import { mulberry32, combineSeed } from '$lib/math/util';
+	import { gaussianSample, type Gaussian } from '$lib/math/gaussian';
 
 	// ─── Constants ──────────────────────────────────────────────
 	const N_TRAIN = 120;
@@ -18,35 +20,22 @@
 	const PLOT_W = SVG_W - PAD.left - PAD.right;
 	const PLOT_H = SVG_H - PAD.top - PAD.bottom;
 
-	// ─── Seeded RNG (Lehmer / MINSTD) ──────────────────────────
-	function makeRng(seed: number): () => number {
-		let s = ((seed % 2147483647) + 2147483647) % 2147483647 || 1;
-		return () => {
-			s = (s * 16807) % 2147483647;
-			return (s - 1) / 2147483646;
-		};
-	}
-
-	function randn(rng: () => number): number {
-		let u1 = rng(),
-			u2 = rng();
-		while (u1 === 0) u1 = rng();
-		return Math.sqrt(-2 * Math.log(u1)) * Math.cos(2 * Math.PI * u2);
-	}
-
 	// ─── Data: two Gaussian clusters for binary classification ──
+	const CLUSTER_0: Gaussian = { mu: -1, sigma2: 1.3 ** 2 };
+	const CLUSTER_1: Gaussian = { mu: 1, sigma2: 1.3 ** 2 };
+
 	function generateData(seed: number) {
-		const rng = makeRng(seed);
+		const rng = mulberry32(seed);
 		const X: number[][] = [];
 		const y: number[] = [];
 		const half = Math.floor(N_TRAIN / 2);
 
 		for (let i = 0; i < half; i++) {
-			X.push([-1 + randn(rng) * 1.3, -1 + randn(rng) * 1.3]);
+			X.push([gaussianSample(CLUSTER_0, rng), gaussianSample(CLUSTER_0, rng)]);
 			y.push(0);
 		}
 		for (let i = 0; i < N_TRAIN - half; i++) {
-			X.push([1 + randn(rng) * 1.3, 1 + randn(rng) * 1.3]);
+			X.push([gaussianSample(CLUSTER_1, rng), gaussianSample(CLUSTER_1, rng)]);
 			y.push(1);
 		}
 
@@ -82,7 +71,7 @@
 	const stumps = $derived.by(() => {
 		const result: TrainedStump[] = [];
 		for (let t = 0; t < treeCount; t++) {
-			const rng = makeRng(t * 1301 + dataSeed * 97);
+			const rng = mulberry32(combineSeed(dataSeed, t));
 
 			// Bootstrap sample from training data
 			const bootIndices: number[] = Array.from({ length: N_TRAIN }, () =>
@@ -147,9 +136,10 @@
 		if (stumps.length < 2) return 0;
 		let totalDisagree = 0,
 			totalPairs = 0;
-		// Sample a subset of points for efficiency
-		const sampleSize = Math.min(N_TRAIN, 40);
-		for (let i = 0; i < sampleSize; i++) {
+		// Average pairwise disagreement over the whole training set
+		// (the data is generated class-first, so any prefix would be biased
+		// toward a single class).
+		for (let i = 0; i < N_TRAIN; i++) {
 			for (let a = 0; a < stumps.length; a++) {
 				for (let b = a + 1; b < stumps.length; b++) {
 					const predA = predictStump(stumps[a], data.X[i]);
@@ -183,7 +173,9 @@
 
 				cells.push({
 					x: PAD.left + gx * cellW,
-					y: PAD.top + gy * cellH,
+					// gy = 0 is DATA_MIN (bottom in data space); SVG y grows
+					// downward, so flip the row index to match projY.
+					y: PAD.top + (GRID_RES - 1 - gy) * cellH,
 					pred: votes1 > stumps.length / 2 ? 1 : 0,
 					confidence: Math.abs(votes1 - (stumps.length - votes1)) / stumps.length
 				});
@@ -277,8 +269,8 @@
 	<div class="header">
 		<h2>Croissance d'une Random Forest — animation pas à pas</h2>
 		<p class="subtitle">
-			Chaque arbre ajoute une nouvelle partition au décision space. L'agrégation par vote
-			majoritaire affine progressivement la prédiction.
+			Chaque arbre ajoute une nouvelle partition de l'espace de décision. L'agrégation par
+			vote majoritaire affine progressivement la prédiction.
 		</p>
 	</div>
 
