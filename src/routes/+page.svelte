@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { resolve } from '$app/paths';
+	import { asset, resolve } from '$app/paths';
 </script>
 
 <svelte:head>
@@ -9,7 +9,7 @@
 <main class="home">
 	<div class="hero">
 		<h1>Fondations de l'Apprentissage Statistique</h1>
-		<p class="tagline">Maximilien Servajean</p>
+		<!-- <p class="tagline">Maximilien Servajean</p> -->
 		<p></p>
 
 		<div class="cta-wrapper">
@@ -18,6 +18,21 @@
 			</a>
 		</div>
 	</div>
+
+	<img
+		src={asset('/logos/UMPV_BLACK.svg')}
+		alt="Université de Montpellier Paul-Valéry"
+		class="university-logo university-logo--light"
+		loading="lazy"
+		decoding="async"
+	/>
+	<img
+		src={asset('/logos/UMPV_WHITE.svg')}
+		alt="Université de Montpellier Paul-Valéry"
+		class="university-logo university-logo--dark"
+		loading="lazy"
+		decoding="async"
+	/>
 </main>
 
 <style>
@@ -27,7 +42,6 @@
 		align-items: center;
 		min-height: 100dvh;
 		padding: 2rem;
-		gap: 2rem;
 	}
 
 	.hero {
@@ -35,17 +49,17 @@
 		display: flex;
 		flex-direction: column;
 		align-items: center;
-		max-width: 600px;
+		max-width: 800px;
 		text-align: center;
 		padding: 2rem;
 	}
 
-	.tagline {
+	/*.tagline {
 		color: var(--color-belief);
 		font-size: 1.125rem;
 		font-style: italic;
 		margin-bottom: 1rem;
-	}
+	}*/
 
 	.cta-wrapper {
 		margin-top: 2rem;
@@ -71,5 +85,30 @@
 
 	.arrow {
 		font-size: 1.2em;
+	}
+
+	/* Logo de l'université, ancré en bas de page :
+	   - sans défilement, les marges auto de .hero poussent le logo au bas de la vue ;
+	   - avec défilement, il reste à 150px sous le bloc hero. */
+	.university-logo {
+		display: none;
+		width: auto;
+		height: 6rem;
+		margin-top: 150px;
+		margin-bottom: 150px;
+	}
+
+	.university-logo--dark {
+		display: block; /* thème sombre = valeur par défaut dans app.css */
+	}
+
+	@media (prefers-color-scheme: light) {
+		.university-logo--dark {
+			display: none;
+		}
+
+		.university-logo--light {
+			display: block;
+		}
 	}
 </style>
