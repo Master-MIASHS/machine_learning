@@ -1,0 +1,1 @@
+function h(a=Math.random){let t=0,r=0;for(;t===0;)t=a();for(;r===0;)r=a();return Math.sqrt(-2*Math.log(t))*Math.cos(2*Math.PI*r)}function n(a,t=Math.random){return a.mu+Math.sqrt(a.sigma2)*h(t)}export{n as g};
