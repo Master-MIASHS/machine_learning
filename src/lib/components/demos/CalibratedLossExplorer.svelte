@@ -65,23 +65,27 @@
 		return Math.max(1, maxV * 1.1);
 	});
 
-	const selectedPoints = $derived(
-		grid().map((z, i): [number, number] => [z, Math.min(selectedValues[i], yMax)])
-	);
-
 	// φ(t) = 1{t<0} jumps at t = 0, but the grid never lands exactly on 0:
 	// with plain linear interpolation the drop would span one grid step
 	// (≈ 3 px). Splice the two jump points (0, 1) and (0, 0) in so the curve
 	// is flat at 1 up to t = 0, drops vertically right at t = 0 (two points
 	// at the same x → a vertical SVG segment), and stays flat at 0 after —
-	// exactly the definition, since φ(0) = 0.
-	const zeroOnePoints = $derived.by((): [number, number][] => {
+	// exactly the definition, since φ(0) = 0. Used for the 0-1 reference
+	// curve and, when 0-1 is the selected loss, for the main curve too.
+	function zeroOneJumpPoints(values: number[]): [number, number][] {
 		const xs = grid();
-		const pts = xs.map((z, i): [number, number] => [z, zeroOneValues[i]]);
+		const pts = xs.map((z, i): [number, number] => [z, values[i]]);
 		const firstNonNegative = xs.findIndex((z) => z >= 0);
 		const at = firstNonNegative === -1 ? pts.length : firstNonNegative;
 		return [...pts.slice(0, at), [0, 1], [0, 0], ...pts.slice(at)];
+	}
+
+	const selectedPoints = $derived.by((): [number, number][] => {
+		if (selectedId === 'zeroOne') return zeroOneJumpPoints(selectedValues);
+		const xs = grid();
+		return xs.map((z, i): [number, number] => [z, Math.min(selectedValues[i], yMax)]);
 	});
+	const zeroOnePoints = $derived(zeroOneJumpPoints(zeroOneValues));
 
 	// Tangent segment at the current t: phi(t) + dphi(t)*(z-t), over a short
 	// fixed window — its own curve entry, same shape as the other two, no
@@ -97,7 +101,16 @@
 	);
 
 	const curves = $derived([
-		{ points: selectedPoints, stroke: selectedColor, fill: selectedColor, fillOpacity: 0.15 },
+		{
+			points: selectedPoints,
+			stroke: selectedColor,
+			fill: selectedColor,
+			fillOpacity: 0.15,
+			// φ(t) = 1{t<0} is a step function: linear so the discontinuity
+			// at t = 0 stays a vertical drop (same treatment as the
+			// reference curve below)
+			curve: selectedId === 'zeroOne' ? ('linear' as const) : undefined
+		},
 		{
 			points: zeroOnePoints,
 			stroke: 'var(--color-text-muted)',

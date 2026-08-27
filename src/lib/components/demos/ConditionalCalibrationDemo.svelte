@@ -45,7 +45,29 @@
 	);
 
 	const riskCurve = $derived(conditionalPhiRiskCurve(eta, alphaGrid, selected));
-	const curvePoints = $derived(alphaGrid.map((a, i): [number, number] => [a, riskCurve[i]]));
+
+	// For the 0-1 loss, C_phi(alpha, eta) = eta·1{alpha<0} + (1-eta)·1{alpha>0}
+	// is a step function with a jump at alpha = 0, but the grid never lands
+	// exactly on 0: splice the two jump points (0, eta) and (0, 1-eta) in and
+	// draw the curve linear, otherwise the basis spline smears the jump into
+	// a smooth transition. C_phi(0, eta) = 0 is a single point no line
+	// segment can pass through; it is not drawn (step-function convention).
+	const curvePoints = $derived.by((): [number, number][] => {
+		const pts = alphaGrid.map((a, i): [number, number] => [a, riskCurve[i]]);
+		if (selectedId !== 'zeroOne') return pts;
+		const firstNonNegative = alphaGrid.findIndex((a) => a >= 0);
+		const at = firstNonNegative === -1 ? pts.length : firstNonNegative;
+		return [...pts.slice(0, at), [0, eta], [0, 1 - eta], ...pts.slice(at)];
+	});
+
+	const chartCurves = $derived([
+		{
+			points: curvePoints,
+			stroke: selectedColor,
+			strokeWidth: 2,
+			curve: selectedId === 'zeroOne' ? ('linear' as const) : undefined
+		}
+	]);
 
 	const minimizer = $derived(
 		conditionalPhiRiskMinimizer(eta, selected, { alphaMin: ALPHA_MIN, alphaMax: ALPHA_MAX })
@@ -77,7 +99,7 @@
 
 	<Figure type="chart">
 		<CurveChart
-			curves={[{ points: curvePoints, stroke: selectedColor, strokeWidth: 2 }]}
+			curves={chartCurves}
 			xDomain={[ALPHA_MIN, ALPHA_MAX]}
 			yAxis={true}
 			vlines={[
