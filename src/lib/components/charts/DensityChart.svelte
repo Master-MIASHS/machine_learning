@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { scaleLinear, line, curveBasis } from 'd3';
+	import { scaleLinear, line, curveBasis, curveLinear } from 'd3';
 	import type { Snippet } from 'svelte';
 
 	// ─── Curve layer ──────────────────────────────────────────────────────────────
@@ -21,6 +21,15 @@
 		strokeLinejoin?: 'round' | 'miter' | 'bevel' | 'arcs' | 'miter-clip' | 'inherit';
 		/** Opacity of the stroke. Default 1. */
 		opacity?: number;
+		/**
+		 * Interpolation between data points for this curve only (also used for its
+		 * fill). 'basis' (default) smooths with a cubic B-spline, which does NOT
+		 * pass through the data points — good for smooth functions, but it smears
+		 * sharp features. 'linear' connects points exactly — use it for
+		 * step/discontinuous curves (e.g. a 0-1 loss) that must drop vertically
+		 * at their discontinuity instead of fading into a slope.
+		 */
+		curve?: 'basis' | 'linear';
 		/** Fill color below the curve. Omit or set to "none" for no fill. */
 		fill?: string;
 		/** Opacity of the fill. Default 0.1. */
@@ -236,11 +245,11 @@
 
 	type Pt = { x: number; y: number };
 
-	const makeLine = (xs: typeof xScale, ys: typeof yScale) =>
+	const makeLine = (xs: typeof xScale, ys: typeof yScale, curveMode: 'basis' | 'linear' = 'basis') =>
 		line<Pt>()
 			.x((d) => xs(d.x))
 			.y((d) => ys(d.y))
-			.curve(curveBasis);
+			.curve(curveMode === 'linear' ? curveLinear : curveBasis);
 
 	const computedPaths = $derived.by(() => {
 		if (!containerWidth) return [];
@@ -248,12 +257,13 @@
 		const [x0, x1] = computedXDomain;
 
 		return curves.map((c) => {
+			const mode = c.curve ?? 'basis';
 			const pts: Pt[] = c.points.map(([x, y]) => ({ x, y }));
-			const curvePath = makeLine(xScale, yScale)(pts) ?? '';
+			const curvePath = makeLine(xScale, yScale, mode)(pts) ?? '';
 
-			// Fill path: close down to baseline
+			// Fill path: close down to baseline (same interpolation as the stroke)
 			const fillPts: Pt[] = [{ x: x0, y: 0 }, ...pts, { x: x1, y: 0 }];
-			const fillPath = makeLine(xScale, yScale)(fillPts) ?? '';
+			const fillPath = makeLine(xScale, yScale, mode)(fillPts) ?? '';
 
 			return { curvePath, fillPath, layer: c };
 		});

@@ -21,6 +21,13 @@
 		strokeLinejoin?: 'round' | 'miter' | 'bevel' | 'arcs' | 'miter-clip' | 'inherit';
 		/** Opacity of the stroke. Default 1. */
 		opacity?: number;
+		/**
+		 * Interpolation for this curve only; overrides the chart-level `curve`
+		 * prop. Use 'linear' for a single step/discontinuous curve (e.g. a 0-1
+		 * loss) that must drop vertically at its discontinuity while the other
+		 * curves in the same chart stay smoothed.
+		 */
+		curve?: 'basis' | 'linear';
 	}
 
 	// ─── Annotation layers ────────────────────────────────────────────────────────
@@ -107,11 +114,13 @@
 		 */
 		yScaleType?: 'linear' | 'log';
 		/**
-		 * Interpolation between data points. 'basis' (default) smooths with a cubic
-		 * B-spline, which does NOT pass through the data points — good for noisy
-		 * data, but it lags sharp changes. 'linear' connects points exactly — use
-		 * it when values must land precisely on their x (e.g. a drop to zero at a
-		 * marked threshold, or a spike that must not be attenuated).
+		 * Interpolation between data points (chart-wide default; each curve can
+		 * override it with its own `curve` field). 'basis' (default) smooths with
+		 * a cubic B-spline, which does NOT pass through the data points — good
+		 * for noisy data, but it lags sharp changes. 'linear' connects points
+		 * exactly — use it when values must land precisely on their x (e.g. a
+		 * drop to zero at a marked threshold, or a spike that must not be
+		 * attenuated).
 		 */
 		curve?: 'basis' | 'linear';
 		/** Chart height in CSS px. Default 200. */
@@ -230,18 +239,19 @@
 
 	type Pt = { x: number; y: number };
 
-	const makeLine = (xs: typeof xScale, ys: typeof yScale) =>
+	const makeLine = (xs: typeof xScale, ys: typeof yScale, curveMode: 'basis' | 'linear') =>
 		line<Pt>()
 			.x((d) => xs(d.x))
 			.y((d) => ys(d.y))
-			.curve(curve === 'linear' ? curveLinear : curveBasis);
+			.curve(curveMode === 'linear' ? curveLinear : curveBasis);
 
 	const computedPaths = $derived.by(() => {
 		if (!containerWidth) return [];
 
 		return curves.map((c) => {
+			const mode = c.curve ?? curve;
 			const pts: Pt[] = c.points.map(([x, y]) => ({ x, y }));
-			const curvePath = makeLine(xScale, yScale)(pts) ?? '';
+			const curvePath = makeLine(xScale, yScale, mode)(pts) ?? '';
 			return { curvePath, layer: c };
 		});
 	});
@@ -324,19 +334,6 @@
 					d={fb.d}
 					fill={fb.fb.fill ?? 'var(--color-surprise)'}
 					opacity={fb.fb.opacity ?? 0.12}
-				/>
-			{/each}
-
-			<!-- ② Curves -->
-			{#each computedPaths as p}
-				<path
-					d={p.curvePath}
-					fill="none"
-					stroke={p.layer.stroke ?? 'var(--color-text-muted)'}
-					stroke-width={p.layer.strokeWidth ?? 2}
-					stroke-dasharray={p.layer.strokeDasharray ?? undefined}
-					stroke-linejoin={p.layer.strokeLinejoin ?? 'round'}
-					opacity={p.layer.opacity ?? 1}
 				/>
 			{/each}
 
