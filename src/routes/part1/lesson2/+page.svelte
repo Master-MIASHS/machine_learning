@@ -129,12 +129,11 @@
 	const rankCond = '\\operatorname{rang}(X) = d';
 
 	// ── Régularisation Ridge ──
-	const ridgeFormula =
-		'f_\\lambda(w) = \\frac{1}{2n} \\sum_{i=1}^n (y_i - w^\\top x_i)^2 + \\frac{\\lambda}{2}\\|w\\|^2';
-	const ridgeHess = 'H = \\frac{1}{n}X^\\top X + \\lambda I_d';
-	const ridgeSolution = 'w^*_\\lambda = (X^\\top X + n\\lambda I_d)^{-1} X^\\top y';
+	const ridgeFormula = 'f_\\lambda(w) = \\|Xw-y\\|^2 + \\lambda\\,\\|w\\|^2';
+	const ridgeHess = 'H = 2X^\\top X + 2\\lambda I_d';
+	const ridgeSolution = 'w^*_\\lambda = (X^\\top X + \\lambda I_d)^{-1} X^\\top y';
 	const ridgePositiveDef =
-		'v^\\top H v = \\frac{1}{n}\\|Xv\\|^2 + \\lambda \\|v\\|^2 \\ge \\lambda \\|v\\|^2 > 0, \\quad \\forall v \\neq 0';
+		'v^\\top H v = 2\\|Xv\\|^2 + 2\\lambda \\|v\\|^2 \\ge 2\\lambda \\|v\\|^2 > 0, \\quad \\forall v \\neq 0';
 	const ridgeLimitZero = 'w^*_\\lambda \\xrightarrow[\\lambda \\to 0]{} w^*';
 	const ridgeLimitInfty = 'w^*_\\lambda \\xrightarrow[\\lambda \\to +\\infty]{} 0';
 
@@ -445,7 +444,7 @@
 			<KatexBlock formula={svmLoss} />
 			<p>
 				est convexe : chaque terme <KatexInline formula={String.raw`t \mapsto \max(0, 1-t)`} /> est convexe
-				et croissant, et l'application <KatexInline
+				et décroissant, et l'application <KatexInline
 					formula={String.raw`w \mapsto y_i(w^\top x_i + b)`}
 				/> est affine en <KatexInline formula={String.raw`w`} />. Le théorème 2.5 (composition)
 				donne la convexité de chaque terme, et le théorème 2.1 (somme) donne celle de <KatexInline
@@ -689,13 +688,13 @@
 			{#snippet solution()}
 				<p>
 					Quand <KatexInline formula={String.raw`\lambda \to 0`} />, le terme <KatexInline
-						formula={String.raw`X^\top X + n\lambda I_d`}
+						formula={String.raw`X^\top X + \lambda I_d`}
 					/> tend vers <KatexInline formula={String.raw`X^\top X`} />, donc <KatexInline
 						formula={String.raw`w^*_\lambda`}
 					/> converge vers <KatexInline formula={String.raw`(X^\top X)^{-1}X^\top y = w^*`} />.
 					Quand <KatexInline formula={String.raw`\lambda \to +\infty`} />, la matrice est dominée
-					par <KatexInline formula={String.raw`n\lambda I_d`} />, donc <KatexInline
-						formula={String.raw`w^*_\lambda \approx \frac{1}{n\lambda} X^\top y \to 0`}
+					par <KatexInline formula={String.raw`\lambda I_d`} />, donc <KatexInline
+						formula={String.raw`w^*_\lambda \approx \frac{1}{\lambda} X^\top y \to 0`}
 					/> : tous les poids tendent vers zéro. Géométriquement, le Ridge pénalise les poids de grande
 					norme et force la solution à rester proche de l'origine, quel que soit l'alignement des données.
 				</p>

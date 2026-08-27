@@ -17,7 +17,7 @@
 		{
 			id: 'conditions-minimum',
 			label: "Conditions d'un minimum",
-			description: '20 exercices — minima locaux/globaux, CNO, CSSO, convexité, coercivité',
+			description: '23 exercices — minima locaux/globaux, CNO, CSSO, convexité, coercivité',
 			color: 'epistemic'
 		},
 		{
@@ -277,8 +277,8 @@
 		<ExercisePanel number="1.2" title="Un point critique qui n'est pas un minimum">
 			{#snippet solution()}
 				<p>
-					<KatexInline formula={f22p} /><KatexInline formula={`=0`} /> donne formula={f22crit}
-					/>. Or <KatexInline formula={f22pp} />, donc c'est un <strong>maximum local</strong> par
+					<KatexInline formula={f22p} /> = 0 donne <KatexInline formula={f22crit} />. Or
+					<KatexInline formula={f22pp} />, donc c'est un <strong>maximum local</strong> par
 					CSSO (appliquée au signe opposé). De plus, <KatexInline formula={f22inf} /> : la fonction n'est
 					pas bornée inférieurement, donc elle n'admet <strong>aucun minimum global</strong>, ni
 					même local ailleurs qu'en ce point (qui est un maximum).
@@ -1392,6 +1392,13 @@ f_\lambda(w)
 `}
 			/>
 
+			<p>
+				Cette écriture diffère de la Définition 5.1 des notes (<KatexInline
+					formula={String.raw`\|y-Xw\|^2 + \lambda\|w\|^2`}
+				/>) seulement par un changement d'échelle de <KatexInline formula={String.raw`\lambda`} /> :
+				les deux pénalisations sont équivalentes.
+			</p>
+
 			<ol>
 				<li>
 					Calculer la Hessienne de
@@ -2324,7 +2331,7 @@ L_i.
 			{/snippet}
 			<p>
 				En combinant les résultats sur le gradient d'une moyenne empirique et la perte élémentaire
-				de la régression logistique vus à la leçon précédente, donnez l'expression complète du
+				de la régression logistique vue à la leçon 2, donnez l'expression complète du
 				gradient global <KatexInline formula={String.raw`\nabla F(w)`} /> utilisé lors d'une étape de
 				descente de gradient batch sur l'ensemble d'apprentissage.
 			</p>

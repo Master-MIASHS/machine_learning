@@ -1,18 +1,14 @@
 <script lang="ts">
 	import Slider from '$lib/components/controls/Slider.svelte';
 	import Metrics from '$lib/components/layout/Metrics.svelte';
+	import { mulberry32 } from '$lib/math/util';
 
 	let m = $state(50);
-	let seed = $state(Date.now());
+	// Seed fixe (déterministe) ; « Régénérer » incrémente la graine d'une unité.
+	let seed = $state(42);
 
 	const sim = $derived.by(() => {
-		let h = seed | 0;
-		const rand = () => {
-			h = (h + 0x6d2b79f5) | 0;
-			let t = Math.imul(h ^ (h >>> 15), 1);
-			t = (t + Math.imul(t ^ (t >>> 7), 61)) ^ t;
-			return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
-		};
+		const rand = mulberry32(seed);
 		const gauss = () => {
 			let u = 0,
 				v = 0;
@@ -72,12 +68,17 @@
 	);
 
 	function regenerate() {
-		seed = Math.floor(Math.random() * 1_000_000);
+		// Cycle déterministe : même suite de courbes à chaque visite de la page.
+		seed += 1;
 	}
 </script>
 
 <div class="oob-tracker">
-	<svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label="OOB vs Test Error convergence">
+	<svg
+		viewBox={`0 0 ${W} ${H}`}
+		role="img"
+		aria-label="Convergence de l'erreur OOB et de l'erreur de test avec le nombre de modèles"
+	>
 		<path
 			d={`M${pad.l},${pad.t} L${pad.l},${H - pad.b} L${W - pad.r},${H - pad.b}`}
 			fill="none"
@@ -147,7 +148,7 @@
 			y={pad.t + 9}
 			fill="var(--color-text-muted)"
 			font-size="10"
-			font-family="var(--font-sans)">OOB Error</text
+			font-family="var(--font-sans)">Erreur OOB</text
 		>
 		<rect x={pad.l + 108} y={pad.t + 6} width="12" height="3" rx="1" fill="#3b82f6" />
 		<text
@@ -155,7 +156,7 @@
 			y={pad.t + 9}
 			fill="var(--color-text-muted)"
 			font-size="10"
-			font-family="var(--font-sans)">True Test Error</text
+			font-family="var(--font-sans)">Erreur de test</text
 		>
 
 		<circle cx={sx(m)} cy={sy(finalOOB)} r="4" fill="#22c55e">
@@ -163,26 +164,31 @@
 		</circle>
 	</svg>
 
+	<p class="note">
+		Courbes illustratives (paramétriques), pas de vrais tirages OOB — la forme
+		attendue : OOB ≈ erreur de test, avec davantage de bruit.
+	</p>
+
 	<div class="controls">
 		<Slider bind:value={m} min={5} max={100} step={1} label="Modèles (M)" />
-		<button class="btn-regen" onclick={regenerate}>⟳ Regenerate</button>
+		<button class="btn-regen" onclick={regenerate}>⟳ Régénérer</button>
 	</div>
 
 	<Metrics>
 		<div class="cell">
-			<span class="label">OOB Error</span>
+			<span class="label">Erreur OOB</span>
 			<span class="value" style="color:#22c55e">{finalOOB.toFixed(4)}</span>
 		</div>
 		<div class="cell">
-			<span class="label">Test Error</span>
+			<span class="label">Erreur de test</span>
 			<span class="value" style="color:#3b82f6">{finalTest.toFixed(4)}</span>
 		</div>
 		<div class="cell">
-			<span class="label">Difference</span>
+			<span class="label">Différence</span>
 			<span class="value">{diff.toFixed(5)}</span>
 		</div>
 		<div class="cell">
-			<span class="label">Models</span>
+			<span class="label">Modèles</span>
 			<span class="value">{m}</span>
 		</div>
 	</Metrics>
@@ -193,6 +199,12 @@
 		display: flex;
 		flex-direction: column;
 		gap: 0.5rem;
+	}
+	.note {
+		margin: 0;
+		font-size: 0.78rem;
+		line-height: 1.5;
+		color: var(--color-text-muted);
 	}
 	.controls {
 		display: flex;

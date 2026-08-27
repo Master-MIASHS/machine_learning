@@ -5,6 +5,7 @@ import {
 	informationGain,
 	permutationImportance
 } from '../math/random-forest.js';
+import { mulberry32 } from './util.js';
 
 // Note: Random Forests are not part of theorie.typ (which covers
 // Théorèmes 1.1–4.2); this module supports Part 2, lesson 2 of the course,
@@ -200,5 +201,138 @@ describe('permutationImportance', () => {
 		expect(importance[1]).toBe(0);
 		// Permuting column 0 degrades the (perfect) predictions.
 		expect(importance[0]).toBeGreaterThan(importance[1]);
+	});
+});
+
+describe('buildDecisionStump — giniDecrease', () => {
+	it('matches the hand-computed normalized Gini decrease (closed form, classification)', () => {
+		const X = [
+			[0],
+			[1],
+			[2],
+			[3]
+		];
+		const y = [0, 1, 0, 1];
+		const stump = buildDecisionStump(X, y, undefined, true);
+		// Parent Gini = 1/2 → parentCost = 4·(1/2) = 2. Best split t=0.5 has
+		// weighted child Gini 4/3 → giniDecrease = (2 − 4/3)/4 = 1/6.
+		expect(stump.threshold).toBeCloseTo(0.5, 12);
+		expect(stump.giniDecrease).toBeCloseTo(1 / 6, 12);
+	});
+
+	it('matches the hand-computed normalized MSE decrease (closed form, regression)', () => {
+		const X = [
+			[0],
+			[1],
+			[2],
+			[3]
+		];
+		const y = [0, 1, 2, 3];
+		const stump = buildDecisionStump(X, y, undefined, false);
+		// ȳ = 3/2 → parentCost = Σ(y−ȳ)² = 5. Best split t=1.5 has cost 1 →
+		// giniDecrease = (5 − 1)/4 = 1.
+		expect(stump.threshold).toBeCloseTo(1.5, 12);
+		expect(stump.giniDecrease).toBeCloseTo(1, 12);
+	});
+
+	it('is zero for the fallback stump (no candidate split available)', () => {
+		const X = [
+			[5],
+			[5],
+			[5]
+		];
+		const y = [0, 1, 1];
+		const stump = buildDecisionStump(X, y, undefined, true);
+		expect(stump.giniDecrease).toBe(0);
+	});
+
+	it('never exceeds the parent impurity and stays non-negative (invariant, seeded random data)', () => {
+		for (const seed of [1, 7, 42, 1234]) {
+			const rng = mulberry32(seed);
+			const randn = () => {
+				let u = rng();
+				while (u === 0) u = rng();
+				return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * rng());
+			};
+			const n = 60;
+			const X = Array.from({ length: n }, () => [randn()]);
+			const y = Array.from({ length: n }, () => (rng() < 0.5 ? 0 : 1));
+			const stump = buildDecisionStump(X, y, undefined, true);
+			const parentGini = giniImpurity(y);
+			expect(stump.giniDecrease).toBeGreaterThanOrEqual(0);
+			expect(stump.giniDecrease).toBeLessThanOrEqual(parentGini + 1e-12);
+		}
+	});
+});
+
+describe('impurity-based feature importance (sanity, mirrors FeatureImportanceChart)', () => {
+	// Same pipeline as the demo: 350 samples (200 train + 150 test) are drawn,
+	// the first 200 are used for training; k informative Gaussian features
+	// drive a logistic label; bootstrap stumps restricted to m = √d random
+	// features. The top feature for the summed Gini decrease must be one of
+	// the k truly informative ones (the demo's own "top feature correct"
+	// metric). The signal is deliberately modest (weights 1.0−0.2i give a
+	// score with std ≈ √2, Bayes accuracy ≈ 0.62), so we do not require the
+	// strongest feature x0 to win specifically.
+	function runForestImportance(k: number, dataSeed: number, numTrees: number): number[] {
+		const d = 8;
+		const nTotal = 350;
+		const nTrain = 200;
+		const rng = mulberry32(dataSeed * 7919 + 42);
+		// Mirrors the demo's randn exactly (u1 and u2 drawn up front, then the
+		// zero-retry on u1) so the random stream is identical.
+		const randn = () => {
+			let u1 = rng();
+			const u2 = rng();
+			while (u1 === 0) u1 = rng();
+			return Math.sqrt(-2 * Math.log(u1)) * Math.cos(2 * Math.PI * u2);
+		};
+		const XAll = Array.from({ length: nTotal }, () => Array.from({ length: d }, () => randn()));
+		const weights = Array.from({ length: k }, (_, i) => 1.0 - i * 0.2);
+		const yAll = XAll.map((row) => {
+			let score = 0;
+			for (let f = 0; f < k; f++) score += weights[f] * row[f];
+			return rng() < 1 / (1 + Math.exp(-score)) ? 1 : 0;
+		});
+		const X = XAll.slice(0, nTrain);
+		const y = yAll.slice(0, nTrain);
+		const n = nTrain;
+
+		const scores = new Array(d).fill(0);
+		const m = Math.max(1, Math.round(Math.sqrt(d)));
+		for (let t = 0; t < numTrees; t++) {
+			const treeRng = mulberry32(t * 1301 + dataSeed * 97);
+			const bootX: number[][] = [];
+			const bootY: number[] = [];
+			for (let i = 0; i < n; i++) {
+				const idx = Math.floor(treeRng() * n);
+				bootX.push(X[idx]);
+				bootY.push(y[idx]);
+			}
+			const allFeatures = Array.from({ length: d }, (_, i) => i);
+			for (let i = allFeatures.length - 1; i > 0; i--) {
+				const j = Math.floor(treeRng() * (i + 1));
+				[allFeatures[i], allFeatures[j]] = [allFeatures[j], allFeatures[i]];
+			}
+			const stump = buildDecisionStump(bootX, bootY, allFeatures.slice(0, m), true);
+			scores[stump.featureIdx] += stump.giniDecrease;
+		}
+		return scores;
+	}
+
+	it('ranks a truly informative feature first (demo default: seed 0, k=3, 40 trees)', () => {
+		const scores = runForestImportance(3, 0, 40);
+		let top = 0;
+		for (let i = 1; i < scores.length; i++) if (scores[i] > scores[top]) top = i;
+		expect(top).toBeLessThan(3);
+	});
+
+	it('the top feature is informative across several seeds (100 trees)', () => {
+		for (const dataSeed of [0, 1, 2, 3, 4]) {
+			const scores = runForestImportance(3, dataSeed, 100);
+			let top = 0;
+			for (let i = 1; i < scores.length; i++) if (scores[i] > scores[top]) top = i;
+			expect(top).toBeLessThan(3);
+		}
 	});
 });
