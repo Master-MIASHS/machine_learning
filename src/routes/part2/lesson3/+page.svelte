@@ -105,6 +105,7 @@
 	const alpha_t_to_inf = '\\alpha_t \\to +\\infty';
 	const epsilon_eq_half = '\\varepsilon_t = 0.5';
 	const alpha_eq_zero = '\\alpha_t = 0';
+	const epsilon_ge_half = '\\varepsilon_t \\geq 1/2';
 	const epsilon_gt_half = '\\varepsilon_t > 0.5';
 	const alpha_lt_zero = '\\alpha_t < 0';
 	const iSym = 'i';
@@ -289,9 +290,13 @@
 							<KatexInline formula={wAt_t} />
 						</li>
 						<li>b. Calculer l'erreur pondérée :<br /><KatexBlock formula={weightedError} /></li>
-						<li>c. Calculer le poids du classifieur :<br /><KatexBlock formula={alphaT} /></li>
 						<li>
-							d. Mettre à jour les poids des exemples :<br /><KatexBlock formula={weightUpdate} />
+							c. Si <KatexInline formula={epsilon_ge_half} /> : arrêter (le classifieur faible ne
+							fait pas mieux que le hasard).
+						</li>
+						<li>d. Calculer le poids du classifieur :<br /><KatexBlock formula={alphaT} /></li>
+						<li>
+							e. Mettre à jour les poids des exemples :<br /><KatexBlock formula={weightUpdate} />
 						</li>
 						<li>
 							où <KatexInline formula={normalizationFactor} /> est le facteur de normalisation.
@@ -322,7 +327,10 @@
 			</li>
 			<li>
 				Si <KatexInline formula={epsilon_gt_half} />, alors <KatexInline formula={alpha_lt_zero} /> —
-				le modèle est pire que le hasard et sera « inversé ».
+				le modèle est pire que le hasard. Dans l'algorithme des notes, on s'arrête dès que
+				<KatexInline formula={epsilon_ge_half} /> ; certaines variantes ne s'arrêtent pas et
+				inversent le classifieur (<KatexInline formula={alpha_lt_zero} />) — extension au-delà du
+				cours.
 			</li>
 		</ul>
 

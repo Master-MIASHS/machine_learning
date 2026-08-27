@@ -1,6 +1,13 @@
 /**
  * Random Forest utilities: stumps, impurity measures, feature importance.
+ *
+ * Supports Part II, lesson 2 of the course (random forests — `regularization.typ`,
+ * section "Random Forest"): Définition 6.2 (impureté de Gini et division
+ * optimale), Définition 6.3 (division optimale restreinte) and the impurity-based
+ * feature importance of Section 4 of the lesson.
  */
+
+import { mulberry32 } from './util.js';
 
 // ─── Decision Stump Builder ────────────────────────────────
 
@@ -9,6 +16,16 @@ export interface DecisionStump {
 	threshold: number;
 	leftValue: number; // prediction when x[feature] <= threshold
 	rightValue: number; // prediction when x[feature] > threshold
+	/**
+	 * Normalized impurity decrease brought by this split — the
+	 * ΔImpureté of Définition 6.2 (Part II, lesson 2):
+	 * Gini(t) − (n_L/n_t)·Gini(t_L) − (n_R/n_t)·Gini(t_R) for classification
+	 * (MSE-based analogue for regression). Always ≥ 0. Set by
+	 * `buildDecisionStump` (which selects splits by impurity); absent on
+	 * AdaBoost weak learners (boosting.ts, margin-analysis.ts), which are
+	 * selected by weighted error instead.
+	 */
+	giniDecrease?: number;
 }
 
 export function buildDecisionStump(
@@ -20,6 +37,13 @@ export function buildDecisionStump(
 	const n = X.length,
 		d = X[0].length;
 	const features = featureSubset ?? Array.from({ length: d }, (_, i) => i);
+
+	// Cost of the unsplit node, in the same convention as the candidate costs
+	// below: n·Gini(y) for classification, Σ(y_i − ȳ)² for regression.
+	const yMean = y.reduce((a, b) => a + b, 0) / n;
+	const parentCost = isClassification
+		? n * giniImpurity(y)
+		: y.reduce((s, v) => s + (v - yMean) ** 2, 0);
 
 	let bestCost = Infinity;
 	let bestStump: DecisionStump | null = null;
@@ -67,7 +91,13 @@ export function buildDecisionStump(
 
 			if (cost < bestCost) {
 				bestCost = cost;
-				bestStump = { featureIdx: f, threshold, leftValue, rightValue };
+				bestStump = {
+					featureIdx: f,
+					threshold,
+					leftValue,
+					rightValue,
+					giniDecrease: (parentCost - cost) / n
+				};
 			}
 		}
 	}
@@ -76,8 +106,9 @@ export function buildDecisionStump(
 		bestStump ?? {
 			featureIdx: 0,
 			threshold: 0,
-			leftValue: y.reduce((a, b) => a + b, 0) / n,
-			rightValue: y.reduce((a, b) => a + b, 0) / n
+			leftValue: yMean,
+			rightValue: yMean,
+			giniDecrease: 0
 		}
 	);
 }
@@ -125,7 +156,7 @@ export function permutationImportance(
 	for (let i = 0; i < y.length; i++) baseScore += (y[i] - basePredictions[i]) ** 2;
 	baseScore = -baseScore; // negative MSE
 
-	const rng = makeRng(seed);
+	const rng = mulberry32(seed);
 
 	return Array.from({ length: d }, (_, j) => {
 		let totalDegradation = 0;
@@ -164,14 +195,6 @@ function entropy(labels: number[]): number {
 		if (p > 0 && p < 1) ent -= p * Math.log2(p);
 	}
 	return ent;
-}
-
-function makeRng(seed: number): () => number {
-	let s = seed;
-	return () => {
-		s = (s * 16807) % 2147483647;
-		return s / 2147483647;
-	};
 }
 
 function shuffle(arr: number[], rng: () => number): void {

@@ -6,6 +6,7 @@
 	import Slider from '$lib/components/controls/Slider.svelte';
 	import Button from '$lib/components/controls/Button.svelte';
 	import { buildDecisionStump, permutationImportance } from '$lib/math/random-forest';
+	import { mulberry32 } from '$lib/math/util';
 
 	// ─── Constants ──────────────────────────────────────────────
 	const N_TRAIN = 200;
@@ -13,14 +14,7 @@
 	const D_FEATURES = 8; // fixed number of features for this demo
 	const NUM_PERMS = 6; // permutations per feature for permutation importance
 
-	// ─── Seeded RNG (Lehmer / MINSTD) ──────────────────────────
-	function makeRng(seed: number): () => number {
-		let s = ((seed % 2147483647) + 2147483647) % 2147483647 || 1;
-		return () => {
-			s = (s * 16807) % 2147483647;
-			return (s - 1) / 2147483646;
-		};
-	}
+	// Seeded RNG: mulberry32 from $lib/math/util (shared, deterministic).
 
 	function randn(rng: () => number): number {
 		let u1 = rng(),
@@ -38,7 +32,7 @@
 
 	// ─── Synthetic data with k important features ──────────────
 	function generateData(k: number, seed: number) {
-		const rng = makeRng(seed);
+		const rng = mulberry32(seed);
 		const n = N_TRAIN + N_TEST;
 
 		// Generate D_FEATURES independent Gaussian features
@@ -93,7 +87,7 @@
 	const forest = $derived.by(() => {
 		const trees: ForestStump[] = [];
 		for (let t = 0; t < numTrees; t++) {
-			const rng = makeRng(t * 1301 + dataSeed * 97);
+			const rng = mulberry32(t * 1301 + dataSeed * 97);
 
 			// Bootstrap sample from training data
 			const bootIndices = Array.from({ length: N_TRAIN }, () => Math.floor(rng() * N_TRAIN));
@@ -133,16 +127,14 @@
 
 		for (const tree of forest) {
 			const s = tree.stump;
-			const featureIdx = s.featureIdx;
-
-			// For each stump, the impurity reduction is attributed to its chosen feature.
-			// We approximate: split on bootstrap sample → measure Gini decrease.
-			// Since we don't have the original bootY stored, use a proxy:
-			// contribution = 1 / numTrees (each tree contributes equally to its split feature)
-			scores[featureIdx] += 1;
+			// The stump's Gini decrease (ΔImpureté, Définition 6.2) is attributed
+			// to the feature it split on — the Mean Decrease Impurity score.
+			// (Stumps here always come from buildDecisionStump, so the field is
+			// set; `?? 0` guards the optional type only.)
+			scores[s.featureIdx] += s.giniDecrease ?? 0;
 		}
 
-		// Normalize to [0, 1] by max frequency
+		// Normalize to [0, 1] by max total decrease
 		const maxScore = Math.max(...scores);
 		return scores.map((v) => (maxScore > 0 ? v / maxScore : 0));
 	});
@@ -269,7 +261,7 @@
 
 		{#snippet caption()}
 			Méthode : {method === 'impurity'
-				? "diminution d'impureté Gini (fréquence de split)"
+				? "diminution d'impureté Gini (Σ Δ impureté par feature)"
 				: 'importance par permutation (' + NUM_PERMS + ' permutations)'} | Top feature: x{topFeatureIdx}
 			({(currentScores[topFeatureIdx] * 100).toFixed(0)}%)
 		{/snippet}

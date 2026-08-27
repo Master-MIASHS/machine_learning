@@ -59,7 +59,7 @@
 	const fTDef = '\\mathcal{F}_t \\subset \\{1, \\ldots, d\\}, \\ |\\mathcal{F}_t| = m';
 
 	const errTestFormula =
-		'\\text{Erreur}_{\\text{test}}(m) \\approx \\underbrace{\\text{biais}(m)}_{\\nearrow \\text{ quand } m \\searrow} + \\underbrace{\\bar\\rho(m)\\,\\sigma^2}_{\\searrow \\text{ quand } m \\nearrow}';
+		'\\text{Erreur}_{\\text{test}}(m) \\approx \\underbrace{\\text{biais}(m)}_{\\nearrow \\text{ quand } m \\searrow} + \\underbrace{\\bar\\rho(m)\\,\\sigma^2}_{\\nearrow \\text{ quand } m \\nearrow}';
 	const importanceImpurityFormula =
 		'\\text{Importance}(x_j) = \\frac{1}{M} \\sum_{k=1}^{M} \\sum_{t \\in T_k : split(t)=j} \\Delta \\text{Impureté}_t';
 	const importancePermFormula =
