@@ -60,7 +60,15 @@ export function gradNorm(grad: Grad2D, x: number, y: number): number {
 	return Math.sqrt(gx * gx + gy * gy);
 }
 
-/** Find critical points by coarse grid scan then Newton refinement */
+/**
+ * Find critical points by multi-start Newton from a coarse 25×25 grid over
+ * `domain` (both endpoints included), then deduplicate and classify the
+ * converged iterates. A strict sign-change grid scan is deliberately not
+ * used: a gradient component that is exactly zero on a grid line (e.g. the
+ * origin of x² + 4y² on a symmetric domain) produces no sign change, hence
+ * no candidate at all. `gridSize` sets the start-grid resolution, capped at
+ * 25 points per axis so the multi-start stays cheap in the browser.
+ */
 interface CriticalPoint {
 	x: number;
 	y: number;
@@ -80,27 +88,16 @@ export function findCriticalPoints(
 	const [xMin, xMax] = domain[0];
 	const [yMin, yMax] = domain[1];
 
-	// Step 1: Find grid cells where gradient changes sign (critical point candidate)
-	const dx = (xMax - xMin) / gridSize;
-	const dy = (yMax - yMin) / gridSize;
+	// Step 1: coarse grid of Newton start points (both endpoints included),
+	// capped at 25 per axis so the multi-start stays cheap in the browser
+	const n = Math.min(gridSize, 25);
+	const dx = (xMax - xMin) / (n - 1);
+	const dy = (yMax - yMin) / (n - 1);
 
 	const candidates: { x: number; y: number }[] = [];
-
-	for (let i = 0; i < gridSize; i++) {
-		for (let j = 0; j < gridSize; j++) {
-			const x1 = xMin + i * dx,
-				x2 = x1 + dx;
-			const y1 = yMin + j * dy,
-				y2 = y1 + dy;
-
-			const [gx1, gy1] = grad(x1, y1);
-			const gx2 = grad(x2, y1)[0];
-			const gy3 = grad(x1, y2)[1];
-
-			// Sign change in gradient components suggests a root nearby
-			if (gx1 * gx2 < 0 && gy1 * gy3 < 0) {
-				candidates.push({ x: (x1 + x2) / 2, y: (y1 + y2) / 2 });
-			}
+	for (let i = 0; i < n; i++) {
+		for (let j = 0; j < n; j++) {
+			candidates.push({ x: xMin + i * dx, y: yMin + j * dy });
 		}
 	}
 

@@ -148,29 +148,53 @@ describe('gradNorm', () => {
 });
 
 describe('findCriticalPoints', () => {
-	it('finds the Rosenbrock minimum near (1, 1)', () => {
+	it('finds exactly one critical point for the paraboloid x² + 4y² on [−3, 3]²', () => {
+		const cps = findCriticalPoints(paraboloid.f, paraboloid.grad, [
+			[-3, 3],
+			[-3, 3]
+		]);
+		expect(cps.length).toBe(1);
+		expect(cps[0].type).toBe('minimum');
+		expect(Math.abs(cps[0].x)).toBeLessThan(1e-3);
+		expect(Math.abs(cps[0].y)).toBeLessThan(1e-3);
+		expect(Math.abs(cps[0].fVal)).toBeLessThan(1e-6);
+	});
+
+	it('finds the saddle point of f(x, y) = x² − y² at (0, 0)', () => {
+		const cps = findCriticalPoints(saddle.f, saddle.grad, [
+			[-3, 3],
+			[-3, 3]
+		]);
+		const sp = cps.find((cp) => cp.type === 'saddle');
+		expect(sp).toBeDefined();
+		expect(Math.abs(sp!.x)).toBeLessThan(1e-3);
+		expect(Math.abs(sp!.y)).toBeLessThan(1e-3);
+	});
+
+	it('finds the Rosenbrock minimum at (1, 1) with vanishing gradient', () => {
 		const cps = findCriticalPoints(rosenbrock.f, rosenbrock.grad, [
 			[-2, 2],
 			[-1, 3]
 		]);
 		const min = cps.find((cp) => cp.type === 'minimum');
-
-		if (min) {
-			expect(Math.abs(min.x - 1)).toBeLessThan(0.5);
-			expect(Math.abs(min.y - 1)).toBeLessThan(0.5);
-		}
+		expect(min).toBeDefined();
+		expect(Math.abs(min!.x - 1)).toBeLessThan(1e-3);
+		expect(Math.abs(min!.y - 1)).toBeLessThan(1e-3);
+		expect(min!.gradNormAtPoint).toBeLessThan(1e-6);
+		expect(min!.fVal).toBeLessThan(1e-6);
 	});
 
-	it('classifies the saddle point of f(x,y) = x² - y² at (0, 0)', () => {
-		const cps = findCriticalPoints(saddle.f, saddle.grad, [
+	it('classifies the maximum of f(x, y) = −x² − y² at (0, 0)', () => {
+		const f = (x: number, y: number) => -x * x - y * y;
+		const grad = (x: number, y: number): [number, number] => [-2 * x, -2 * y];
+		const cps = findCriticalPoints(f, grad, [
 			[-3, 3],
 			[-3, 3]
 		]);
-		const found = cps.find((cp) => Math.abs(cp.x) < 1 && Math.abs(cp.y) < 1);
-
-		if (found) {
-			expect(found.type).toBe('saddle');
-		}
+		const max = cps.find((cp) => cp.type === 'maximum');
+		expect(max).toBeDefined();
+		expect(Math.abs(max!.x)).toBeLessThan(1e-3);
+		expect(Math.abs(max!.y)).toBeLessThan(1e-3);
 	});
 
 	it('returns critical points with negligible gradient norm', () => {
@@ -179,6 +203,7 @@ describe('findCriticalPoints', () => {
 			[-1, 3]
 		]);
 
+		expect(cps.length).toBeGreaterThan(0);
 		for (const cp of cps) {
 			expect(cp.gradNormAtPoint).toBeLessThan(0.1);
 		}
@@ -198,36 +223,15 @@ describe('findCriticalPoints', () => {
 		expect(saddles.length).toBeLessThanOrEqual(1); // Only one saddle at origin
 	});
 
-	it('findCriticalPoints returns empty array when no sign changes on grid', () => {
-		// For paraboloid x²+4y², the gradient is exactly zero at (0,0) so there's no sign change
-		// across neighboring cells → critical point may not be detected by grid scan alone
-		const cps = findCriticalPoints(paraboloid.f, paraboloid.grad, [
-			[-3, 3],
-			[-3, 3]
-		]);
-		expect(Array.isArray(cps)).toBe(true);
-	});
-
 	it('critical points have reasonable f values', () => {
 		const cps = findCriticalPoints(saddle.f, saddle.grad, [
 			[-3, 3],
 			[-3, 3]
 		]);
 
+		expect(cps.length).toBeGreaterThan(0);
 		for (const cp of cps) {
 			expect(cp.fVal).toBeCloseTo(0, 2); // Saddle at origin has f=0 for x²-y²
-		}
-	});
-
-	it('Rosenbrock minimum has approximately correct function value', () => {
-		const cps = findCriticalPoints(rosenbrock.f, rosenbrock.grad, [
-			[-2, 2],
-			[-1, 3]
-		]);
-		const min = cps.find((cp) => cp.type === 'minimum');
-
-		if (min) {
-			expect(min.fVal).toBeCloseTo(0, 1); // f(1,1) = 0 for Rosenbrock
 		}
 	});
 
@@ -241,6 +245,7 @@ describe('findCriticalPoints', () => {
 			[-3, 3],
 			[-3, 3]
 		]);
+		expect(cps.length).toBeGreaterThan(0);
 		for (const cp of cps) {
 			expect(['minimum', 'maximum', 'saddle', 'inconclusive'].includes(cp.type)).toBe(true);
 		}
