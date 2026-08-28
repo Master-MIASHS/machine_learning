@@ -1401,8 +1401,8 @@
 					test, explosée au seuil, redescend avec d vers un niveau bas, légèrement supérieur
 					au bruit irréductible <KatexInline formula={String.raw`\sigma^2 = 1`} /> : la solution
 					de norme minimale ne capture que la composante du signal dans le sous-espace de rang
-					<KatexInline formula={String.raw`n`} /> engendré par les observations (biais résiduel
-					<KatexInline formula={String.raw`(1 - n/d)\,\|\beta\|`} />).
+					<KatexInline formula={String.raw`n`} /> engendré par les observations (biais résiduel au
+					carré <KatexInline formula={String.raw`(1 - n/d)^2\,\|\beta\|^2`} />).
 				</li>
 				</ul>
 				<p>

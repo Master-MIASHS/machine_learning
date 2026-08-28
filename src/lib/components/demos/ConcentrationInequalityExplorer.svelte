@@ -11,7 +11,6 @@
 	// All three, plus the empirical curve, therefore bound/estimate the exact
 	// same quantity — see empiricalOneSidedExceedanceProbability's docstring.
 
-	// TODO: confirm these paths/names against your actual files.
 	import Figure from '$lib/components/charts/Figure.svelte';
 	import CurveChart from '$lib/components/charts/CurveChart.svelte';
 	import Slider from '$lib/components/controls/Slider.svelte';
@@ -25,7 +24,7 @@
 		type EmpiricalMeanModel
 	} from '$lib/math/concentration';
 	import { hoeffdingBound } from '$lib/math/generalization';
-	import { linspace } from '$lib/math/util'; // TODO: confirm path
+	import { linspace } from '$lib/math/util';
 
 	// Fixed mean, kept in (0,1) and away from the edges so the underlying
 	// variable's support (mean ± sqrt(3*variance)) can stay inside [0,1] —

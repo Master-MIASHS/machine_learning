@@ -9,7 +9,6 @@
 	// concentration.ts) is already separated from this rendering, so only the
 	// markup below would need to change.
 
-	// TODO: confirm these paths/names against your actual files.
 	import Figure from '$lib/components/charts/Figure.svelte';
 	import CurveChart from '$lib/components/charts/CurveChart.svelte';
 	import Metrics from '$lib/components/layout/Metrics.svelte';
@@ -22,7 +21,7 @@
 		histogram,
 		type EmpiricalMeanModel
 	} from '$lib/math/concentration';
-	import { linspace } from '$lib/math/util'; // TODO: confirm path
+	import { linspace } from '$lib/math/util';
 
 	const MEAN = 5;
 

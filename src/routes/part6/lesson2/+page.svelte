@@ -273,7 +273,7 @@
 		<TheoremBlock number="3.2" title="Cas non séparable, |H| < +∞">
 			<p>
 				Soit <KatexInline formula={hypothesisClass} /> fini et <KatexInline formula={ermDef} />.
-				Pour tout <KatexInline formula={'\\varepsilon,\\delta\\in(0,1)'} />, avec probabilité <KatexInline
+				Pour tout <KatexInline formula={'\\delta\\in(0,1)'} />, avec probabilité <KatexInline
 					formula={confidence}
 				/> :
 			</p>

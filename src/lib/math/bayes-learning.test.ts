@@ -15,7 +15,7 @@ import {
 	sampleConditionalDistribution,
 	type ConditionalDistribution
 } from './bayes-learning';
-import { linspace } from './util'; // TODO: fix path if util.ts lives elsewhere
+import { linspace } from './util';
 
 describe('conditionalRisk', () => {
 	it('r(0, eta) = eta and r(1, eta) = 1 - eta', () => {

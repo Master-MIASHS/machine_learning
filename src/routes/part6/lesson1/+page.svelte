@@ -294,6 +294,12 @@
 			journal="Cambridge University Press."
 			link="https://www.cs.huji.ac.il/~shais/UnderstandingMachineLearning/"
 		/>
+		<BibElement
+			authors={['Hoeffding, W.']}
+			year={1963}
+			title="Probability inequalities for sums of bounded random variables"
+			journal="Journal of the American Statistical Association, 58(301), 13-30."
+		/>
 	</Bibliography>
 </PageTemplate>
 

@@ -293,10 +293,11 @@
 			La dimension VC de <KatexInline formula={String.raw`\mathcal H_\gamma`} /> ne dépend
 			<strong>pas</strong> de <KatexInline formula={String.raw`d`} />, la dimension de l'espace
 			d'entrée — seulement du rapport <KatexInline formula={String.raw`R^2/\gamma^2`} /> entre le
-			rayon des données et la marge obtenue. Un SVM peut
-			ainsi généraliser correctement même en très grande dimension (voire en dimension infinie, via le
-			kernel trick), à condition d'obtenir une marge suffisamment grande relative à l'échelle des données.
-			C'est tout l'intérêt de maximiser la marge plutôt que de se contenter d'une séparation quelconque.
+			rayon des données et la marge obtenue. Un SVM peut ainsi généraliser correctement même en très
+			grande dimension, à condition d'obtenir une marge suffisamment grande relative à l'échelle des
+			données. L'extension évoquée — dimension infinie via le kernel trick (SVM à noyau) — ne fait pas
+			partie du support du cours : elle est donnée ici comme complément, au-delà du cours. C'est tout
+			l'intérêt de maximiser la marge plutôt que de se contenter d'une séparation quelconque.
 		</Callout>
 
 		<InteractiveSection
@@ -340,6 +341,18 @@
 			year={1995}
 			title="The Nature of Statistical Learning Theory"
 			journal="Springer-Verlag."
+		/>
+		<BibElement
+			authors={['Sauer, N.']}
+			year={1972}
+			title="On the density of families of sets"
+			journal="Journal of Combinatorial Theory, Series A, 13(1), 145-147."
+		/>
+		<BibElement
+			authors={['Shelah, S.']}
+			year={1972}
+			title="A combinatorial problem; stability and order for models and theories in infinitary languages"
+			journal="Pacific Journal of Mathematics, 41(1), 247-261."
 		/>
 	</Bibliography>
 </PageTemplate>

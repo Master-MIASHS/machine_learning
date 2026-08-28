@@ -392,5 +392,11 @@
 			title="The implicit bias of gradient descent on separable data"
 			journal="Journal of Machine Learning Research, 19(1), 2822-2878."
 		/>
+		<BibElement
+			authors={['Bach, F.']}
+			year={2024}
+			title="Learning Theory from First Principles"
+			journal="MIT Press."
+		/>
 	</Bibliography>
 </PageTemplate>

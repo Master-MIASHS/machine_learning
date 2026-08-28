@@ -8,7 +8,6 @@
 	// curve depends on both, and is typically U-shaped in complexity for fixed
 	// n — too simple underfits, too rich overfits given only n samples.
 
-	// TODO: confirm these paths/names against your actual files.
 	import Figure from '$lib/components/charts/Figure.svelte';
 	import CurveChart from '$lib/components/charts/CurveChart.svelte';
 	import Slider from '$lib/components/controls/Slider.svelte';
@@ -20,7 +19,7 @@
 		approxEstimDecomposition,
 		type ApproxEstimModel
 	} from '$lib/math/consistency';
-	import { linspace } from '$lib/math/util'; // TODO: confirm path
+	import { linspace } from '$lib/math/util';
 
 	const bayesRisk = 0.1;
 	const model: ApproxEstimModel = { approxConst: 0.5, approxExponent: 0.7, estimConst: 2 };

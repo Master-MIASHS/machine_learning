@@ -4,15 +4,12 @@
 	// r(0, x) = eta(x), r(1, x) = 1 - eta(x); h*(x) = 1 iff eta(x) >= 1/2.
 	// All math comes from $lib/math/bayes-learning — nothing computed inline.
 
-	// TODO: confirm these three import paths/names against your actual files —
-	// guessed as $lib/components/Figure.svelte, $lib/components/CurveChart.svelte
-	// (the d3 curves/vlines/curveDots one), $lib/components/Slider.svelte.
 	import Figure from '$lib/components/charts/Figure.svelte';
 	import CurveChart from '$lib/components/charts/CurveChart.svelte';
 	import Slider from '$lib/components/controls/Slider.svelte';
 
 	import { conditionalRisk, bayesAction, bayesConditionalRisk } from '$lib/math/bayes-learning';
-	import { linspace } from '$lib/math/util'; // TODO: confirm path, per bayes-learning.test.ts
+	import { linspace } from '$lib/math/util';
 
 	let eta = $state(0.5);
 

@@ -10,12 +10,9 @@
 	// (robust to CSS scaling), then inverting the same pad=4 projection used
 	// elsewhere in these demos.
 
-	// TODO: confirm these paths/names against your actual files.
 	import Figure from '$lib/components/charts/Figure.svelte';
 	import ScatterPlot from '$lib/components/charts/ScatterPlot.svelte';
 	import Metrics from '$lib/components/layout/Metrics.svelte';
-	// TODO: filename/path guessed — confirm against the actual component (the
-	// one wrapping Button with a bindable groupValue for radio-style selection).
 	import SelectOption from '$lib/components/controls/RadioButton.svelte';
 
 	import {

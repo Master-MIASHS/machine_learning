@@ -14,13 +14,9 @@
 	// if you have a reason to prefer it — the data prep below would need to
 	// change (values-only arrays, no explicit x).
 
-	// TODO: confirm these paths/names against your actual files.
 	import Figure from '$lib/components/charts/Figure.svelte';
 	import CurveChart from '$lib/components/charts/CurveChart.svelte';
 	import Slider from '$lib/components/controls/Slider.svelte';
-	// TODO: Metrics source wasn't provided — this assumes a simple
-	// `items: { label: string; value: string }[]` shape. Replace with the
-	// real prop names once you paste the component.
 	import Metrics from '$lib/components/layout/Metrics.svelte';
 
 	import {
@@ -29,7 +25,7 @@
 		sigmoidBayesBoundary,
 		bayesRisk
 	} from '$lib/math/bayes-learning';
-	import { linspace } from '$lib/math/util'; // TODO: confirm path
+	import { linspace } from '$lib/math/util';
 
 	// Log slider: small temperature = separable, large = noisy.
 	let temperature = $state(0.5);
