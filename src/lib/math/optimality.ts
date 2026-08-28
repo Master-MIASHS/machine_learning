@@ -77,6 +77,15 @@ interface CriticalPoint {
 	gradNormAtPoint: number;
 }
 
+// For degenerate roots, a small gradient norm does not imply equally small
+// coordinates: here |∂f/∂y| = 4|y|³, so Newton may stop around y = 3e-4.
+// Treat these nearby iterates as the same root and normalize them to zero.
+const coordinateTolerance = 1e-3;
+
+function normalizeNearZero(value: number): number {
+	return Math.abs(value) < coordinateTolerance ? 0 : value;
+}
+
 export function findCriticalPoints(
 	f: Func2D,
 	grad: Grad2D,
@@ -103,19 +112,32 @@ export function findCriticalPoints(
 
 	// Step 2: Refine each candidate with Newton's method
 	const refined: CriticalPoint[] = [];
-	const seen = new Set<string>(); // deduplicate nearby points
 
 	for (const c of candidates) {
 		const result = refineNewton(f, grad, c.x, c.y, newtonTol, maxIter);
 		if (!result) continue;
 
-		// Deduplicate: skip if too close to an existing point
-		const key = `${Math.round(result.x * 1e4)},${Math.round(result.y * 1e4)}`;
-		if (seen.has(key)) continue;
-		seen.add(key);
+		const point = {
+			x: normalizeNearZero(result.x),
+			y: normalizeNearZero(result.y)
+		};
+
+		// Deduplicate by coordinate distance rather than independent rounded
+		// bins, so small positive and negative residuals around zero coincide.
+		const existingIndex = refined.findIndex(
+			(existing) =>
+				Math.abs(existing.x - point.x) <= coordinateTolerance &&
+				Math.abs(existing.y - point.y) <= coordinateTolerance
+		);
+		if (existingIndex >= 0) {
+			// Keep the most accurate representative when several starts reach
+			// the same flat/degenerate root.
+			if (gradNorm(grad, point.x, point.y) >= refined[existingIndex].gradNormAtPoint) continue;
+			refined.splice(existingIndex, 1);
+		}
 
 		// Classify using Hessian
-		const hess = hessian2D(f, result.x, result.y);
+		const hess = hessian2D(f, point.x, point.y);
 		let type: CriticalPoint['type'];
 		if (isPositiveDefinite(hess)) {
 			type = 'minimum';
@@ -127,11 +149,11 @@ export function findCriticalPoints(
 		}
 
 		refined.push({
-			x: result.x,
-			y: result.y,
-			fVal: f(result.x, result.y),
+			x: point.x,
+			y: point.y,
+			fVal: f(point.x, point.y),
 			type,
-			gradNormAtPoint: gradNorm(grad, result.x, result.y)
+			gradNormAtPoint: gradNorm(grad, point.x, point.y)
 		});
 	}
 

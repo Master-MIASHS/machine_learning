@@ -250,4 +250,20 @@ describe('findCriticalPoints', () => {
 			expect(['minimum', 'maximum', 'saddle', 'inconclusive'].includes(cp.type)).toBe(true);
 		}
 	});
+
+	it('deduplicates signed zero residuals for the degenerate saddle', () => {
+		const cps = findCriticalPoints(semiDefSaddle.f, semiDefSaddle.grad, semiDefSaddle.domain!);
+
+		expect(cps).toHaveLength(3);
+		expect(cps.some((cp) => cp.x === 0 && cp.y === 0)).toBe(true);
+		for (const cp of cps) {
+			expect(Object.is(cp.x, -0)).toBe(false);
+			expect(Object.is(cp.y, -0)).toBe(false);
+		}
+
+		const xs = cps.map((cp) => cp.x).sort((a, b) => a - b);
+		expect(xs[0]).toBeCloseTo(-1 / Math.sqrt(2), 4);
+		expect(xs[1]).toBe(0);
+		expect(xs[2]).toBeCloseTo(1 / Math.sqrt(2), 4);
+	});
 });
