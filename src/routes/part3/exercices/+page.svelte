@@ -6,11 +6,13 @@
 	import KatexInline from '$lib/components/narrative/KatexInline.svelte';
 	import KatexBlock from '$lib/components/narrative/KatexBlock.svelte';
 	import Callout from '$lib/components/narrative/Callout.svelte';
-	import { getPageByPath, getNextPage, getPrevPage } from '$lib/navigation.js';
+	import { getPageByPath, getAdjacentPages } from '$lib/navigation.js';
+	import { settings } from '$lib/stores/index.js';
 
 	const meta = getPageByPath('/part3/exercices');
-	const prevMeta = $derived(getPrevPage(meta?.index ?? 0));
-	const nextMeta = $derived(getNextPage(meta?.index ?? 0));
+	const { prev: prevMeta, next: nextMeta } = $derived(
+		getAdjacentPages(meta?.path ?? '', $settings.expertMode)
+	);
 
 	const tocEntries: TocEntry[] = [
 		{
@@ -45,8 +47,7 @@
 </script>
 
 <svelte:head>
-	<title>{meta?.title ?? 'Feuille d’exercices — Partie III'} — Régularisation et Optimisation</title
-	>
+	<title>{meta?.title ?? 'Feuille d’exercices — Partie III'} — Fondations de l'Apprentissage Statistique</title>
 </svelte:head>
 
 <PageTemplate

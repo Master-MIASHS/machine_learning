@@ -5,7 +5,8 @@
 	import KatexInline from '$lib/components/narrative/KatexInline.svelte';
 	import KatexBlock from '$lib/components/narrative/KatexBlock.svelte';
 	import TableOfContents, { type TocEntry } from '$lib/components/narrative/TableOfContents.svelte';
-	import { getPageByPath, getNextPage, getPrevPage } from '$lib/navigation.js';
+	import { getPageByPath, getAdjacentPages } from '$lib/navigation.js';
+	import { settings } from '$lib/stores/index.js';
 	import InteractiveSection from '$lib/components/narrative/InteractiveSection.svelte';
 	import ClassificationIsEasierThanRegression from '$lib/components/demos/ClassificationIsEasierThanRegression.svelte';
 	import Callout from '$lib/components/narrative/Callout.svelte';
@@ -14,8 +15,9 @@
 
 	const meta = getPageByPath('/part4/exercices');
 	const tracker = createPageTracker(meta as PageMeta);
-	const prevMeta = $derived(getPrevPage(meta?.index ?? 0));
-	const nextMeta = $derived(getNextPage(meta?.index ?? 0));
+	const { prev: prevMeta, next: nextMeta } = $derived(
+		getAdjacentPages(meta?.path ?? '', $settings.expertMode)
+	);
 
 	// ── Table of Contents ──
 
@@ -107,7 +109,7 @@
 </script>
 
 <svelte:head>
-	<title>{meta?.title ?? 'Exercices'} — Régularisation et Optimisation</title>
+	<title>{meta?.title ?? 'Exercices'} — Fondations de l'Apprentissage Statistique</title>
 </svelte:head>
 
 <PageTemplate

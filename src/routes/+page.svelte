@@ -3,7 +3,7 @@
 </script>
 
 <svelte:head>
-	<title>Régularisation et Optimisation</title>
+	<title>Fondations de l'Apprentissage Statistique</title>
 </svelte:head>
 
 <main class="home">

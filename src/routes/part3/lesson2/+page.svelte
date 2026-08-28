@@ -13,13 +13,15 @@
 	import ConformityScoreComparison from '$lib/components/demos/ConformityScoreComparison.svelte';
 	import QuantileThresholdVisualizer from '$lib/components/demos/QuantileThresholdVisualizer.svelte';
 	import TableOfContents from '$lib/components/narrative/TableOfContents.svelte';
-	import { getPageByPath, getNextPage, getPrevPage, type PageMeta } from '$lib/navigation.js';
+	import { getPageByPath, getAdjacentPages, type PageMeta } from '$lib/navigation.js';
+	import { settings } from '$lib/stores/index.js';
 	import { createPageTracker } from '$lib/stores/progress.svelte';
 
 	const meta = getPageByPath('/part3/lesson2');
 	const tracker = createPageTracker(meta as PageMeta);
-	const prevMeta = $derived(getPrevPage(meta?.index ?? 0));
-	const nextMeta = $derived(getNextPage(meta?.index ?? 0));
+	const { prev: prevMeta, next: nextMeta } = $derived(
+		getAdjacentPages(meta?.path ?? '', $settings.expertMode)
+	);
 
 	interface TocEntry {
 		id: string;
@@ -106,7 +108,7 @@
 </script>
 
 <svelte:head>
-	<title>{meta?.title ?? 'Prédiction conformelle'} — Régularisation et Optimisation</title>
+	<title>{meta?.title ?? 'Prédiction conformelle'} — Fondations de l'Apprentissage Statistique</title>
 </svelte:head>
 
 <PageTemplate
