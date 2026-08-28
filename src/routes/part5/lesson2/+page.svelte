@@ -66,7 +66,8 @@
 	const stoneConclusion =
 		'\\forall P_{X,Y}, \\quad \\mathbb{E}\\big[R(h_n^{k\\text{-NN}})\\big] \\xrightarrow[n\\to+\\infty]{} R^*';
 
-	const coverHartBound = String.raw`\limsup_{n\to+\infty} \mathbb{E}\big[R(h_n^{1\text{-NN}})\big] \;=\; 2\mathbb{E}\big[\eta(X)(1-\eta(X))\big] \;\ge\; R^*`;
+	const coverHartIdentity = String.raw`\limsup_{n\to+\infty} \mathbb{E}\big[R(h_n^{1\text{-NN}})\big] \;=\; 2\mathbb{E}\big[\eta(X)(1-\eta(X))\big]`;
+	const coverHartBound = String.raw`R^* \;\le\; \limsup_{n\to+\infty} \mathbb{E}\big[R(h_n^{1\text{-NN}})\big] \;\le\; 2R^*\left(1-\tfrac{R^*}{2}\right) \;<\; 2R^*`;
 </script>
 
 <svelte:head>
@@ -204,22 +205,40 @@
 
 		<Callout type="insight" title="Erreur du 1-NN">
 			<p>
-				Pour le classifieur du plus proche voisin (<KatexInline formula={String.raw`1`} />-NN,
-				<KatexInline formula={String.raw`k=1`} /> fixé), en supposant <KatexInline
+				Cette borne n'apparaît pas dans le support du cours (l'Exercice 2.1 du support se limite
+				à un indice) : elle est due à Cover et Hart (1967) et est donnée ici comme complément,
+				au-delà du cours. Pour le classifieur du plus proche voisin (<KatexInline
+					formula={String.raw`1`}
+				/>-NN, <KatexInline formula={String.raw`k=1`} /> fixé), en supposant <KatexInline
 					formula={String.raw`\mathbb{P}_X`}
-				/> à densité (cela garantit que plus n est grand, plus le plus proche voisin est effectivement
-				proche) le risque asymptotique dépend de <KatexInline formula={String.raw`R^*`} /> et est donné
-				par :
+				/> à densité (cela garantit que plus n est grand, plus le plus proche voisin est
+				effectivement proche), le risque asymptotique dépend de <KatexInline
+					formula={String.raw`R^*`}
+				/> et est donné par :
+			</p>
+			<KatexBlock formula={coverHartIdentity} />
+			<p>
+				Plus utilement, il est borné en fonction de <KatexInline formula={String.raw`R^*`} /> seul —
+				pour <KatexInline formula={String.raw`0<R^*<1`} /> :
 			</p>
 			<KatexBlock formula={coverHartBound} />
 			<p>
-				Cette borne est stricte dès que <KatexInline
-					formula={String.raw`R^\star\not\in\{0,0.5\}`}
-				/> (le problème n'est pas parfaitement séparable, mais qu'il y a du signal). En outre, nous avons
-				:
-				<KatexBlock
-					formula={String.raw`\limsup_{n\to+\infty} \mathbb{E}\big[R(h_n^{1\text{-NN}})\big] \;\le\; 2(R^\star)(1-R^\star) \;\le\; 2R^\star`}
-				/>
+				La borne supérieure est strictement supérieure à <KatexInline
+					formula={String.raw`R^*`}
+				/> pour tout <KatexInline formula={String.raw`R^*\in(0,1)`} /> : l'écart
+				<KatexInline formula={String.raw`2R^*\left(1-\tfrac{R^*}{2}\right)-R^* = R^*(1-R^*)`} /> est
+				strictement positif, et ne s'annule que pour <KatexInline
+					formula={String.raw`R^*\in\{0,1\}`}
+				/>. La borne ne garantit donc pas la convergence vers <KatexInline
+					formula={String.raw`R^*`}
+				/> : il existe des distributions pour lesquelles le risque asymptotique du 1-NN reste
+				strictement au-dessus du risque de Bayes — par exemple, si <KatexInline
+					formula={String.raw`\eta(X)\in\{c,1-c\}`}
+				/> presque sûrement avec <KatexInline formula={String.raw`c\in(0,1/2)`} />, alors
+				<KatexInline formula={String.raw`R^*=c`} /> mais le risque asymptotique vaut
+				<KatexInline formula={String.raw`2c(1-c)>c`} />. C'est pour cela que la condition
+				<KatexInline formula={String.raw`k(n)\to+\infty`} /> du Théorème 2.1 est nécessaire, et pas
+				seulement une commodité technique de la démonstration.
 			</p>
 		</Callout>
 
@@ -227,22 +246,27 @@
 			{#snippet solution()}
 				<p>
 					Avec <KatexInline formula={String.raw`R^*=0.1`} /> par exemple, la borne de Cover-Hart donne
-					<KatexInline formula={String.raw`2R^*(1-R^*) = 2\times0.1\times0.9 = 0.18`} /> : le risque asymptotique
-					du 1-NN peut atteindre <KatexInline formula={String.raw`0.18`} />, soit près du double du
-					risque de Bayes. Plus généralement, la borne
-					<KatexInline formula={coverHartBound} /> montre que l'écart au risque de Bayes ne s'annule que
-					dans le cas séparable (<KatexInline formula={String.raw`R^*=0`} />) : dès que <KatexInline
-						formula={String.raw`R^*>0`}
-					/>, un <KatexInline formula={String.raw`k`} /> fixé laisse un écart résiduel strictement positif,
-					quel que soit <KatexInline formula={String.raw`n`} />. C'est cette impossibilité générale
-					— pas seulement l'exemple numérique — qui rend la condition <KatexInline
-						formula={String.raw`k(n)\to+\infty`}
-					/> du Théorème 2.1 nécessaire, et pas seulement une commodité technique de la démonstration.
+					<KatexInline
+						formula={String.raw`2R^*\left(1-\tfrac{R^*}{2}\right) = 2\times0.1\times0.95 = 0.19`}
+					/>
+					: le risque asymptotique du 1-NN est ainsi majoré par <KatexInline
+						formula={String.raw`0.19`}
+					/>, soit près du double du risque de Bayes. Plus généralement, la borne
+					<KatexInline formula={coverHartBound} /> montre que la borne supérieure est strictement
+					au-dessus de <KatexInline formula={String.raw`R^*`} /> dès que <KatexInline
+						formula={String.raw`R^*\in(0,1)`}
+					/> : il existe des distributions non séparables pour lesquelles un <KatexInline
+						formula={String.raw`k`}
+					/> fixé laisse un écart résiduel strictement positif, quel que soit <KatexInline
+						formula={String.raw`n`}
+					/>. C'est cette impossibilité générale — pas seulement l'exemple numérique — qui rend la
+					condition <KatexInline formula={String.raw`k(n)\to+\infty`} /> du Théorème 2.1 nécessaire,
+					et pas seulement une commodité technique de la démonstration.
 				</p>
 			{/snippet}
 			<p>
-				En utilisant le résultat énoncé ci-dessus, calculez le risque asymptotique maximal du 1-NN
-				pour <KatexInline formula={String.raw`R^*=0.1`} />.
+				En utilisant le résultat énoncé ci-dessus, calculez la borne supérieure du risque
+				asymptotique du 1-NN pour <KatexInline formula={String.raw`R^*=0.1`} />.
 			</p>
 		</ExercisePanel>
 
@@ -256,7 +280,8 @@
 			<KatexInline formula={String.raw`k(n)/n\to0`} /> (contrôle du biais) — deux conditions purement
 			quantitatives sur une seule suite <KatexInline formula={String.raw`k(n)`} />. La borne de
 			Cover-Hart montre que la première condition n'est pas une simple facilité de preuve : sans
-			elle, un écart résiduel au risque de Bayes subsiste pour toujours. Ce résultat clôt la partie
+			elle, il peut subsister un écart résiduel strictement positif au risque de Bayes, pour
+			toujours. Ce résultat clôt la partie
 			consacrée à la consistance ; la partie suivante s'attaque à une question complémentaire : non
 			plus
 			<em>si</em>
