@@ -203,30 +203,35 @@
 			</p>
 		</ExercisePanel>
 
-		<ExercisePanel number="9.6" title="Majoration de l'exactitude Top-1">
+		<ExercisePanel number="9.6" title="L'exactitude Top-1 minore-t-elle l'exactitude Top-K ?">
 			{#snippet solution()}
 				<p>
-					Par définition de l'ensemble <KatexInline formula={String.raw`\text{Top}_K`} />, si <KatexInline
-						formula={String.raw`y \in \text{Top}_K(\hat{p}(x))`}
-					/>, la classe réelle fait partie des <KatexInline formula={String.raw`K`} /> meilleures classes.
-					Sa probabilité prédite est donc supérieure ou égale à la <KatexInline
-						formula={String.raw`K`}
-					/>-ème plus grande probabilité. On peut borner l'exactitude Top-1 en constatant que
-					l'algorithme ne peut faire mieux que de choisir uniformément parmi ces <KatexInline
-						formula={String.raw`K`}
-					/> classes s'il n'avait pas d'autres informations. Plus directement, on a :
+					<strong>Non.</strong> Contre-exemple : <KatexInline formula={String.raw`C = 2`} /> classes,
+					<KatexInline formula={String.raw`\hat{p}(x) = (0.4,\ 0.6)`} />, et <KatexInline formula="Y" />
+					presque sûrement la classe de probabilité <KatexInline formula="0.4" />. Alors
+					<KatexInline formula={String.raw`\text{Top}_1(\hat{p}(x))`} /> renvoie la classe de
+					probabilité <KatexInline formula="0.6" />, donc <KatexInline
+						formula={String.raw`\text{Acc@}1 = 0`}
+					/>, tandis que <KatexInline formula={String.raw`\text{Acc@}2 = 1`} /> (toutes les classes
+					sont incluses). L'inégalité demandée donnerait <KatexInline
+						formula={String.raw`0 \ge \frac{1}{2}`}
+					/>, manifestement faux.
 				</p>
-				<KatexBlock formula={String.raw`\text{Acc@}1 \le \text{Acc@}K \le K \cdot \text{Acc@}1`} />
 				<p>
-					La deuxième inégalité découle du fait que la somme des probabilités des classes du Top-K
-					est au plus <KatexInline formula={String.raw`K`} /> fois la probabilité de la classe de tête.
-					Ainsi, <KatexInline formula={String.raw`\text{Acc@}1 \ge \frac{1}{K} \text{Acc@}K`} />.
+					La seule relation générale est la monotonie
+					<KatexInline
+						formula={String.raw`\text{Acc@}1 \le \text{Acc@}K \le \dots \le \text{Acc@}C = 1`}
+					/>
+					, qui découle directement du fait que
+					<KatexInline
+						formula={String.raw`\text{Top}_K(\hat{p}(x)) \supseteq \text{Top}_1(\hat{p}(x))`}
+					/>
+					pour tout <KatexInline formula="x" />.
 				</p>
 			{/snippet}
 			<p>
-				Montrez que l'exactitude Top-1 et l'exactitude Top-K sont liées par l'inégalité : <KatexInline
-					formula={String.raw`\text{Acc@}1 \ge \frac{1}{K} \text{Acc@}K`}
-				/>.
+				L'inégalité <KatexInline formula={String.raw`\text{Acc@}1 \ge \frac{1}{K} \text{Acc@}K`} /> est-elle
+				toujours vraie ? Répondez par oui ou par non et justifiez ; si non, donnez un contre-exemple.
 			</p>
 		</ExercisePanel>
 
@@ -777,15 +782,16 @@
 		<ExercisePanel number="10.5" title="Score cumulatif APS (Adaptive Prediction Sets)">
 			{#snippet solution()}
 				<p>
-					L'algorithme APS trie d'abord les classes par ordre décroissant de probabilité : <KatexInline
-						formula={String.raw`\pi(1), \pi(2), \dots`}
-					/>. Le score cumulatif est la somme des probabilités jusqu'à la classe correcte incluse :
-				</p>
-				<KatexBlock formula={String.raw`s(x, y) = \sum_{j=1}^{r(y)} \hat{p}_{\pi(j)}(x)`} />
-				<p>
-					Où <KatexInline formula={String.raw`r(y)`} /> est le rang de la vraie classe <KatexInline
+					Le score cumulatif est le complément à 1 de la somme des probabilités de <strong>toutes</strong>
+					les classes au moins aussi probables que la vraie classe <KatexInline
 						formula={String.raw`y`}
-					/>. Contrairement au score simple <KatexInline formula={String.raw`1-\hat{p}_y`} />, l'APS
+					/>, égalités incluses :
+				</p>
+				<KatexBlock
+					formula={String.raw`s(x, y) = 1 - \sum_{j \,:\, \hat{p}_j(x) \geq \hat{p}_y(x)} \hat{p}_j(x)`}
+				/>
+				<p>
+					Contrairement au score simple <KatexInline formula={String.raw`1-\hat{p}_y`} />, ce score
 					prend en compte l'ensemble de la distribution de probabilité (la forme de la queue). Il
 					s'adapte dynamiquement en produisant de grands ensembles lorsque le modèle hésite entre
 					plusieurs classes, et de très petits ensembles lorsque le modèle est confiant sur une
@@ -803,27 +809,30 @@
 		<ExercisePanel number="10.6" title="Score SAPS (Sorted Adaptive Prediction Sets)">
 			{#snippet solution()}
 				<p>
-					Le score SAPS introduit un terme de pénalité de régularisation pour éviter de rajouter
-					trop facilement des classes très peu probables :
+					On part du score cumulatif des notes — le complément à 1 de la somme des probabilités des
+					classes au moins aussi probables que la vraie classe — auquel on ajoute un terme de
+					pénalité de régularisation (variante illustrative) pour éviter de rajouter trop facilement
+					des classes très peu probables :
 				</p>
 				<KatexBlock
-					formula={String.raw`s(x, y) = \sum_{j=1}^{r(y)} \hat{p}_{\pi(j)}(x) + \lambda (r(y) - k)_+`}
+					formula={String.raw`s(x, y) = 1 - \sum_{j \,:\, \hat{p}_j(x) \geq \hat{p}_y(x)} \hat{p}_j(x) + \lambda (r(y) - k)_+`}
 				/>
 				<p>
-					Où <KatexInline formula={String.raw`k`} /> est un paramètre de taille cible et <KatexInline
-						formula={String.raw`\lambda`}
-					/> est une pénalité positive. La notation <KatexInline
-						formula={String.raw`(x)_+ = \max(0, x)`}
-					/> pénalise les ensembles qui dépassent la taille <KatexInline formula={String.raw`k`} />.
-					Cela permet d'éviter que le classifieur conforme n'ajoute systématiquement un grand nombre
-					de classes à faible probabilité uniquement pour satisfaire marginalement la couverture,
+					Où <KatexInline formula={String.raw`r(y)`} /> est le rang de la vraie classe, <KatexInline
+						formula={String.raw`k`}
+					/> est un paramètre de taille cible et <KatexInline formula={String.raw`\lambda`} /> est une
+					pénalité positive. La notation <KatexInline formula={String.raw`(x)_+ = \max(0, x)`} />
+					pénalise les ensembles qui dépassent la taille <KatexInline formula={String.raw`k`} />. Cela
+					permet d'éviter que le classifieur conforme n'ajoute systématiquement un grand nombre de
+					classes à faible probabilité uniquement pour satisfaire marginalement la couverture,
 					améliorant ainsi la lisibilité de la prédiction conforme.
 				</p>
 			{/snippet}
 			<p>
-				Décrivez le mécanisme de régularisation introduit par le score SAPS (Saddler et al.) et
-				expliquez comment l'introduction d'un paramètre de pénalité de taille modifie la composition
-				des ensembles de prédiction conformes.
+				<em>(Exercice optionnel, au-delà du cours.)</em> Décrivez le mécanisme de régularisation du
+				score « SAPS » (variante illustrative, non issue des notes) et expliquez comment
+				l'introduction d'un paramètre de pénalité de taille modifie la composition des ensembles de
+				prédiction conformes.
 			</p>
 		</ExercisePanel>
 

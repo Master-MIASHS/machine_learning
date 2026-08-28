@@ -43,9 +43,9 @@
 
 	// Ex 7.2
 	const sigmaDef = 'p = \\sigma(f(x)) = \\dfrac{1}{1+e^{-f(x)}}';
-	const ceLoss = '\\ell(y, f(x)) = -y\\ln p - (1-y)\\ln(1-p)';
+	const ceLoss = '\\ell(y, f(x)) = -\\tfrac{1+y}{2}\\,\\ln p - \\tfrac{1-y}{2}\\,\\ln(1-p)';
 	const ceY1 = '-\\ln p = \\ln(1+e^{-f(x)}) = \\varphi(f(x)) = \\varphi(y f(x))';
-	const ceY0 = '-\\ln(1-p) = \\ln(1+e^{f(x)}) = \\varphi(-f(x)) = \\varphi(y f(x)),\\; y f(x) = -f(x)';
+	const ceY0 = '-\\ln(1-p) = \\ln(1+e^{f(x)}) = \\varphi(-f(x)) = \\varphi(y f(x))';
 
 	// Ex 7.3
 	const logDeriv = "\\varphi'(t) = -\\dfrac{e^{-t}}{1+e^{-t}} = -\\dfrac{1}{1+e^{t}} = -\\sigma(t)";
@@ -78,8 +78,8 @@
 	const logCritPrime = "(C_\\varphi)'(\\alpha,\\eta) = (1-\\eta)\\,\\sigma(\\alpha) - \\eta\\,\\sigma(-\\alpha)";
 	const logCritSecond =
 		"(C_\\varphi)''(\\alpha,\\eta) = (1-\\eta)\\,\\sigma(\\alpha)\\bigl(1-\\sigma(\\alpha)\\bigr) + \\eta\\,\\sigma(-\\alpha)\\bigl(1-\\sigma(-\\alpha)\\bigr) > 0";
-	const logitSolution = "\\alpha^{*} = \\tfrac12\\,\\ln\\!\\dfrac{\\eta}{1-\\eta} = \\operatorname{logit}(\\eta)";
-	const eta09 = "\\alpha^{*}(0.9) = \\tfrac12\\ln 9 = \\ln 3 \\approx 1.099";
+	const logitSolution = "\\alpha^{*} = \\ln\\!\\dfrac{\\eta}{1-\\eta} = \\operatorname{logit}(\\eta)";
+	const eta09 = "\\alpha^{*}(0.9) = \\ln 9 \\approx 2.197";
 
 	// Ex 7.8
 	const halfCrit =
@@ -181,9 +181,9 @@
 					/>, on a <KatexInline formula={'-\\ln(1-p) = \\ln(1+e^{f(x)})'} />.
 				</p>
 				<p>
-					<strong>(c)</strong> Si <KatexInline formula={'y = 1'} /> : <KatexInline
+					<strong>(c)</strong> Si <KatexInline formula={'y = +1'} /> : <KatexInline
 						formula={ceY1}
-					/>. Si <KatexInline formula={'y = 0'} /> : <KatexInline formula={ceY0} />. Dans les deux
+					/>. Si <KatexInline formula={'y = -1'} /> : <KatexInline formula={ceY0} />. Dans les deux
 					cas, <KatexInline formula={'\\ell(y, f(x)) = \\varphi(y f(x))'} /> avec
 					<KatexInline formula={'\\varphi(t) = \\ln(1+e^{-t})'} /> : l'entropie croisée est
 					bien la perte logistique vue en formulation marge, et son interprétation en négatif de
@@ -191,12 +191,13 @@
 				</p>
 			{/snippet}
 			<p>
-				Soit <KatexInline formula={sigmaDef} /> et la perte d'entropie croisée <KatexInline
+				Soit <KatexInline formula={sigmaDef} /> et <KatexInline formula={'y \\in \\{-1,+1\\}'} />
+				(convention de la partie). La perte d'entropie croisée, négative log-vraisemblance du
+				Bernoulli de paramètre <KatexInline formula={'p'} />, est <KatexInline
 					formula={ceLoss}
 				/>. (a) Montrez que <KatexInline formula={'-\\ln p = \\ln(1+e^{-f(x)})'} />. (b) Montrez que
-				<KatexInline formula={'-\\ln(1-p) = \\ln(1+e^{f(x)})'} />. (c) Montrer que pour
-				<KatexInline formula={'y \\in \\{0,1\\}'} />, la perte d'entropie croisée s'écrit
-				<KatexInline formula={'\\varphi(y f(x))'} /> avec <KatexInline
+				<KatexInline formula={'-\\ln(1-p) = \\ln(1+e^{f(x)})'} />. (c) Montrez que
+				<KatexInline formula={'\\ell(y, f(x)) = \\varphi(y f(x))'} /> avec <KatexInline
 					formula={'\\varphi(t) = \\ln(1+e^{-t})'}
 				/>
 				: c'est la perte logistique.
@@ -380,7 +381,7 @@
 					s'écrit <KatexInline
 						formula={'\\sigma(\\alpha) / \\sigma(-\\alpha) = \\eta/(1-\\eta)'}
 					/>, or <KatexInline
-						formula={'\\sigma(\\alpha)/\\sigma(-\\alpha) = e^{2\\alpha}'}
+						formula={'\\sigma(\\alpha)/\\sigma(-\\alpha) = e^{\\alpha}'}
 					/>, d'où <KatexInline formula={logitSolution} />. Pour <KatexInline
 						formula={'\\eta = 0.9'}
 					/>: <KatexInline formula={eta09} />, cohérent avec <KatexInline
@@ -398,6 +399,8 @@
 				<KatexInline formula={"(C_\\varphi)'(\\alpha^{*},\\eta) = 0"}
 				/>, montrez que <KatexInline formula={logitSolution} /> et calculez
 				<KatexInline formula={"\\alpha^{*}(0.9)"} />.
+				<em>(Au-delà du cours : le cours ne caractérise que le signe du minimiseur, pas sa valeur
+				exacte.)</em>
 			</p>
 		</ExercisePanel>
 
@@ -564,15 +567,21 @@
 						uniforme (classe finie, ou borne de VC) et un échantillon assez grand.
 					</li>
 					<li>
-						<KatexInline formula={'B'} /> : la classe <KatexInline
+						<KatexInline formula={'B'} /> (terme de calibration au sens du Théorème 4.2) : la
+						classe <KatexInline
 							formula={'\\mathcal F'}
 						/>
-						doit contenir <KatexInline formula={'f^{**}'} />, sinon l'approximation reste
-						bornée par l'expressivité de la classe.
+						doit contenir <KatexInline formula={'f^{**}'} /> ; sinon <KatexInline
+							formula={'B'}
+						/>
+						ne s'annule pas et l'excès de risque reste borné par l'expressivité de la classe.
 					</li>
 					<li>
-						<KatexInline formula={'C'} /> : la convexité ne suffit pas à la calibration ; il faut
-						<KatexInline formula={"\\varphi'(0) < 0"} />.
+						<KatexInline formula={'C'} /> (terme d'approximation au sens du Théorème 4.2) : la
+						convexité ne suffit pas à la calibration ; il faut <KatexInline
+							formula={"\\varphi'(0) < 0"}
+						/>
+						pour que <KatexInline formula={'C'} /> s'annule.
 					</li>
 				</ul>
 				<p>

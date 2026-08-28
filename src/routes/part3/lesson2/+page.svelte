@@ -97,6 +97,7 @@
 	const F_RANK_SCORE = String.raw`s(x, y) = \text{rang de } y \text{ parmi les classes, triées par } \hat{p} \text{ décroissant}`;
 	const F_1MINUSP = String.raw`s(x, y) = 1 - \hat{p}_y(x)`;
 	const F_CUMULATIVE = String.raw`s(x, y) = 1 - \sum_{j \,:\, \hat{p}_j(x) \geq \hat{p}_y(x)} \hat{p}_j(x)`;
+	const F_PRODUCT = String.raw`s(x, \mathcal{S}) = 1 - \prod_{y \in \mathcal{S}} \hat{p}_y(x)`;
 	const F_QUANTILE_BLOCK = String.raw`\hat{q} = \text{sorted\_scores}\big[\, \lceil (n+1)(1-\alpha) \rceil - 1 \,\big]`;
 	const F_ETA = String.raw`\eta_c(x) = \mathbb{P}(Y = c \mid X = x)`;
 	const F_ORACLE_SCORE = String.raw`s^*(x, y) = 1 - \eta_y(x)`;
@@ -372,12 +373,26 @@
 			<KatexInline formula={F_ORACLE_SCORE} /> introduit ci-dessus.
 		</Callout>
 
-		<Callout type="definition" title="Score cumulatif (APS)">
-			<KatexInline formula={F_CUMULATIVE} /> — Somme des probabilités des classes au moins aussi probables
-			que
-			<KatexInline formula="y" />, puis complément à 1. C'est le score
-			<strong>Adaptive Prediction Sets</strong> de Romano, Sesia &amp; Candès (2020), introduit
-			précisément pour améliorer la couverture conditionnelle par rapport au score
+		<p>
+			Pour favoriser les cas où <strong>plusieurs</strong> classes ont des probabilités élevées, on peut
+			définir le score directement sur un <strong>ensemble candidat</strong>
+			<KatexInline formula={String.raw`\mathcal{S}`} /> :
+		</p>
+
+		<KatexBlock formula={F_PRODUCT} />
+
+		<Callout type="definition" title="Score cumulatif">
+			Ou, alternativement, en utilisant la probabilité cumulative, le score est défini étiquette par
+			étiquette : <KatexInline formula={F_CUMULATIVE} /> — Somme des probabilités des classes au moins
+			aussi probables que
+			<KatexInline formula="y" />, puis complément à 1.
+		</Callout>
+
+		<Callout type="note" title="Au-delà du cours">
+			Ce score suit le principe du score de non-conformité de l'article <strong>Adaptive Prediction
+			Sets</strong> de Romano, Sesia &amp; Candès (2020), référence bibliographique du cadre de la
+			prédiction d'ensembles conformes — cet article n'est pas traité dans les notes. Dans cette
+			littérature, ce type de score vise à approcher la couverture conditionnelle par rapport au score
 			<KatexInline formula={F_1MINUSP} /> — sans l'atteindre exactement, pour la raison donnée plus haut
 			(10.1).
 		</Callout>

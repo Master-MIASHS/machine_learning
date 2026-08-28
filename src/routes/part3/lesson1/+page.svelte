@@ -9,6 +9,7 @@
 	import KatexBlock from '$lib/components/narrative/KatexBlock.svelte';
 	import KatexInline from '$lib/components/narrative/KatexInline.svelte';
 	import TopKExplorer from '$lib/components/demos/TopKExplorer.svelte';
+	import AccuracyKCutoff from '$lib/components/demos/AccuracyKCutoff.svelte';
 	import ConfidenceCalibration from '$lib/components/demos/ConfidenceCalibration.svelte';
 	import ExampleBlock from '$lib/components/narrative/ExampleBlock.svelte';
 	import TableOfContents from '$lib/components/narrative/TableOfContents.svelte';
@@ -338,9 +339,13 @@
 		</Callout>
 	</TheorySection>
 
-	<!-- <InteractiveSection tag="Démo 9.2">
+	<InteractiveSection
+		number="9.2"
+		title="Choix adaptatif de K"
+		onInteract={tracker.trackInteraction}
+	>
 		<AccuracyKCutoff />
-	</InteractiveSection> -->
+	</InteractiveSection>
 
 	<TheorySection>
 		<h2 id="calibration-confiance">Calibration de la confiance</h2>
