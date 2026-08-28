@@ -27,20 +27,22 @@ export function conformityScore1MinusProba(probas: number[], trueLabel: number):
 }
 
 /**
- * Cumulative score: sort classes by descending probability, accumulate probabilities until reaching
- * the true label's position (inclusive), then return 1 − cumulative_sum.
+ * Cumulative score, per the notes (`set_valued.typ`, « Scores de conformité
+ * probabilistes »): s(x, y) = 1 − Σ_{j : p̂_j(x) ≥ p̂_y(x)} p̂_j(x).
+ *
+ * The sum runs over **every** class at least as probable as the true label —
+ * all ties included, not only those preceding the true label in rank order.
+ * For probability vectors without ties this coincides with "sum of the top-r
+ * probabilities, r = rank of the true label"; the two forms differ only when
+ * several classes share the true label's probability.
  */
 export function conformityScoreCumulative(probas: number[], trueLabel: number): number {
-	const n = probas.length;
-	const indices: number[] = Array.from({ length: n }, (_, i) => i);
-	indices.sort((a, b) => probas[b] - probas[a] || a - b);
-
+	const threshold = probas[trueLabel];
 	let cumulativeSum = 0;
-	for (let r = 0; r < n; r++) {
-		cumulativeSum += probas[indices[r]];
-		if (indices[r] === trueLabel) return 1 - cumulativeSum;
+	for (const p of probas) {
+		if (p >= threshold) cumulativeSum += p;
 	}
-	return 0; // fallback — should not reach here if trueLabel is valid
+	return 1 - cumulativeSum;
 }
 
 // ─── Quantile threshold ──────────────────────────────
