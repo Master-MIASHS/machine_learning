@@ -9,8 +9,11 @@
 	import InteractiveSection from '$lib/components/narrative/InteractiveSection.svelte';
 	import ClassificationIsEasierThanRegression from '$lib/components/demos/ClassificationIsEasierThanRegression.svelte';
 	import Callout from '$lib/components/narrative/Callout.svelte';
+	import { createPageTracker } from '$lib/stores/progress.svelte';
+	import type { PageMeta } from '$lib/navigation.js';
 
 	const meta = getPageByPath('/part4/exercices');
+	const tracker = createPageTracker(meta as PageMeta);
 	const prevMeta = $derived(getPrevPage(meta?.index ?? 0));
 	const nextMeta = $derived(getNextPage(meta?.index ?? 0));
 
@@ -38,9 +41,10 @@
 			color: 'neutral'
 		},
 		{
-			id: 'expert-theorem-6-5',
-			label: 'Classification is easier than regression',
-			description: 'Démonstration du théorème 6.5 de "Probabilistic Theory of Pattern Recognition"',
+			id: 'expert-classification-regression',
+			label: 'Pourquoi la classification est plus facile que la régression',
+			description:
+				'Au-delà du cours — reconstruction d\'un résultat de Devroye, Györfi & Lugosi (1996), §6.7',
 			color: 'agent'
 		}
 	];
@@ -98,7 +102,7 @@
 		\qquad\text{quand }\varepsilon\downarrow0`;
 
 	const exFinal = String.raw`\frac{\mathbb{E}[L_n]-L^*}
-			{\mathbb{E}[(\eta_n(X)-\eta(X))^2]}
+			{\sqrt{\mathbb{E}[(\eta_n(X)-\eta(X))^2]}}
 		\longrightarrow 0`;
 </script>
 
@@ -831,18 +835,28 @@
 			{/snippet}
 		</ExercisePanel>
 
-		<h2 id="expert-theorem-6-5">Pourquoi la classification est plus facile que la régression</h2>
+		<h2 id="expert-classification-regression">Pourquoi la classification est plus facile que la régression</h2>
+
+		<Callout type="note" title="Au-delà du cours">
+			<p>
+				Cette section n'est pas au programme du cours et ne figure pas dans le support :
+				elle reconstruit un résultat standard de la littérature, dû à Devroye, Györfi et
+				Lugosi (1996), <em>A Probabilistic Theory of Pattern Recognition</em> (§6.7). Il
+				s'agit d'un exercice optionnel de niveau expert.
+			</p>
+		</Callout>
 
 		<p>
-			Cette série d'exercices reconstruit progressivement le <strong
-				>théorème 6.5 de Devroye, Györfi et Lugosi</strong
-			>. L'idée fondamentale est surprenante : pour classer, il n'est pas nécessaire d'estimer
-			précisément toute la fonction
+			Cette série d'exercices reconstruit progressivement un
+			<strong>résultat de Devroye, Györfi et Lugosi (1996)</strong>, <em>A
+			Probabilistic Theory of Pattern Recognition</em>, section 6.7. L'idée
+			fondamentale est surprenante : pour classer, il n'est pas nécessaire
+			d'estimer précisément toute la fonction
 			<KatexInline formula={String.raw`\eta(x)`} />. Il suffit de savoir de quel côté de
 			<KatexInline formula={String.raw`1/2`} /> elle se trouve.
 		</p>
 
-		<InteractiveSection title="Classification is easier than regression">
+		<InteractiveSection title="Classifier est plus facile que régresser" onInteract={tracker.trackInteraction}>
 			L'animation ci-dessous permet de jouer avec le bruit de la vraie probabilité, la qualité de
 			l'approximation et le bruit autour de l'approximation. Étudiez dans quel scénario le
 			classifieur résultat devient incorrect par rapport à l'optimum de Bayes.
@@ -1166,7 +1180,7 @@
 			{/snippet}
 		</ExercisePanel>
 
-		<ExercisePanel number="8" title="Théorème 6.5 — conclusion">
+		<ExercisePanel number="8" title="Conclusion : la classification est plus facile que la régression">
 			<p>
 				On suppose que <KatexInline formula={String.raw`\eta_n`} /> est un estimateur consistant de la
 				fonction de régression au sens
@@ -1188,14 +1202,17 @@
 			{#snippet solution()}
 				<p>
 					Le résultat signifie que l'excès de risque de classification disparaît
-					<strong>strictement plus vite</strong> que l'erreur quadratique de l'estimation de la probabilité
-					a posteriori :
+					<strong>strictement plus vite</strong> que l'erreur quadratique de l'estimation
+					de la probabilité a posteriori, à savoir
+					<KatexInline
+						formula={String.raw`\sqrt{\mathbb{E}[(\eta_n(X)-\eta(X))^2]}`}
+					/> :
 				</p>
 
 				<KatexBlock
 					formula={String.raw`L_n-L^*
 				=o\!\left(
-					\mathbb{E}[(\eta_n(X)-\eta(X))^2]
+					\sqrt{\mathbb{E}[(\eta_n(X)-\eta(X))^2]}
 				\right).`}
 				/>
 
