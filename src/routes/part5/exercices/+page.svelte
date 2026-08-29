@@ -5,11 +5,13 @@
 	import KatexInline from '$lib/components/narrative/KatexInline.svelte';
 	import KatexBlock from '$lib/components/narrative/KatexBlock.svelte';
 	import TableOfContents, { type TocEntry } from '$lib/components/narrative/TableOfContents.svelte';
-	import { getPageByPath, getNextPage, getPrevPage } from '$lib/navigation.js';
+	import { getPageByPath, getAdjacentPages } from '$lib/navigation.js';
+	import { settings } from '$lib/stores/index.js';
 
 	const meta = getPageByPath('/part5/exercices');
-	const prevMeta = $derived(getPrevPage(meta?.index ?? 0));
-	const nextMeta = $derived(getNextPage(meta?.index ?? 0));
+	const { prev: prevMeta, next: nextMeta } = $derived(
+		getAdjacentPages(meta?.path ?? '', $settings.expertMode)
+	);
 
 	// ── Table of Contents ──
 
@@ -35,7 +37,7 @@
 </script>
 
 <svelte:head>
-	<title>{meta?.title ?? 'Exercices'} — Régularisation et Optimisation</title>
+	<title>{meta?.title ?? 'Exercices'} — Fondations de l'Apprentissage Statistique</title>
 </svelte:head>
 
 <PageTemplate
@@ -105,22 +107,30 @@
 		<ExercisePanel number="1.3" title="De la convergence presque sûre à la probabilité">
 			{#snippet solution()}
 				<p>
-					Si <KatexInline formula={String.raw`\mathbb{P}(\lim_n R(h_n)=R^*)=1`} />, alors pour
-					presque toute réalisation de la suite <KatexInline formula={String.raw`(R(h_n))_n`} />, il
-					existe un rang
-					<KatexInline formula={String.raw`N`} /> (dépendant de la réalisation et de <KatexInline
-						formula={String.raw`\varepsilon`}
-					/>) au-delà duquel <KatexInline formula={String.raw`|R(h_n)-R^*|\le\varepsilon`} />.
-					Autrement dit, l'événement <KatexInline
-						formula={String.raw`\{R(h_n)-R^*>\varepsilon\}`}
-					/> ne peut se produire qu'un nombre fini de fois, presque sûrement, pour <KatexInline
-						formula={String.raw`n`}
-					/> parcourant
-					<KatexInline formula={String.raw`\mathbb{N}`} />. Le lemme de Borel-Cantelli (ou un
-					argument direct de continuité de la mesure sur une suite décroissante d'événements) donne
-					alors
-					<KatexInline formula={String.raw`\mathbb{P}(R(h_n)-R^*>\varepsilon) \to 0`} /> — c'est la consistance
-					en probabilité.
+					Fixons <KatexInline formula={String.raw`\varepsilon>0`} /> et posons <KatexInline
+						formula={String.raw`A_n = \{R(h_n)-R^*>\varepsilon\}`}
+					/>. Si <KatexInline formula={String.raw`\mathbb{P}(\lim_n R(h_n)=R^*)=1`} /> — soit sur
+					l'événement <KatexInline formula={String.raw`\Omega_0`} /> de probabilité 1 — alors, pour
+					presque toute réalisation, la suite <KatexInline formula={String.raw`(R(h_n))_n`} /> converge
+					vers <KatexInline formula={String.raw`R^*`} /> : chaque événement <KatexInline
+						formula={String.raw`A_n`}
+					/> ne se produit donc qu'un nombre fini de fois, presque sûrement.
+				</p>
+				<p>
+					Posons <KatexInline formula={String.raw`C_m = \bigcup_{n\ge m} A_n`} /> : c'est une suite
+					décroissante d'événements, et
+				</p>
+				<KatexBlock
+					formula={String.raw`\bigcap_{m\ge 1} C_m = \limsup_{n\to+\infty} A_n \;\subset\; \Omega_0^c`}
+				/>
+				<p>
+					Par continuité de la mesure (de haut en bas),
+					<KatexInline
+						formula={String.raw`\mathbb{P}(C_m) \downarrow \mathbb{P}\bigl(\limsup_{n\to+\infty} A_n\bigr) \le \mathbb{P}(\Omega_0^c) = 0`}
+					/>
+					, et comme <KatexInline formula={String.raw`A_n \subset C_n`} />, on en déduit
+					<KatexInline formula={String.raw`\mathbb{P}(A_n) \le \mathbb{P}(C_n) \to 0`} /> — c'est la
+					consistance en probabilité.
 				</p>
 			{/snippet}
 			<p>
@@ -131,34 +141,46 @@
 
 		<ExercisePanel
 			number="1.4"
-			title="Consistant en probabilité sans l'être en moyenne quadratique"
+			title="Probabilité et moyenne quadratique pour de vrais classifieurs"
 		>
 			{#snippet solution()}
 				<p>
-					Construisons un contre-exemple. Supposons <KatexInline formula={String.raw`R(h_n)-R^*`} /> qui
-					vaut <KatexInline formula={String.raw`n`} /> avec probabilité <KatexInline
-						formula={String.raw`1/n^2`}
-					/>, et <KatexInline formula={String.raw`0`} /> sinon. Alors pour tout <KatexInline
-						formula={String.raw`\varepsilon>0`}
-					/> fixé, dès que <KatexInline formula={String.raw`n>\varepsilon`} /> :
+					Non — pour de vrais classifieurs, l'implication de l'Exercice 1.2 se renverse. En effet,
+					les risques sont bornés : <KatexInline
+						formula={String.raw`R(h_n)-R^* \in [0,1]`}
+					/>. Fixons <KatexInline formula={String.raw`\varepsilon>0`} /> et découpons l'espérance du
+					carré selon que <KatexInline formula={String.raw`R(h_n)-R^*`} /> dépasse
+					<KatexInline formula={String.raw`\varepsilon`} /> ou non :
 				</p>
 				<KatexBlock
-					formula={String.raw`\mathbb{P}(R(h_n)-R^*>\varepsilon) \le \mathbb{P}(R(h_n)-R^*=n) = 1/n^2 \to 0,`}
-				/>
-				<p>donc la suite est consistante en probabilité. Mais l'espérance du carré vaut :</p>
-				<KatexBlock
-					formula={String.raw`\mathbb{E}[(R(h_n)-R^*)^2] = n^2 \times \frac{1}{n^2} = 1 \not\to 0.`}
+					formula={String.raw`\mathbb{E}[(R(h_n)-R^*)^2] \;=\; \mathbb{E}\bigl[(R(h_n)-R^*)^2 \mathbb{1}_{\{R(h_n)-R^*\le\varepsilon\}}\bigr] \;+\; \mathbb{E}\bigl[(R(h_n)-R^*)^2 \mathbb{1}_{\{R(h_n)-R^*>\varepsilon\}}\bigr] \;\le\; \varepsilon^2 + \mathbb{P}(R(h_n)-R^*>\varepsilon).`}
 				/>
 				<p>
-					La suite n'est donc <strong>pas</strong> consistante en moyenne quadratique : un événement rare
-					mais de grande amplitude suffit à faire diverger l'espérance du carré, alors même que sa probabilité
-					tend vers 0. Cela confirme que l'implication de l'Exercice 1.2 ne se renverse pas.
+					Par consistance en probabilité, le second terme tend vers 0, donc
+					<KatexInline formula={String.raw`\limsup_n \mathbb{E}[(R(h_n)-R^*)^2] \le \varepsilon^2`} />
+					pour tout <KatexInline formula={String.raw`\varepsilon>0`} /> ; en laissant
+					<KatexInline formula={String.raw`\varepsilon\downarrow 0`} />, on obtient
+					<KatexInline formula={String.raw`\mathbb{E}[(R(h_n)-R^*)^2]\to 0`} /> : la consistance en
+					moyenne quadratique suit. Pour des risques bornés, les deux notions sont donc
+					<strong>équivalentes</strong>.
+				</p>
+				<p>
+					La hiérarchie stricte (consistance en probabilité sans consistance en moyenne quadratique)
+					n'apparaît que pour des variables <strong>non bornées</strong> : par exemple, si
+					<KatexInline formula={String.raw`X_n = n\,\mathbb{1}_{A_n}`} /> avec
+					<KatexInline formula={String.raw`\mathbb{P}(A_n)=1/n^2`} />, alors
+					<KatexInline formula={String.raw`\mathbb{P}(|X_n|>\varepsilon) \le 1/n^2 \to 0`} />
+					(convergence en probabilité) mais
+					<KatexInline formula={String.raw`\mathbb{E}[X_n^2] = n^2 \times 1/n^2 = 1 \not\to 0`} />.
+					Le mécanisme « événement rare mais de grande amplitude » n'est tout simplement pas
+					disponible pour de vrais risques, bornés par construction par <KatexInline
+						formula={String.raw`1`}
+					/>.
 				</p>
 			{/snippet}
 			<p>
-				Construisez (ou décrivez) une suite <KatexInline formula={String.raw`(h_n)`} /> consistante en
-				probabilité mais <strong>pas</strong> en moyenne quadratique. Que cela vous apprend-il sur la
-				force relative des deux notions ?
+				Peut-on avoir consistance en probabilité sans consistance en moyenne quadratique pour une
+				suite de vrais classifieurs ? Justifiez.
 			</p>
 		</ExercisePanel>
 
@@ -583,15 +605,17 @@
 			</p>
 		</ExercisePanel>
 
-		<ExercisePanel number="2.10" title="Appliquer la borne de du 1-NN">
+		<ExercisePanel number="2.10" title="Appliquer la borne du 1-NN">
 			{#snippet solution()}
 				<p>
 					Avec <KatexInline formula={String.raw`R^*=0.1`} /> :
 				</p>
-				<KatexBlock formula={String.raw`2R^*(1-R^*) = 2 \times 0.1 \times 0.9 = 0.18.`} />
+				<KatexBlock
+					formula={String.raw`2R^*\left(1-\tfrac{R^*}{2}\right) = 2 \times 0.1 \times 0.95 = 0.19.`}
+				/>
 				<p>
-					Le risque asymptotique du 1-NN peut donc atteindre jusqu'à <KatexInline
-						formula={String.raw`0.18`}
+					Le risque asymptotique du 1-NN est donc majoré par <KatexInline
+						formula={String.raw`0.19`}
 					/>, soit <strong>presque le double</strong> du risque de Bayes <KatexInline
 						formula={String.raw`0.1`}
 					/>. C'est un écart considérable pour un algorithme aussi simple, et il illustre
@@ -602,8 +626,8 @@
 			{/snippet}
 			<p>
 				Soit <KatexInline formula={String.raw`R^*=0.1`} />. Calculez la borne
-				<KatexInline formula={String.raw`2R^*(1-R^*)`} /> sur le risque asymptotique du 1-NN, et comparez-la
-				au risque de Bayes.
+				<KatexInline formula={String.raw`2R^*\left(1-\tfrac{R^*}{2}\right)`} /> sur le risque asymptotique du
+				1-NN, et comparez-la au risque de Bayes.
 			</p>
 		</ExercisePanel>
 	</TheorySection>

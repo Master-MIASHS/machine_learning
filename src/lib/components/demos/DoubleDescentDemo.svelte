@@ -29,8 +29,8 @@
 	const GRID_POINTS = 20;
 	const TRUTH_NORM = 1; // E||beta||^2 of the dense ground truth; kept
 	// comparable to the noise (sigma^2 = 1) so that the second descent settles
-	// just above the noise floor at d = 3n (residual min-norm bias
-	// (1 - n/d)||beta||^2) instead of far above it.
+	// just above the noise floor at d = 3n (residual min-norm bias^2
+	// (1 - n/d)^2 ||beta||^2) instead of far above it.
 
 	let n = $state(15);
 
@@ -42,7 +42,7 @@
 	// interpolation threshold always has an exact (not interpolated) charted
 	// value, wherever the slider currently sits. d = 3n is where the model
 	// first contains the whole ground truth (which lives in 3n coordinates);
-	// the min-norm interpolator's residual bias (1 - n/d)||beta||^2 then
+	// the min-norm interpolator's residual bias^2 (1 - n/d)^2 ||beta||^2 then
 	// leaves the test risk just above the noise floor at the grid's right
 	// edge.
 	const dGrid = $derived.by(() => {
@@ -134,8 +134,8 @@
 		: la pseudo-inverse retient la solution de norme minimale ; le risque test redescend vers un
 		niveau bas, légèrement au-dessus du bruit irréductible — en d = 3n le modèle contient tout le
 		signal, mais la solution de norme minimale ne capture que sa composante dans le sous-espace de
-		rang n engendré par les observations (biais résiduel <KatexInline
-			formula={String.raw`(1 - n/d)\,\|\beta\|`}
+		rang n engendré par les observations (biais résiduel au carré <KatexInline
+			formula={String.raw`(1 - n/d)^2\,\|\beta\|^2`}
 		/>) — le régime que la théorie VC classique n'explique pas. En échelle logarithmique, le risque
 		train ≈ 0 au seuil et la descente après le seuil restent lisibles ; en échelle linéaire, le pic
 		du seuil domine le graphique.

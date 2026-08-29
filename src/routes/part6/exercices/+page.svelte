@@ -5,11 +5,13 @@
 	import KatexInline from '$lib/components/narrative/KatexInline.svelte';
 	import KatexBlock from '$lib/components/narrative/KatexBlock.svelte';
 	import TableOfContents, { type TocEntry } from '$lib/components/narrative/TableOfContents.svelte';
-	import { getPageByPath, getNextPage, getPrevPage } from '$lib/navigation.js';
+	import { getPageByPath, getAdjacentPages } from '$lib/navigation.js';
+	import { settings } from '$lib/stores/index.js';
 
 	const meta = getPageByPath('/part6/exercices');
-	const prevMeta = $derived(getPrevPage(meta?.index ?? 0));
-	const nextMeta = $derived(getNextPage(meta?.index ?? 0));
+	const { prev: prevMeta, next: nextMeta } = $derived(
+		getAdjacentPages(meta?.path ?? '', $settings.expertMode)
+	);
 
 	// ── Table of Contents ──
 
@@ -63,7 +65,7 @@
 </script>
 
 <svelte:head>
-	<title>{meta?.title ?? 'Exercices'} — Régularisation et Optimisation</title>
+	<title>{meta?.title ?? 'Exercices'} — Fondations de l'Apprentissage Statistique</title>
 </svelte:head>
 
 <PageTemplate
@@ -1401,8 +1403,8 @@
 					test, explosée au seuil, redescend avec d vers un niveau bas, légèrement supérieur
 					au bruit irréductible <KatexInline formula={String.raw`\sigma^2 = 1`} /> : la solution
 					de norme minimale ne capture que la composante du signal dans le sous-espace de rang
-					<KatexInline formula={String.raw`n`} /> engendré par les observations (biais résiduel
-					<KatexInline formula={String.raw`(1 - n/d)\,\|\beta\|`} />).
+					<KatexInline formula={String.raw`n`} /> engendré par les observations (biais résiduel au
+					carré <KatexInline formula={String.raw`(1 - n/d)^2\,\|\beta\|^2`} />).
 				</li>
 				</ul>
 				<p>

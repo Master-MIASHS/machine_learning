@@ -11,7 +11,8 @@
 	import KatexInline from '$lib/components/narrative/KatexInline.svelte';
 	import Bibliography from '$lib/components/narrative/bib/Bibliography.svelte';
 	import BibElement from '$lib/components/narrative/bib/BibElement.svelte';
-	import { getPageByPath, getNextPage, getPrevPage } from '$lib/navigation.js';
+	import { getPageByPath, getAdjacentPages } from '$lib/navigation.js';
+	import { settings } from '$lib/stores/index.js';
 
 	// Demo components
 	import GradientDescentAnimator from '$lib/components/demos/GradientDescentAnimator.svelte';
@@ -24,8 +25,9 @@
 
 	const meta = getPageByPath('/part1/lesson3');
 	const tracker = createPageTracker(meta as PageMeta);
-	const prevMeta = $derived(getPrevPage(meta?.index ?? 0));
-	const nextMeta = $derived(getNextPage(meta?.index ?? 0));
+	const { prev: prevMeta, next: nextMeta } = $derived(
+		getAdjacentPages(meta?.path ?? '', $settings.expertMode)
+	);
 
 	// ── Table of Contents ────────────────────────────────
 
@@ -152,7 +154,7 @@
 </script>
 
 <svelte:head>
-	<title>{meta?.title} — Régularisation et Optimisation</title>
+	<title>{meta?.title} — Fondations de l'Apprentissage Statistique</title>
 </svelte:head>
 
 <PageTemplate

@@ -13,14 +13,16 @@
 	import BibElement from '$lib/components/narrative/bib/BibElement.svelte';
 	import DoubleDescentDemo from '$lib/components/demos/DoubleDescentDemo.svelte';
 	import NeuralGeneralizationExplorer from '$lib/components/demos/NeuralGeneralizationExplorer.svelte';
-	import { getPageByPath, getNextPage, getPrevPage } from '$lib/navigation.js';
+	import { getPageByPath, getAdjacentPages } from '$lib/navigation.js';
+	import { settings } from '$lib/stores/index.js';
 	import { createPageTracker } from '$lib/stores/progress.svelte';
 	import type { PageMeta } from '$lib/navigation.js';
 
 	const meta = getPageByPath('/part6/lesson4');
 	const tracker = createPageTracker(meta as PageMeta);
-	const prevMeta = $derived(getPrevPage(meta?.index ?? 0));
-	const nextMeta = $derived(getNextPage(meta?.index ?? 0));
+	const { prev: prevMeta, next: nextMeta } = $derived(
+		getAdjacentPages(meta?.path ?? '', $settings.expertMode)
+	);
 
 	const tocEntries: TocEntry[] = [
 		{
@@ -105,7 +107,7 @@
 </script>
 
 <svelte:head>
-	<title>{meta?.title} — Régularisation et Optimisation</title>
+	<title>{meta?.title} — Fondations de l'Apprentissage Statistique</title>
 </svelte:head>
 
 <PageTemplate
@@ -391,6 +393,12 @@
 			year={2018}
 			title="The implicit bias of gradient descent on separable data"
 			journal="Journal of Machine Learning Research, 19(1), 2822-2878."
+		/>
+		<BibElement
+			authors={['Bach, F.']}
+			year={2024}
+			title="Learning Theory from First Principles"
+			journal="MIT Press."
 		/>
 	</Bibliography>
 </PageTemplate>

@@ -112,15 +112,15 @@ export const beale: TestFunc = {
 		return [2 * a + 2 * b + 0.2 * c, a + 0.5 * b - 6 * c];
 	},
 	hess: () => [
-		[4.2, 1.5],
-		[1.5, 37]
+		[4.02, 0.9],
+		[0.9, 18.625]
 	],
 	domain: [
 		[-4.5, 4.5],
 		[-4.5, 4.5]
 	],
-	minimum: [3, 0.5],
-	minValue: 0
+	minimum: [0.6160337552742619, 1.359493670886076],
+	minValue: 0.08438818565400845
 };
 
 /** Quadratic saddle (for demonstrating Hessian semi-definite cases) */

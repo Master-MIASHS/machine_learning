@@ -8,7 +8,6 @@
 	// rather than showing a static configuration that could end up
 	// inconsistent with whatever gamma the slider currently sets.
 
-	// TODO: confirm these paths/names against your actual files.
 	import Figure from '$lib/components/charts/Figure.svelte';
 	import ScatterPlot from '$lib/components/charts/ScatterPlot.svelte';
 	import Slider from '$lib/components/controls/Slider.svelte';
@@ -168,6 +167,19 @@
 		<span class="label">Borne de généralisation (n={N}, δ={DELTA})</span>
 		<span class="value">
 			{generalizationBound !== null ? generalizationBound.toFixed(4) : `n < ${vcDimBound} : n/a`}
+			{#if generalizationBound !== null && generalizationBound > 1}
+				<span class="vacuous">borne triviale (> 1)</span>
+			{/if}
 		</span>
 	</div>
 </Metrics>
+
+<style>
+	.vacuous {
+		display: block;
+		margin-top: 0.25rem;
+		font-size: 0.75rem;
+		font-weight: 600;
+		color: var(--color-surprise);
+	}
+</style>

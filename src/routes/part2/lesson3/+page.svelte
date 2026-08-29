@@ -20,13 +20,15 @@
 	import BoostingComparison from '$lib/components/demos/BoostingComparison.svelte';
 
 	import TableOfContents from '$lib/components/narrative/TableOfContents.svelte';
-	import { getPageByPath, getNextPage, getPrevPage, type PageMeta } from '$lib/navigation.js';
+	import { getPageByPath, getAdjacentPages, type PageMeta } from '$lib/navigation.js';
+	import { settings } from '$lib/stores/index.js';
 	import { createPageTracker } from '$lib/stores/progress.svelte';
 
 	const meta = getPageByPath('/part2/lesson3');
 	const tracker = createPageTracker(meta as PageMeta);
-	const prevMeta = $derived(getPrevPage(meta?.index ?? 0));
-	const nextMeta = $derived(getNextPage(meta?.index ?? 0));
+	const { prev: prevMeta, next: nextMeta } = $derived(
+		getAdjacentPages(meta?.path ?? '', $settings.expertMode)
+	);
 
 	interface TocEntry {
 		id: string;
@@ -67,10 +69,22 @@
 			color: 'surprise'
 		},
 		{
+			id: 'methodes-modernes',
+			label: 'Méthodes modernes : XGBoost, LightGBM et CatBoost',
+			description: 'Limitations du GB classique et extensions',
+			color: 'agent'
+		},
+		{
 			id: 'comparaison-synthese',
 			label: 'Comparaison et synthèse',
 			description: 'Choisir entre AdaBoost et Gradient Boosting',
 			color: 'neutral'
+		},
+		{
+			id: 'synthese-comparaison',
+			label: 'Synthèse et comparaison des méthodes',
+			description: 'Tableau comparatif, guide de choix, bonnes pratiques',
+			color: 'belief'
 		}
 	];
 
@@ -188,7 +202,7 @@
 </script>
 
 <svelte:head>
-	<title>{meta?.title} — Régularisation et Optimisation</title>
+	<title>{meta?.title} — Fondations de l'Apprentissage Statistique</title>
 </svelte:head>
 
 <PageTemplate
@@ -627,7 +641,91 @@
 		</InteractiveSection>
 	</TheorySection>
 
-	<!-- SECTION 6 : COMPARAISON ET SYNTHÈSE -->
+	<!-- SECTION 6 : MÉTHODES MODERNES (XGBOOST, LIGHTGBM, CATBOOST) -->
+	<TheorySection>
+		<h2 id="methodes-modernes">Méthodes modernes : XGBoost, LightGBM et CatBoost</h2>
+
+		<h3>Limitations du Gradient Boosting classique</h3>
+		<ul>
+			<li><strong>Lenteur</strong> : construction séquentielle des arbres</li>
+			<li><strong>Mémoire</strong> : stockage de tous les arbres</li>
+			<li><strong>Overfitting</strong> : tendance au surajustement sans régularisation</li>
+		</ul>
+
+		<h3>XGBoost (eXtreme Gradient Boosting)</h3>
+		<p>XGBoost améliore le gradient boosting traditionnel par :</p>
+
+		<DefinitionBlock title="Innovations de XGBoost">
+			<ul>
+				<li><strong>Régularisation L1/L2</strong> sur les poids des feuilles</li>
+				<li><strong>Approximation d'ordre 2</strong> (utilisation de la hessienne)</li>
+				<li><strong>Gestion des valeurs manquantes</strong> native</li>
+				<li><strong>Parallélisation</strong> de la construction des arbres</li>
+				<li><strong>Pré-tri des features</strong> pour l'efficacité</li>
+			</ul>
+		</DefinitionBlock>
+
+		<h3>LightGBM et CatBoost</h3>
+		<ul>
+			<li>
+				<strong>LightGBM</strong> : croissance des arbres en largeur d'abord (<em>leaf-wise</em>) au
+				lieu de niveau par niveau
+			</li>
+			<li>
+				<strong>CatBoost</strong> : gestion native des variables catégorielles sans pré-traitement
+			</li>
+		</ul>
+
+		<h3>Hyperparamètres critiques</h3>
+		<table>
+			<thead>
+				<tr>
+					<th>Paramètre</th>
+					<th>Description</th>
+					<th>Valeurs typiques</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr>
+					<td><code>n_estimators</code></td>
+					<td>Nombre d'arbres</td>
+					<td>100-1000</td>
+				</tr>
+				<tr>
+					<td><code>learning_rate</code></td>
+					<td>Taux d'apprentissage</td>
+					<td>0.01-0.3</td>
+				</tr>
+				<tr>
+					<td><code>max_depth</code></td>
+					<td>Profondeur max des arbres</td>
+					<td>3-8</td>
+				</tr>
+				<tr>
+					<td><code>subsample</code></td>
+					<td>Fraction d'exemples par arbre</td>
+					<td>0.8-1.0</td>
+				</tr>
+				<tr>
+					<td><code>colsample_bytree</code></td>
+					<td>Fraction de features par arbre</td>
+					<td>0.8-1.0</td>
+				</tr>
+				<tr>
+					<td><code>reg_alpha</code></td>
+					<td>Régularisation L1</td>
+					<td>0-10</td>
+				</tr>
+				<tr>
+					<td><code>reg_lambda</code></td>
+					<td>Régularisation L2</td>
+					<td>1-10</td>
+				</tr>
+			</tbody>
+		</table>
+	</TheorySection>
+
+	<!-- SECTION 7 : COMPARAISON ET SYNTHÈSE -->
 	<TheorySection>
 		<h2 id="comparaison-synthese">Comparaison et synthèse</h2>
 		<p>
@@ -737,6 +835,116 @@
 		</Callout>
 	</TheorySection>
 
+	<!-- SECTION 8 : SYNTHÈSE ET COMPARAISON DES MÉTHODES -->
+	<TheorySection>
+		<h2 id="synthese-comparaison">Synthèse et comparaison des méthodes</h2>
+
+		<h3>Tableau comparatif</h3>
+		<table>
+			<thead>
+				<tr>
+					<th>Méthode</th>
+					<th>Parallélisation</th>
+					<th>Stabilité</th>
+					<th>Interprétabilité</th>
+					<th>Performance</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr>
+					<td>Vote majoritaire</td>
+					<td>✓</td>
+					<td>++</td>
+					<td>+++</td>
+					<td>+</td>
+				</tr>
+				<tr>
+					<td>Bagging</td>
+					<td>✓</td>
+					<td>++</td>
+					<td>++</td>
+					<td>++</td>
+				</tr>
+				<tr>
+					<td>Random Forest</td>
+					<td>✓</td>
+					<td>++</td>
+					<td>++</td>
+					<td>+++</td>
+				</tr>
+				<tr>
+					<td>AdaBoost</td>
+					<td>✗</td>
+					<td>+</td>
+					<td>+</td>
+					<td>++</td>
+				</tr>
+				<tr>
+					<td>Gradient Boosting</td>
+					<td>✗</td>
+					<td>+</td>
+					<td>+</td>
+					<td>+++</td>
+				</tr>
+				<tr>
+					<td>XGBoost</td>
+					<td>Partiel</td>
+					<td>+</td>
+					<td>+</td>
+					<td>++++</td>
+				</tr>
+			</tbody>
+		</table>
+
+		<h3>Guide de choix</h3>
+		<Callout type="insight" title="Quand utiliser quoi ?">
+			<p><strong>Random Forest</strong> :</p>
+			<ul>
+				<li>Premier choix pour un modèle robuste et interprétable</li>
+				<li>Données mixtes (catégorielles + numériques)</li>
+				<li>Besoin d'importance des variables</li>
+			</ul>
+			<p><strong>XGBoost / LightGBM</strong> :</p>
+			<ul>
+				<li>Compétitions de machine learning</li>
+				<li>Optimisation fine des performances</li>
+				<li>Grands jeux de données</li>
+			</ul>
+			<p><strong>Bagging</strong> :</p>
+			<ul>
+				<li>Modèles de base instables (arbres profonds, réseaux de neurones)</li>
+				<li>Réduction de variance</li>
+			</ul>
+			<p><strong>AdaBoost</strong> :</p>
+			<ul>
+				<li>Modèles de base simples (stumps)</li>
+				<li>Classification binaire</li>
+				<li>Données avec structure séquentielle</li>
+			</ul>
+		</Callout>
+
+		<h3>Bonnes pratiques</h3>
+		<Callout type="summary" title="Recommandations pratiques">
+			<ol>
+				<li><strong>Commencer simple</strong> : Random Forest avec paramètres par défaut</li>
+				<li><strong>Valider rigoureusement</strong> : cross-validation pour éviter l'overfitting</li>
+				<li><strong>Diversifier les modèles de base</strong> : différents algorithmes, hyperparamètres</li>
+				<li><strong>Surveiller la complexité</strong> : plus de modèles ne garantit pas une amélioration</li>
+				<li><strong>Exploiter l'OOB</strong> : estimation gratuite de l'erreur de généralisation</li>
+			</ol>
+		</Callout>
+
+		<ExercisePanel title="Projet final">
+			<p>Implémentez et comparez sur un jeu de données réel :</p>
+			<ol>
+				<li>Un modèle Random Forest</li>
+				<li>Un modèle XGBoost</li>
+				<li>Un ensemble combinant différents types d'algorithmes</li>
+			</ol>
+			<p>Analysez les trade-offs performance/complexité/interprétabilité.</p>
+		</ExercisePanel>
+	</TheorySection>
+
 	<!-- BIBLIOGRAPHY -->
 	<Bibliography>
 		<BibElement
@@ -778,5 +986,39 @@
 
 	.algo-block ol {
 		padding-left: 1.5rem;
+	}
+
+	table {
+		width: 100%;
+		border-collapse: collapse;
+		margin: 1rem 0;
+		border: 1px solid var(--color-border);
+		border-radius: var(--radius-md);
+		overflow: hidden;
+	}
+
+	thead {
+		background: var(--color-surface-2);
+	}
+
+	th {
+		padding: 0.75rem 1rem;
+		text-align: left;
+		font-size: 0.75rem;
+		font-weight: 600;
+		text-transform: uppercase;
+		letter-spacing: 0.05em;
+		color: var(--color-text-muted);
+		border-bottom: 1px solid var(--color-border);
+	}
+
+	td {
+		padding: 0.75rem 1rem;
+		font-size: 0.875rem;
+		border-bottom: 1px solid var(--color-border);
+	}
+
+	tbody tr:last-child td {
+		border-bottom: none;
 	}
 </style>

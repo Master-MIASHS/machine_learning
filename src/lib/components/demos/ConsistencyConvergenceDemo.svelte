@@ -9,7 +9,6 @@
 	// inside the epsilon band), rather than a single number — the exceedance
 	// probability alone can't distinguish it from the weaker notions.
 
-	// TODO: confirm these paths/names against your actual files.
 	import Figure from '$lib/components/charts/Figure.svelte';
 	import CurveChart from '$lib/components/charts/CurveChart.svelte';
 	import Slider from '$lib/components/controls/Slider.svelte';
@@ -23,7 +22,7 @@
 		meanSquaredExcessRisk,
 		type ExcessRiskModel
 	} from '$lib/math/consistency';
-	import { linspace } from '$lib/math/util'; // TODO: confirm path
+	import { linspace } from '$lib/math/util';
 
 	const bayesRisk = 0.15;
 	const model: ExcessRiskModel = { biasConst: 1, decayRate: 0.5 };

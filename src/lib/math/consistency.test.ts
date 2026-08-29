@@ -24,7 +24,7 @@ import {
 	type Knn2DModel,
 	type LabeledPoint2D
 } from './consistency';
-import { linspace } from './util'; // TODO: confirm path, as in bayes-learning.test.ts
+import { linspace } from './util';
 
 const model: ExcessRiskModel = { biasConst: 2, decayRate: 0.5 };
 

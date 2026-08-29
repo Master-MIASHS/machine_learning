@@ -6,7 +6,6 @@
 	// Figure (same approach as EmpiricalMeanConvergenceDemo's histogram), not
 	// a guessed component API. Swap in a real one if it exists.
 
-	// TODO: confirm these paths/names against your actual files.
 	import Slider from '$lib/components/controls/Slider.svelte';
 	import Figure from '$lib/components/charts/Figure.svelte';
 	import Metrics from '$lib/components/layout/Metrics.svelte';

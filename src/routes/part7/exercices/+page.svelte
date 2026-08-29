@@ -5,11 +5,13 @@
 	import KatexInline from '$lib/components/narrative/KatexInline.svelte';
 	import KatexBlock from '$lib/components/narrative/KatexBlock.svelte';
 	import TableOfContents, { type TocEntry } from '$lib/components/narrative/TableOfContents.svelte';
-	import { getPageByPath, getNextPage, getPrevPage } from '$lib/navigation.js';
+	import { getPageByPath, getAdjacentPages } from '$lib/navigation.js';
+	import { settings } from '$lib/stores/index.js';
 
 	const meta = getPageByPath('/part7/exercices');
-	const prevMeta = $derived(getPrevPage(meta?.index ?? 0));
-	const nextMeta = $derived(getNextPage(meta?.index ?? 0));
+	const { prev: prevMeta, next: nextMeta } = $derived(
+		getAdjacentPages(meta?.path ?? '', $settings.expertMode)
+	);
 
 	// ── Table of Contents ──
 
@@ -105,7 +107,7 @@
 </script>
 
 <svelte:head>
-	<title>{meta?.title} — Régularisation et Optimisation</title>
+	<title>{meta?.title} — Fondations de l'Apprentissage Statistique</title>
 </svelte:head>
 
 <PageTemplate

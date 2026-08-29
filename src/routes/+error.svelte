@@ -7,21 +7,21 @@
 		<span class="error-code">{page.status}</span>
 		<h1>
 			{#if page.status === 404}
-				Page Not Found
+				Page introuvable
 			{:else if page.status === 403}
-				Access Denied
+				Accès refusé
 			{:else if page.status === 401}
-				Unauthorized
+				Non autorisé
 			{:else if page.status >= 500}
-				Server Error
+				Erreur serveur
 			{:else}
-				Error
+				Erreur
 			{/if}
 		</h1>
 		<p>
-			{#if page.error?.message}{page.error.message}{:else}Something went wrong.{/if}
+			{#if page.error?.message}{page.error.message}{:else}Une erreur est survenue.{/if}
 		</p>
-		<a href="/">Go home</a>
+		<a href="/">Retour à l'accueil</a>
 	</div>
 </div>
 

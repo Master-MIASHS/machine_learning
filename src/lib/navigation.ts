@@ -99,10 +99,12 @@ export function getPageByPath(path: string): PageMeta | undefined {
 	return PAGES.find((p) => p.path === path);
 }
 
-export function getNextPage(currentIndex: number): PageMeta | undefined {
-	return PAGES[currentIndex + 1];
-}
-
-export function getPrevPage(currentIndex: number): PageMeta | undefined {
-	return PAGES[currentIndex - 1];
+export function getAdjacentPages(
+	currentPath: string,
+	includeExpert: boolean
+): { prev: PageMeta | undefined; next: PageMeta | undefined } {
+	const visible = PAGES.filter((p) => includeExpert || !p.expert);
+	const idx = visible.findIndex((p) => p.path === currentPath);
+	if (idx < 0) return { prev: undefined, next: undefined };
+	return { prev: visible[idx - 1], next: visible[idx + 1] };
 }

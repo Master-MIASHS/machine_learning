@@ -22,7 +22,7 @@
 		type Knn2DModel,
 		type KnnRiskModel
 	} from '$lib/math/consistency';
-	import { linspace } from '$lib/math/util'; // TODO: confirm path
+	import { linspace } from '$lib/math/util';
 
 	const knn2DModel: Knn2DModel = { radius: 2, temperature: 0.3 };
 	const riskModel: KnnRiskModel = { varianceConst: 4, biasConst: 1 };

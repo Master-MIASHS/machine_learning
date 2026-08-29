@@ -17,13 +17,15 @@
 	import BootstrapSampler from '$lib/components/demos/BootstrapSampler.svelte';
 	import BaggingConvergence from '$lib/components/demos/BaggingConvergence.svelte';
 	import OOBErrorTracker from '$lib/components/demos/OOBErrorTracker.svelte';
-	import { getPageByPath, getNextPage, getPrevPage, type PageMeta } from '$lib/navigation.js';
+	import { getPageByPath, getAdjacentPages, type PageMeta } from '$lib/navigation.js';
+	import { settings } from '$lib/stores/index.js';
 	import { createPageTracker } from '$lib/stores/progress.svelte';
 
 	const meta = getPageByPath('/part2/lesson1');
 	const tracker = createPageTracker(meta as PageMeta);
-	const prevMeta = $derived(getPrevPage(meta?.index ?? 0));
-	const nextMeta = $derived(getNextPage(meta?.index ?? 0));
+	const { prev: prevMeta, next: nextMeta } = $derived(
+		getAdjacentPages(meta?.path ?? '', $settings.expertMode)
+	);
 
 	// ── Table of Contents ──
 
@@ -158,7 +160,7 @@
 </script>
 
 <svelte:head>
-	<title>{meta?.title} — Régularisation et Optimisation</title>
+	<title>{meta?.title} — Fondations de l'Apprentissage Statistique</title>
 </svelte:head>
 
 <PageTemplate

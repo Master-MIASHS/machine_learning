@@ -3,16 +3,18 @@
 	import TheorySection from '$lib/components/narrative/TheorySection.svelte';
 	import Bibliography from '$lib/components/narrative/bib/Bibliography.svelte';
 	import BibElement from '$lib/components/narrative/bib/BibElement.svelte';
-	import { getPageByPath, getNextPage, getPrevPage } from '$lib/navigation.js';
+	import { getPageByPath, getAdjacentPages } from '$lib/navigation.js';
+	import { settings } from '$lib/stores/index.js';
 	import { asset, resolve } from '$app/paths';
 
 	const meta = getPageByPath('/intro');
-	const prevMeta = $derived(getPrevPage(meta?.index ?? 0));
-	const nextMeta = $derived(getNextPage(meta?.index ?? 0));
+	const { prev: prevMeta, next: nextMeta } = $derived(
+		getAdjacentPages(meta?.path ?? '', $settings.expertMode)
+	);
 </script>
 
 <svelte:head>
-	<title>{meta?.title ?? 'Introduction'} — Régularisation et Optimisation</title>
+	<title>{meta?.title ?? 'Introduction'} — Fondations de l'Apprentissage Statistique</title>
 </svelte:head>
 
 <PageTemplate
@@ -88,7 +90,7 @@
 			<li>
 				<a href={resolve('/part5/lesson1')}>
 					<strong>Partie V — Consistance :</strong> convergence des classifieurs appris
-					(en probabilité, en espérance, universelle), consistance du k-NN.
+					(en probabilité, en moyenne quadratique, presque sûrement — et au sens universel), consistance du k-NN.
 				</a>
 			</li>
 			<li>
@@ -140,7 +142,7 @@
 			</li>
 			<li>
 				<strong>Analyser la convergence :</strong> Définir la consistance d'une suite de
-				classifieurs appris (en probabilité, en espérance, universelle) et la vérifier pour
+				classifieurs appris (en probabilité, en moyenne quadratique, presque sûrement — et au sens universel) et la vérifier pour
 				des algorithmes standards tels que le k-NN.
 			</li>
 			<li>

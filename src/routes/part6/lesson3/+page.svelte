@@ -14,14 +14,16 @@
 	import VCShatteringExplorer from '$lib/components/demos/VCShatteringExplorer.svelte';
 	import SauerGrowthDemo from '$lib/components/demos/SauerGrowthDemo.svelte';
 	import MarginVCExplorer from '$lib/components/demos/MarginVCExplorer.svelte';
-	import { getPageByPath, getNextPage, getPrevPage } from '$lib/navigation.js';
+	import { getPageByPath, getAdjacentPages } from '$lib/navigation.js';
+	import { settings } from '$lib/stores/index.js';
 	import { createPageTracker } from '$lib/stores/progress.svelte';
 	import type { PageMeta } from '$lib/navigation.js';
 
 	const meta = getPageByPath('/part6/lesson3');
 	const tracker = createPageTracker(meta as PageMeta);
-	const prevMeta = $derived(getPrevPage(meta?.index ?? 0));
-	const nextMeta = $derived(getNextPage(meta?.index ?? 0));
+	const { prev: prevMeta, next: nextMeta } = $derived(
+		getAdjacentPages(meta?.path ?? '', $settings.expertMode)
+	);
 
 	interface TocEntry {
 		id: string;
@@ -99,7 +101,7 @@
 </script>
 
 <svelte:head>
-	<title>{meta?.title} — Régularisation et Optimisation</title>
+	<title>{meta?.title} — Fondations de l'Apprentissage Statistique</title>
 </svelte:head>
 
 <PageTemplate
@@ -293,10 +295,11 @@
 			La dimension VC de <KatexInline formula={String.raw`\mathcal H_\gamma`} /> ne dépend
 			<strong>pas</strong> de <KatexInline formula={String.raw`d`} />, la dimension de l'espace
 			d'entrée — seulement du rapport <KatexInline formula={String.raw`R^2/\gamma^2`} /> entre le
-			rayon des données et la marge obtenue. Un SVM peut
-			ainsi généraliser correctement même en très grande dimension (voire en dimension infinie, via le
-			kernel trick), à condition d'obtenir une marge suffisamment grande relative à l'échelle des données.
-			C'est tout l'intérêt de maximiser la marge plutôt que de se contenter d'une séparation quelconque.
+			rayon des données et la marge obtenue. Un SVM peut ainsi généraliser correctement même en très
+			grande dimension, à condition d'obtenir une marge suffisamment grande relative à l'échelle des
+			données. L'extension évoquée — dimension infinie via le kernel trick (SVM à noyau) — ne fait pas
+			partie du support du cours : elle est donnée ici comme complément, au-delà du cours. C'est tout
+			l'intérêt de maximiser la marge plutôt que de se contenter d'une séparation quelconque.
 		</Callout>
 
 		<InteractiveSection
@@ -340,6 +343,18 @@
 			year={1995}
 			title="The Nature of Statistical Learning Theory"
 			journal="Springer-Verlag."
+		/>
+		<BibElement
+			authors={['Sauer, N.']}
+			year={1972}
+			title="On the density of families of sets"
+			journal="Journal of Combinatorial Theory, Series A, 13(1), 145-147."
+		/>
+		<BibElement
+			authors={['Shelah, S.']}
+			year={1972}
+			title="A combinatorial problem; stability and order for models and theories in infinitary languages"
+			journal="Pacific Journal of Mathematics, 41(1), 247-261."
 		/>
 	</Bibliography>
 </PageTemplate>

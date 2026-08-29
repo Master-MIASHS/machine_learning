@@ -11,7 +11,6 @@
 	// NOTE: no toggle/checkbox component was available — using a plain HTML
 	// checkbox (same fallback as KNNConsistencyDemo's Stone-rule toggle).
 
-	// TODO: confirm these paths/names against your actual files.
 	import Figure from '$lib/components/charts/Figure.svelte';
 	import ScatterPlot from '$lib/components/charts/ScatterPlot.svelte';
 	import Slider from '$lib/components/controls/Slider.svelte';

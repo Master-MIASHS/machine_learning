@@ -6,11 +6,11 @@
 	// linear y-axis would flatten the polynomial curve to invisibility. In
 	// log2 space, log2(2^m) = m exactly (a straight diagonal line), and
 	// sauerShelahBound(m,d) == 2^m identically for m <= d — so the two curves
-	// are drawn ON TOP OF EACH OTHER up to m=d, then visibly split apart
-	// exactly at the threshold. That split IS the "switch from exponential to
+	// are drawn ON TOP OF EACH OTHER up to and including m = d, then visibly
+	// split apart from m = d + 1 on (the first m where sum_{i=0}^{d} C(m,i)
+	// drops strictly below 2^m). That split IS the "switch from exponential to
 	// polynomial growth" the task asks to show.
 
-	// TODO: confirm these paths/names against your actual files.
 	import Figure from '$lib/components/charts/Figure.svelte';
 	import CurveChart from '$lib/components/charts/CurveChart.svelte';
 	import Slider from '$lib/components/controls/Slider.svelte';
@@ -65,7 +65,7 @@
 		xDomain={[M_MIN, M_MAX]}
 		yAxis={true}
 		vlines={[
-			{ x: d, stroke: 'var(--color-belief)', strokeDasharray: '2 2', label: 'm = d (seuil)' },
+			{ x: d + 1, stroke: 'var(--color-belief)', strokeDasharray: '2 2', label: 'm = d+1 (seuil)' },
 			{ x: m, stroke: 'var(--color-text)', strokeDasharray: '4 4', label: 'm choisi' }
 		]}
 		curveDots={[
@@ -84,9 +84,10 @@
 
 	{#snippet caption()}
 		Axe Y en échelle log₂. Pour m ≤ d, la borne de Sauer-Shelah coïncide <em>exactement</em> avec 2^m
-		(les deux courbes se superposent) — la contrainte de VC-dimension n'a encore aucun effet. À partir
-		de m = d, les courbes se séparent : la croissance devient polynomiale au lieu d'exponentielle. L'enveloppe
-		(em/d)^d n'est définie que pour m ≥ d et reste toujours au-dessus de la borne exacte.
+		(les deux courbes se superposent, égales à 2^m) — la contrainte de VC-dimension n'a encore aucun
+		effet. À partir de m = d + 1, les courbes se séparent : la croissance devient polynomiale au lieu
+		d'exponentielle. L'enveloppe (em/d)^d n'est définie que pour m ≥ d et reste toujours au-dessus de
+		la borne exacte.
 	{/snippet}
 </Figure>
 

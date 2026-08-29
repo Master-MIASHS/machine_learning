@@ -190,8 +190,8 @@ export function logisticLossDerivative(y: number, F_pred: number): number {
 /** Derivative of exponential loss w.r.t. margin */
 export function exponentialLossDerivative(y: number, F_pred: number): number {
 	const margin = y * F_pred;
-	// d/dF [exp(-y·F)] / dF = y · exp(-y·F)
-	return y * Math.exp(-margin);
+	// d/dF [exp(-y·F)] = -y · exp(-y·F)
+	return -y * Math.exp(-margin);
 }
 
 // ─── Visualization Utilities ──────────────────────
