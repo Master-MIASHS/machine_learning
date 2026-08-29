@@ -137,6 +137,12 @@
 	const lassoOrtho =
 		'\\hat{w}_i^{\\text{Lasso}} = \\operatorname{sign}(\\hat{w}_i^{\\text{OLS}}) \\cdot \\max\\bigl(|\\hat{w}_i^{\\text{OLS}}| - \\lambda, 0\\bigr)';
 
+	// LARS — Algorithme 5.1 des notes
+	const larsResidual = 'r = y';
+	const larsXj = 'x_j';
+	const larsMaxCorr = 'j^* = \\arg\\max_j \\; |x_j^{\\top} r|';
+	const larsXjStar = 'x_{j^*}';
+
 	// Elastic Net objective
 	const elasticNetObjective =
 		'\\min_{w} \\; \\|y - Xw\\|^2_2 + \\lambda \\alpha \\, \\|w\\|_1 + \\frac{\\lambda(1-\\alpha)}{2}\\|w\\|^2_2';
@@ -721,6 +727,45 @@
 		>
 			<LassoPathExplorer />
 		</InteractiveSection>
+
+		<h3>Algorithme LARS (Least Angle Regression)</h3>
+
+		<p>L'algorithme LARS calcule efficacement tout le lasso path :</p>
+
+		<DefinitionBlock
+			number="8.3.bis"
+			title="Algorithme LARS (Least Angle Regression, Algorithme 5.1 des notes)"
+		>
+			<ol>
+				<li>
+					<strong>Initialisation</strong> : tous les coefficients à zéro, résidu
+					<KatexInline formula={larsResidual} />
+				</li>
+				<li>
+					<strong>Tant que</strong> des variables peuvent être ajoutées :
+					<ul>
+						<li>
+							Trouver la variable <KatexInline formula={larsXj} /> la plus corrélée avec le
+							résidu : <KatexInline formula={larsMaxCorr} />
+						</li>
+						<li>
+							Ajouter <KatexInline formula={larsXjStar} /> à l'ensemble actif
+						</li>
+						<li>
+							Déplacer les coefficients dans la direction « équiangulaire » jusqu'au prochain
+							événement
+						</li>
+					</ul>
+				</li>
+				<li>
+					<strong>Événements</strong> :
+					<ul>
+						<li>Une nouvelle variable devient maximalement corrélée</li>
+						<li>Un coefficient actif atteint zéro (modification Lasso)</li>
+					</ul>
+				</li>
+			</ol>
+		</DefinitionBlock>
 
 		<Callout type="warning" title="Quand le Lasso peut faire fausse route">
 			<p>
