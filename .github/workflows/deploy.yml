@@ -5,7 +5,7 @@ on:
     branches: [main]
 
 env:
-  BASE_PATH: /ReguOpt
+  BASE_PATH: /machine_learning
 
 jobs:
   build-and-deploy:

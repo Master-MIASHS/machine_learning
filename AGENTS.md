@@ -19,7 +19,7 @@ right, and getting the Svelte/TypeScript right. Neither excuses the other.
 
 ## What this project is
 
-**ReguOpt** ("Théorie de l'Apprentissage Statistique", still branded
+**machine_learning** ("Théorie de l'Apprentissage Statistique", still branded
 "Régularisation et Optimisation" in some site chrome) is an interactive
 master's-level course built with SvelteKit. The course content is in
 **French**. The mathematical ground truth is `typst/theorie.typ` — a Typst
