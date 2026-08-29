@@ -1,160 +1,201 @@
-# Free Energy Principle — Cours Interactif
+# Fondations de l'Apprentissage Statistique — Cours interactif
 
-> Une exploration interactive du Free Energy Principle et de l'Active Inference. Construisez votre intuition avant les mathématiques.
+> Cours en ligne de niveau Master (MIASHS M1, semestre 2 — « Régularisation et
+> optimisation ») couvrant les fondements théoriques et numériques de
+> l'apprentissage automatique : optimisation, régularisation, prédiction
+> conformelle, optimum de Bayes, consistance, généralisation et calibration des
+> fonctions de perte. Chaque concept s'appuie sur des simulations interactives,
+> des démonstrations animées et des exercices (avec mode enseignant).
 
-## Abstract
+Université de Montpellier Paul-Valéry · Master MIASHS
 
-This interactive web course provides a progressive, intuition-first introduction to the **Free Energy Principle **(FEP) and **Active Inference** — a unifying theoretical framework proposed by Karl Friston that accounts for perception, action, and learning across biological and artificial systems.
+## Quick Start
 
-Rather than presenting the theory as a sequence of abstract derivations, each concept is grounded in **interactive simulations** that let learners manipulate parameters, observe distributions evolve, and build geometric intuition before encountering the formal mathematics. The course is structured in five parts, progressing from foundational probability theory to open questions in neuroscience and artificial intelligence.
+Prerequisites: **Node.js ≥ 22** and **pnpm ≥ 9**.
 
-## Citation
-
-```bibtex
-@misc{fep_interactif_2025,
-  author    = {Doe, Jane and Smith, John},
-  title     = {Free Energy Principle — Cours Interactif},
-  year      = {2025},
-  url       = {https://example.com/fep},
-  note      = {Interactive web course on the
-               Free Energy Principle and Active Inference}
-}
+```bash
+pnpm install     # install dependencies
+pnpm dev         # dev server → http://localhost:5173/machine_learning/
+pnpm check       # typecheck (svelte-check)
+pnpm test:unit   # Vitest unit tests
+pnpm lint        # ESLint
+pnpm format      # Prettier
+pnpm build       # production build (static adapter, GitHub Pages)
 ```
 
-## Course Structure
+The base path `/machine_learning` is set in `svelte.config.js` and is the same
+value CI uses for the GitHub Pages deployment.
 
-### Part I — Probabilistic Tools
+## Objectifs du cours
 
-| Page | Topic |
-|------|-------|
-| Distributions | Categorical, Gaussian, and Laplace distributions as representations of belief. Interactive comparison of density shapes, entropy, and sampling behavior. |
-| Loi de Bayes | Bayes' theorem as the foundation of belief updating. |
-| Apprentissage séquentiel | Sequential Bayesian inference and belief updating over time. |
-| Entropie | Shannon entropy as a measure of uncertainty. |
-| Divergence KL | Kullback-Leibler divergence as the asymmetry between distributions. |
+L'apprentissage automatique moderne repose sur trois piliers : la
+**modélisation mathématique**, l'**optimisation numérique** et la
+**garantie statistique**. À l'issue de ce cours, l'étudiant doit savoir :
 
-### Part II — Free Energy
+- **Analyser et modéliser** — identifier les propriétés d'un problème
+  (convexité, coercivité, régularité du gradient, forte convexité) et en
+  déduire l'existence, l'unicité et la stabilité de la solution ;
+- **Concevoir et optimiser** — choisir l'algorithme de descente adapté à la
+  structure du problème (classique, accélérée, stochastique, par coordonnées,
+  Newton, Adam) ;
+- **Maîtriser la complexité** — appliquer et comparer les méthodes de
+  régularisation (Ridge, Lasso, Elastic Net) et d'ensemble (Bagging, Random
+  Forest, Boosting) pour résoudre le dilemme biais-variance ;
+- **Garantir et certifier** — évaluer la calibration d'un classifieur et
+  appliquer la prédiction conformelle pour construire des ensembles et
+  intervalles de prédiction garantis à un niveau de confiance choisi, sans
+  hypothèse forte sur la distribution ;
+- **Caractériser l'optimum** — dériver le classifieur de Bayes et la
+  régression optimale (espérance conditionnelle en L2, médiane conditionnelle
+  en L1) et identifier le risque de Bayes comme borne irréductible ;
+- **Analyser la convergence** — définir la consistance (en probabilité, en
+  moyenne quadratique, presque sûrement, universelle) et la vérifier pour le
+  k-NN ;
+- **Bonder la généralisation** — appliquer les inégalités de concentration et
+  la théorie VC (dimension VC, lemme de Sauer–Shelah) pour les classes finies
+  et le SVM, et discuter les limites de la théorie VC (double descente) ;
+- **Concevoir des pertes optimisables** — expliquer pourquoi la perte 0-1 ne
+  s'optimise pas, choisir une perte proxy convexe, appliquer le théorème de
+  calibration et décomposer l'excès de risque (estimation, calibration,
+  approximation).
 
-| Page | Topic |
-|------|-------|
-| Surprise | Self-information and the problem of intractable marginal likelihood. |
-| Modèles génératifs | Generative models as probabilistic descriptions of the world. |
-| Approximation variationnelle | Variational inference: approximating intractable posteriors with tractable families. |
-| Free Energy | Variational free energy as an upper bound on surprise. Decomposition into complexity and accuracy (Carreira-Perpinan) and information and compression (Somerville-Koolhaas). |
-| Expected Free Energy | Looking ahead: planning under the free energy principle. |
+## Plan du cours
 
-### Part III — Active Inference
+| Partie                       | Contenu                                                                                                                                                                         |
+| ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **I — Optimisation**         | Conditions d'un minimum · Fonctions d'optimisation en ML · Descente de gradient & accélération · Adam _(mode expert)_ · SGD, descente par coordonnées & Newton · Exercices · TP |
+| **II — Régularisation**      | Méthodes ensemblistes & Bagging · Random Forest & sélection de features · Boosting (AdaBoost, Gradient Boosting) · Régularisation L1/L2/Elastic Net · Exercices · TP            |
+| **III — Set-valued**         | Classification Top-K · Prédiction conformelle · Intervalles de prédiction · Exercices                                                                                           |
+| **IV — Optimum de Bayes**    | Classifieur optimal · Régression optimale · Exercices                                                                                                                           |
+| **V — Consistance**          | Convergence · Consistance k-NN · Exercices                                                                                                                                      |
+| **VI — Généralisation**      | Concentration & risque empirique · Généralisation pour une classe finie · Dimension VC, Sauer–Shelah & SVM · Limites de la théorie VC & double descente · Exercices             |
+| **VII — Fonctions de perte** | De la perte 0-1 aux pertes proxy · Calibration des pertes convexes · Décomposition de l'erreur · Exercices                                                                      |
 
-| Page | Topic |
-|------|-------|
-| Perception | Inferring hidden states by minimizing free energy. |
-| Action | Selecting actions to minimize expected free energy. |
-| Exploration | The exploration-exploitation trade-off through the lens of information-seeking. |
-| Préférences | Encoding goals as priors over outcomes. |
-| Planification | Multi-step planning under active inference. |
+La liste des pages, leur ordre et leur appartenance aux parties est centralisée
+dans `src/lib/navigation.ts` (barre latérale, navigation précédent/suivant,
+suivi de progression).
 
-### Part IV — The Maze
+## Approche pédagogique
 
-| Page | Topic |
-|------|-------|
-| Le Labyrinthe | A grid-world maze environment demonstrating active inference in action. |
-| T-Maze | The classic T-maze task, highlighting belief updating under ambiguity. |
-| RL vs Active Inference | Comparing reinforcement learning and active inference approaches to decision-making. |
-
-### Part V — Open Questions
-
-| Page | Topic |
-|------|-------|
-| Neurosciences | Neural implementations of predictive processing and hierarchical generative models. |
-| IA moderne | Connections between FEP and modern machine learning. |
-| Vie et auto-organisation | The free energy principle as a theory of life and self-organization. |
-| Prédiction cérébrale | Predictive coding as a neural instantiation of variational inference. |
-| Rivalité binoculaire | Binocular rivalry as a model phenomenon for perceptual inference. |
-| Architecture de la conscience | Global workspace and predictive architectures of consciousness. |
-| Limites et critiques | Critical assessment of the FEP's scope, falsifiability, and empirical status. |
-
-## Pedagogical Approach
-
-The course follows three design principles:
-
-1. **Intuition before formalism**. Every mathematical concept is preceded by an interactive simulation that lets the learner feel the phenomenon before seeing the equation.
-2. **Progressive disclosure**. Core ideas are presented first; advanced derivations and formalism are gated behind an "Expert Mode" toggle for readers who want deeper rigor.
-3. **Visual mathematics**. All equations are rendered with KaTeX. Key quantities (free energy, KL divergence, entropy) are displayed live as simulation parameters change.
+- **Intuition avant formalisme** — chaque concept est introduit par une
+  simulation interactive (≈ 80 démos dans `src/lib/components/demos/`) : on
+  manipule les paramètres et on observe le phénomène avant de lire la formule.
+- **Mathématiques rendues par KaTeX** (`KatexInline`, `KatexBlock`) ; les
+  grandeurs clés (risque, biais-variance, scores de conformité, bornes de
+  généralisation…) sont recalculées en direct quand les paramètres changent.
+- **Mode expert** — bascule globale (stock `settings`) : révèle les cours
+  réservés aux lecteurs avancés (ex. le cours Adam) et les détails
+  complémentaires.
+- **Suivi de progression** — la visite des pages et les interactions sont
+  suivies localement (stock `progress`).
+- **Exercices** — une page d'exercices par partie ; les corrigés s'affichent en
+  **mode enseignant** via le paramètre d'URL `?teacher=true`.
+- **Notes de cours** — la vérité mathématique du site est portée par les
+  notes Typst de `typst/` ; les versions PDF servies au site sont dans
+  `static/pdf/` :
+  - _Optimisation pour l'Apprentissage_ (`optim.pdf`) — Partie I
+  - _Agrégation, Forêts & Régularisation_ (`regularization.pdf`) — Partie II
+  - _Évaluation & Prédictions Conformelles_ (`set_valued.pdf`) — Partie III
+  - _Théorie de l'Apprentissage Statistique_ (`theory.pdf`) — Parties IV à VII
+- **Travaux pratiques** — notebooks Jupyter dans `static/notebooks/`
+  (Parties I et II).
 
 ## Architecture
 
-### Technology Stack
-
-| Layer | Technology |
-|-------|-----------|
-| Framework | SvelteKit (Svelte 5 with runes) |
-| Build | Vite |
-| Math rendering | KaTeX |
-| Visualization | D3.js |
-| Styling | CSS custom properties + scoped styles |
-| Package manager | pnpm |
-| Testing | Vitest (unit), Playwright (e2e) |
-
-### Project Structure
+| Couche             | Technologie                                                      |
+| ------------------ | ---------------------------------------------------------------- |
+| Framework          | SvelteKit 2 · Svelte 5 (runes : `$state`, `$derived`, `$effect`) |
+| Build              | Vite 6 · TypeScript 5 · Tailwind CSS 4                           |
+| Rendu mathématique | KaTeX                                                            |
+| Visualisation      | D3 v7 + composants SVG maison                                    |
+| Animation          | motion                                                           |
+| Tests              | Vitest 4 (unitaires)                                             |
+| Lint / format      | ESLint 9 · Prettier                                              |
+| Package manager    | pnpm 9 · Node 22                                                 |
 
 ```
 src/
 ├── lib/
-│   ├── active-inference/   # Agent, beliefs, EFE, types
-│   ├── components/         # Svelte component library
-│   │   ├── charts/         # DensityChart, CategoricalChart, Figure
-│   │   ├── controls/       # Slider, Button
-│   │   ├── layout/         # PageTemplate, SliderGrid
-│   │   └── narrative/      # TheorySection, InteractiveSection, Callout, ExpertPanel, Bibliography
-│   ├── math/               # bayes, entropy, kl, gaussian, free-energy, discrete, laplace
-│   ├── simulation/         # Simulation utilities
-│   ├── stores/             # Progress tracking, settings, simulation state
-│   └── styles/             # app.css, semantic color variables
+│   ├── navigation.ts             # source de vérité des pages (ordre, titres, parties)
+│   ├── math/                     # toutes les formules et simulateurs (≈ 35 modules, chacun testé)
+│   ├── components/
+│   │   ├── charts/               # Figure, CurveChart, DensityChart, ScatterPlot, …
+│   │   ├── controls/             # Slider, Toggle, RadioButton, Button, …
+│   │   ├── layout/               # PageTemplate, Header, Sidebar, SliderGrid, Metrics
+│   │   ├── narrative/            # TheorySection, TheoremBlock, DefinitionBlock,
+│   │   │                         # ExercisePanel, InteractiveSection, Callout, KaTeX, …
+│   │   └── demos/                # ≈ 80 démos interactives embarquées dans les cours
+│   └── stores/                   # progress, settings (mode expert), simulation
 ├── routes/
-│   ├── +page.svelte        # Home page
-│   ├── intro/              # Course introduction
-│   ├── part1/              # Probabilistic tools
-│   ├── part2/              # Free Energy
-│   ├── part3/              # Active Inference
-│   ├── part4/              # The Maze
-│   └── part5/              # Open Questions
-└── app.html
+│   ├── +page.svelte              # page d'accueil
+│   ├── intro/                    # introduction du cours + références complètes
+│   ├── partN/lessonM/            # cours
+│   ├── partN/exercices/          # exercices (une page par partie)
+│   ├── partN/practice/           # travaux pratiques (parties I et II)
+│   └── demo/                     # bac à sable interne des composants (hors cours)
+typst/                            # notes de cours source (vérité mathématique)
+static/
+├── pdf/                          # les 4 notes de cours (PDF)
+├── notebooks/                    # notebooks Jupyter des TP
+└── logos/                        # logos UMPV et AMIS
+.github/workflows/deploy.yml      # CI : check → tests → build → GitHub Pages
 ```
 
-### Key Design Patterns
+## Contribuer
 
-- **PageTemplate**: Every content page uses a consistent layout with navigation breadcrumbs, previous/next links, and progress tracking.
-- **TheorySection / InteractiveSection**: Pages alternate between theoretical exposition and interactive exploration.
-- **Progress tracking**: A Svelte store tracks page visits and interactions across the session.
-- **Expert mode**: Advanced derivations are hidden behind a global toggle in the settings store.
+Les règles principales (version complète dans `AGENTS.md`, qui s'adresse aussi
+aux agents IA) :
 
-## Getting Started
+- **Fidélité au contenu** — les cours enseignent ce qui est écrit dans les
+  notes Typst (`typst/*.typ`) : mêmes numéros de théorèmes, même structure de
+  preuve. Une extension au-delà du texte est admise seulement si elle est
+  visiblement marquée comme telle (« au-delà du cours », « illustratif »).
+- **Aucune formule inline dans les `.svelte`** — chaque nombre affiché est
+  calculé par une fonction de `src/lib/math/` (un module par sujet théorique,
+  un fichier `*.test.ts` par module, aléatoire déterministe via `util.ts` —
+  `mulberry32` + `combineSeed`).
+- **Svelte 5 runes uniquement** — jamais `export let` pour les props.
+- **Toute la copie est en français** ; couleurs via variables CSS sémantiques
+  (`var(--color-…)`), pas de hexadécimal en dur.
+- **Ajouter une page** — créer `src/routes/…/+page.svelte` basé sur
+  `PageTemplate`, puis l'enregistrer dans `RAW_PAGES`
+  (`src/lib/navigation.ts`) pour qu'elle apparaisse dans la navigation et le
+  suivi de progression.
+- **Avant de considérer un travail comme terminé** :
 
 ```bash
-# Install dependencies
-pnpm install
-
-# Start development server
-pnpm dev
-
-# Build for production
-pnpm build
-
-# Run tests
-pnpm test:unit
-pnpm test:e2e
+pnpm check && pnpm test:unit && pnpm lint && pnpm build
 ```
 
-## References
+## Déploiement
 
-The course references and builds upon the following foundational works:
+Le workflow GitHub Actions (`.github/workflows/deploy.yml`) se déclenche sur
+chaque push vers `main` : typecheck, tests unitaires, build de production avec
+`BASE_PATH=/machine_learning`, puis publication sur GitHub Pages
+(`@sveltejs/adapter-static`, fallback `404.html` pour le routage SPA).
 
-- Friston, K. (2010). The free-energy principle: a unified theory of brain action? *Trends in Cognitive Sciences*
-- Friston, K. (2019). Hallucinations and delusions. *Current Opinion in Behavioral Sciences*
-- Smith, L., & Boorman, F. (2018). Active inference, autonomy and self-organisation. *Entropy*
-- Parr, T., & Friston, K. (2019). Generalised free energy and active inference. *Biological Cybernetics*
-- Legrand, N. (2021). A Gentle Introduction to the Free Energy Principle. *arXiv preprint*
+## Références
+
+La liste complète, organisée par partie, est sur la page
+[Introduction](src/routes/intro/+page.svelte). Ouvrages et articles de
+référence :
+
+- **Optimisation** — Boyd & Vandenberghe, _Convex Optimization_ (2004) ;
+  Nesterov (1983, 2004) ; Nocedal & Wright, _Numerical Optimization_ (2006) ;
+  Bottou, Curtis & Nocedal (2018) ; Bubeck (2015) ; Kingma & Ba (2015)
+- **Régularisation & ensembles** — Hastie, Tibshirani & Friedman, _The Elements
+  of Statistical Learning_ (2009) ; Breiman (1996, 2001) ; Freund & Schapire
+  (1997) ; Friedman (2001) ; Hoerl & Kennard (1970) ; Tibshirani (1996) ;
+  Zou & Hastie (2005)
+- **Prédiction conformelle** — Vovk, Gammerman & Shafer (2005) ; Angelopoulos &
+  Bates (2021) ; Romano, Patterson & Candès (2019) ; Romano, Sesia & Candès
+  (2020) ; Barber, Candès, Ramdas & Tibshirani (2021)
+- **Théorie de l'apprentissage** — Devroye, Györfi & Lugosi (1996) ; Vapnik
+  (1995, 1998) ; Cover & Hart (1967) ; Stone (1977) ; Boucheron, Lugosi &
+  Massart, _Concentration Inequalities_ (2013)
+- **Pertes & généralisation en deep learning** — Bartlett, Jordan & McAuliffe
+  (2006) ; Belkin, Hsu, Ma & Mandal (2019) ; Zhang et al. (2017)
 
 ---
 
-*This project is affiliated with UMPV and AMIS.*
+*Université de Montpellier Paul-Valéry — Master MIASHS.
