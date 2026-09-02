@@ -17,597 +17,617 @@
 
 	const tocEntries: TocEntry[] = [
 		{
-			id: 'pertes-proxy',
-			label: 'De la perte 0-1 aux pertes proxy',
-			description: '4 exercices — convexité, logistique et entropie croisée, sensibilité à la marge',
-			color: 'epistemic'
-		},
-		{
-			id: 'calibration',
-			label: 'Calibration des pertes',
-			description: '4 exercices — risque conditionnel, critère φ′(0)<0, signe du minimiseur',
+			id: 'consistance-decomposition',
+			label: 'Consistance et décomposition approximation/estimation',
+			description: '10 exercices — les trois notions, leurs relations, le compromis biais-variance',
 			color: 'belief'
 		},
 		{
-			id: 'decomposition-erreur',
-			label: "Décomposition de l'erreur",
-			description: '4 exercices — télescopage, termes A/B/C, cas favorable, synthèse critique',
+			id: 'consistance-universelle-knn',
+			label: 'Consistance universelle et k-NN',
+			description: '10 exercices — théorème de Stone, choix de k(n)',
 			color: 'surprise'
 		}
 	];
 
-	// ── Formula variables (stored in script so Svelte never parses backslashes) ──
+	// ── Formula variables reused across several exercises ──
 
-	// Ex 7.1
-	const phi01 = '\\varphi_{0,1}(t) = \\mathbf 1_{\\{t < 0\\}}';
-	const phi01Violation =
-		'\\varphi_{0,1}\\!\\left(-\\tfrac12\\right) = 1 \\;>\\; \\tfrac12 = \\tfrac12\\,\\varphi_{0,1}(-1) + \\tfrac12\\,\\varphi_{0,1}(0)';
-
-	// Ex 7.2
-	const sigmaDef = 'p = \\sigma(f(x)) = \\dfrac{1}{1+e^{-f(x)}}';
-	const ceLoss = '\\ell(y, f(x)) = -\\tfrac{1+y}{2}\\,\\ln p - \\tfrac{1-y}{2}\\,\\ln(1-p)';
-	const ceY1 = '-\\ln p = \\ln(1+e^{-f(x)}) = \\varphi(f(x)) = \\varphi(y f(x))';
-	const ceY0 = '-\\ln(1-p) = \\ln(1+e^{f(x)}) = \\varphi(-f(x)) = \\varphi(y f(x))';
-
-	// Ex 7.3
-	const logDeriv = "\\varphi'(t) = -\\dfrac{e^{-t}}{1+e^{-t}} = -\\dfrac{1}{1+e^{t}} = -\\sigma(t)";
-	const logSecond = "\\varphi''(t) = \\dfrac{e^{t}}{(1+e^{t})^{2}} = \\sigma(t)\\bigl(1-\\sigma(t)\\bigr) > 0";
-	const logPrime0 = "\\varphi'(0) = -\\tfrac12 < 0";
-
-	// Ex 7.4
-	const tMinus2 =
-		't = -2 :\\;\\; \\varphi_{0,1} = 1,\\quad \\varphi_{\\mathrm{hinge}} = 3,\\quad \\varphi_{\\log} = \\ln(1+e^{2}) \\approx 2.127,\\quad \\varphi_{\\exp} = e^{2} \\approx 7.389';
-	const tPlus2 =
-		't = +2 :\\;\\; \\varphi_{0,1} = 0,\\quad \\varphi_{\\mathrm{hinge}} = 0,\\quad \\varphi_{\\log} = \\ln(1+e^{-2}) \\approx 0.127,\\quad \\varphi_{\\exp} = e^{-2} \\approx 0.135';
-	const tPlus100 =
-		't = +100 :\\;\\; \\varphi_{0,1} = 0,\\quad \\varphi_{\\mathrm{hinge}} = 0,\\quad \\varphi_{\\log} = \\ln(1+e^{-100}) \\approx e^{-100},\\quad \\varphi_{\\exp} = e^{-100}';
-
-	// Ex 7.5
-	const critSq =
-		'C_\\varphi(\\alpha,\\eta) = \\eta(\\alpha-1)^{2} + (1-\\eta)(\\alpha+1)^{2} = \\alpha^{2} + 2(1-2\\eta)\\alpha + 1';
-	const sqMin = '\\alpha^{*} = 2\\eta - 1,\\qquad C_\\varphi^{*}(\\eta) = 1 - (2\\eta-1)^{2}';
-	const sqPrime0 = "\\varphi'(t) = 2(t-1),\\qquad \\varphi'(0) = -2 < 0";
-
-	// Ex 7.6
-	const fourPrimes =
-		"\\varphi'_{\\log}(0) = -\\tfrac12,\\qquad \\varphi'_{\\mathrm{hinge}}(0) = -1,\\qquad \\varphi'_{\\exp}(0) = -1,\\qquad \\varphi'_{\\mathrm{sq}}(0) = -2";
-	const logPrimeT = "\\varphi'(t) = -\\sigma(t)";
-	const expPrimeT = "\\varphi'(t) = -e^{-t}";
-	const sqPrimeT = "\\varphi'(t) = -2(1-t)";
-
-	// Ex 7.7
-	const logCrit = 'C_\\varphi(\\alpha,\\eta) = \\eta\\,\\ln(1+e^{-\\alpha}) + (1-\\eta)\\,\\ln(1+e^{\\alpha})';
-	const logCritPrime = "(C_\\varphi)'(\\alpha,\\eta) = (1-\\eta)\\,\\sigma(\\alpha) - \\eta\\,\\sigma(-\\alpha)";
-	const logCritSecond =
-		"(C_\\varphi)''(\\alpha,\\eta) = (1-\\eta)\\,\\sigma(\\alpha)\\bigl(1-\\sigma(\\alpha)\\bigr) + \\eta\\,\\sigma(-\\alpha)\\bigl(1-\\sigma(-\\alpha)\\bigr) > 0";
-	const logitSolution = "\\alpha^{*} = \\ln\\!\\dfrac{\\eta}{1-\\eta} = \\operatorname{logit}(\\eta)";
-	const eta09 = "\\alpha^{*}(0.9) = \\ln 9 \\approx 2.197";
-
-	// Ex 7.8
-	const halfCrit =
-		'C_\\varphi\\!\\left(\\alpha,\\tfrac12\\right) = \\tfrac12\\ln(1+e^{-\\alpha}) + \\tfrac12\\ln(1+e^{\\alpha}) = \\tfrac12\\ln\\!\\bigl(2 + e^{\\alpha} + e^{-\\alpha}\\bigr)';
-	const halfMin = 'C_\\varphi\\!\\left(0,\\tfrac12\\right) = \\tfrac12\\ln 4 = \\ln 2 \\approx 0.693';
-
-	// Ex 7.9
-	const telescoping = 'a - d = (a-b) + (b-c) + (c-d)';
-	const riskTelescoping =
-		'R(h_{\\hat f}) - R^{*} = \\underbrace{R(h_{\\hat f}) - R(h_{f^{*}})}_{A} + \\underbrace{R(h_{f^{*}}) - R(h_{f^{**}})}_{B} + \\underbrace{R(h_{f^{**}}) - R^{*}}_{C}';
-
-	// Ex 7.10
-	const logitMargin = 'x \\mapsto \\operatorname{logit}(\\eta(x))';
-
-	// Ex 7.11
-	const bZero = 'R_\\varphi(f^{*}) = R_\\varphi(f^{**}) = R_\\varphi^{*} \\;\\Rightarrow\\; f^{*} = f^{**}';
-	const cZero = 'C = R(h_{f^{**}}) - R^{*} = 0';
-	const onlyA = 'R(h_{\\hat f}) - R^{*} = A';
-
-	// Ex 7.12
-	const counterex = "\\varphi(t) = t^{2},\\qquad \\varphi'(0) = 0";
-	const critT2 = 'C_\\varphi(\\alpha,\\eta) = \\eta\\,\\alpha^{2} + (1-\\eta)\\,\\alpha^{2} = \\alpha^{2},\\qquad \\alpha^{*} = 0\\;\\text{quel que soit }\\eta';
+	const stoneConditions =
+		'k(n) \\xrightarrow[n\\to+\\infty]{} +\\infty \\quad\\text{et}\\quad \\frac{k(n)}{n} \\xrightarrow[n\\to+\\infty]{} 0';
 </script>
 
 <svelte:head>
-	<title>{meta?.title} — Fondations de l'Apprentissage Statistique</title>
+	<title>{meta?.title ?? 'Exercices'} — Fondations de l'Apprentissage Statistique</title>
 </svelte:head>
 
 <PageTemplate
-	title={meta?.title ?? 'Exercices — Fonctions de perte'}
-	subtitle="12 exercices sur les trois leçons de la partie : pertes proxy, calibration des pertes convexes et décomposition de l'erreur"
+	title={meta?.title ?? 'Exercices — Consistance'}
+	subtitle="Les trois notions de consistance, la décomposition approximation/estimation, et le théorème de Stone"
 	prev={prevMeta}
 	next={nextMeta}
 >
 	<TheorySection>
 		<TableOfContents entries={tocEntries} />
 
-		<h2 id="pertes-proxy">De la perte 0-1 aux pertes proxy</h2>
+		<h2 id="consistance-decomposition">Consistance et décomposition approximation/estimation</h2>
 
 		<p>
-			Ces quatre exercices couvrent la motivation de la partie : l'indésirabilité de la perte 0-1,
-			l'équivalence logistique / entropie croisée, la convexité de la logistique, et la sensibilité
-			à la marge.
+			Cette section propose dix exercices sur les trois notions de consistance de la Définition 1.2,
+			leurs relations, et la décomposition du risque en termes d'approximation et d'estimation.
+			Chaque exercice est accompagné d'une solution détaillée, accessible en cliquant sur « Voir la
+			solution ».
 		</p>
 
-		<ExercisePanel number="7.1" title="La perte 0-1 n'est ni convexe ni lisse">
+		<ExercisePanel number="1.1" title="Vérifier la consistance en probabilité">
 			{#snippet solution()}
 				<p>
-					<strong>(a)</strong> Le graphe est un escalier : <KatexInline
-						formula={'\\varphi_{0,1}(t) = 1'}
+					Pour tout <KatexInline formula={String.raw`\varepsilon>0`} /> fixé, dès que <KatexInline
+						formula={String.raw`n > 1/\varepsilon`}
+					/>, on a <KatexInline formula={String.raw`1/n < \varepsilon`} />, donc
+					<KatexInline formula={String.raw`\mathbb{P}(R(h_n)-R^*>\varepsilon) \le 1/n \to 0`} />
+					quand <KatexInline formula={String.raw`n\to+\infty`} />. La suite est donc consistante en
+					probabilité.
+				</p>
+			{/snippet}
+			<p>
+				Soit une suite <KatexInline formula={String.raw`(h_n)`} /> telle que
+				<KatexInline formula={String.raw`\mathbb{P}(R(h_n)-R^*>\varepsilon) \le 1/n`} /> pour tout
+				<KatexInline formula={String.raw`\varepsilon>0`} /> et tout <KatexInline
+					formula={String.raw`n\ge1`}
+				/>. Montrez que <KatexInline formula={String.raw`(h_n)`} /> est consistante en probabilité.
+			</p>
+		</ExercisePanel>
+
+		<ExercisePanel number="1.2" title="De la moyenne quadratique à la probabilité">
+			{#snippet solution()}
+				<p>
+					Par l'inégalité de Markov appliquée à la variable positive
+					<KatexInline formula={String.raw`(R(h_n)-R^*)^2`} /> avec le seuil <KatexInline
+						formula={String.raw`\varepsilon^2`}
+					/> :
+				</p>
+				<KatexBlock
+					formula={String.raw`\mathbb{P}\big(R(h_n)-R^* > \varepsilon\big) = \mathbb{P}\big((R(h_n)-R^*)^2 > \varepsilon^2\big) \le \frac{\mathbb{E}[(R(h_n)-R^*)^2]}{\varepsilon^2}.`}
+				/>
+				<p>
+					Si <KatexInline formula={String.raw`(h_n)`} /> est consistante en moyenne quadratique, le numérateur
+					tend vers <KatexInline formula={String.raw`0`} /> pour <KatexInline
+						formula={String.raw`n\to+\infty`}
+					/>, donc le majorant tend vers <KatexInline formula={String.raw`0`} /> pour tout <KatexInline
+						formula={String.raw`\varepsilon`}
+					/> fixé : <KatexInline formula={String.raw`(h_n)`} /> est donc aussi consistante en probabilité.
+				</p>
+			{/snippet}
+			<p>
+				En utilisant l'inégalité de Markov, déduisez la consistance en probabilité à partir de la
+				consistance en moyenne quadratique.
+			</p>
+		</ExercisePanel>
+
+		<ExercisePanel number="1.3" title="De la convergence presque sûre à la probabilité">
+			{#snippet solution()}
+				<p>
+					Fixons <KatexInline formula={String.raw`\varepsilon>0`} /> et posons <KatexInline
+						formula={String.raw`A_n = \{R(h_n)-R^*>\varepsilon\}`}
+					/>. Si <KatexInline formula={String.raw`\mathbb{P}(\lim_n R(h_n)=R^*)=1`} /> — soit sur
+					l'événement <KatexInline formula={String.raw`\Omega_0`} /> de probabilité 1 — alors, pour
+					presque toute réalisation, la suite <KatexInline formula={String.raw`(R(h_n))_n`} /> converge
+					vers <KatexInline formula={String.raw`R^*`} /> : chaque événement <KatexInline
+						formula={String.raw`A_n`}
+					/> ne se produit donc qu'un nombre fini de fois, presque sûrement.
+				</p>
+				<p>
+					Posons <KatexInline formula={String.raw`C_m = \bigcup_{n\ge m} A_n`} /> : c'est une suite
+					décroissante d'événements, et
+				</p>
+				<KatexBlock
+					formula={String.raw`\bigcap_{m\ge 1} C_m = \limsup_{n\to+\infty} A_n \;\subset\; \Omega_0^c`}
+				/>
+				<p>
+					Par continuité de la mesure (de haut en bas),
+					<KatexInline
+						formula={String.raw`\mathbb{P}(C_m) \downarrow \mathbb{P}\bigl(\limsup_{n\to+\infty} A_n\bigr) \le \mathbb{P}(\Omega_0^c) = 0`}
 					/>
-					pour <KatexInline formula={'t < 0'} />, <KatexInline formula={'\\varphi_{0,1}(t) = 0'} />
-					pour <KatexInline formula={'t \\ge 0'} />, avec un saut en <KatexInline
-						formula={'t = 0'}
+					, et comme <KatexInline formula={String.raw`A_n \subset C_n`} />, on en déduit
+					<KatexInline formula={String.raw`\mathbb{P}(A_n) \le \mathbb{P}(C_n) \to 0`} /> — c'est la
+					consistance en probabilité.
+				</p>
+			{/snippet}
+			<p>
+				En partant directement de la définition de la convergence presque sûre, esquissez pourquoi
+				elle implique la consistance en probabilité.
+			</p>
+		</ExercisePanel>
+
+		<ExercisePanel
+			number="1.4"
+			title="Probabilité et moyenne quadratique pour de vrais classifieurs"
+		>
+			{#snippet solution()}
+				<p>
+					Non — pour de vrais classifieurs, l'implication de l'Exercice 1.2 se renverse. En effet,
+					les risques sont bornés : <KatexInline
+						formula={String.raw`R(h_n)-R^* \in [0,1]`}
+					/>. Fixons <KatexInline formula={String.raw`\varepsilon>0`} /> et découpons l'espérance du
+					carré selon que <KatexInline formula={String.raw`R(h_n)-R^*`} /> dépasse
+					<KatexInline formula={String.raw`\varepsilon`} /> ou non :
+				</p>
+				<KatexBlock
+					formula={String.raw`\mathbb{E}[(R(h_n)-R^*)^2] \;=\; \mathbb{E}\bigl[(R(h_n)-R^*)^2 \mathbb{1}_{\{R(h_n)-R^*\le\varepsilon\}}\bigr] \;+\; \mathbb{E}\bigl[(R(h_n)-R^*)^2 \mathbb{1}_{\{R(h_n)-R^*>\varepsilon\}}\bigr] \;\le\; \varepsilon^2 + \mathbb{P}(R(h_n)-R^*>\varepsilon).`}
+				/>
+				<p>
+					Par consistance en probabilité, le second terme tend vers 0, donc
+					<KatexInline formula={String.raw`\limsup_n \mathbb{E}[(R(h_n)-R^*)^2] \le \varepsilon^2`} />
+					pour tout <KatexInline formula={String.raw`\varepsilon>0`} /> ; en laissant
+					<KatexInline formula={String.raw`\varepsilon\downarrow 0`} />, on obtient
+					<KatexInline formula={String.raw`\mathbb{E}[(R(h_n)-R^*)^2]\to 0`} /> : la consistance en
+					moyenne quadratique suit. Pour des risques bornés, les deux notions sont donc
+					<strong>équivalentes</strong>.
+				</p>
+				<p>
+					La hiérarchie stricte (consistance en probabilité sans consistance en moyenne quadratique)
+					n'apparaît que pour des variables <strong>non bornées</strong> : par exemple, si
+					<KatexInline formula={String.raw`X_n = n\,\mathbb{1}_{A_n}`} /> avec
+					<KatexInline formula={String.raw`\mathbb{P}(A_n)=1/n^2`} />, alors
+					<KatexInline formula={String.raw`\mathbb{P}(|X_n|>\varepsilon) \le 1/n^2 \to 0`} />
+					(convergence en probabilité) mais
+					<KatexInline formula={String.raw`\mathbb{E}[X_n^2] = n^2 \times 1/n^2 = 1 \not\to 0`} />.
+					Le mécanisme « événement rare mais de grande amplitude » n'est tout simplement pas
+					disponible pour de vrais risques, bornés par construction par <KatexInline
+						formula={String.raw`1`}
 					/>.
 				</p>
-				<p>
-					<strong>(b)</strong> Prenons <KatexInline formula={'t_1 = -1'} />, <KatexInline
-						formula={'t_2 = 0'}
-					/>, <KatexInline formula={'\\lambda = \\tfrac12'} />. Le point milieu vaut
-					<KatexInline formula={'-\\tfrac12'} />, et la convexité exigerait
-					<KatexInline formula={phi01Violation} />. L'inégalité est fausse : <KatexInline
-						formula={phi01}
-					/>
-					n'est <strong>pas convexe</strong>.
-				</p>
-				<p>
-					<strong>(c)</strong> Non : <KatexInline formula={'\\varphi_{0,1}'} /> est
-					<strong>décontinue</strong> en <KatexInline formula={'t = 0'} /> (la limite à gauche vaut
-					<KatexInline formula={'1'} />, la valeur <KatexInline formula={'0'} />), donc a fortiori
-					pas différentiable.
-				</p>
-				<p>
-					<strong>(d)</strong> Ni convexe ni lisse, la perte 0-1 ne fournit ni gradient fiable ni
-					garantie d'optimalité : la minimisation du risque empirique 0-1 est un problème
-					combinatoire (NP-difficile en général). C'est toute la motivation des pertes proxy.
-				</p>
 			{/snippet}
 			<p>
-				Soit <KatexInline formula={phi01} />. (a) Décrivez le graphe. (b) Montrez que
-				<KatexInline formula={'\\varphi_{0,1}'} /> n'est pas convexe en utilisant
-				<KatexInline formula={'t_1 = -1'} />, <KatexInline formula={'t_2 = 0'} />,
-				<KatexInline formula={'\\lambda = \\tfrac12'} />. (c) Est-elle différentiable en
-				<KatexInline formula={'t = 0'} /> ? (d) Qu'en déduire pour la minimisation du risque
-				empirique 0-1 ?
+				Peut-on avoir consistance en probabilité sans consistance en moyenne quadratique pour une
+				suite de vrais classifieurs ? Justifiez.
 			</p>
 		</ExercisePanel>
 
-		<ExercisePanel number="7.2" title="Logistique et entropie croisée sont la même perte">
+		<ExercisePanel number="1.5" title="Calcul numérique de la décomposition">
 			{#snippet solution()}
 				<p>
-					<strong>(a)</strong> Comme <KatexInline formula={'p = \\dfrac{e^{f(x)}}{e^{f(x)} + 1}'} />
-					, on a <KatexInline formula={'\\dfrac{1}{p} = 1 + e^{-f(x)}'} />, d'où
-					<KatexInline formula={'-\\ln p = \\ln(1+e^{-f(x)})'} />.
-				</p>
-				<p>
-					<strong>(b)</strong> Comme <KatexInline
-						formula={'1-p = \\dfrac{1}{1+e^{f(x)}}'}
-					/>, on a <KatexInline formula={'-\\ln(1-p) = \\ln(1+e^{f(x)})'} />.
-				</p>
-				<p>
-					<strong>(c)</strong> Si <KatexInline formula={'y = +1'} /> : <KatexInline
-						formula={ceY1}
-					/>. Si <KatexInline formula={'y = -1'} /> : <KatexInline formula={ceY0} />. Dans les deux
-					cas, <KatexInline formula={'\\ell(y, f(x)) = \\varphi(y f(x))'} /> avec
-					<KatexInline formula={'\\varphi(t) = \\ln(1+e^{-t})'} /> : l'entropie croisée est
-					bien la perte logistique vue en formulation marge, et son interprétation en négatif de
-					log-vraisemblance justifie son usage omniprésent en deep learning.
+					Le terme d'approximation vaut <KatexInline
+						formula={String.raw`\inf_{\mathcal H} R(h) - R^* = 0.35 - 0.2 = 0.15`}
+					/>. Le terme d'estimation vaut <KatexInline
+						formula={String.raw`R(h_n) - \inf_{\mathcal H} R(h) = 0.42 - 0.35 = 0.07`}
+					/>. La somme des deux, <KatexInline formula={String.raw`0.22`} />, redonne bien
+					<KatexInline formula={String.raw`R(h_n)-R^* = 0.42-0.2 = 0.22`} />.
 				</p>
 			{/snippet}
 			<p>
-				Soit <KatexInline formula={sigmaDef} /> et <KatexInline formula={'y \\in \\{-1,+1\\}'} />
-				(convention de la partie). La perte d'entropie croisée, négative log-vraisemblance du
-				Bernoulli de paramètre <KatexInline formula={'p'} />, est <KatexInline
-					formula={ceLoss}
-				/>. (a) Montrez que <KatexInline formula={'-\\ln p = \\ln(1+e^{-f(x)})'} />. (b) Montrez que
-				<KatexInline formula={'-\\ln(1-p) = \\ln(1+e^{f(x)})'} />. (c) Montrez que
-				<KatexInline formula={'\\ell(y, f(x)) = \\varphi(y f(x))'} /> avec <KatexInline
-					formula={'\\varphi(t) = \\ln(1+e^{-t})'}
-				/>
-				: c'est la perte logistique.
+				Soit <KatexInline formula={String.raw`R^*=0.2`} />, <KatexInline
+					formula={String.raw`\inf_{\mathcal H}R(h) = 0.35`}
+				/>, et <KatexInline formula={String.raw`R(h_n)=0.42`} />. Calculez le terme d'approximation
+				et le terme d'estimation, et vérifiez que leur somme redonne l'excès de risque total.
 			</p>
 		</ExercisePanel>
 
-		<ExercisePanel number="7.3" title="Convexité de la perte logistique">
+		<ExercisePanel number="1.6" title="Un cas où le terme d'approximation ne peut pas s'annuler">
 			{#snippet solution()}
 				<p>
-					On calcule <KatexInline formula={logDeriv} />. Comme <KatexInline
-						formula={'\\sigma(t) > 0'}
-					/>
-					pour tout <KatexInline formula={'t'} />, on a <KatexInline
-						formula={"\\varphi'(t) < 0"}
-					/>
-					: <KatexInline formula={'\\varphi'} /> est <strong>strictement décroissante</strong>.
-				</p>
-				<p>
-					Puis <KatexInline formula={logSecond} /> : <KatexInline formula={'\\varphi'} /> est
-					<strong>strictement convexe</strong>. Enfin <KatexInline formula={logPrime0} />, ce qui
-					prédit (et confirme avec le critère de la leçon 2) que la logistique est calibrée.
+					Si la vraie frontière de Bayes est un cercle, aucun classifieur linéaire ne peut la
+					représenter exactement : pour tout hyperplan, il existe toujours une région du plan mal
+					classée (soit à l'intérieur du cercle classée comme extérieure, soit l'inverse). Le
+					meilleur hyperplan minimise cette erreur résiduelle sans jamais l'annuler, donc
+					<KatexInline formula={String.raw`\inf_{\mathcal H} R(h) > R^*`} /> strictement, pour
+					<strong>toute</strong> classe <KatexInline formula={String.raw`\mathcal H`} /> d'hyperplans,
+					quelle que soit sa paramétrisation exacte. Comme ce terme ne dépend pas des données, aucune
+					quantité de données supplémentaires (aucune augmentation de <KatexInline
+						formula={String.raw`n`}
+					/>) ne peut le faire diminuer : seul un changement de classe <KatexInline
+						formula={String.raw`\mathcal H`}
+					/> (vers une classe capable de représenter des frontières courbes) le peut.
 				</p>
 			{/snippet}
 			<p>
-				Montrez que <KatexInline formula={'\\varphi(t) = \\ln(1+e^{-t})'} /> est strictement convexe
-				et strictement décroissante sur <KatexInline formula={'\\mathbb R'} />, en calculant
-				<KatexInline formula={"\\varphi'(t)"} /> et <KatexInline formula={"\\varphi''(t)"} />. Que
-				vaut <KatexInline formula={"\\varphi'(0)"} /> ?
+				Soit <KatexInline formula={String.raw`\mathcal H`} /> la classe de tous les classifieurs linéaires
+				(hyperplans) de <KatexInline formula={String.raw`\mathbb{R}^2`} />, et supposons que la
+				vraie frontière de Bayes est un cercle. Expliquez pourquoi le terme d'approximation
+				<KatexInline formula={String.raw`\inf_{\mathcal H}R(h)-R^*`} /> reste strictement positif quel
+				que soit <KatexInline formula={String.raw`n`} />, et ce que cela implique pour la
+				consistance de tout algorithme restreint à <KatexInline formula={String.raw`\mathcal H`} />.
 			</p>
 		</ExercisePanel>
 
-		<ExercisePanel number="7.4" title="Sensibilité à la marge">
+		<ExercisePanel number="1.7" title="Lire des trajectoires de convergence simulées">
 			{#snippet solution()}
 				<p>
-					Pour <KatexInline formula={'y = 1'} />, la marge est <KatexInline
-						formula={'t = y f(x) = f(x)'}
-					/>, donc <KatexInline formula={'t = -2'} /> si <KatexInline formula={'f(x) = -2'} /> et
-					<KatexInline formula={'t = +2'} /> si <KatexInline formula={'f(x) = +2'} />.
-				</p>
-				<p>
-					<strong>Mauvaise prédiction</strong> (<KatexInline formula={'f(x) = -2'} />) :
-				</p>
-				<KatexBlock formula={tMinus2} />
-				<p>
-					<strong>Bonne prédiction</strong> (<KatexInline formula={'f(x) = +2'} />) :
-				</p>
-				<KatexBlock formula={tPlus2} />
-				<p>
-					Les quatre pertes sont bien décroissantes en <KatexInline formula={'t'} /> : la bonne
-					prédiction est toujours moins pénalisée que la mauvaise. Mais la marge compte
-					<KatexInline formula={'f(x) = +100'} /> :
-				</p>
-				<KatexBlock formula={tPlus100} />
-				<p>
-					La 0-1 et la hinge <strong>saturent</strong> dès que <KatexInline formula={'t \\ge 1'} />
-					(perte nulle, la marge ne compte plus), tandis que la logistique et l'exponentielle
-					poursuivent à diminuer <strong>exponentiellement</strong> avec la marge : elles
-					« récompensent » les prédictions très confiantes. C'est ce qu'on observe dans le
-					parcours interactif 1.1.
+					À mesure que <KatexInline formula={String.raw`n`} /> augmente, les trajectoires individuelles
+					se resserrent progressivement autour de <KatexInline formula={String.raw`R^*`} />, et la
+					fraction de trajectoires en dehors de la bande <KatexInline
+						formula={String.raw`[R^*, R^*+\varepsilon]`}
+					/> diminue. Pour un <KatexInline formula={String.raw`\varepsilon`} /> fixé, cette fraction (qui
+					estime <KatexInline formula={String.raw`\mathbb{P}(R(h_n)-R^*>\varepsilon)`} />) tend vers
+					0 — c'est une illustration empirique de la consistance en probabilité. Le fait que chaque
+					trajectoire individuelle, une fois entrée durablement dans la bande, n'en ressort
+					quasiment plus, est ce qui donne une intuition (mais pas une preuve — un nombre fini de
+					simulations ne peut jamais établir un résultat asymptotique presque sûr) de la convergence
+					presque sûre.
 				</p>
 			{/snippet}
 			<p>
-				Soit <KatexInline formula={'y = 1'} />. Comparez les quatre pertes usuelles
-				(<KatexInline formula={'\\varphi_{0,1}'} />, hinge, logistique, exponentielle) pour
-				<KatexInline formula={'f(x) = -2'} /> (mauvaise prédiction) et <KatexInline
-					formula={'f(x) = +2'}
+				En reprenant le principe de la démo « Trajectoires de convergence » de la Leçon 1 (sans
+				besoin de la ré-exécuter) : décrivez ce que devraient montrer, qualitativement, les
+				trajectoires simulées et la fraction dépassant <KatexInline
+					formula={String.raw`\varepsilon`}
 				/>
-				(bonne prédiction) en tabulant les huit valeurs. Puis comparez <KatexInline
-					formula={'f(x) = +2'}
-				/>
-				avec <KatexInline formula={'f(x) = +100'} /> : quelles pertes continuent de distinguer ces
-				deux cas ?
+				à mesure que <KatexInline formula={String.raw`n`} /> augmente, si l'algorithme sous-jacent est
+				effectivement consistant.
 			</p>
 		</ExercisePanel>
 
-		<h2 id="calibration">Calibration des pertes</h2>
+		<ExercisePanel number="1.8" title="Complexité optimale en fonction de n">
+			{#snippet solution()}
+				<p>
+					Le risque appris s'écrit <KatexInline formula={String.raw`f(c) = A/c + Bc/n`} />. En
+					annulant la dérivée par rapport à <KatexInline formula={String.raw`c`} /> :
+				</p>
+				<KatexBlock
+					formula={String.raw`f'(c) = -A/c^2 + B/n = 0 \iff c^2 = An/B \iff c^* = \sqrt{An/B}.`}
+				/>
+				<p>
+					La complexité optimale croît comme <KatexInline formula={String.raw`\sqrt{n}`} /> : plus on
+					dispose de données, plus on peut se permettre une classe riche sans que le terme d'estimation
+					n'explose. C'est la même structure mathématique que le <KatexInline
+						formula={String.raw`k^*(n)`}
+					/> optimal du modèle jouet k-NN vu dans les démonstrations interactives.
+				</p>
+			{/snippet}
+			<p>
+				Soit un modèle jouet où le terme d'approximation vaut <KatexInline
+					formula={String.raw`A/c`}
+				/> et le terme d'estimation vaut <KatexInline formula={String.raw`Bc/n`} /> (<KatexInline
+					formula={String.raw`c`}
+				/> désignant la complexité de la classe). Trouvez la complexité <KatexInline
+					formula={String.raw`c^*`}
+				/> qui minimise le risque appris total, en fonction de <KatexInline
+					formula={String.raw`n`}
+				/>, <KatexInline formula={String.raw`A`} /> et <KatexInline formula={String.raw`B`} />.
+			</p>
+		</ExercisePanel>
+
+		<ExercisePanel number="1.9" title="Vrai ou faux">
+			<p>Indiquez si chaque affirmation est vraie ou fausse, en justifiant brièvement.</p>
+			<ol>
+				<li>La consistance en probabilité est la notion la plus exigeante des trois.</li>
+				<li>
+					Si <KatexInline formula={String.raw`h^* \in \mathcal H`} />, le terme d'approximation est
+					nul.
+				</li>
+				<li>Le terme d'estimation peut être négatif.</li>
+				<li>
+					Une classe <KatexInline formula={String.raw`\mathcal H`} /> plus riche a toujours un terme d'approximation
+					plus petit ou égal.
+				</li>
+			</ol>
+			{#snippet solution()}
+				<ol>
+					<li>
+						<strong>Faux.</strong> C'est au contraire la plus <strong>faible</strong> — elle est impliquée
+						par les deux autres (Exercices 1.2 et 1.3), mais n'implique aucune des deux en général.
+					</li>
+					<li>
+						<strong>Vrai.</strong> Si le classifieur de Bayes appartient à la classe, le meilleur
+						élément de la classe l'atteint exactement, donc <KatexInline
+							formula={String.raw`\inf_{\mathcal H}R(h) = R(h^*) = R^*`}
+						/>.
+					</li>
+					<li>
+						<strong>Faux.</strong>
+						<KatexInline formula={String.raw`R(h_n) \ge \inf_{\mathcal H}R(h)`} /> par définition de l'infimum,
+						donc le terme d'estimation
+						<KatexInline formula={String.raw`R(h_n)-\inf_{\mathcal H}R(h)`} /> est toujours
+						<KatexInline formula={String.raw`\ge 0`} />.
+					</li>
+					<li>
+						<strong>Vrai.</strong> Élargir <KatexInline formula={String.raw`\mathcal H`} /> ne peut qu'ajouter
+						des candidats à l'infimum, jamais en retirer — le terme d'approximation est donc monotone
+						décroissant (au sens large) avec la richesse de la classe.
+					</li>
+				</ol>
+			{/snippet}
+		</ExercisePanel>
+
+		<ExercisePanel number="1.10" title="Compléter l'argument presque sûr ⟹ probabilité">
+			{#snippet solution()}
+				<p>
+					Fixons <KatexInline formula={String.raw`\varepsilon>0`} />. Posons
+					<KatexInline formula={String.raw`A_n = \{R(h_n)-R^*>\varepsilon\}`} /> et <KatexInline
+						formula={String.raw`B_N = \bigcup_{n\ge N} A_n`}
+					/>. La convergence presque sûre signifie que <KatexInline
+						formula={String.raw`\mathbb{P}(\bigcap_{N\ge1} B_N) = 0`}
+					/> (l'événement « <KatexInline formula={String.raw`A_n`} /> se produit une infinité de fois
+					» est de probabilité nulle). Comme <KatexInline formula={String.raw`B_N`} /> est une suite décroissante
+					d'événements, la continuité de la mesure donne <KatexInline
+						formula={String.raw`\mathbb{P}(B_N) \to \mathbb{P}(\bigcap_N B_N) = 0`}
+					/>. Or <KatexInline formula={String.raw`A_N \subset B_N`} />, donc <KatexInline
+						formula={String.raw`\mathbb{P}(A_N) \le \mathbb{P}(B_N) \to 0`}
+					/> : c'est exactement la consistance en probabilité.
+				</p>
+			{/snippet}
+			<p>
+				En posant <KatexInline formula={String.raw`A_n = \{R(h_n)-R^*>\varepsilon\}`} /> et
+				<KatexInline formula={String.raw`B_N = \bigcup_{n\ge N} A_n`} />, complétez l'argument de
+				l'Exercice 1.3 pour obtenir une preuve rigoureuse (plutôt qu'une esquisse) de l'implication
+				presque sûr ⟹ probabilité.
+			</p>
+		</ExercisePanel>
+
+		<h2 id="consistance-universelle-knn">Consistance universelle et k-NN</h2>
 
 		<p>
-			Ces quatre exercices exploitent le critère de la leçon 2 : une perte convexe et différentiable
-			en 0 est calibrée si et seulement si <KatexInline formula={"\\varphi'(0) < 0"} /> ; ils
-			consistent à l'appliquer et à en explorer les conséquences sur le minimiseur du risque
-			conditionnel.
+			Cette section propose dix exercices sur la consistance universelle, le théorème de Stone, le
+			choix pratique de <KatexInline formula={String.raw`k(n)`} />, et la lecture biais-variance du
+			k-NN.
 		</p>
 
-		<ExercisePanel number="7.5" title="Risque conditionnel d'une perte quadratique décalée">
+		<ExercisePanel number="2.1" title="Vérifier les conditions de Stone pour k(n) = √n">
 			{#snippet solution()}
 				<p>
-					<strong>(a)</strong> Développement : <KatexInline formula={critSq} />.
-				</p>
-				<p>
-					<strong>(b)</strong> C'est une quadratique en <KatexInline formula={'\\alpha'} /> de
-					coefficient principal <KatexInline formula={'1 > 0'} /> : le minimum est atteint en
-					<KatexInline formula={'\\alpha^{*} = -(1-2\\eta) = 2\\eta - 1'} />. En reportant :
-					<KatexInline formula={sqMin} />. Vérifications : <KatexInline formula={'\\eta = 1'} />
-					donne <KatexInline formula={'C_\\varphi^{*} = 0'} /> (on prédit correctement avec
-					confiance), <KatexInline formula={'\\eta = \\tfrac12'} /> donne
-					<KatexInline formula={'C_\\varphi^{*} = 1'} />.
-				</p>
-				<p>
-					<strong>(c)</strong> <KatexInline formula={sqPrime0} /> et <KatexInline
-						formula={'\\varphi'}
-					/>
-					est convexe et différentiable : par le Théorème 4.1, <KatexInline
-						formula={'\\varphi'}
-					/>
-					est <strong>calibrée</strong>. On retrouve bien que le signe de
-					<KatexInline formula={'\\alpha^{*} = 2\\eta-1'} /> est celui de
-					<KatexInline formula={'\\eta - \\tfrac12'} />.
+					<KatexInline formula={String.raw`k(n)=\sqrt n \to +\infty`} /> quand <KatexInline
+						formula={String.raw`n\to+\infty`}
+					/> : la première condition est vérifiée. Le rapport <KatexInline
+						formula={String.raw`k(n)/n = 1/\sqrt n \to 0`}
+					/> : la seconde condition l'est aussi. <KatexInline formula={String.raw`k(n)=\sqrt n`} /> satisfait
+					donc les conditions de Stone, et le k-NN associé est universellement consistant.
 				</p>
 			{/snippet}
 			<p>
-				Soit <KatexInline formula={'\\varphi(t) = (t-1)^{2}'} />. (a) Calculez
-				<KatexInline formula={'C_\\varphi(\\alpha,\\eta) = \\eta\\,\\varphi(\\alpha) + (1-\\eta)\\,\\varphi(-\\alpha)'}
-				/>. (b) Trouvez <KatexInline formula={'\\alpha^{*} = \\arg\\min_{\\alpha} C_\\varphi(\\alpha,\\eta)'}
-				/>
-				et <KatexInline formula={'C_\\varphi^{*}(\\eta)'} />. (c) <KatexInline
-					formula={'\\varphi'}
-				/>
-				est-elle calibrée ? Justifiez.
+				Vérifiez que <KatexInline formula={String.raw`k(n)=\sqrt n`} /> satisfait les deux conditions
+				de Stone <KatexInline formula={stoneConditions} />.
 			</p>
 		</ExercisePanel>
 
-		<ExercisePanel number="7.6" title="Le critère φ′(0) < 0 sur les quatre pertes usuelles">
+		<ExercisePanel number="2.2" title="Vérifier les conditions de Stone pour k(n) = ⌊log n⌋">
 			{#snippet solution()}
 				<p>
-					Logistique : <KatexInline formula={logPrimeT} />, donc
-					<KatexInline formula={"\\varphi'(0) = -\\tfrac12"} />. Hinge : <KatexInline
-						formula={'\\varphi(t) = (1-t)_{+}'}
-					/>
-					est affine de pente <KatexInline formula={'-1'} /> sur un voisinage de
-					<KatexInline formula={'0'} /> (la rupture est en <KatexInline formula={'t = 1'} />),
-					donc <KatexInline formula={"\\varphi'(0) = -1"} />. Exponentielle : <KatexInline
-						formula={expPrimeT}
-					/>, donc <KatexInline formula={"\\varphi'(0) = -1"} />. Quadratique : <KatexInline
-						formula={sqPrimeT}
-					/>, donc <KatexInline formula={"\\varphi'(0) = -2"} />.
-				</p>
-				<KatexBlock formula={fourPrimes} />
-				<p>
-					Toutes les valeurs sont strictement négatives, et les quatre pertes sont convexes et
-					différentiables en 0 : par le Théorème 4.1, elles sont toutes
-					<strong>calibrées</strong>.
+					<KatexInline formula={String.raw`\lfloor \log n \rfloor \to +\infty`} /> (lentement, mais sans
+					borne) quand <KatexInline formula={String.raw`n\to+\infty`} /> : première condition vérifiée.
+					Et
+					<KatexInline formula={String.raw`\log(n)/n \to 0`} /> (le logarithme croît infiniment plus lentement
+					que <KatexInline formula={String.raw`n`} />) : seconde condition également vérifiée.
+					<KatexInline formula={String.raw`k(n)=\lfloor\log n\rfloor`} /> satisfait donc, lui aussi, les
+					conditions de Stone — même s'il grandit beaucoup plus lentement que
+					<KatexInline formula={String.raw`\sqrt n`} />, ce qui aura un effet pratique sur la
+					vitesse de convergence (non garantie par le seul théorème d'universalité).
 				</p>
 			{/snippet}
 			<p>
-				Pour les pertes <KatexInline formula={'\\varphi_{\\log(t)} = \\ln(1+e^{-t})'} />,
-				<KatexInline formula={'\\varphi_{\\mathrm{hinge}}(t) = (1-t)_{+}'} />, <KatexInline
-					formula={'\\varphi_{\\exp}(t) = e^{-t}'}
-				/>
-				et <KatexInline formula={'\\varphi_{\\mathrm{sq}}(t) = (1-t)^{2}'} />, calculez
-				<KatexInline formula={"\\varphi'(0)"} /> dans chaque cas et concluez sur la calibration de
-				chacune.
+				Vérifiez que <KatexInline formula={String.raw`k(n)=\lfloor\log n\rfloor`} /> satisfait également
+				les deux conditions de Stone.
 			</p>
 		</ExercisePanel>
 
-		<ExercisePanel number="7.7" title="Signe du minimiseur pour la logistique">
+		<ExercisePanel number="2.3" title="Un choix qui échoue : k(n) = n/2">
 			{#snippet solution()}
 				<p>
-					<strong>(a)</strong> Dérivation terme à terme : <KatexInline
-						formula={logCritPrime}
-					/>
-					puis <KatexInline formula={logCritSecond} /> (car
-					<KatexInline formula={'\\sigma(s)(1-\\sigma(s)) > 0'} />). Donc
-					<KatexInline formula={'C_\\varphi(\\cdot,\\eta)'} /> est strictement convexe en
-					<KatexInline formula={'\\alpha'} /> et admet un minimum unique.
-				</p>
-				<p>
-					<strong>(b)</strong> En <KatexInline formula={'\\alpha = 0'} />,
-					<KatexInline formula={"(C_\\varphi)'(0,\\eta) = \\tfrac{1-2\\eta}{2}"} />. Comme la
-					dérivée est strictement croissante : si <KatexInline
-						formula={'\\eta > \\tfrac12'}
-					/>, elle est négative en 0 et s'annule pour <KatexInline
-						formula={'\\alpha^{*} > 0'}
-					/>, et symétriquement si <KatexInline formula={'\\eta < \\tfrac12'} />. Le signe de
-					<KatexInline formula={'\\alpha^{*}'} /> est donc bien celui de
-					<KatexInline formula={'\\eta - \\tfrac12'} />.
-				</p>
-				<p>
-					<strong>(c)</strong> L'équation <KatexInline formula={"(C_\\varphi)'(\\alpha,\\eta) = 0"}
-					/>
-					s'écrit <KatexInline
-						formula={'\\sigma(\\alpha) / \\sigma(-\\alpha) = \\eta/(1-\\eta)'}
-					/>, or <KatexInline
-						formula={'\\sigma(\\alpha)/\\sigma(-\\alpha) = e^{\\alpha}'}
-					/>, d'où <KatexInline formula={logitSolution} />. Pour <KatexInline
-						formula={'\\eta = 0.9'}
-					/>: <KatexInline formula={eta09} />, cohérent avec <KatexInline
-						formula={'\\alpha^{*} > 0'}
-					/>. La marge optimale est exactement le logit de la probabilité de classe — c'est le
-					risque conditionnel qui fixe l'échelle de la marge.
+					<KatexInline formula={String.raw`k(n)=n/2 \to +\infty`} /> : la première condition est vérifiée.
+					Mais le rapport <KatexInline formula={String.raw`k(n)/n = 1/2`} /> est
+					<strong>constant</strong>, il ne tend donc pas vers <KatexInline
+						formula={String.raw`0`}
+					/> : la seconde condition échoue. En utilisant la moitié de l'échantillon comme voisinage à
+					chaque prédiction, on moyenne systématiquement sur une région bien trop large pour capturer
+					la valeur locale de <KatexInline formula={String.raw`\eta(x)`} /> — le biais introduit ne s'annule
+					jamais, quelle que soit la taille de l'échantillon.
 				</p>
 			{/snippet}
 			<p>
-				Soit <KatexInline formula={logCrit} />. (a) Montrez que
-				<KatexInline formula={"(C_\\varphi)''(\\alpha,\\eta) > 0"}
-				/>, donc que le minimum est unique. (b) Montrez que le signe de
-				<KatexInline formula={'\\alpha^{*}'} /> est le signe de
-				<KatexInline formula={'\\eta - \\tfrac12'} />. (c) Résolvez
-				<KatexInline formula={"(C_\\varphi)'(\\alpha^{*},\\eta) = 0"}
-				/>, montrez que <KatexInline formula={logitSolution} /> et calculez
-				<KatexInline formula={"\\alpha^{*}(0.9)"} />.
-				<em>(Au-delà du cours : le cours ne caractérise que le signe du minimiseur, pas sa valeur
-				exacte.)</em>
+				Soit <KatexInline formula={String.raw`k(n)=n/2`} />. Laquelle des deux conditions de Stone
+				échoue, et pourquoi cela empêche-t-il la consistance universelle ?
 			</p>
 		</ExercisePanel>
 
-		<ExercisePanel number="7.8" title="Le cas limite η = 1/2">
+		<ExercisePanel number="2.4" title="Un choix qui échoue : k(n) constant">
 			{#snippet solution()}
 				<p>
-					<strong>(a)</strong> Si <KatexInline formula={'\\eta = \\tfrac12'} />, la fonction
-					<KatexInline formula={'\\alpha \\mapsto C_\\varphi(\\alpha,\\tfrac12)'} /> est paire et
-					strictement convexe (les pertes usuelles le sont), donc son unique minimum est atteint
-					en <KatexInline formula={'\\alpha^{*} = 0'} />.
-				</p>
-				<p>
-					<strong>(b)</strong> <KatexInline formula={halfCrit} /> ; le minimum en
-					<KatexInline formula={'\\alpha = 0'} /> vaut <KatexInline formula={halfMin} />.
-				</p>
-				<p>
-					<strong>(c)</strong> Non. En <KatexInline formula={'f = 0'} />, la règle
-					<KatexInline formula={'h = \\mathbf 1_{f > 0}'} /> n'est pas déterminée (on peut choisir
-					<KatexInline formula={'0'} /> ou <KatexInline formula={'1'} />), et les deux choix
-					font une erreur avec probabilité <KatexInline formula={'\\tfrac12'} /> : aucun n'est
-					moins bon. Le classifieur de Bayes n'est donc pas unique en ces points — c'est
-					exactement le reflet de <KatexInline formula={'\\alpha^{*} = 0'} />, une marge nulle
-					qui ne tranche pas.
+					Si <KatexInline formula={String.raw`k(n)=k_0`} /> est une constante fixée (indépendante de
+					<KatexInline formula={String.raw`n`} />), alors <KatexInline
+						formula={String.raw`k(n) \not\to +\infty`}
+					/> : la première condition de Stone échoue dès le départ (le rapport
+					<KatexInline formula={String.raw`k(n)/n = k_0/n \to 0`} /> tend bien vers 0, mais cela ne suffit
+					pas — les <strong>deux</strong> conditions sont requises simultanément). Le nombre de
+					voisins moyennés reste borné pour toujours, donc la variance de l'estimation locale de
+					<KatexInline formula={String.raw`\eta(x)`} /> ne diminue jamais avec <KatexInline
+						formula={String.raw`n`}
+					/> — c'est exactement la situation étudiée pour <KatexInline
+						formula={String.raw`k_0=1`}
+					/> dans la Leçon 2 (section « Pourquoi k fixe ne suffit pas »), et quantifiée à
+					l'exercice 2.10.
 				</p>
 			{/snippet}
 			<p>
-				(a) Pour une perte convexe, que vaut <KatexInline formula={'\\alpha^{*}'} /> quand
-				<KatexInline formula={'\\eta = \\tfrac12'} /> ? (b) Pour la logistique, calculez
-				<KatexInline formula={halfCrit} />
-				et la valeur minimale de <KatexInline
-					formula={'C_\\varphi(\\cdot,\\tfrac12)'}
-				/>. (c) Le classifieur de Bayes est-il identifiable sans ambiguïté en un point
-				<KatexInline formula={'x'} /> tel que <KatexInline formula={'\\eta(x) = \\tfrac12'} /> ?
+				Soit <KatexInline formula={String.raw`k(n)=k_0`} /> une constante. Laquelle des deux conditions
+				de Stone échoue cette fois, et quelle conséquence concrète cela a-t-il sur la variance de l'estimation
+				locale de <KatexInline formula={String.raw`\eta`} /> ?
 			</p>
 		</ExercisePanel>
 
-		<h2 id="decomposition-erreur">Décomposition de l'erreur</h2>
-
-		<p>
-			Ces quatre exercices retravaillent le Théorème 4.2 : l'identité de décomposition, l'interprétation
-			des trois termes, le cas favorable, et une synthèse critique.
-		</p>
-
-		<ExercisePanel number="7.9" title="L'identité de décomposition, version algébrique">
-			{#snippet solution()}
-				<p>
-					Toutes les quantités intermédiaires s'annulent : <KatexInline formula={telescoping} />.
-				</p>
-				<p>
-					Spécialisons avec <KatexInline formula={'a = R(h_{\\hat f})'} />, <KatexInline
-						formula={'b = R(h_{f^{*}})'}
-					/>, <KatexInline formula={'c = R(h_{f^{**}})'} />, <KatexInline
-						formula={'d = R^{*}'}
-					/>:
-				</p>
-				<KatexBlock formula={riskTelescoping} />
-				<p>
-					Le terme <KatexInline formula={'A'} /> compare le modèle appris au meilleur modèle de la
-					classe : c'est le terme d'<strong>estimation</strong>. Le terme <KatexInline
-						formula={'B'}
-					/>
-					compare le meilleur modèle de la classe au meilleur modèle global : c'est le terme de
-					<strong>calibration</strong>. Le terme <KatexInline formula={'C'} /> compare le meilleur
-					modèle global au classifieur de Bayes : c'est le terme
-					d'<strong>approximation</strong>.
-				</p>
-			{/snippet}
+		<ExercisePanel number="2.5" title="Comparer plusieurs lois k(n)">
 			<p>
-				Soient <KatexInline formula={'a, b, c, d \\in \\mathbb R'} />. Montrer que
-				<KatexInline formula={telescoping} />. En vous inspirant de cette identité, spécialisez à
-				<KatexInline formula={'a = R(h_{\\hat f})'} />, <KatexInline
-					formula={'b = R(h_{f^{*}})'}
-				/>, <KatexInline formula={'c = R(h_{f^{**}})'} />, <KatexInline
-					formula={'d = R^{*}'}
-				/>
-				et identifiez les trois termes <KatexInline formula={'A'} />, <KatexInline
-					formula={'B'}
-				/>, <KatexInline formula={'C'} /> du Théorème 4.2.
+				Pour chacune des lois suivantes, indiquez si elle satisfait les conditions de Stone.
+				Justifiez brièvement.
 			</p>
-		</ExercisePanel>
-
-		<ExercisePanel number="7.10" title="Logistique sur les hyperplans : quels termes s'annulent ?">
+			<ol>
+				<li><KatexInline formula={String.raw`k(n) = n^{0.3}`} /></li>
+				<li><KatexInline formula={String.raw`k(n) = n`} /></li>
+				<li><KatexInline formula={String.raw`k(n) = 5`} /></li>
+				<li><KatexInline formula={String.raw`k(n) = \sqrt{n}/\log n`} /></li>
+			</ol>
 			{#snippet solution()}
-				<p>
-					<strong>(a)</strong> Oui. La logistique est calibrée (<KatexInline
-						formula={"\\varphi'(0) = -\\tfrac12 < 0"}
-					/>, Théorème 4.1), donc <KatexInline formula={'h_{f^{**}} = h^{*}'} /> p.s. et
-					<KatexInline formula={'C = 0'} />.
-				</p>
-				<p>
-					<strong>(b)</strong> Non. <KatexInline formula={'B'} /> s'annule si
-					<KatexInline formula={'f^{**} \\in \\mathcal F'} />, c'est-à-dire si la marge de Bayes
-					<KatexInline formula={logitMargin} />
-					est affine — ce qui n'est pas le cas en général (frontière de décision non linéaire).
-				</p>
-				<p>
-					<strong>(c)</strong> Non. <KatexInline formula={'A'} /> est le prix de l'échantillon fini ;
-					il est contrôlé <em>en espérance</em> par les inégalités de concentration uniformes de la
-					partie VI (classe finie ou borne VC), mais n'est pas nul pour un échantillon donné.
-				</p>
-			{/snippet}
-			<p>
-				On minimise le <KatexInline formula={'\\varphi'} />-risque logistique empirique sur la classe
-				<KatexInline formula={'\\mathcal F'} /> des hyperplans affines. Parmi les trois termes
-				<KatexInline formula={'A'} />, <KatexInline formula={'B'} />, <KatexInline
-					formula={'C'}
-				/>
-				du Théorème 4.2 : (a) <KatexInline formula={'C'} /> est-il nul ? (b) <KatexInline
-					formula={'B'}
-				/>
-				l'est-il nécessairement ? (c) <KatexInline formula={'A'} /> l'est-il ?
-			</p>
-		</ExercisePanel>
-
-		<ExercisePanel number="7.11" title="Le cas favorable : φ calibrée et f** ∈ F">
-			{#snippet solution()}
-				<p>
-					<strong>(a)</strong> <KatexInline formula={'f^{**}'} /> atteint le minimum global
-					<KatexInline formula={'R_\\varphi^{*} = \\inf R_\\varphi'} />. Comme
-					<KatexInline formula={'f^{**} \\in \\mathcal F'} />, la restriction de
-					<KatexInline formula={'R_\\varphi'} /> à <KatexInline
-						formula={'\\mathcal F'}
-					/>
-					est minimisée en <KatexInline formula={'f^{**}'} /> ; et <KatexInline
-						formula={'f^{*}'}
-					/>
-					minimise cette même restriction, donc <KatexInline formula={bZero} /> (à un ensemble de
-					probabilité nulle près si l'argmin n'est pas unique).
-				</p>
-				<p>
-					<strong>(b)</strong> <KatexInline formula={'B = R(h_{f^{*}}) - R(h_{f^{**}}) = 0'} />, et
-					comme <KatexInline formula={'\\varphi'} /> est calibrée, <KatexInline
-						formula={cZero}
-					/>.
-				</p>
-				<p>
-					<strong>(c)</strong> Il ne reste que <KatexInline formula={onlyA} /> : l'excès de risque
-					est <strong>purément un terme d'estimation</strong>, contrôlé en espérance par la
-					concentration uniforme. C'est le régime idéal, et le message pratique de la partie :
-					bonne perte (calibrée) + classe expressive (contenant <KatexInline
-						formula={'f^{**}'}
-					/>) + assez de données.
-				</p>
-			{/snippet}
-			<p>
-				Supposez que <KatexInline formula={'\\varphi'} /> soit calibrée et que
-				<KatexInline formula={'f^{**} \\in \\mathcal F'} />. (a) Pourquoi
-				<KatexInline formula={'f^{*} = f^{**}'} /> ? (b) Que valent alors
-				<KatexInline formula={'B'} /> et <KatexInline formula={'C'} /> ? (c) À quoi se réduit
-				l'excès de risque 0-1 ?
-			</p>
-		</ExercisePanel>
-
-		<ExercisePanel number="7.12" title="Synthèse : « perte convexe donc Bayes-optimal » ?">
-			{#snippet solution()}
-				<p>
-					L'affirmation confond trois conditions indépendantes, qui correspondent aux trois
-					termes :
-				</p>
-				<ul>
+				<ol>
 					<li>
-						<KatexInline formula={'A'} /> : minimiser le risque <strong>empirique</strong> ne
-						minimise pas le risque <strong>populationnel</strong> ; il faut de la concentration
-						uniforme (classe finie, ou borne de VC) et un échantillon assez grand.
+						<strong>Satisfait Stone.</strong>
+						<KatexInline formula={String.raw`n^{0.3} \to +\infty`} /> et
+						<KatexInline formula={String.raw`n^{0.3}/n = n^{-0.7} \to 0`} />.
 					</li>
 					<li>
-						<KatexInline formula={'B'} /> (terme de calibration au sens du Théorème 4.2) : la
-						classe <KatexInline
-							formula={'\\mathcal F'}
-						/>
-						doit contenir <KatexInline formula={'f^{**}'} /> ; sinon <KatexInline
-							formula={'B'}
-						/>
-						ne s'annule pas et l'excès de risque reste borné par l'expressivité de la classe.
+						<strong>Échoue.</strong>
+						<KatexInline formula={String.raw`k(n)=n \to +\infty`} /> bien, mais
+						<KatexInline formula={String.raw`k(n)/n = 1 \not\to 0`} />.
 					</li>
 					<li>
-						<KatexInline formula={'C'} /> (terme d'approximation au sens du Théorème 4.2) : la
-						convexité ne suffit pas à la calibration ; il faut <KatexInline
-							formula={"\\varphi'(0) < 0"}
-						/>
-						pour que <KatexInline formula={'C'} /> s'annule.
+						<strong>Échoue.</strong> Constante, donc <KatexInline
+							formula={String.raw`k(n) \not\to +\infty`}
+						/>.
 					</li>
-				</ul>
+					<li>
+						<strong>Satisfait Stone.</strong>
+						<KatexInline formula={String.raw`\sqrt n/\log n \to +\infty`} /> (le numérateur domine) et
+						<KatexInline
+							formula={String.raw`\frac{\sqrt n/\log n}{n} = \frac{1}{\sqrt n \log n} \to 0`}
+						/>.
+					</li>
+				</ol>
+			{/snippet}
+		</ExercisePanel>
+
+		<ExercisePanel number="2.6" title="Lecture qualitative biais-variance">
+			{#snippet solution()}
 				<p>
-					Contre-exemple pour la troisième condition : <KatexInline formula={counterex} />. Cette
-					perte est convexe et différentiable, mais <KatexInline formula={critT2}
-					/>, donc le classifieur ne dépend pas de <KatexInline
-						formula={'\\eta'}
-					/> : <KatexInline formula={'\\varphi'} /> n'est <strong>pas calibrée</strong> et
-					<KatexInline formula={'C'} /> peut être strictement positif.
-				</p>
-				<p>
-					La version correcte de l'affirmation : <KatexInline
-						formula={'\\varphi'}
-					/>
-					calibrée + <KatexInline formula={'f^{**} \\in \\mathcal F'} /> + concentration uniforme ⇒
-					l'excès de risque 0-1 tend vers 0 avec <KatexInline formula={'n'} />.
+					Pour <KatexInline formula={String.raw`k`} /> proche de <KatexInline
+						formula={String.raw`1`}
+					/>, la variance domine : chaque prédiction repose sur très peu de voisins, donc elle est
+					très sensible au bruit d'échantillonnage individuel — le risque est élevé, dominé par la
+					variance. Pour <KatexInline formula={String.raw`k`} /> proche de <KatexInline
+						formula={String.raw`n`}
+					/>, le biais domine : le voisinage utilisé couvre presque tout l'espace, la prédiction
+					devient quasiment constante (proche de la fréquence globale de la classe majoritaire) et
+					perd toute sensibilité à la position locale de <KatexInline formula={String.raw`x`} /> — le
+					risque est à nouveau élevé, mais cette fois dominé par le biais. Entre les deux, il existe un
+					<KatexInline formula={String.raw`k`} /> intermédiaire qui minimise la somme des deux effets.
 				</p>
 			{/snippet}
 			<p>
-				Un collègue affirme : « Si j'optimise une perte convexe, mon classifieur est garanti
-				Bayes-optimal. » À l'aide des trois termes <KatexInline formula={'A'} />, <KatexInline
-					formula={'B'}
-				/>, <KatexInline formula={'C'} />, décomposez ce qui manque dans cette affirmation, et
-				donnez un contre-exemple de perte convexe non calibrée.
+				Pour <KatexInline formula={String.raw`n`} /> fixé, décrivez qualitativement ce qui domine — biais
+				ou variance — lorsque <KatexInline formula={String.raw`k`} /> est proche de <KatexInline
+					formula={String.raw`1`}
+				/>, puis lorsque <KatexInline formula={String.raw`k`} /> est proche de <KatexInline
+					formula={String.raw`n`}
+				/>.
+			</p>
+		</ExercisePanel>
+
+		<ExercisePanel number="2.7" title="Retrouver k*(n) pour le modèle jouet k-NN">
+			{#snippet solution()}
+				<p>
+					On minimise <KatexInline formula={String.raw`f(k) = V/k + Bk/n`} /> par rapport à <KatexInline
+						formula={String.raw`k`}
+					/> :
+				</p>
+				<KatexBlock
+					formula={String.raw`f'(k) = -V/k^2 + B/n = 0 \iff k^2 = \frac{Vn}{B} \iff k^* = \sqrt{\frac{Vn}{B}}.`}
+				/>
+				<p>
+					On vérifie que <KatexInline formula={String.raw`k^*(n) = \sqrt{Vn/B}`} /> satisfait bien les
+					conditions de Stone : <KatexInline formula={String.raw`k^*(n) \to +\infty`} /> (croissance en
+					<KatexInline formula={String.raw`\sqrt n`} />), et <KatexInline
+						formula={String.raw`k^*(n)/n = \sqrt{V/(Bn)} \to 0`}
+					/>. Le compromis biais-variance optimal du modèle jouet <em>tombe automatiquement</em> dans
+					le régime que Stone identifie comme universellement consistant.
+				</p>
+			{/snippet}
+			<p>
+				Pour le modèle jouet de risque excédentaire k-NN <KatexInline
+					formula={String.raw`V/k + B(k/n)`}
+				/> (variance en <KatexInline formula={String.raw`1/k`} />, biais en <KatexInline
+					formula={String.raw`k/n`}
+				/>), retrouvez par le calcul la valeur <KatexInline formula={String.raw`k^*(n)`} /> qui le minimise,
+				et vérifiez qu'elle satisfait les conditions de Stone.
+			</p>
+		</ExercisePanel>
+
+		<ExercisePanel number="2.8" title="Vrai ou faux">
+			<p>Indiquez si chaque affirmation est vraie ou fausse, en justifiant brièvement.</p>
+			<ol>
+				<li>
+					La consistance universelle est une conséquence automatique de la consistance simple.
+				</li>
+				<li>
+					Le théorème de Stone garantit la consistance du k-NN pour <strong>toute</strong>
+					distribution
+					<KatexInline formula={String.raw`P_{X,Y}`} />.
+				</li>
+				<li>
+					Si <KatexInline formula={String.raw`k(n)\to+\infty`} /> mais <KatexInline
+						formula={String.raw`k(n)/n \to c > 0`}
+					/>
+					pour une constante <KatexInline formula={String.raw`c`} />, le k-NN reste universellement
+					consistant.
+				</li>
+			</ol>
+			{#snippet solution()}
+				<ol>
+					<li>
+						<strong>Faux.</strong> C'est l'inverse : la consistance simple (pour une distribution donnée)
+						est une conséquence de la consistance universelle, pas le contraire. Un algorithme peut être
+						consistant pour certaines distributions particulières sans être universellement consistant.
+					</li>
+					<li>
+						<strong>Vrai.</strong> C'est exactement l'énoncé du Théorème 2.1 — aucune hypothèse sur <KatexInline
+							formula={String.raw`P_{X,Y}`}
+						/> n'est requise, seulement les deux conditions sur <KatexInline
+							formula={String.raw`k(n)`}
+						/>.
+					</li>
+					<li>
+						<strong>Faux.</strong> Si le rapport <KatexInline formula={String.raw`k(n)/n`} /> tend vers
+						une constante strictement positive plutôt que vers <KatexInline
+							formula={String.raw`0`}
+						/>, la seconde condition de Stone échoue — c'est la même situation que l'Exercice 2.3.
+					</li>
+				</ol>
+			{/snippet}
+		</ExercisePanel>
+
+		<ExercisePanel number="2.9" title="Pourquoi ce théorème est-il remarquable ?">
+			{#snippet solution()}
+				<p>
+					Un algorithme paramétrique (régression logistique, SVM linéaire...) suppose implicitement
+					une forme pour la frontière de décision ; si cette forme ne correspond pas à la vraie
+					frontière, le terme d'approximation reste strictement positif pour toujours, quel que soit <KatexInline
+						formula={String.raw`n`}
+					/> (cf. Exercice 1.6). Le k-NN, en laissant
+					<KatexInline formula={String.raw`k(n)`} /> croître avec <KatexInline
+						formula={String.raw`n`}
+					/>, adapte continuellement la richesse effective de son « modèle » à la quantité de
+					données disponible — il n'y a jamais de classe <KatexInline
+						formula={String.raw`\mathcal H`}
+					/> fixée a priori dont le terme d'approximation pourrait bloquer la convergence. C'est cette
+					adaptivité qui permet d'obtenir un résultat valable pour <strong>toute</strong> distribution,
+					sans aucune hypothèse structurelle — une garantie qu'aucune méthode paramétrique ne peut offrir.
+				</p>
+			{/snippet}
+			<p>
+				En une ou deux phrases : pourquoi le théorème de Stone est-il un résultat particulièrement
+				fort comparé aux résultats de consistance vus à la Leçon 1, qui supposaient une classe
+				<KatexInline formula={String.raw`\mathcal H`} /> fixée ?
+			</p>
+		</ExercisePanel>
+
+		<ExercisePanel number="2.10" title="Appliquer la borne du 1-NN">
+			{#snippet solution()}
+				<p>
+					Avec <KatexInline formula={String.raw`R^*=0.1`} /> :
+				</p>
+				<KatexBlock
+					formula={String.raw`2R^*\left(1-\tfrac{R^*}{2}\right) = 2 \times 0.1 \times 0.95 = 0.19.`}
+				/>
+				<p>
+					Le risque asymptotique du 1-NN est donc majoré par <KatexInline
+						formula={String.raw`0.19`}
+					/>, soit <strong>presque le double</strong> du risque de Bayes <KatexInline
+						formula={String.raw`0.1`}
+					/>. C'est un écart considérable pour un algorithme aussi simple, et il illustre
+					concrètement pourquoi le Théorème 2.1 exige <KatexInline
+						formula={String.raw`k(n)\to+\infty`}
+					/> plutôt que de se contenter d'un <KatexInline formula={String.raw`k`} /> fixe, même petit.
+				</p>
+			{/snippet}
+			<p>
+				Soit <KatexInline formula={String.raw`R^*=0.1`} />. Calculez la borne
+				<KatexInline formula={String.raw`2R^*\left(1-\tfrac{R^*}{2}\right)`} /> sur le risque asymptotique du
+				1-NN, et comparez-la au risque de Bayes.
 			</p>
 		</ExercisePanel>
 	</TheorySection>

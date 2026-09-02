@@ -4,17 +4,17 @@
 	import TableOfContents from '$lib/components/narrative/TableOfContents.svelte';
 	import Callout from '$lib/components/narrative/Callout.svelte';
 	import DefinitionBlock from '$lib/components/narrative/DefinitionBlock.svelte';
-	import ExercisePanel from '$lib/components/narrative/ExercisePanel.svelte';
 	import InteractiveSection from '$lib/components/narrative/InteractiveSection.svelte';
 	import KatexInline from '$lib/components/narrative/KatexInline.svelte';
 	import KatexBlock from '$lib/components/narrative/KatexBlock.svelte';
-	import Bibliography from '$lib/components/narrative/bib/Bibliography.svelte';
-	import BibElement from '$lib/components/narrative/bib/BibElement.svelte';
-	import CalibratedLossExplorer from '$lib/components/demos/CalibratedLossExplorer.svelte';
+	import ConsistencyConvergenceDemo from '$lib/components/demos/ConsistencyConvergenceDemo.svelte';
+	import ApproximationEstimationDemo from '$lib/components/demos/ApproximationEstimationDemo.svelte';
 	import { getPageByPath, getAdjacentPages } from '$lib/navigation.js';
 	import { settings } from '$lib/stores/index.js';
 	import { createPageTracker } from '$lib/stores/progress.svelte';
 	import type { PageMeta } from '$lib/navigation.js';
+	import Bibliography from '$lib/components/narrative/bib/Bibliography.svelte';
+	import BibElement from '$lib/components/narrative/bib/BibElement.svelte';
 
 	const meta = getPageByPath('/part7/lesson1');
 	const tracker = createPageTracker(meta as PageMeta);
@@ -31,70 +31,49 @@
 
 	const tocEntries: TocEntry[] = [
 		{
-			id: 'pourquoi-pas-0-1',
-			label: 'Pourquoi ne pas minimiser la perte 0-1 ?',
-			description: 'NP-difficile, discontinue, gradient nul presque partout',
+			id: 'introduction',
+			label: 'Introduction',
+			description: "Du classifieur de Bayes à l'algorithme appris sur données finies",
 			color: 'epistemic'
 		},
 		{
-			id: 'formulation-marge',
-			label: 'La formulation par la marge',
-			description: 'ℓφ(f(x), y) = φ(y·f(x)) et le φ-risque',
+			id: 'definitions-consistance',
+			label: 'Trois notions de consistance',
+			description: 'Définition 1.2 — en probabilité, en moyenne quadratique, presque sûrement',
 			color: 'belief'
 		},
 		{
-			id: 'pertes-usuelles',
-			label: 'Quatre pertes de substitution',
-			description: 'Logistique, charnière, exponentielle, Brier',
-			color: 'surprise'
-		},
-		{
-			id: 'logistique-cross-entropy',
-			label: 'Logistique et cross-entropy',
-			description: 'La même perte sous deux conventions',
+			id: 'relations-entre-notions',
+			label: 'Relations entre les notions',
+			description: 'Quelles implications tiennent, et pourquoi pas toutes',
 			color: 'neutral'
 		},
 		{
-			id: 'vers-calibration',
-			label: 'La question qui reste',
-			description: 'Minimiser un proxy mène-t-il au classifieur de Bayes ?',
-			color: 'agent'
+			id: 'decomposition-approximation-estimation',
+			label: 'Décomposition approximation / estimation',
+			description: 'Pourquoi la consistance est la question centrale de tout ce cours',
+			color: 'surprise'
 		}
 	];
 
 	// ── Formula variables (kept in script so Svelte never parses backslashes) ──
 
-	const bayes01Risk = 'R(h) = P(h(X) \\neq Y)';
-	const empirical01Objective =
-		'\\hat h_0 = \\arg\\min_{h \\in \\mathcal H} R_S(h) = \\arg\\min_{h \\in \\mathcal H} \\frac1n \\sum_{i=1}^n \\mathbb{1}_{h(X_i) \\neq Y_i}';
+	const hnDef = '(h_n)_{n\\ge1}';
+	const sampleDef = '\\mathcal{S}_n = \\{(X_i,Y_i)\\}_{i=1}^n';
+	const bayesRiskRef = 'R^* = R(h^*) = \\mathbb{E}_X[\\min(\\eta(X), 1-\\eta(X))]';
 
-	const deepLearning01 = '\\frac1n \\sum_{i=1}^n \\mathbb{1}_{y_i f_\\theta(x_i) < 0}';
-	const deepLearningLogistic = '\\frac1n \\sum_{i=1}^n \\log(1 + e^{-y_i f_\\theta(x_i)})';
+	const consistProb =
+		'\\forall \\varepsilon>0,\\quad \\mathbb{P}\\big(R(h_n)-R^* > \\varepsilon\\big) \\xrightarrow[n\\to+\\infty]{} 0';
+	const consistMS = '\\mathbb{E}\\big[(R(h_n)-R^*)^2\\big] \\xrightarrow[n\\to+\\infty]{} 0';
+	const consistAS = '\\mathbb{P}\\Big(\\lim_{n\\to+\\infty} R(h_n) = R^*\\Big) = 1';
 
-	const marginLoss = '\\ell_\\phi(f(x), y) = \\phi(y f(x))';
-	const phi01Def = '\\phi_{0\\text{-}1}(t) = \\mathbb{1}_{t < 0}';
-	const phi01Check =
-		'\\ell_{\\phi_{0\\text{-}1}}(f(x), y) = \\mathbb{1}_{y f(x) < 0} = \\mathbb{1}_{\\operatorname{sgn}(f(x)) \\neq y}';
-	const phiRiskDef = 'R_\\phi(f) = \\mathbb{E}[\\phi(Y f(X))]';
-	const phiRiskBayes = 'R_\\phi^* = \\inf_{f : \\mathcal X \\to \\mathbb R} R_\\phi(f)';
+	const implicationAS = '\\text{consistance p.s.} \\implies \\text{consistance en probabilité}';
+	const implicationMS =
+		'\\text{consistance en moyenne quadratique} \\implies \\text{consistance en probabilité}';
 
-	const logisticLoss = '\\ell_{\\log}(y, f(x)) = \\log(1 + e^{-y f(x)})';
-	const crossEntropyLoss =
-		'\\ell_{\\mathrm{CE}}(\\tilde y, f(x)) = -\\tilde y \\log \\sigma(f(x)) - (1-\\tilde y)\\log(1 - \\sigma(f(x)))';
-	const sigmoidDef = '\\sigma(t) = \\frac{1}{1 + e^{-t}}';
-	const sigmoidIdentity =
-		'1 - \\sigma(t) = \\frac{e^{-t}}{1+e^{-t}} = \\frac{1}{1+e^{t}} = \\sigma(-t)';
-	const logSigmoid =
-		'\\log \\sigma(t) = -\\log(1 + e^{-t}) \\quad \\text{et} \\quad \\log(1 - \\sigma(t)) = -\\log(1 + e^{t})';
-	const ceCaseOne =
-		'\\ell_{\\mathrm{CE}}(1, f(x)) = -\\log \\sigma(f(x)) = \\log(1 + e^{-f(x)}) = \\log(1 + e^{-y f(x)}) = \\ell_{\\log}(+1, f(x))';
-	const ceCaseZero =
-		'\\ell_{\\mathrm{CE}}(0, f(x)) = -\\log(1 - \\sigma(f(x))) = -\\log \\sigma(-f(x)) = \\log(1 + e^{f(x)}) = \\log(1 + e^{-(-1) f(x)}) = \\ell_{\\log}(-1, f(x))';
-	const conventionChange =
-		'\\tilde y = \\frac{y+1}{2} \\in \\{0,1\\} \\Longleftrightarrow y = 2\\tilde y - 1 \\in \\{-1,+1\\}';
-	const ceEquivalence =
-		'\\ell_{\\mathrm{CE}}(\\tilde y, f(x)) = \\ell_{\\log}(2\\tilde y - 1, f(x)) = \\log(1 + e^{-(2\\tilde y - 1) f(x)})';
-	const logisticModel = 'P(Y = 1 \\mid X = x) = \\sigma(f(x))';
+	const bestInClass = '\\inf_{h\\in\\mathcal H} R(h)';
+	const decompFull =
+		"R(h_n) - R^* = \\underbrace{R(h_n) - \\inf_{h\\in\\mathcal H} R(h)}_{\\text{terme d'estimation}} \\;+\\; \\underbrace{\\inf_{h\\in\\mathcal H} R(h) - R^*}_{\\text{terme d'approximation}}";
 </script>
 
 <svelte:head>
@@ -102,359 +81,200 @@
 </svelte:head>
 
 <PageTemplate
-	title={meta?.title ?? 'De la perte 0-1 aux pertes proxy'}
-	subtitle="Pourquoi la perte 0-1 ne s'optimise pas, et comment les pertes de substitution la remplacent"
+	title={meta?.title ?? 'Consistance et convergence vers Bayes'}
+	subtitle="Dans quelle mesure un algorithme appris sur un échantillon fini approche-t-il le classifieur de Bayes ?"
 	prev={prevMeta}
 	next={nextMeta}
 >
 	<TheorySection>
 		<TableOfContents entries={tocEntries} />
 
-		<h2 id="pourquoi-pas-0-1">Pourquoi ne pas minimiser la perte 0-1 ?</h2>
+		<h2 id="introduction">Introduction</h2>
 
 		<p>
-			La Partie IV a caractérisé le classifieur de Bayes <KatexInline formula={'h^*'} /> : il minimise
-			le risque 0-1 <KatexInline formula={bayes01Risk} />, la quantité la plus naturelle possible
-			pour évaluer un classifieur. L'idée la plus directe serait donc de minimiser le risque
-			empirique 0-1 sur la classe <KatexInline formula={'\\mathcal H'} /> :
+			La Partie VI a caractérisé le classifieur de Bayes <KatexInline formula={String.raw`h^*`} />,
+			optimal sous connaissance <em>parfaite</em> de <KatexInline formula={String.raw`P_{X,Y}`} />,
+			et son risque irréductible <KatexInline formula={bayesRiskRef} />. En pratique, on ne connaît
+			jamais
+			<KatexInline formula={String.raw`P_{X,Y}`} /> : on dispose seulement d'un échantillon fini
+			<KatexInline formula={sampleDef} /> i.i.d., à partir duquel un algorithme produit un classifieur
+			appris <KatexInline formula={String.raw`h_n`} />.
 		</p>
-		<KatexBlock formula={empirical01Objective} />
 
 		<p>
-			Malheureusement, ce problème est <strong>NP-difficile</strong> en général : la perte 0-1 est non
-			convexe, discontinue, et son gradient est nul presque partout. On ne peut tout simplement pas l'optimiser
-			par descente de gradient.
+			La question qui gouverne tout le reste de ce cours est simple à énoncer :
+			<em
+				>à mesure que la taille d'échantillon <KatexInline formula={String.raw`n`} /> grandit, le risque
+				de
+				<KatexInline formula={String.raw`h_n`} /> se rapproche-t-il du risque de Bayes <KatexInline
+					formula={String.raw`R^*`}
+				/> ?</em
+			>
+			C'est la question de la <strong>consistance</strong>. Elle n'a rien d'automatique : un
+			algorithme peut très bien mémoriser les données sans jamais généraliser, auquel cas
+			<KatexInline formula={String.raw`R(h_n)`} /> ne se rapprocherait pas de <KatexInline
+				formula={String.raw`R^*`}
+			/>, aussi grand que soit <KatexInline formula={String.raw`n`} />.
 		</p>
 
-		<Callout type="insight" title="Deep learning : la perte logistique en pratique">
+		<h2 id="definitions-consistance">Trois notions de consistance</h2>
+
+		<p>
+			Puisque <KatexInline formula={String.raw`h_n`} /> dépend de l'échantillon aléatoire
+			<KatexInline formula={String.raw`\mathcal{S}_n`} />, le risque <KatexInline
+				formula={String.raw`R(h_n)`}
+			/> est lui-même une variable aléatoire. « Converger vers <KatexInline
+				formula={String.raw`R^*`}
+			/> » peut donc se formaliser de plusieurs façons, plus ou moins exigeantes.
+		</p>
+
+		<DefinitionBlock number="1.2" title="Consistance">
 			<p>
-				En pratique, on paramètre <KatexInline formula={'h'} /> par un réseau de neurones
-				<KatexInline formula={'f_\\theta : \\mathcal X \\to \\mathbb R'} /> et on pose
-				<KatexInline formula={'h_\\theta(x) = \\operatorname{sgn}(f_\\theta(x))'} />. On ne minimise
-				pas :
+				Soit <KatexInline formula={hnDef} /> une suite de classifieurs appris sur
+				<KatexInline formula={String.raw`\mathcal{S}_n`} />. On dit que <KatexInline
+					formula={String.raw`(h_n)`}
+				/> est :
 			</p>
-			<KatexBlock formula={deepLearning01} />
-			<p>
-				mais la <strong>perte logistique</strong> (ou cross-entropy) :
-			</p>
-			<KatexBlock formula={deepLearningLogistic} />
-			<p>
-				qui est convexe en <KatexInline formula={'f_\\theta(x_i)'} />, différentiable, et dont le
-				gradient donne une direction de descente utile.
-			</p>
-		</Callout>
-
-		<p>
-			De même, le SVM minimise la perte charnière <KatexInline formula={'\\max(0, 1 - y f(x))'} />,
-			et AdaBoost minimise implicitement la perte exponentielle <KatexInline
-				formula={'e^{-y f(x)}'}
-			/>.
-		</p>
-
-		<p>
-			La question fondamentale est alors : <em>minimiser une perte proxy</em>
-			<KatexInline formula={'\\phi'} />
-			<em> conduit-il bien à un classifieur proche de</em>
-			<KatexInline formula={'h^*'} />
-			<em> ?</em> C'est l'objet de la calibration, étudiée à la leçon suivante.
-		</p>
-
-		<h2 id="formulation-marge">La formulation par la marge</h2>
-
-		<p>
-			On se place en classification binaire <KatexInline formula={'\\mathcal Y = \\{-1, +1\\}'} />.
-			Un modèle est une fonction <KatexInline formula={'f : \\mathcal X \\to \\mathbb R'} />, et la
-			décision associée est <KatexInline formula={'h_f(x) = \\operatorname{sgn}(f(x))'} />. La
-			<strong>marge</strong>
-			<KatexInline formula={'t = y f(x)'} /> mesure la justesse de la prédiction : elle est positive quand
-			le signe est bon, et plus grande en valeur absolue quand la prédiction est plus « confiante ».
-		</p>
-
-		<p>
-			On remplace la perte 0-1 par une <strong>perte de substitution</strong>
-			<KatexInline formula={'\\phi : \\mathbb R \\to \\mathbb R_+'} />
-			appliquée à la marge :
-		</p>
-		<KatexBlock formula={marginLoss} />
-
-		<p>
-			<strong>Vérification sur la perte 0-1.</strong> On pose <KatexInline formula={phi01Def} />.
-			Alors :
-		</p>
-		<KatexBlock formula={phi01Check} />
-		<p>
-			ce qui redonne bien la perte 0-1 usuelle : la marge <KatexInline formula={'y f(x)'} /> est négative
-			si et seulement si <KatexInline formula={'f(x)'} /> et <KatexInline formula={'y'} />
-			sont de signes opposés, c'est-à-dire quand le classifieur se trompe. La perte 0-1 est donc une perte
-			de substitution au sens propre — la seule, hélas, qui ne puisse pas s'optimiser.
-		</p>
-
-		<DefinitionBlock title="φ-risque et φ-risque de Bayes">
-			<p>
-				Le <KatexInline formula={'\\phi'} />-risque d'un modèle <KatexInline formula={'f'} /> est :
-			</p>
-			<KatexBlock formula={phiRiskDef} />
-			<p>et le <KatexInline formula={'\\phi'} />-risque de Bayes est :</p>
-			<KatexBlock formula={phiRiskBayes} />
+			<ul>
+				<li>
+					<strong>consistant en probabilité</strong> si :
+					<KatexBlock formula={consistProb} />
+				</li>
+				<li>
+					<strong>consistant en moyenne quadratique</strong> si :
+					<KatexBlock formula={consistMS} />
+				</li>
+				<li>
+					<strong>fortement consistant</strong> (ou consistant presque sûrement) si :
+					<KatexBlock formula={consistAS} />
+				</li>
+			</ul>
+			<p>où <KatexInline formula={bayesRiskRef} /> est le risque de Bayes.</p>
 		</DefinitionBlock>
 
-		<h2 id="pertes-usuelles">Quatre pertes de substitution usuelles</h2>
-
-		<p>Les exemples standard de pertes de substitution sont les suivants.</p>
-
-		<table>
-			<thead>
-				<tr>
-					<th>Perte</th>
-					<th>Expression φ(t)</th>
-					<th>Usage</th>
-				</tr>
-			</thead>
-			<tbody>
-				<tr>
-					<td>Logistique</td>
-					<td><KatexInline formula={String.raw`\log(1 + e^{-t})`} /></td>
-					<td>Régression logistique, deep learning</td>
-				</tr>
-				<tr>
-					<td>Charnière</td>
-					<td><KatexInline formula={String.raw`\max(0, 1 - t)`} /></td>
-					<td>SVM</td>
-				</tr>
-				<tr>
-					<td>Exponentielle</td>
-					<td><KatexInline formula={String.raw`e^{-t}`} /></td>
-					<td>AdaBoost</td>
-				</tr>
-				<tr>
-					<td>Carrée (Brier)</td>
-					<td><KatexInline formula={String.raw`(1 - t)^2`} /></td>
-					<td>Least-squares classification</td>
-				</tr>
-			</tbody>
-		</table>
-
-		<p>
-			Ces pertes partagent la propriété qui les rend exploitables : elles sont convexes et
-			différentiables (la charnière, non différentiable en <KatexInline formula={'t = 1'} />, l'est
-			néanmoins en <KatexInline formula={'t = 0'} />, où sa pente vaut <KatexInline
-				formula={'-1'}
-			/>) — là où la perte 0-1 est plate presque partout. On vérifie par ailleurs que les quatre
-			sont telles que <KatexInline formula={"\\varphi'(0) < 0"} /> ; cette propriété jouera un rôle central
-			dans le critère de calibration de la leçon suivante.
-		</p>
+		<Callout type="intuition" title="Trois façons de dire « converge »">
+			Ces trois notions répondent à des questions légèrement différentes. La convergence en
+			probabilité dit que les <em>grands</em> écarts deviennent rares. La convergence en moyenne
+			quadratique contrôle en plus l'<em>amplitude</em> des écarts, pas seulement leur fréquence. La
+			convergence presque sûre est une affirmation sur <em>une seule</em> trajectoire infinie de <KatexInline
+				formula={String.raw`(R(h_n))_{n\ge1}`}
+			/> : avec probabilité 1, cette trajectoire finit par entrer dans n'importe quel voisinage de <KatexInline
+				formula={String.raw`R^*`}
+			/> et n'en ressort plus jamais.
+		</Callout>
 
 		<InteractiveSection
 			number="1.1"
-			title="Pertes de substitution face à la perte 0-1"
+			title="Trajectoires de convergence"
 			onInteract={tracker.trackInteraction}
 		>
-			<p class="demo-guide">
-				<strong>À observer.</strong> Chaque perte de substitution est affichée à côté de la perte
-				0-1, plate et discontinue. Déplacez la marge <KatexInline formula={'t'} /> : la pente locale et
-				le gradient de la perte sélectionnée sont non nuls presque partout, alors que ceux de la 0-1 sont
-				nuls hors de <KatexInline formula={'t = 0'} />. Ramenez <KatexInline formula={'t'} />
-				vers 0 : la pente <KatexInline formula={"\\varphi'(0)"} /> qui s'y lit est précisément la quantité
-				sur laquelle reposera le critère de calibration.
-			</p>
-			<CalibratedLossExplorer />
+			<ConsistencyConvergenceDemo />
 		</InteractiveSection>
 
-		<h2 id="logistique-cross-entropy">Logistique et cross-entropy : la même perte</h2>
+		<h2 id="relations-entre-notions">Relations entre les notions</h2>
 
 		<p>
-			Dans l'exemple du deep learning, la perte logistique était écrite avec la convention
-			<KatexInline formula={'y \\in \\{-1, +1\\}'} /> et la sortie <KatexInline
-				formula={'f(x) \\in \\mathbb R'}
-			/>. Dans la littérature probabiliste, la même perte est appelée
-			<strong>cross-entropy</strong>, avec la convention <KatexInline
-				formula={'\\tilde y \\in \\{0, 1\\}'}
-			/> et la sortie
-			<KatexInline formula={'\\sigma(f(x)) \\in (0,1)'} />. Ces deux formulations sont identiques à
-			un changement de convention près.
+			Ces trois notions ne sont pas indépendantes, mais elles ne sont pas non plus toutes
+			équivalentes. On a les implications suivantes :
+		</p>
+		<KatexBlock formula={implicationAS} />
+		<KatexBlock formula={implicationMS} />
+
+		<p>
+			Autrement dit, la consistance en probabilité est la notion la <strong>plus faible</strong> des trois
+			: elle est impliquée par chacune des deux autres, mais n'implique ni l'une ni l'autre en général.
+			La consistance presque sûre et la consistance en moyenne quadratique, elles, ne se comparent pas
+			directement entre elles — chacune contrôle un aspect différent de la convergence (trajectoire unique
+			contre amplitude moyenne des écarts), et l'une peut tenir sans l'autre.
 		</p>
 
-		<ExercisePanel title="Équivalence entre perte logistique et cross-entropy">
-			<p>
-				En classification binaire, on dispose de deux formulations de la perte : la <em
-					>perte logistique</em
-				>
-				(convention <KatexInline formula={'y \\in \\{-1, +1\\}'} />, sortie
-				<KatexInline formula={'f(x) \\in \\mathbb R'} />) :
-			</p>
-			<KatexBlock formula={logisticLoss} />
-			<p>
-				et la <em>cross-entropy</em> (convention <KatexInline
-					formula={'\\tilde y \\in \\{0, 1\\}'}
-				/>, sortie <KatexInline formula={'\\sigma(f(x)) \\in (0,1)'} />) :
-			</p>
-			<KatexBlock formula={crossEntropyLoss} />
-			<p>
-				où <KatexInline formula={sigmoidDef} /> est la fonction sigmoïde. Montrer que ces deux pertes
-				sont identiques à un changement de convention près.
-			</p>
-			<p>
-				<em>Indication :</em> exprimer <KatexInline formula={'\\sigma(f(x))'} /> et
-				<KatexInline formula={'1 - \\sigma(f(x))'} /> en fonction de <KatexInline
-					formula={'e^{f(x)}'}
-				/>, puis traiter séparément les cas <KatexInline formula={'\\tilde y = 1'} /> et
-				<KatexInline formula={'\\tilde y = 0'} />, correspondant respectivement à
-				<KatexInline formula={'y = +1'} /> et <KatexInline formula={'y = -1'} />.
-			</p>
+		<Callout type="insight" title="Pourquoi cette hiérarchie n'est pas qu'un détail technique">
+			Dans la démonstration ci-dessus (Exercice-type), la convergence presque sûre implique la
+			convergence en probabilité par un argument de type Portmanteau : si presque toute trajectoire
+			finit par rester dans <KatexInline formula={String.raw`[R^*-\varepsilon, R^*+\varepsilon]`} />
+			pour de bon, alors la <em>probabilité</em> de s'en écarter au rang <KatexInline
+				formula={String.raw`n`}
+			/> tend nécessairement vers 0. La réciproque est fausse : une suite peut avoir une probabilité d'excès
+			qui tend vers 0 tout en continuant, avec probabilité non nulle à chaque rang, à s'écarter occasionnellement
+			— sans jamais se stabiliser complètement.
+		</Callout>
 
-			{#snippet solution()}
-				<p><strong>Solution :</strong></p>
+		<h2 id="decomposition-approximation-estimation">Décomposition approximation / estimation</h2>
 
-				<p><strong>Étape 1 — Intuition.</strong></p>
-				<p>
-					Les deux formulations encodent la même idée : pénaliser le modèle quand il est confiant
-					dans la mauvaise direction. La perte logistique le fait via la marge
-					<KatexInline formula={'y f(x)'} /> (négative quand <KatexInline formula={'f'} /> et
-					<KatexInline formula={'y'} /> sont de signes opposés), et la cross-entropy via la log-vraisemblance
-					d'un modèle de Bernoulli de paramètre <KatexInline formula={'\\sigma(f(x))'} />.
-				</p>
+		<p>
+			Pourquoi la consistance est-elle la question centrale de toute la théorie de l'apprentissage ?
+			Parce que le risque d'un classifieur appris dans une classe
+			<KatexInline formula={String.raw`\mathcal{H}`} /> se décompose naturellement en deux termes de nature
+			très différente :
+		</p>
+		<KatexBlock formula={decompFull} />
 
-				<p><strong>Étape 2 — Rappels sur la sigmoïde.</strong></p>
-				<p>On note que :</p>
-				<KatexBlock formula={sigmoidIdentity} />
-				<p>Donc :</p>
-				<KatexBlock formula={logSigmoid} />
+		<ul>
+			<li>
+				Le <strong>terme d'approximation</strong> (ou biais) mesure la capacité de la classe
+				<KatexInline formula={String.raw`\mathcal{H}`} /> à approcher le classifieur de Bayes. Il vaut
+				<KatexInline formula={String.raw`0`} /> si <KatexInline
+					formula={String.raw`h^* \in \mathcal{H}`}
+				/>, et ne dépend <strong>pas</strong> des données — c'est une propriété purement
+				structurelle du choix de <KatexInline formula={String.raw`\mathcal{H}`} />.
+			</li>
+			<li>
+				Le <strong>terme d'estimation</strong> mesure l'écart entre le meilleur classifieur
+				théorique de la classe, <KatexInline formula={bestInClass} />, et celui effectivement appris
+				sur <KatexInline formula={String.raw`\mathcal{S}_n`} />. Il tend vers <KatexInline
+					formula={String.raw`0`}
+				/> quand <KatexInline formula={String.raw`n \to +\infty`} /> sous des conditions de régularité
+				sur
+				<KatexInline formula={String.raw`\mathcal{H}`} /> — c'est précisément ce que les leçons suivantes
+				(généralisation, VC) vont quantifier.
+			</li>
+		</ul>
 
-				<p>
-					<strong
-						>Étape 3 — Cas <KatexInline formula={'\\tilde y = 1'} /> (correspondant à
-						<KatexInline formula={'y = +1'} />).</strong
-					>
-				</p>
-				<KatexBlock formula={ceCaseOne} />
+		<p>
+			La consistance de <KatexInline formula={String.raw`(h_n)`} /> exige que la
+			<strong>somme</strong>
+			de ces deux termes tende vers 0 — ce qui n'arrive que si le terme d'approximation est nul ou négligeable,
+			<em>et</em>
+			si le terme d'estimation s'annule effectivement avec <KatexInline formula={String.raw`n`} />.
+			Une classe trop pauvre a un terme d'approximation qui ne bougera jamais, quel que soit
+			<KatexInline formula={String.raw`n`} /> ; une classe trop riche a un terme d'estimation qui décroît
+			trop lentement pour un <KatexInline formula={String.raw`n`} /> donné.
+		</p>
 
-				<p>
-					<strong
-						>Étape 4 — Cas <KatexInline formula={'\\tilde y = 0'} /> (correspondant à
-						<KatexInline formula={'y = -1'} />).</strong
-					>
-				</p>
-				<KatexBlock formula={ceCaseZero} />
-
-				<p><strong>Conclusion.</strong></p>
-				<p>
-					Les deux pertes sont identiques sous le changement de convention <KatexInline
-						formula={conventionChange}
-					/>
-					:
-				</p>
-				<KatexBlock formula={ceEquivalence} />
-
-				<p><strong>Interprétation probabiliste.</strong></p>
-				<p>La cross-entropy est la log-vraisemblance négative du modèle probabiliste :</p>
-				<KatexBlock formula={logisticModel} />
-				<p>
-					Minimiser la cross-entropy revient donc à maximiser la vraisemblance du modèle logistique,
-					ce qui justifie son usage en deep learning : on cherche les paramètres
-					<KatexInline formula={'\\theta'} /> qui rendent les labels observés les plus probables sous
-					le modèle <KatexInline formula={'\\sigma(f_\\theta)'} />.
-				</p>
-			{/snippet}
-		</ExercisePanel>
-
-		<h2 id="vers-calibration">La question qui reste</h2>
+		<InteractiveSection
+			number="1.2"
+			title="Le compromis approximation / estimation"
+			onInteract={tracker.trackInteraction}
+		>
+			<ApproximationEstimationDemo />
+		</InteractiveSection>
 
 		<Callout type="summary" title="Retenir">
-			La perte 0-1 est le critère théoriquement optimal, mais NP-difficile à minimiser : non
-			convexe, discontinue, gradient nul presque partout. La formulation par la marge
-			<KatexInline formula={marginLoss} /> permet de la remplacer par une perte de substitution
-			<KatexInline formula={'\\phi'} /> convexe et différentiable — logistique, charnière, exponentielle
-			ou Brier — dont le risque <KatexInline formula={'R_\\phi(f)'} /> se minimise par descente de gradient.
-			La perte logistique est exactement la cross-entropy du modèle logistique, à un changement de convention
-			près.
+			La consistance n'est pas une propriété binaire : elle se décline en trois notions de force
+			croissante, et sa validité dépend d'un compromis entre la richesse de la classe
+			<KatexInline formula={String.raw`\mathcal{H}`} /> (qui contrôle le terme d'approximation) et la
+			quantité de données disponibles (qui contrôle la vitesse à laquelle le terme d'estimation s'annule).
+			La leçon suivante introduit une notion plus exigeante encore — la
+			<strong>consistance universelle</strong> — et montre que l'algorithme des k plus proches
+			voisins l'atteint sous des conditions remarquablement simples sur <KatexInline
+				formula={String.raw`k(n)`}
+			/>.
 		</Callout>
-
-		<Callout type="note" title="Que veut dire « calibrée » ?">
-			<p>
-				On dit qu'une perte de substitution <KatexInline formula={'\\varphi'} /> est
-				<strong>calibrée</strong> quand elle « fonctionne » pour la classification : toute suite de
-				modèles qui amène le <KatexInline formula={'\\varphi'} />-risque vers sa borne inférieure
-				amène aussi le risque 0-1 vers la sienne — minimiser le proxy conduit alors bien au
-				classifieur de Bayes. La définition formelle, et le critère <KatexInline
-					formula={"\\varphi'(0) < 0"}
-				/>
-				qui caractérise les pertes convexes calibrées, font l'objet de la leçon suivante.
-			</p>
-		</Callout>
-
-		<p>
-			Il reste à répondre à la question posée en introduction : minimiser <KatexInline
-				formula={'R_\\phi'}
-			/> conduit-il bien à un classifieur proche du classifieur de Bayes ? La leçon suivante introduit
-			les pertes calibrées et le critère <KatexInline formula={"\\varphi'(0) < 0"} /> qui répond à cette
-			question.
-		</p>
 	</TheorySection>
-
 	<Bibliography>
 		<BibElement
-			authors={['Bartlett, P. L.', 'Jordan, M. I.', 'McAuliffe, J.']}
-			year={2006}
-			title="Convexity, Classification, and Risk Bounds"
-			journal="Journal of the American Statistical Association, 101(473), 138-156."
+			authors={['Devroye, L.', 'Györfi, L.', 'Lugosi, G.']}
+			year={1996}
+			title="A Probabilistic Theory of Pattern Recognition"
+			journal="Springer Series in Statistics."
+			link="https://link.springer.com/book/10.1007/978-1-4612-0221-5"
 		/>
 		<BibElement
-			authors={['Shalev-Shwartz, S.', 'Ben-David, S.']}
-			year={2014}
-			title="Understanding Machine Learning: From Theory to Algorithms"
-			journal="Cambridge University Press."
-			link="https://www.cs.huji.ac.il/~shais/UnderstandingMachineLearning/"
-		/>
-		<BibElement
-			authors={['Hastie, T.', 'Tibshirani, R.', 'Friedman, J.']}
-			year={2009}
-			title="The Elements of Statistical Learning: Data Mining, Inference, and Prediction"
-			journal="Springer Science & Business Media, Second Edition."
-			link="https://hastie.su.domains/ElemStatLearn/"
+			authors={['Vapnik, V. N.']}
+			year={1998}
+			title="Statistical Learning Theory"
+			journal="Wiley."
+			link="https://www.wiley.com/en-us/Statistical+Learning+Theory-p-9780471152125"
 		/>
 	</Bibliography>
 </PageTemplate>
-
-<style>
-	table {
-		width: 100%;
-		border-collapse: collapse;
-		margin: 1rem 0;
-		border: 1px solid var(--color-border);
-		border-radius: var(--radius-md, 8px);
-		overflow: hidden;
-	}
-
-	thead {
-		background: color-mix(in srgb, var(--color-epistemic, #4f7cac) 8%, transparent);
-	}
-
-	th {
-		padding: 0.75rem 1rem;
-		text-align: left;
-		font-size: 0.75rem;
-		font-weight: 600;
-		text-transform: uppercase;
-		letter-spacing: 0.05em;
-		color: var(--color-text-muted);
-		border-bottom: 1px solid var(--color-border);
-	}
-
-	td {
-		padding: 0.75rem 1rem;
-		font-size: 0.875rem;
-		border-bottom: 1px solid var(--color-border);
-	}
-
-	tbody tr:last-child td {
-		border-bottom: none;
-	}
-
-	.demo-guide {
-		margin: 0.75rem 0;
-		padding: 0.8rem 1rem;
-		border-radius: 6px;
-		background: color-mix(in srgb, var(--color-epistemic, #4f7cac) 8%, transparent);
-		line-height: 1.65;
-	}
-</style>

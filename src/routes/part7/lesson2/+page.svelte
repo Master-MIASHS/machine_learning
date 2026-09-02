@@ -5,18 +5,17 @@
 	import Callout from '$lib/components/narrative/Callout.svelte';
 	import DefinitionBlock from '$lib/components/narrative/DefinitionBlock.svelte';
 	import TheoremBlock from '$lib/components/narrative/TheoremBlock.svelte';
+	import ExercisePanel from '$lib/components/narrative/ExercisePanel.svelte';
 	import InteractiveSection from '$lib/components/narrative/InteractiveSection.svelte';
 	import KatexInline from '$lib/components/narrative/KatexInline.svelte';
 	import KatexBlock from '$lib/components/narrative/KatexBlock.svelte';
-	import Bibliography from '$lib/components/narrative/bib/Bibliography.svelte';
-	import BibElement from '$lib/components/narrative/bib/BibElement.svelte';
-	import ConditionalCalibrationDemo from '$lib/components/demos/ConditionalCalibrationDemo.svelte';
-	import CalibrationCriterionDemo from '$lib/components/demos/CalibrationCriterionDemo.svelte';
-	import CalibratedLossExplorer from '$lib/components/demos/CalibratedLossExplorer.svelte';
+	import KNNConsistencyDemo from '$lib/components/demos/KNNConsistencyDemo.svelte';
 	import { getPageByPath, getAdjacentPages } from '$lib/navigation.js';
 	import { settings } from '$lib/stores/index.js';
 	import { createPageTracker } from '$lib/stores/progress.svelte';
 	import type { PageMeta } from '$lib/navigation.js';
+	import Bibliography from '$lib/components/narrative/bib/Bibliography.svelte';
+	import BibElement from '$lib/components/narrative/bib/BibElement.svelte';
 
 	const meta = getPageByPath('/part7/lesson2');
 	const tracker = createPageTracker(meta as PageMeta);
@@ -33,82 +32,44 @@
 
 	const tocEntries: TocEntry[] = [
 		{
-			id: 'question',
-			label: 'La question posée',
-			description: 'Minimiser un proxy mène-t-il au classifieur de Bayes ?',
+			id: 'introduction',
+			label: 'Introduction',
+			description: 'Une exigence plus forte : converger quelle que soit la distribution',
 			color: 'epistemic'
 		},
 		{
-			id: 'definition-calibration',
-			label: 'Définition de la calibration',
-			description: 'Convergence du φ-risque ⇒ convergence du risque 0-1',
-			color: 'belief'
-		},
-		{
-			id: 'calibration-ponctuelle',
-			label: 'La calibration ponctuelle',
-			description: 'Cφ(α, η) et le signe du minimiseur',
-			color: 'surprise'
-		},
-		{
-			id: 'criterium',
-			label: 'Le critère φ′(0) < 0',
-			description: 'Théorème 4.1 et sa démonstration',
+			id: 'consistance-universelle',
+			label: 'Consistance universelle',
+			description: 'Définition 1.3 — consistant pour toute distribution, sans hypothèse sur η',
 			color: 'neutral'
 		},
 		{
-			id: 'verification-exemples',
-			label: 'Vérification sur les pertes usuelles',
-			description: 'Logistique, charnière, exponentielle, Brier',
-			color: 'agent'
+			id: 'theoreme-stone',
+			label: 'Le théorème de Stone',
+			description: 'Théorème 2.1 — k-NN est universellement consistant si k(n)→∞ et k(n)/n→0',
+			color: 'belief'
+		},
+		{
+			id: 'pourquoi-k-fixe-echoue',
+			label: 'Pourquoi k fixe ne suffit pas',
+			description: "L'exemple du 1-NN",
+			color: 'surprise'
 		}
 	];
 
 	// ── Formula variables (kept in script so Svelte never parses backslashes) ──
 
-	const calibratedImplication =
-		'R_\\phi(f_n) \\xrightarrow[n\\to+\\infty]{} R_\\phi^* \\implies R(h_{f_n}) \\xrightarrow[n\\to+\\infty]{} R^*';
+	const universalConsistDef = 'P_{X,Y} \\text{ sur } \\mathcal{X}\\times\\{0,1\\}';
 
-	const totalExpectation =
-		'R_\\phi(f) = \\mathbb{E}_X\\big[C_\\varphi\\big(f(X),\\, \\eta(X)\\big)\\big]';
-	const conditionalRisk =
-		'C_\\varphi(\\alpha, \\eta) = \\eta\\, \\varphi(\\alpha) + (1-\\eta)\\, \\varphi(-\\alpha)';
-	const conditionalBayesRisk =
-		'C_\\varphi^*(\\eta) = \\inf_{\\alpha \\in \\mathbb R} C_\\varphi(\\alpha, \\eta)';
-	const pointwiseAbove =
-		'\\eta > 1/2 \\Longleftrightarrow \\arg\\min_{\\alpha \\in \\mathbb R} C_\\varphi(\\alpha, \\eta) \\subset \\mathbb R_+^*';
-	const pointwiseBelow =
-		'\\eta < 1/2 \\Longleftrightarrow \\arg\\min_{\\alpha \\in \\mathbb R} C_\\varphi(\\alpha, \\eta) \\subset \\mathbb R_-^*';
+	const stoneSetup =
+		'(X_i,Y_i)_{i=1}^n \\text{ i.i.d. de loi } P_{X,Y} \\text{ sur } \\mathbb{R}^d\\times\\{0,1\\}';
+	const stoneConditions =
+		'k(n) \\xrightarrow[n\\to+\\infty]{} +\\infty \\quad\\text{et}\\quad \\frac{k(n)}{n} \\xrightarrow[n\\to+\\infty]{} 0';
+	const stoneConclusion =
+		'\\forall P_{X,Y}, \\quad \\mathbb{E}\\big[R(h_n^{k\\text{-NN}})\\big] \\xrightarrow[n\\to+\\infty]{} R^*';
 
-	const recallPos = '\\arg\\min g \\subset \\mathbb R_+^* \\iff g\'_+(0) < 0';
-	const recallNeg = '\\arg\\min g \\subset \\mathbb R_-^* \\iff g\'_-(0) > 0';
-	const minimizerCondition = 'g\'_-(\\alpha^*) \\le 0 \\le g\'_+(\\alpha^*)';
-
-	const cphiDerivRight =
-		'(C_\\varphi)_+(0)^\\prime = \\eta\\, \\varphi\'_+(0) - (1-\\eta)\\, \\varphi\'_-(0)';
-	const cphiDerivLeft =
-		'(C_\\varphi)_-(0)^\\prime = \\eta\\, \\varphi\'_-(0) - (1-\\eta)\\, \\varphi\'_+(0)';
-	const eqAbove =
-		'\\arg\\min_{\\alpha \\in \\mathbb R} C_\\varphi(\\alpha, \\eta) \\subset \\mathbb R_+^* \\iff \\eta\\, \\varphi\'_+(0) - (1-\\eta)\\, \\varphi\'_-(0) < 0';
-	const eqBelow =
-		'\\arg\\min_{\\alpha \\in \\mathbb R} C_\\varphi(\\alpha, \\eta) \\subset \\mathbb R_-^* \\iff \\eta\\, \\varphi\'_-(0) - (1-\\eta)\\, \\varphi\'_+(0) > 0';
-	const limitEta =
-		'\\tfrac12\\, \\varphi\'_+(0) - \\tfrac12\\, \\varphi\'_-(0) \\le 0 \\iff \\varphi\'_+(0) \\le \\varphi\'_-(0)';
-	const convexityOrder = '\\varphi\'_-(0) \\le \\varphi\'_+(0)';
-	const sandwich = '\\varphi\'_-(0) \\le \\varphi\'_+(0) \\le \\varphi\'_-(0)';
-	const cphiDerivAtZero = '(C_\\varphi)\'(0) = (2\\eta - 1)\\, \\varphi\'(0)';
-	const caseAbove =
-		'(C_\\varphi)\'_+(0) = (2\\eta-1)\\, \\varphi\'(0) < 0, \\quad \\text{donc} \\quad \\arg\\min_{\\alpha} C_\\varphi(\\alpha, \\eta) \\subset \\mathbb R_+^*';
-	const caseBelow =
-		'(C_\\varphi)\'_-(0) = (2\\eta-1)\\, \\varphi\'(0) > 0, \\quad \\text{donc} \\quad \\arg\\min_{\\alpha} C_\\varphi(\\alpha, \\eta) \\subset \\mathbb R_-^*';
-
-	const logisticDeriv = '\\varphi\'(t) = -\\frac{e^{-t}}{1+e^{-t}}';
-
-	const phiDivergesNeg = '\\varphi(t) \\to +\\infty \\;\\;\\text{quand}\\;\\; t \\to -\\infty';
-	const cphiDivergesAtEnds =
-		'C_\\varphi(\\alpha, \\eta) \\to +\\infty \\;\\;\\text{quand}\\;\\; \\alpha \\to \\pm\\infty';
-	const brierGrowth = '\\varphi(t) \\sim t^2 \\;\\;(t \\to +\\infty)';
-	const hingeZero = '\\varphi(t) = 0 \\;\\;\\text{dès}\\;\\; t \\ge 1';
+	const coverHartIdentity = String.raw`\limsup_{n\to+\infty} \mathbb{E}\big[R(h_n^{1\text{-NN}})\big] \;=\; 2\mathbb{E}\big[\eta(X)(1-\eta(X))\big]`;
+	const coverHartBound = String.raw`R^* \;\le\; \limsup_{n\to+\infty} \mathbb{E}\big[R(h_n^{1\text{-NN}})\big] \;\le\; 2R^*\left(1-\tfrac{R^*}{2}\right) \;<\; 2R^*`;
 </script>
 
 <svelte:head>
@@ -116,403 +77,241 @@
 </svelte:head>
 
 <PageTemplate
-	title={meta?.title ?? 'Calibration des pertes convexes'}
-	subtitle="Quand minimiser une perte proxy garantit d'approcher le classifieur de Bayes"
+	title={meta?.title ?? 'Consistance universelle et k-NN'}
+	subtitle="Un algorithme peut-il converger vers le risque de Bayes sans rien supposer sur la distribution ?"
 	prev={prevMeta}
 	next={nextMeta}
 >
 	<TheorySection>
 		<TableOfContents entries={tocEntries} />
 
-		<h2 id="question">La question posée</h2>
+		<h2 id="introduction">Introduction</h2>
 
 		<p>
-			La leçon précédente a remplacé la perte 0-1 — critère optimal mais NP-difficile à
-			minimiser — par des pertes de substitution <KatexInline formula={'\\varphi'} />, et défini le
-			<KatexInline formula={'\\varphi'} />-risque <KatexInline formula={'R_\\varphi(f)'} /> et le
-			<KatexInline formula={'\\varphi'} />-risque de Bayes <KatexInline formula={'R_\\varphi^*'} />.
-			La question fondamentale reste entière : <em>minimiser une perte proxy</em> <KatexInline
-				formula={'\\varphi'}
-			/>
-			<em> conduit-il bien à un classifieur proche du classifieur de Bayes ?</em> Pour les pertes
-			convexes, la réponse est gouvernée par une seule quantité : la pente de <KatexInline
-				formula={'\\varphi'}
-			/> en 0.
+			La leçon précédente a montré que la consistance dépend d'un compromis entre le terme
+			d'approximation (fixé par le choix de la classe <KatexInline
+				formula={String.raw`\mathcal{H}`}
+			/>) et le terme d'estimation (qui décroît avec <KatexInline formula={String.raw`n`} />). Mais
+			cette analyse supposait implicitement une classe <KatexInline
+				formula={String.raw`\mathcal{H}`}
+			/> fixée à l'avance. Une question plus ambitieuse se pose : existe-t-il des algorithmes qui convergent
+			vers
+			<KatexInline formula={String.raw`R^*`} />
+			<strong>quelle que soit</strong> la distribution <KatexInline
+				formula={String.raw`P_{(X, Y)}`}
+			/>, sans jamais fixer de classe restrictive au préalable ? C'est la question de la
+			<strong>consistance universelle</strong>, et sa réponse — positive — est l'un des résultats
+			les plus marquants de la théorie de l'apprentissage non paramétrique.
 		</p>
 
-		<h2 id="definition-calibration">Définition de la calibration</h2>
+		<h2 id="consistance-universelle">Consistance universelle</h2>
 
-		<DefinitionBlock title="Perte calibrée">
+		<DefinitionBlock number="1.3" title="Consistance universelle">
 			<p>
-				Une fonction de perte <KatexInline
-					formula={'\\varphi : \\mathbb R \\to \\mathbb R_+'}
-				/>
-				<strong>convexe et positive</strong> est dite <strong>calibrée</strong> si pour tout
-				<KatexInline formula={'\\eta \\in [0,1]'} /> et toute suite <KatexInline
-					formula={'(f_n)'}
-				/>
-				de fonctions mesurables :
-			</p>
-			<KatexBlock formula={calibratedImplication} />
-			<p>
-				Autrement dit, minimiser le <KatexInline formula={'\\varphi'} />-risque conduit bien à
-				minimiser le risque 0-1.
+				Un algorithme est dit <strong>universellement consistant</strong> si <KatexInline
+					formula={String.raw`(h_n)`}
+				/> est consistant pour <strong>toute</strong> distribution <KatexInline
+					formula={universalConsistDef}
+				/>, sans hypothèse sur <KatexInline formula={String.raw`\eta(x)`} />.
 			</p>
 		</DefinitionBlock>
 
 		<p>
-			L'idée est la suivante : si <KatexInline formula={'\\varphi'} /> est calibrée, on peut travailler
-			avec <KatexInline formula={'R_\\varphi'} /> (convexe, différentiable) plutôt qu'avec
-			<KatexInline formula={'R'} /> (discontinu), et la convergence dans l'espace des
-			<KatexInline formula={'\\varphi'} />-risques entraîne la convergence dans l'espace des risques
-			0-1.
+			C'est une propriété bien plus forte que la consistance simple vue à la leçon précédente : elle
+			garantit que l'algorithme converge vers le risque de Bayes quelle que soit la structure du
+			problème — qu'il soit séparable, très bruité, en haute dimension, avec des frontières de
+			décision arbitrairement complexes. Aucune hypothèse de régularité sur <KatexInline
+				formula={String.raw`\eta`}
+			/> n'est nécessaire.
 		</p>
 
-		<h2 id="calibration-ponctuelle">La calibration ponctuelle</h2>
+		<Callout type="insight" title="Pourquoi ce n'est pas évident">
+			Rien ne garantit a priori qu'un tel algorithme existe. Un algorithme qui suppose, par exemple,
+			que la frontière de décision est linéaire (comme dans un modèle paramétrique) ne peut être
+			universellement consistant : dès que la vraie frontière est non linéaire, son terme
+			d'approximation reste strictement positif, quel que soit <KatexInline
+				formula={String.raw`n`}
+			/>. Il faut donc une classe de modèles dont la richesse s'adapte elle-même à <KatexInline
+				formula={String.raw`n`}
+			/> — c'est exactement l'idée derrière le <KatexInline formula={String.raw`k`} />-NN avec
+			<KatexInline formula={String.raw`k=k(n)`} /> variable.
+		</Callout>
 
-		<p>
-			Par la loi des espérances totales, on peut écrire <KatexInline formula={'R_\\varphi(f)'} />
-			terme à terme :
-		</p>
-		<KatexBlock formula={totalExpectation} />
-		<p>
-			où <KatexInline formula={'\\eta(x) = P(Y=1 \\mid X=x)'} /> et le <strong>risque
-			conditionnel</strong> est :
-		</p>
-		<KatexBlock formula={conditionalRisk} />
-		<p>
-			Le <KatexInline formula={'\\varphi'} />-risque de Bayes conditionnel est :
-		</p>
-		<KatexBlock formula={conditionalBayesRisk} />
+		<h2 id="theoreme-stone">Le théorème de Stone</h2>
 
-		<p>
-			Pour les quatre pertes usuelles, <KatexInline formula={phiDivergesNeg} /> ; alors, pour
-			<KatexInline formula={'\\eta \\in (0,1)'} />, <KatexInline formula={cphiDivergesAtEnds} /> — le
-			terme <KatexInline formula={'\\varphi(-\\alpha)'} /> explose quand <KatexInline
-				formula={'\\alpha \\to +\\infty'}
-			/>
-			, et le terme <KatexInline formula={'\\varphi(\\alpha)'} /> quand <KatexInline
-				formula={'\\alpha \\to -\\infty'} /> — : l'infimum de la définition précédente est donc
-			atteint en un <KatexInline formula={'\\alpha^*'} /> fini, ce qui rend le minimiseur ponctuel bien
-			défini.
-		</p>
-
-		<DefinitionBlock title="Calibration ponctuelle">
+		<TheoremBlock number="2.1" title="Consistance universelle de Stone (1977)">
 			<p>
-				<KatexInline formula={'\\varphi'} /> est <strong>ponctuellement calibrée</strong> en
-				<KatexInline formula={'\\eta'} /> si tout minimiseur <KatexInline
-					formula={'\\alpha^*(\\eta)'}
-				/>
-				de <KatexInline formula={'\\alpha \\mapsto C_\\varphi(\\alpha, \\eta)'} /> vérifie :
+				Soit <KatexInline formula={stoneSetup} />. Si le paramètre <KatexInline
+					formula={String.raw`k=k(n)`}
+				/> vérifie :
 			</p>
-			<KatexBlock formula={pointwiseAbove} />
-			<KatexBlock formula={pointwiseBelow} />
+			<KatexBlock formula={stoneConditions} />
 			<p>
-				c'est-à-dire que le signe du prédicteur optimal pour <KatexInline
-					formula={'\\varphi'}
-				/>
-				coïncide avec celui du classifieur de Bayes.
+				alors le classifieur <KatexInline formula={String.raw`k`} />-NN est universellement
+				consistant :
 			</p>
-		</DefinitionBlock>
+			<KatexBlock formula={stoneConclusion} />
+		</TheoremBlock>
+
+		<p>
+			Le résultat est remarquable par sa simplicité : deux conditions purement quantitatives sur la
+			suite <KatexInline formula={String.raw`k(n)`} />, sans aucune hypothèse sur la distribution
+			elle-même, suffisent à garantir la convergence vers le risque de Bayes — dans
+			<strong>n'importe quel</strong>
+			problème de classification binaire sur <KatexInline formula={String.raw`\mathbb{R}^d`} />.
+		</p>
+
+		<Callout type="intuition" title="Lecture biais-variance des deux conditions">
+			Les deux conditions du théorème jouent des rôles complémentaires, exactement comme dans la
+			décomposition approximation/estimation de la leçon précédente :
+			<ul>
+				<li>
+					<KatexInline formula={String.raw`k(n) \to +\infty`} /> réduit la <strong>variance</strong>
+					de l'estimation locale de <KatexInline formula={String.raw`\eta(x)`} /> — en moyennant sur davantage
+					de voisins, la loi des grands nombres lisse le bruit d'échantillonnage.
+				</li>
+				<li>
+					<KatexInline formula={String.raw`k(n)/n \to 0`} /> réduit le <strong>biais</strong> — cela
+					garantit que les <KatexInline formula={String.raw`k(n)`} /> voisins utilisés restent de plus
+					en plus proches de <KatexInline formula={String.raw`x`} /> à mesure que <KatexInline
+						formula={String.raw`n`}
+					/> grandit, donc que la moyenne locale capture bien la valeur de <KatexInline
+						formula={String.raw`\eta`}
+					/> en
+					<KatexInline formula={String.raw`x`} /> et non une moyenne diluée sur un voisinage trop large.
+				</li>
+			</ul>
+			Prendre <KatexInline formula={String.raw`k`} /> trop petit laisse trop de variance ; prendre
+			<KatexInline formula={String.raw`k`} /> trop grand (relativement à <KatexInline
+				formula={String.raw`n`}
+			/>) introduit du biais en moyennant sur des voisins trop éloignés. C'est exactement la même
+			tension biais-variance qu'ailleurs dans ce cours, ici exprimée à travers un seul paramètre
+			<KatexInline formula={String.raw`k`} />.
+		</Callout>
 
 		<InteractiveSection
 			number="2.1"
-			title="Le signe du minimiseur suit-il η ?"
+			title="Voisinage, frontière et compromis biais-variance"
 			onInteract={tracker.trackInteraction}
 		>
-			<p class="demo-guide">
-				<strong>À observer.</strong> La courbe <KatexInline
-					formula={String.raw`C_\varphi(\alpha, \eta)`}
-				/>
-				est convexe en <KatexInline formula={'\\alpha'} />, et son minimiseur <KatexInline
-					formula={'\\alpha^*'}
-				/>
-				est marqué. Déplacez <KatexInline formula={'\\eta'} /> : pour une perte calibrée, le signe de
-				<KatexInline formula={'\\alpha^*'} /> suit systématiquement celui de <KatexInline
-					formula={'\\eta - 1/2'}
-				/>
-				; la perte 0-1, elle, fait sauter <KatexInline formula={'\\alpha^*'} /> de façon discontinue
-				et ne s'optimise pas.
-			</p>
-			<ConditionalCalibrationDemo />
+			<KNNConsistencyDemo />
 		</InteractiveSection>
 
-		<h2 id="criterium">Le critère φ′(0) &lt; 0</h2>
+		<h2 id="pourquoi-k-fixe-echoue">Pourquoi k fixe ne suffit pas</h2>
 
 		<p>
-			La bonne nouvelle, c'est que la condition de calibration est <strong>locale</strong> : pour une
-			perte convexe, elle ne dépend que du comportement de <KatexInline formula={'\\varphi'} /> au
-			voisinage de 0.
+			Les deux conditions du Théorème 2.1 sont-elles vraiment nécessaires, ou une suite plus simple
+			— par exemple <KatexInline formula={String.raw`k(n)=k`} /> constant — suffirait-elle ? La réponse
+			est non.
 		</p>
 
-		<TheoremBlock title="Théorème 4.1 (Bartlett, Jordan, McAuliffe, 2006)">
+		<Callout type="insight" title="Erreur du 1-NN">
 			<p>
-				Soit <KatexInline formula={'\\varphi : \\mathbb R \\to \\mathbb R_+'} /> convexe et positive.
-				Alors <KatexInline formula={'\\varphi'} /> est calibrée si et seulement si
-				<KatexInline formula={'\\varphi'} /> est différentiable en 0 et <KatexInline
-					formula={'\\varphi\'(0) < 0'}
-				/>.
+				Cette borne n'apparaît pas dans le support du cours (l'Exercice 2.1 du support se limite
+				à un indice) : elle est due à Cover et Hart (1967) et est donnée ici comme complément,
+				au-delà du cours. Pour le classifieur du plus proche voisin (<KatexInline
+					formula={String.raw`1`}
+				/>-NN, <KatexInline formula={String.raw`k=1`} /> fixé), en supposant <KatexInline
+					formula={String.raw`\mathbb{P}_X`}
+				/> à densité (cela garantit que plus n est grand, plus le plus proche voisin est
+				effectivement proche), le risque asymptotique dépend de <KatexInline
+					formula={String.raw`R^*`}
+				/> et est donné par :
 			</p>
-		</TheoremBlock>
-
-		<div class="proof-block">
-			<p><strong>Démonstration :</strong></p>
+			<KatexBlock formula={coverHartIdentity} />
 			<p>
-				On étudie la calibration ponctuelle en <KatexInline formula={'\\eta'} />. Puisque
-				<KatexInline formula={'\\varphi'} /> est convexe, <KatexInline
-					formula={'C_\\varphi(\\cdot, \\eta)'}
-				/>
-				est convexe pour tout <KatexInline formula={'\\eta \\in [0,1]'} />. On caractérise la
-				localisation des minimiseurs via les dérivées à gauche et à droite en 0.
+				Plus utilement, il est borné en fonction de <KatexInline formula={String.raw`R^*`} /> seul —
+				pour <KatexInline formula={String.raw`0<R^*<1`} /> :
 			</p>
-		</div>
-
-		<Callout type="note" title="Rappel : localisation des minimiseurs d'une fonction convexe">
+			<KatexBlock formula={coverHartBound} />
 			<p>
-				Pour une fonction convexe <KatexInline formula={'g : \\mathbb R \\to \\mathbb R'} />, on a :
-			</p>
-			<KatexBlock formula={recallPos} />
-			<KatexBlock formula={recallNeg} />
-			<p>
-				En effet, par convexité, <KatexInline formula={'g\'_+'} /> est croissante et
-				<KatexInline formula={'g\'_-(t) \\le g\'_+(t)'} /> pour tout <KatexInline
-					formula={'t'}
-				/>. Un minimiseur <KatexInline formula={'\\alpha^*'} /> vérifie <KatexInline
-					formula={minimizerCondition}
-				/>. Donc <KatexInline formula={'\\alpha^* > 0'} /> si et seulement si
-				<KatexInline formula={'g\'_+(0) < 0'} /> (sinon 0 serait déjà minimiseur), et
-				<KatexInline formula={'\\alpha^* < 0'} /> si et seulement si
-				<KatexInline formula={'g\'_-(0) > 0'} />.
+				La borne supérieure est strictement supérieure à <KatexInline
+					formula={String.raw`R^*`}
+				/> pour tout <KatexInline formula={String.raw`R^*\in(0,1)`} /> : l'écart
+				<KatexInline formula={String.raw`2R^*\left(1-\tfrac{R^*}{2}\right)-R^* = R^*(1-R^*)`} /> est
+				strictement positif, et ne s'annule que pour <KatexInline
+					formula={String.raw`R^*\in\{0,1\}`}
+				/>. La borne ne garantit donc pas la convergence vers <KatexInline
+					formula={String.raw`R^*`}
+				/> : il existe des distributions pour lesquelles le risque asymptotique du 1-NN reste
+				strictement au-dessus du risque de Bayes — par exemple, si <KatexInline
+					formula={String.raw`\eta(X)\in\{c,1-c\}`}
+				/> presque sûrement avec <KatexInline formula={String.raw`c\in(0,1/2)`} />, alors
+				<KatexInline formula={String.raw`R^*=c`} /> mais le risque asymptotique vaut
+				<KatexInline formula={String.raw`2c(1-c)>c`} />. C'est pour cela que la condition
+				<KatexInline formula={String.raw`k(n)\to+\infty`} /> du Théorème 2.1 est nécessaire, et pas
+				seulement une commodité technique de la démonstration.
 			</p>
 		</Callout>
 
-		<div class="proof-block">
-			<p>
-				On calcule les dérivées à gauche et à droite de <KatexInline
-					formula={'C_\\varphi(\\cdot, \\eta)'}
-				/>
-				en 0. Puisque <KatexInline formula={'\\varphi'} /> est convexe, elle admet des dérivées à
-				gauche et à droite en tout point, et en particulier en 0. Par la règle de dérivation de
-				<KatexInline formula={'\\alpha \\mapsto \\varphi(-\\alpha)'} />, dont les dérivées à gauche et
-				à droite en 0 sont <KatexInline formula={'-\\varphi\'_+(0)'} /> et
-				<KatexInline formula={'-\\varphi\'_-(0)'} /> respectivement :
-			</p>
-			<KatexBlock formula={cphiDerivRight} />
-			<KatexBlock formula={cphiDerivLeft} />
-			<p>En combinant avec le rappel, on obtient les équivalences :</p>
-			<KatexBlock formula={eqAbove} />
-			<KatexBlock formula={eqBelow} />
-		</div>
-
-		<div class="proof-block">
-			<p>
-				<strong>(⇒) Si</strong> <KatexInline formula={'\\varphi'} />
-				<strong>est calibrée, alors</strong> <KatexInline formula={'\\varphi'} />
-				<strong>est différentiable en 0 et</strong> <KatexInline
-					formula={'\\varphi\'(0) < 0'}
-				/>
-				<strong>.</strong>
-			</p>
-			<p>
-				Supposons <KatexInline formula={'\\varphi'} /> calibrée. Pour tout <KatexInline
-					formula={'\\eta > 1/2'}
-				/>, la condition de calibration impose <KatexInline
-					formula={'\\arg\\min C_\\varphi(\\cdot, \\eta) \\subset \\mathbb R_+^*'}
-				/>, soit <KatexInline
-					formula={'\\eta\\, \\varphi\'_+(0) - (1-\\eta)\\, \\varphi\'_-(0) < 0'}
-				/>. Cette inégalité est stricte pour tout <KatexInline formula={'\\eta > 1/2'} />. En faisant
-				tendre <KatexInline formula={'\\eta \\to 1/2^+'} />, on obtient à la limite :
-			</p>
-			<KatexBlock formula={limitEta} />
-			<p>
-				Or la convexité de <KatexInline formula={'\\varphi'} /> implique toujours
-				<KatexInline formula={convexityOrder} />. En combinant :
-			</p>
-			<KatexBlock formula={sandwich} />
-			<p>
-				donc <KatexInline formula={'\\varphi\'_+(0) = \\varphi\'_-(0)'} /> :
-				<KatexInline formula={'\\varphi'} /> est <em>différentiable en 0</em>, et on note
-				<KatexInline formula={'\\varphi\'(0) = \\varphi\'_+(0) = \\varphi\'_-(0)'} />.
-			</p>
-			<p>
-				Les équivalences deviennent alors <KatexInline formula={cphiDerivAtZero} />. La condition de
-				calibration pour <KatexInline formula={'\\eta > 1/2'} /> impose
-				<KatexInline formula={'(2\\eta-1)\\, \\varphi\'(0) < 0'} />, soit
-				<KatexInline formula={'\\varphi\'(0) < 0'} /> puisque <KatexInline
-					formula={'2\\eta - 1 > 0'}
-				/>.
-			</p>
-		</div>
-
-		<div class="proof-block">
-			<p>
-				<strong>(⇐) Si</strong> <KatexInline formula={'\\varphi'} />
-				<strong>est différentiable en 0 et</strong> <KatexInline formula={'\\varphi\'(0) < 0'} />
-				<strong>, alors</strong> <KatexInline formula={'\\varphi'} />
-				<strong>est calibrée.</strong>
-			</p>
-			<p>
-				Supposons <KatexInline formula={'\\varphi\'(0) < 0'} />. Alors
-				<KatexInline formula={cphiDerivAtZero} /> :
-			</p>
-			<ul>
-				<li>
-					Si <KatexInline formula={'\\eta > 1/2'} /> : <KatexInline
-						formula={'(2\\eta-1) > 0'}
+		<ExercisePanel number="2.1" title="Calcul d'erreur">
+			{#snippet solution()}
+				<p>
+					Avec <KatexInline formula={String.raw`R^*=0.1`} /> par exemple, la borne de Cover-Hart donne
+					<KatexInline
+						formula={String.raw`2R^*\left(1-\tfrac{R^*}{2}\right) = 2\times0.1\times0.95 = 0.19`}
 					/>
-					et <KatexInline formula={'\\varphi\'(0) < 0'} />, donc <KatexInline
-						formula={caseAbove}
-					/>
-					✓
-				</li>
-				<li>
-					Si <KatexInline formula={'\\eta < 1/2'} /> : <KatexInline
-						formula={'(2\\eta-1) < 0'}
-					/>
-					et <KatexInline formula={'\\varphi\'(0) < 0'} />, donc <KatexInline
-						formula={caseBelow}
-					/>
-					✓
-				</li>
-			</ul>
+					: le risque asymptotique du 1-NN est ainsi majoré par <KatexInline
+						formula={String.raw`0.19`}
+					/>, soit près du double du risque de Bayes. Plus généralement, la borne
+					<KatexInline formula={coverHartBound} /> montre que la borne supérieure est strictement
+					au-dessus de <KatexInline formula={String.raw`R^*`} /> dès que <KatexInline
+						formula={String.raw`R^*\in(0,1)`}
+					/> : il existe des distributions non séparables pour lesquelles un <KatexInline
+						formula={String.raw`k`}
+					/> fixé laisse un écart résiduel strictement positif, quel que soit <KatexInline
+						formula={String.raw`n`}
+					/>. C'est cette impossibilité générale — pas seulement l'exemple numérique — qui rend la
+					condition <KatexInline formula={String.raw`k(n)\to+\infty`} /> du Théorème 2.1 nécessaire,
+					et pas seulement une commodité technique de la démonstration.
+				</p>
+			{/snippet}
 			<p>
-				Dans les deux cas, le minimiseur de <KatexInline
-					formula={'C_\\varphi(\\cdot, \\eta)'}
-				/>
-				est du bon signe : <KatexInline formula={'\\varphi'} /> est ponctuellement calibrée pour tout
-				<KatexInline formula={'\\eta \\neq 1/2'} />, donc calibrée au sens de la définition. ∎
+				En utilisant le résultat énoncé ci-dessus, calculez la borne supérieure du risque
+				asymptotique du 1-NN pour <KatexInline formula={String.raw`R^*=0.1`} />.
 			</p>
-		</div>
-
-		<InteractiveSection
-			number="2.2"
-			title="La face perte du critère : φ et sa pente en 0"
-			onInteract={tracker.trackInteraction}
-		>
-			<p class="demo-guide">
-				<strong>À observer.</strong> La définition de la calibration est énoncée en termes du
-				minimiseur de <KatexInline formula={String.raw`C_\varphi(\alpha, \eta)`} />, mais le
-				théorème montre qu'elle ne dépend que de la perte <KatexInline formula={'\\varphi'} />
-				elle-même : sa pente en 0. Sélectionnez chaque perte et ramenez <KatexInline
-					formula={'t'}
-				/>
-				vers 0 : la valeur de <KatexInline formula={"\\varphi'(0)"} /> affichée est négative pour les
-				quatre (−1/2, −1, −1, −2) — c'est la face « perte » de l'équivalence, en contraste avec le
-				widget 2.1, qui montrait <KatexInline formula={String.raw`C_\varphi`} />. Le théorème est
-				précisément le pont entre les deux objets.
-			</p>
-			<CalibratedLossExplorer />
-		</InteractiveSection>
-
-		<h2 id="verification-exemples">Vérification sur les pertes usuelles</h2>
-
-		<ul>
-			<li>
-				<strong>Logistique</strong> : <KatexInline formula={'\\varphi(t) = \\log(1 + e^{-t})'} />,
-				<KatexInline formula={logisticDeriv} />, <KatexInline
-					formula={'\\varphi\'(0) = -1/2 < 0'}
-				/>. ✓
-			</li>
-			<li>
-				<strong>Charnière</strong> : <KatexInline formula={'\\varphi(t) = \\max(0, 1-t)'} />,
-				<KatexInline formula={'\\varphi\'(0^-) = -1 < 0'} />. ✓ — attention : le point d'angle de la
-				charnière est en <KatexInline formula={'t = 1'} />, <em>pas</em> en 0 ; elle est donc
-				différentiable en 0, et le critère s'applique sans ambiguïté.
-			</li>
-			<li>
-				<strong>Exponentielle</strong> : <KatexInline formula={'\\varphi(t) = e^{-t}'} />,
-				<KatexInline formula={'\\varphi\'(0) = -1 < 0'} />. ✓
-			</li>
-			<li>
-				<strong>Carrée</strong> : <KatexInline formula={'\\varphi(t) = (1-t)^2'} />,
-				<KatexInline formula={'\\varphi\'(0) = -2 < 0'} />. ✓
-			</li>
-		</ul>
-
-		<p>
-			À noter : la Brier est la seule des quatre qui ne s'annule pas quand
-			<KatexInline formula={'t \\to +\\infty'} /> — elle croît comme <KatexInline
-				formula={brierGrowth}
-			/>
-			et pénalise donc aussi les grandes marges correctes (défaut connu du moindres carrés), tandis que
-			la charnière vaut <KatexInline formula={hingeZero} />.
-		</p>
-
-		<p>
-			Les quatre pertes de substitution de la leçon précédente sont donc calibrées : minimiser leur
-			<KatexInline formula={'\\varphi'} />-risque empirique jusqu'à sa borne inférieure conduit au
-			classifieur de Bayes. La leçon suivante quantifiera ce qui se passe quand on ne descend que
-			jusqu'à <em>près</em> de la borne : la décomposition estimation / calibration / approximation.
-		</p>
-
-		<InteractiveSection
-			number="2.3"
-			title="Calibrée ou non : le signe du minimiseur en parallèle"
-			onInteract={tracker.trackInteraction}
-		>
-			<p class="demo-guide">
-				<strong>À observer.</strong> À gauche, une perte calibrée ; à droite, un contre-exemple
-				non calibrée, sous le même <KatexInline formula={'\\eta'} />. Avec la marge carrée
-				<KatexInline formula={'t^2'} />, <KatexInline formula={'\\varphi\'(0) = 0'} /> et
-				<KatexInline formula={'\\alpha^*'} /> reste collé à 0 quelle que soit <KatexInline
-					formula={'\\eta'}
-				/> ; avec la marge décalée <KatexInline formula={'(1+t)^2'} />,
-				<KatexInline formula={'\\varphi\'(0) > 0'} /> et <KatexInline formula={'\\alpha^*'} /> est du
-				mauvais signe des deux côtés de <KatexInline formula={'\\eta = 1/2'} />. Le critère
-				<KatexInline formula={'\\varphi\'(0) < 0'} /> n'est pas une curiosité formelle : c'est
-				précisément ce qui sépare les deux panneaux.
-			</p>
-			<CalibrationCriterionDemo />
-		</InteractiveSection>
+		</ExercisePanel>
 
 		<Callout type="summary" title="Retenir">
-			Une perte convexe positive <KatexInline formula={'\\varphi'} /> est calibrée si et seulement
-			si elle est différentiable en 0 avec <KatexInline formula={'\\varphi\'(0) < 0'} /> (Théorème
-			4.1). La preuve réduit tout au signe du minimiseur du risque conditionnel
-			<KatexInline formula={String.raw`C_\varphi(\alpha, \eta)`} /> en <KatexInline
+			La consistance universelle est une exigence bien plus forte que la simple consistance : elle
+			doit tenir pour toute distribution, sans hypothèse sur <KatexInline
 				formula={String.raw`\eta`}
-			/>, lequel est gouverné par la pente <KatexInline formula={String.raw`\varphi'(0)`} /> via
-			<KatexInline formula={String.raw`(C_\varphi)'(0) = (2\eta - 1)\, \varphi'(0)`} />. Logistique
-			(<KatexInline formula={'-1/2'} />), charnière (<KatexInline formula={'-1'} />), exponentielle
-			(<KatexInline formula={'-1'} />) et Brier (<KatexInline formula={'-2'} />) sont toutes
-			calibrées — la charnière malgré son point d'angle, qui est en 1 et non en 0.
+			/>. Le théorème de Stone montre que le <KatexInline formula={String.raw`k`} />-NN l'atteint
+			dès que
+			<KatexInline formula={String.raw`k(n)\to+\infty`} /> (contrôle de la variance) et
+			<KatexInline formula={String.raw`k(n)/n\to0`} /> (contrôle du biais) — deux conditions purement
+			quantitatives sur une seule suite <KatexInline formula={String.raw`k(n)`} />. La borne de
+			Cover-Hart montre que la première condition n'est pas une simple facilité de preuve : sans
+			elle, il peut subsister un écart résiduel strictement positif au risque de Bayes, pour
+			toujours. Ce résultat clôt la partie
+			consacrée à la consistance ; la partie suivante s'attaque à une question complémentaire : non
+			plus
+			<em>si</em>
+			un algorithme converge vers <KatexInline formula={String.raw`R^*`} />, mais
+			<em>à quelle vitesse</em>, via les bornes de généralisation.
 		</Callout>
 	</TheorySection>
 	<Bibliography>
 		<BibElement
-			authors={['Bartlett, P. L.', 'Jordan, M. I.', 'McAuliffe, J.']}
-			year={2006}
-			title="Convexity, Classification, and Risk Bounds"
-			journal="Journal of the American Statistical Association, 101(473), 138-156."
+			authors={['Stone, C. J.']}
+			year={1977}
+			title="Consistent Nonparametric Regression"
+			journal="The Annals of Statistics, Vol. 5, No. 4, pp. 595-620."
+			link="https://projecteuclid.org/journals/annals-of-statistics/volume-5/issue-4/Consistent-Nonparametric-Regression/10.1214/aos/1176343886.full"
+		/>
+		<BibElement
+			authors={['Cover, T. M.', 'Hart, P. E.']}
+			year={1967}
+			title="Nearest neighbor pattern classification"
+			journal="IEEE Transactions on Information Theory, Vol. 13, No. 1, pp. 21-27."
+			link="https://ieeexplore.ieee.org/document/1053964"
+		/>
+		<BibElement
+			authors={['Devroye, L.', 'Györfi, L.', 'Lugosi, G.']}
+			year={1996}
+			title="A Probabilistic Theory of Pattern Recognition"
+			journal="Springer."
+			link="https://link.springer.com/book/10.1007/978-1-4612-0221-5"
 		/>
 	</Bibliography>
 </PageTemplate>
-
-<style>
-	.proof-block {
-		padding: 1rem 1.5rem;
-		margin: 1rem 0;
-		border-left: 3px solid var(--color-positive, #4caf50);
-		background-color: color-mix(in srgb, var(--color-positive, #4caf50) 5%, transparent);
-		border-radius: 0 6px 6px 0;
-		font-size: 0.95em;
-		line-height: 1.7;
-	}
-
-	.proof-block p {
-		margin: 0.4rem 0;
-	}
-
-	.proof-block ul {
-		margin: 0.4rem 0;
-		padding-left: 1.25rem;
-	}
-
-	.demo-guide {
-		margin: 0.75rem 0;
-		padding: 0.8rem 1rem;
-		border-radius: 6px;
-		background: color-mix(in srgb, var(--color-epistemic, #4f7cac) 8%, transparent);
-		line-height: 1.65;
-	}
-</style>

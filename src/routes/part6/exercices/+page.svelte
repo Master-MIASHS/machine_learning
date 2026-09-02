@@ -7,8 +7,14 @@
 	import TableOfContents, { type TocEntry } from '$lib/components/narrative/TableOfContents.svelte';
 	import { getPageByPath, getAdjacentPages } from '$lib/navigation.js';
 	import { settings } from '$lib/stores/index.js';
+	import InteractiveSection from '$lib/components/narrative/InteractiveSection.svelte';
+	import ClassificationIsEasierThanRegression from '$lib/components/demos/ClassificationIsEasierThanRegression.svelte';
+	import Callout from '$lib/components/narrative/Callout.svelte';
+	import { createPageTracker } from '$lib/stores/progress.svelte';
+	import type { PageMeta } from '$lib/navigation.js';
 
 	const meta = getPageByPath('/part6/exercices');
+	const tracker = createPageTracker(meta as PageMeta);
 	const { prev: prevMeta, next: nextMeta } = $derived(
 		getAdjacentPages(meta?.path ?? '', $settings.expertMode)
 	);
@@ -17,51 +23,89 @@
 
 	const tocEntries: TocEntry[] = [
 		{
-			id: 'concentration-empirique',
-			label: 'Concentration et risque empirique',
-			description: '8 exercices — Markov, Tchebychev, Hoeffding, et la limite du classifieur fixé',
-			color: 'epistemic'
-		},
-		{
-			id: 'classe-finie',
-			label: 'Généralisation pour une classe finie',
-			description: '9 exercices — échantillons trompeurs, union bound, Théorèmes 3.1 et 3.2',
+			id: 'risque-classifieur',
+			label: 'Risque conditionnel et classifieur de Bayes',
+			description:
+				'12 exercices — r(a,x), seuil 1/2, risque de Bayes, séparabilité, coûts asymétriques',
 			color: 'belief'
 		},
 		{
-			id: 'dimension-vc',
-			label: 'Dimension VC, Sauer-Shelah et SVM',
-			description: '12 exercices — brisure, coefficient de brisure, Théorèmes 3.3 et 3.4',
+			id: 'regression-moyenne-mediane',
+			label: 'Régression : moyenne et médiane conditionnelles',
+			description:
+				'10 exercices — décomposition biais-variance, non-unicité de la médiane, L1 vs L2',
 			color: 'surprise'
 		},
 		{
-			id: 'limites-vc-double-descente',
-			label: 'Limites de VC et double descente',
-			description: '9 exercices — Bartlett, double descente, biais implicite, normes, Rademacher',
+			id: 'synthese-classification-regression',
+			label: 'Synthèse classification / régression',
+			description: '3 exercices — le principe commun derrière les deux familles de résultats',
+			color: 'neutral'
+		},
+		{
+			id: 'expert-classification-regression',
+			label: 'Pourquoi la classification est plus facile que la régression',
+			description:
+				'Au-delà du cours — reconstruction d\'un résultat de Devroye, Györfi & Lugosi (1996), §6.7',
 			color: 'agent'
 		}
 	];
 
 	// ── Formula variables reused across several exercises ──
 
-	const ermDef = '\\hat h_{\\mathcal S_n} = \\arg\\min_{h\\in\\mathcal H} R_{\\mathcal S_n}(h)';
-	const hBadDef = '\\mathcal H_{\\text{bad}} = \\{h\\in\\mathcal H : R(h) > \\varepsilon\\}';
-	const mDef =
-		'\\mathcal M = \\{\\mathcal S_n : \\exists\\, h\\in\\mathcal H_{\\text{bad}},\\ R_{\\mathcal S_n}(h)=0\\}';
-	const separableStatement =
-		'\\mathbb{P}^n\\big(R(\\hat h_{\\mathcal S_n}) > \\varepsilon\\big) \\le |\\mathcal H|\\, e^{-n\\varepsilon}';
-	const separableCorollary = 'R(\\hat h_{\\mathcal S_n}) \\le \\frac{\\log(|\\mathcal H|/\\delta)}{n}';
-	const uniformRiskBound =
-		'R(\\hat h_{\\mathcal S_n}) \\le R_{\\mathcal S_n}(\\hat h_{\\mathcal S_n}) + \\sqrt{\\frac{\\log|\\mathcal H|+\\log(2/\\delta)}{2n}}';
-	const vcBoundStatement =
-		'\\mathbb{P}^n\\Big(\\forall h\\in\\mathcal H,\\ |R(h)-R_{\\mathcal S_n}(h)| \\le \\sqrt{\\frac{8d\\log(2en/d) + 8\\log(4/\\delta)}{n}}\\Big) \\ge 1-\\delta';
-	const svmVCDimBound =
-		'\\|X_i\\|_2 \\le R \\text{ p.s.} \\implies \\mathrm{VCdim}(\\mathcal H_\\gamma) \\le \\left\\lfloor \\frac{R^2}{\\gamma^2} \\right\\rfloor';
-	const bftBound =
-		'R(h) - R_{\\mathcal S_n}(h) = \\tilde{O}\\left( \\frac{\\left(\\prod_{l=1}^L \\|W_l\\|_{\\mathrm{op}}\\right) \\cdot \\left(\\sum_{l=1}^L \\|W_l\\|_F^{2/3}\\right)^{3/2}}{\\sqrt{n}} \\right)';
-	const rademacherBound =
-		'\\sup_{h\\in\\mathcal H} |R(h) - R_{\\mathcal S_n}(h)| \\le 2\\,\\widehat{\\mathfrak R}_n(\\mathcal H) + \\sqrt{\\frac{\\log(2/\\delta)}{2n}}';
-	const vcDimNetwork = '\\mathrm{VCdim}(\\mathcal H) = O\\big(W\\, L \\log W\\big)';
+	const r0x = 'r(0,x) = \\eta(x)';
+	const r1x = 'r(1,x) = 1-\\eta(x)';
+	const bayesClassifierCases =
+		'h^*(x) = \\begin{cases} 1 & \\text{si } \\eta(x) \\ge 1/2 \\\\ 0 & \\text{sinon} \\end{cases}';
+	const mDef = 'm(x) = \\mathbb{E}[Y\\mid X=x]';
+	const medDef = '\\mathrm{Med}(Y\\mid X=x)';
+	const gDef = 'g(c) = \\mathbb{E}[|Y-c|\\mid X=x]';
+
+	// -- Formula for classification is easier than regression
+	const exBayesExcess = String.raw`L_n-L^*=2\,\mathbb{E}\!\left[\left|\eta(X)-\frac12\right|\mathbf{1}_{\{g_n(X)\neq g^*(X)\}}\right]`;
+
+	const exSplit = String.raw`\begin{aligned}
+		A_n
+		&:=\mathbb{E}\!\left[
+			|\eta(X)-\eta_n(X)|
+			\mathbf{1}_{\{g_n(X)\neq g^*(X)\}}
+			\right] \\[2mm]
+		&\leq
+		\mathbb{E}\!\left[
+			|\eta(X)-\eta_n(X)|
+			\mathbf{1}_{\{|\eta(X)-1/2|\leq\varepsilon\}}
+			\right] \\
+		&\quad+
+		\mathbb{E}\!\left[
+			|\eta(X)-\eta_n(X)|
+			\mathbf{1}_{\{g_n(X)\neq g^*(X)\}}
+			\mathbf{1}_{\{|\eta(X)-1/2|>\varepsilon\}}
+			\right].
+		\end{aligned}`;
+
+	const exCauchy = String.raw`\mathbb{E}\!\left[
+			|\eta(X)-\eta_n(X)|
+			\mathbf{1}_{A}
+			\right]
+		\leq
+		\sqrt{\mathbb{E}\!\left[(\eta_n(X)-\eta(X))^2\right]}
+		\sqrt{\mathbb{P}(A)}`;
+
+	const exImplication = String.raw`g_n(X)\neq g^*(X)
+		\quad\text{et}\quad
+		\left|\eta(X)-\frac12\right|>\varepsilon
+		\quad\Longrightarrow\quad
+		|\eta_n(X)-\eta(X)|>\varepsilon`;
+
+	const exMargin = String.raw`\mathbb{P}\!\left(
+			\left|\eta(X)-\frac12\right|\leq\varepsilon
+		\right)
+		\longrightarrow 0
+		\qquad\text{quand }\varepsilon\downarrow0`;
+
+	const exFinal = String.raw`\frac{\mathbb{E}[L_n]-L^*}
+			{\sqrt{\mathbb{E}[(\eta_n(X)-\eta(X))^2]}}
+		\longrightarrow 0`;
 </script>
 
 <svelte:head>
@@ -69,1613 +113,1144 @@
 </svelte:head>
 
 <PageTemplate
-	title={meta?.title ?? 'Exercices — Généralisation'}
-	subtitle="38 exercices sur les quatre leçons de la partie : concentration, classes finies, dimension VC et double descente"
+	title={meta?.title ?? 'Exercices — Optimum de Bayes'}
+	subtitle="Décision bayésienne, risque conditionnel, et prédicteurs optimaux en régression"
 	prev={prevMeta}
 	next={nextMeta}
 >
 	<TheorySection>
 		<TableOfContents entries={tocEntries} />
 
-		<h2 id="concentration-empirique">Concentration et risque empirique</h2>
+		<h2 id="risque-classifieur">Risque conditionnel et classifieur de Bayes</h2>
 
 		<p>
-			Cette section propose huit exercices sur les inégalités de Markov et de Bienaymé-Tchebychev, la
-			concentration de la moyenne empirique, et la limite du contrôle pour un classifieur fixé (Leçon 1).
-			Chaque exercice est accompagné d'une solution détaillée, accessible en cliquant sur « Voir la
-			solution ».
+			Cette section propose douze exercices sur le classifieur de Bayes : calcul du risque
+			conditionnel, dérivation du seuil <KatexInline formula={String.raw`1/2`} />, calcul du risque
+			de Bayes pour des distributions discrètes ou continues, séparabilité, et une extension
+			optionnelle aux coûts asymétriques. Chaque exercice est accompagné d'une solution détaillée,
+			accessible en cliquant sur « Voir la solution ».
 		</p>
 
-		<ExercisePanel number="1.1" title="Appliquer Markov à une loi exponentielle">
+		<ExercisePanel number="1.1" title="Calcul direct du risque conditionnel">
 			{#snippet solution()}
 				<p>
-					<strong>(a)</strong> Par Markov, avec <KatexInline formula={String.raw`\mathbb{E}[Z] = 1/2`} /> :
-				</p>
-				<KatexBlock
-					formula={String.raw`\mathbb{P}(Z \ge 3) \le \frac{\mathbb{E}[Z]}{3} = \frac{1/2}{3} = \frac16 \approx 0.17.`}
-				/>
-				<p>
-					<strong>(b)</strong> La valeur exacte vaut <KatexInline
-						formula={String.raw`\mathbb{P}(Z\ge 3) = e^{-2\times 3} = e^{-6} \approx 2.48\times 10^{-3}`}
-					/>. Markov surestime donc la probabilité d'un facteur d'environ <KatexInline
-						formula={String.raw`e^6/6 \approx 67`}
-					/>. L'inégalité n'utilise que l'espérance : elle est aveugle à la décroissance rapide de la
-					queue de la loi exponentielle, et c'est ce qui explique l'écart.
+					<KatexInline formula={String.raw`r(0,x) = \eta(x) = 0.3`} /> et
+					<KatexInline formula={String.raw`r(1,x) = 1-\eta(x) = 0.7`} />. Comme
+					<KatexInline formula={String.raw`r(0,x) < r(1,x)`} />, l'action optimale est
+					<KatexInline formula={String.raw`a=0`} />, avec risque conditionnel de Bayes
+					<KatexInline formula={String.raw`\min(0.3, 0.7) = 0.3`} />.
 				</p>
 			{/snippet}
 			<p>
-				Soit <KatexInline formula={String.raw`Z`} /> suivant une loi exponentielle de paramètre <KatexInline
-					formula={String.raw`2`}
-				/> (densité <KatexInline formula={String.raw`2e^{-2x}\mathbb{1}_{x\ge 0}`} />, espérance
-				<KatexInline formula={String.raw`1/2`} />).
-			</p>
-			<p>
-				<strong>(a)</strong> Utilisez l'inégalité de Markov pour borner <KatexInline
-					formula={String.raw`\mathbb{P}(Z\ge 3)`} />.
-			</p>
-			<p>
-				<strong>(b)</strong> Comparez avec la valeur exacte de <KatexInline
-					formula={String.raw`\mathbb{P}(Z\ge 3)`} />. Que remarquez-vous ?
+				Soit <KatexInline formula={String.raw`\eta(x) = 0.3`} />. Calculez <KatexInline
+					formula={String.raw`r(0,x)`}
+				/> et <KatexInline formula={String.raw`r(1,x)`} />, puis déterminez l'action optimale et le
+				risque conditionnel de Bayes en <KatexInline formula={String.raw`x`} />.
 			</p>
 		</ExercisePanel>
 
-		<ExercisePanel number="1.2" title="Markov est parfois exact">
+		<ExercisePanel number="1.2" title="Le cas d'égalité η(x) = 1/2">
 			{#snippet solution()}
 				<p>
-					<strong>(a)</strong> On a <KatexInline formula={String.raw`\mathbb{E}[Z] = p\,a`} /> et
-					<KatexInline formula={String.raw`\mathbb{P}(Z\ge a) = p`} />.
+					Ici <KatexInline formula={String.raw`r(0,x) = r(1,x) = 0.5`} /> : les deux actions sont équivalentes
+					en risque conditionnel, aucune n'est strictement meilleure. La convention du Théorème 1.1, <KatexInline
+						formula={bayesClassifierCases}
+					/>, tranche cette égalité en faveur de <KatexInline formula={String.raw`a=1`} /> (l'inégalité
+					est large,
+					<KatexInline formula={String.raw`\ge`} />, pas stricte). Un autre choix de convention (par
+					exemple trancher vers 0) donnerait un classifieur tout aussi optimal, puisque le risque
+					conditionnel est identique dans les deux cas — seule la <em>fonction</em>
+					<KatexInline formula={String.raw`h^*`} /> change, pas le risque <KatexInline
+						formula={String.raw`R^*`}
+					/> qu'elle atteint.
 				</p>
+			{/snippet}
+			<p>
+				Soit <KatexInline formula={String.raw`\eta(x) = 1/2`} /> exactement. Que valent
+				<KatexInline formula={String.raw`r(0,x)`} /> et <KatexInline formula={String.raw`r(1,x)`} /> ?
+				Quelle action le Théorème 1.1 prescrit-il, et pourquoi ce choix n'a-t-il pas d'incidence sur la
+				valeur du risque atteint ?
+			</p>
+		</ExercisePanel>
+
+		<ExercisePanel number="1.3" title="Retrouver algébriquement le seuil 1/2">
+			{#snippet solution()}
 				<p>
-					<strong>(b)</strong> En appliquant Markov avec le seuil <KatexInline
-						formula={String.raw`t = a`}
+					On part de la condition d'optimalité <KatexInline
+						formula={String.raw`r(1,x) \le r(0,x)`}
 					/> :
 				</p>
 				<KatexBlock
-					formula={String.raw`\mathbb{P}(Z \ge a) \le \frac{\mathbb{E}[Z]}{a} = \frac{pa}{a} = p = \mathbb{P}(Z\ge a).`}
+					formula={String.raw`1-\eta(x) \le \eta(x) \iff 1 \le 2\eta(x) \iff \eta(x) \ge \tfrac12.`}
 				/>
 				<p>
-					La borne est atteinte à l'égalité. La constante de Markov ne peut donc pas être améliorée
-					: il existe des variables pour lesquelles l'inégalité est une égalité. Remarquons la
-					distinction avec l'Exercice 1.1 : Markov est <em>optimal en général</em> (on ne peut pas
-					faire mieux sans hypothèse supplémentaire), mais peut être très <em>loin d'être
-					optimale pour une variable donnée</em>.
+					C'est exactement la condition du Théorème 1.1 : prédire <KatexInline
+						formula={String.raw`1`}
+					/>
+					est optimal si et seulement si <KatexInline formula={String.raw`\eta(x) \ge 1/2`} />.
 				</p>
 			{/snippet}
 			<p>
-				Soit <KatexInline formula={String.raw`Z`} /> qui prend la valeur <KatexInline
-					formula={String.raw`a>0`}
-				/> avec probabilité <KatexInline formula={String.raw`p\in(0,1)`} />, et la valeur <KatexInline
-					formula={String.raw`0`} /> sinon.
-			</p>
-			<p>
-				<strong>(a)</strong> Calculez <KatexInline formula={String.raw`\mathbb{E}[Z]`} /> et
-				<KatexInline formula={String.raw`\mathbb{P}(Z\ge a)`} />.
-			</p>
-			<p>
-				<strong>(b)</strong> Montrez que l'inégalité de Markov appliquée au seuil <KatexInline
-					formula={String.raw`t=a`}
-				/>
-				est une égalité. Qu'apporte cela sur l'optimalité de la constante de Markov ?
+				En partant de la définition <KatexInline formula={r0x} /> et <KatexInline formula={r1x} />,
+				retrouvez algébriquement la condition <KatexInline formula={String.raw`\eta(x) \ge 1/2`} /> à
+				partir de <KatexInline formula={String.raw`r(1,x) \le r(0,x)`} />.
 			</p>
 		</ExercisePanel>
 
-		<ExercisePanel number="1.3" title="Retrouver Tchebychev à partir de Markov">
+		<ExercisePanel number="1.4" title="Risque de Bayes pour une distribution discrète">
 			{#snippet solution()}
 				<p>
-					Soit <KatexInline formula={String.raw`W = (Z-\mathbb{E}[Z])^2 \ge 0`} />. En appliquant Markov
-					à <KatexInline formula={String.raw`W`} /> avec le seuil <KatexInline
-						formula={String.raw`\varepsilon^2`}
-					/> :
+					Pour chaque point, le risque conditionnel de Bayes est
+					<KatexInline formula={String.raw`\min(\eta(x_i), 1-\eta(x_i))`} /> :
+					<KatexInline formula={String.raw`\min(0.1,0.9)=0.1`} />,
+					<KatexInline formula={String.raw`\min(0.5,0.5)=0.5`} />,
+					<KatexInline formula={String.raw`\min(0.9,0.1)=0.1`} />. En moyennant sur
+					<KatexInline formula={String.raw`\mathbb{P}(X=x_i)=1/3`} /> :
 				</p>
 				<KatexBlock
-					formula={String.raw`\mathbb{P}\big((Z-\mathbb{E}[Z])^2 \ge \varepsilon^2\big) \le \frac{\mathbb{E}[(Z-\mathbb{E}[Z])^2]}{\varepsilon^2} = \frac{\mathrm{Var}(Z)}{\varepsilon^2}.`}
+					formula={String.raw`R^* = \frac13(0.1+0.5+0.1) = \frac{0.7}{3} \approx 0.233.`}
 				/>
-				<p>
-					Or les deux événements coïncident : <KatexInline
-						formula={String.raw`\{(Z-\mathbb{E}[Z])^2 \ge \varepsilon^2\} = \{|Z-\mathbb{E}[Z]| \ge \varepsilon\}`}
-					/>. On obtient donc bien <KatexInline
-						formula={String.raw`\mathbb{P}(|Z-\mathbb{E}[Z]| \ge \varepsilon) \le \mathrm{Var}(Z)/\varepsilon^2`}
-					/>. L'astuce est de choisir la <em>bonne</em> variable positive : le carré de l'écart à la
-					moyenne, et non la variable elle-même.
-				</p>
 			{/snippet}
 			<p>
-				Retrouvez la démonstration de l'inégalité de Bienaymé-Tchebychev en appliquant Markov à la
-				variable positive <KatexInline formula={String.raw`(Z-\mathbb{E}[Z])^2`} /> avec le seuil
-				<KatexInline formula={String.raw`\varepsilon^2`} />. Écrivez chaque étape.
+				Soit <KatexInline formula={String.raw`X`} /> prenant trois valeurs équiprobables
+				<KatexInline formula={String.raw`x_1,x_2,x_3`} /> (chacune avec probabilité
+				<KatexInline formula={String.raw`1/3`} />), avec <KatexInline
+					formula={String.raw`\eta(x_1)=0.1,\ \eta(x_2)=0.5,\ \eta(x_3)=0.9`}
+				/>. Calculez <KatexInline formula={String.raw`R^*`} />.
 			</p>
 		</ExercisePanel>
 
-		<ExercisePanel number="1.4" title="Tchebychev en chiffres">
+		<ExercisePanel number="1.5" title="Cas séparable : R* = 0">
 			{#snippet solution()}
 				<p>
-					<strong>(a)</strong> On a <KatexInline formula={String.raw`\mathrm{Var}(Z)/\varepsilon^2 = 4/9 \approx 0.44`}
-					/>.
-				</p>
-				<p>
-					<strong>(b)</strong> La même formule donne <KatexInline
-						formula={String.raw`4/1 = 4`}
-					/> : la « borne » dépasse 1, donc elle est triviale (toute probabilité est
-					<KatexInline formula={String.raw`\le 1`} />).
-				</p>
-				<p>
-					<strong>(c)</strong> Tchebychev n'est informative que lorsque <KatexInline
-						formula={String.raw`\varepsilon > \sqrt{\mathrm{Var}(Z)}`}
-					/> — ici <KatexInline formula={String.raw`\varepsilon > 2`} />. En dessous de
-					<KatexInline formula={String.raw`\varepsilon = 1`} />, on demande une probabilité sur un
-					écart <em>inférieur</em> à l'échelle typique de dispersion (une déviation standard) : la
-					borne ne peut plus être inférieure à 1.
+					Puisque <KatexInline formula={String.raw`\eta(x) \in \{0,1\}`} /> pour tout
+					<KatexInline formula={String.raw`x`} />, on a <KatexInline
+						formula={String.raw`\min(\eta(x), 1-\eta(x)) = 0`}
+					/> partout, donc <KatexInline formula={String.raw`R^* = 0`} />. Le classifieur de Bayes
+					<KatexInline formula={String.raw`h^*(x) = \eta(x)`} /> ne se trompe jamais : à chaque
+					<KatexInline formula={String.raw`x`} />, la classe est déterminée avec certitude — c'est
+					exactement la définition de la séparabilité.
 				</p>
 			{/snippet}
 			<p>
-				Soit <KatexInline formula={String.raw`Z`} /> avec <KatexInline
-					formula={String.raw`\mathbb{E}[Z]=10`}
-				/> et <KatexInline formula={String.raw`\mathrm{Var}(Z)=4`} />.
-			</p>
-			<p>
-				<strong>(a)</strong> Borner <KatexInline formula={String.raw`\mathbb{P}(|Z-10|\ge 3)`} /> par
-				Bienaymé-Tchebychev.
-			</p>
-			<p>
-				<strong>(b)</strong> Faire de même avec <KatexInline formula={String.raw`\varepsilon = 1`} />.
-				La borne est-elle informative ?
-			</p>
-			<p>
-				<strong>(c)</strong> Pour quels <KatexInline formula={String.raw`\varepsilon`} /> la borne de
-				Tchebychev peut-elle être informative ?
+				Soit un problème où <KatexInline formula={String.raw`\eta(x) \in \{0,1\}`} /> pour tout
+				<KatexInline formula={String.raw`x`} /> (chaque point appartient à une seule classe avec certitude).
+				Montrez que <KatexInline formula={String.raw`R^*=0`} /> et décrivez le comportement de
+				<KatexInline formula={String.raw`h^*`} />.
 			</p>
 		</ExercisePanel>
 
-		<ExercisePanel number="1.5" title="Variance de la moyenne empirique">
+		<ExercisePanel number="1.6" title="Cas maximalement bruité : R* = 1/2">
 			{#snippet solution()}
 				<p>
-					<strong>(a)</strong> Par linéarité de l'espérance :
-					<KatexInline formula={String.raw`\mathbb{E}[\bar Z_n] = \frac1n\sum_i \mathbb{E}[Z_i] = \frac1n\cdot n\,\mu = \mu`}
-					/>. Pour la variance, les termes croisés s'annulent par indépendance :
-				</p>
-				<KatexBlock
-					formula={String.raw`\mathrm{Var}(\bar Z_n) = \frac{1}{n^2}\sum_{i=1}^n \mathrm{Var}(Z_i) = \frac{n\,\sigma^2}{n^2} = \frac{\sigma^2}{n}.`}
-				/>
-				<p>
-					<strong>(b)</strong> L'écart-type de <KatexInline formula={String.raw`\bar Z_{100}`} /> vaut
-					<KatexInline formula={String.raw`\sqrt{0.25/100} = 0.5/10 = 0.05`} /> : la moyenne d'une
-					centaine d'observations a un écart-type <em>dix fois plus petit</em> que celui d'une
-					seule — c'est le gain en <KatexInline formula={String.raw`1/\sqrt n`} /> de la
-					moyennisation.
+					Ici <KatexInline formula={String.raw`\min(\eta(x),1-\eta(x)) = \min(1/2,1/2) = 1/2`} />
+					pour tout <KatexInline formula={String.raw`x`} />, donc <KatexInline
+						formula={String.raw`R^* = 1/2`}
+					/> : c'est le pire cas possible pour un problème de classification binaire — aucun classifieur,
+					pas même celui de Bayes, ne peut faire mieux qu'un tirage à pile ou face, car
+					<KatexInline formula={String.raw`X`} /> ne contient alors <em>aucune</em> information sur
+					<KatexInline formula={String.raw`Y`} />.
 				</p>
 			{/snippet}
 			<p>
-				Soit <KatexInline formula={String.raw`Z_1,\dots,Z_n`} /> i.i.d. de moyenne <KatexInline
-					formula={String.raw`\mu`}
-				/> et de variance <KatexInline formula={String.raw`\sigma^2<+\infty`} />, et posons
-				<KatexInline formula={String.raw`\bar Z_n = \frac1n\sum_{i=1}^n Z_i`} />.
-			</p>
-			<p>
-				<strong>(a)</strong> Montrez que <KatexInline formula={String.raw`\mathbb{E}[\bar Z_n]=\mu`} />
-				et <KatexInline formula={String.raw`\mathrm{Var}(\bar Z_n)=\sigma^2/n`} />.
-			</p>
-			<p>
-				<strong>(b)</strong> Avec <KatexInline formula={String.raw`\sigma = 0.5`} /> et
-				<KatexInline formula={String.raw`n = 100`} />, calculez l'écart-type de
-				<KatexInline formula={String.raw`\bar Z_n`} />.
+				Soit <KatexInline formula={String.raw`\eta(x) = 1/2`} /> pour tout <KatexInline
+					formula={String.raw`x`}
+				/> (aucune information utile dans <KatexInline formula={String.raw`X`} />). Montrez que
+				<KatexInline formula={String.raw`R^* = 1/2`} />, et interprétez ce résultat.
 			</p>
 		</ExercisePanel>
 
-		<ExercisePanel number="1.6" title="Hoeffding contre Tchebychev">
+		<ExercisePanel number="1.7" title="Distribution asymétrique à deux points">
 			{#snippet solution()}
 				<p>
-					<strong>(a)</strong> Une variable de Bernoulli de paramètre <KatexInline
+					<KatexInline formula={String.raw`\min(0.2,0.8)=0.2`} /> avec poids
+					<KatexInline formula={String.raw`0.6`} />, et <KatexInline
+						formula={String.raw`\min(0.8,0.2)=0.2`}
+					/> avec poids <KatexInline formula={String.raw`0.4`} />. Donc :
+				</p>
+				<KatexBlock formula={String.raw`R^* = 0.6\times 0.2 + 0.4\times 0.2 = 0.2.`} />
+				<p>
+					Puisque <KatexInline formula={String.raw`\eta`} /> est symétrique par rapport à <KatexInline
 						formula={String.raw`1/2`}
-					/> a une variance <KatexInline formula={String.raw`1/4`} />, donc
-					<KatexInline formula={String.raw`\mathrm{Var}(\bar Z_n) = \frac{1/4}{500} = \frac{1}{2000}`}
-					/>. Par Bienaymé-Tchebychev :
-				</p>
-				<KatexBlock
-					formula={String.raw`\mathbb{P}\big(|\bar Z_n - \tfrac12| \ge 0.1\big) \le \frac{1/2000}{0.01} = 0.05.`}
-				/>
-				<p>
-					<strong>(b)</strong> Les <KatexInline formula={String.raw`Z_i`} /> sont dans
-					<KatexInline formula={String.raw`[0,1]`} />, donc Hoeffding s'applique directement :
-				</p>
-				<KatexBlock
-					formula={String.raw`\mathbb{P}\big(|\bar Z_n - \tfrac12| \ge 0.1\big) \le 2e^{-2\times 500 \times 0.1^2} = 2e^{-10} \approx 9.08\times 10^{-5}.`}
-				/>
-				<p>
-					<strong>(c)</strong> Hoeffding est plus de 550 fois plus petite que Tchebychev. La
-					décroissance en <KatexInline formula={String.raw`e^{-2n\varepsilon^2}`} /> (exponentielle en
-					<KatexInline formula={String.raw`n`} />) finit toujours par dominer la décroissance en
-					<KatexInline formula={String.raw`1/n`} /> : c'est le prix payé pour l'hypothèse
-					supplémentaire de bornage des observations — ici trivialement vérifiée puisque
-					<KatexInline formula={String.raw`Z_i\in\{0,1\}`} />.
+					/> aux deux points (<KatexInline formula={String.raw`0.2`} /> et son complémentaire <KatexInline
+						formula={String.raw`0.8`}
+					/>), le risque de Bayes ponctuel est identique aux deux points, et donc indépendant de la
+					pondération — ce ne serait pas le cas avec des valeurs de <KatexInline
+						formula={String.raw`\eta`}
+					/> moins symétriques.
 				</p>
 			{/snippet}
 			<p>
-				Soit <KatexInline formula={String.raw`Z_1,\dots,Z_{500}`} /> i.i.d. de loi de Bernoulli de
-				paramètre <KatexInline formula={String.raw`1/2`} />.
-			</p>
-			<p>
-				<strong>(a)</strong> Borner <KatexInline
-					formula={String.raw`\mathbb{P}(|\bar Z_n - 1/2| \ge 0.1)`} /> par Bienaymé-Tchebychev.
-			</p>
-			<p>
-				<strong>(b)</strong> Refaire la même estimation par l'inégalité de Hoeffding.
-			</p>
-			<p>
-				<strong>(c)</strong> Comparer les deux bornes. Quelle est la leçon sur le rôle du bornage des
-				observations ?
+				Soit <KatexInline formula={String.raw`\eta(x_1)=0.2`} /> avec
+				<KatexInline formula={String.raw`\mathbb{P}(X=x_1)=0.6`} />, et <KatexInline
+					formula={String.raw`\eta(x_2)=0.8`}
+				/> avec <KatexInline formula={String.raw`\mathbb{P}(X=x_2)=0.4`} />. Calculez
+				<KatexInline formula={String.raw`R^*`} />.
 			</p>
 		</ExercisePanel>
 
-		<ExercisePanel number="1.7" title="La borne du classifieur fixé">
+		<ExercisePanel number="1.8" title="Classifieur de Bayes pour η(x) continue">
 			{#snippet solution()}
 				<p>
-					<strong>(a)</strong> Les <KatexInline formula={String.raw`Z_i`} /> sont de Bernoulli de
-					paramètre <KatexInline formula={String.raw`1-R(h) = 0.7`} />, donc
-					<KatexInline formula={String.raw`\mathrm{Var}(Z_i) = R(h)(1-R(h)) = 0.3\times 0.7 = 0.21`}
-					/>.
-				</p>
-				<p>
-					<strong>(b)</strong> Avec <KatexInline formula={String.raw`n\varepsilon^2 = 400\times 0.01 = 4`}
+					La frontière est au point où <KatexInline formula={String.raw`\eta(x)=1/2`} />, soit
+					<KatexInline formula={String.raw`x=1/2`} /> : <KatexInline
+						formula={String.raw`h^*(x) = \mathbb{1}_{x \ge 1/2}`}
+					/>. Pour le risque de Bayes, avec <KatexInline
+						formula={String.raw`X \sim \mathrm{Unif}[0,1]`}
 					/> :
 				</p>
 				<KatexBlock
-					formula={String.raw`\frac{0.21}{4} = 0.0525 \quad\text{(borne exacte)}, \qquad \frac{1}{4\times 4} = \frac{1}{16} = 0.0625 \quad\text{(borne grossière)}.`}
+					formula={String.raw`R^* = \int_0^1 \min(x, 1-x)\,dx = 2\int_0^{1/2} x\,dx = 2\left[\frac{x^2}{2}\right]_0^{1/2} = \frac14.`}
+				/>
+			{/snippet}
+			<p>
+				Soit <KatexInline formula={String.raw`X \sim \mathrm{Unif}[0,1]`} /> et <KatexInline
+					formula={String.raw`\eta(x) = x`}
+				/>. Déterminez la frontière de décision, exprimez <KatexInline formula={String.raw`h^*`} />,
+				puis calculez <KatexInline formula={String.raw`R^*`} />.
+			</p>
+		</ExercisePanel>
+
+		<ExercisePanel number="1.9" title="Extension optionnelle : coûts asymétriques">
+			{#snippet solution()}
+				<p>
+					Avec des coûts <KatexInline formula={String.raw`c_0`} /> (coût de prédire 1 quand <KatexInline
+						formula={String.raw`Y=0`}
+					/>, faux positif) et <KatexInline formula={String.raw`c_1`} /> (coût de prédire 0 quand
+					<KatexInline formula={String.raw`Y=1`} />, faux négatif), le risque conditionnel devient :
+				</p>
+				<KatexBlock formula={String.raw`r(1,x) = c_0(1-\eta(x)), \qquad r(0,x) = c_1\,\eta(x).`} />
+				<p>
+					L'action <KatexInline formula={String.raw`a=1`} /> est optimale ssi <KatexInline
+						formula={String.raw`r(1,x) \le r(0,x)`}
+					/>, c'est-à-dire :
+				</p>
+				<KatexBlock
+					formula={String.raw`c_0(1-\eta(x)) \le c_1\,\eta(x) \iff \eta(x) \ge \frac{c_0}{c_0+c_1}.`}
 				/>
 				<p>
-					Les deux bornes sont inférieures à 1, donc informatives : avec 400 exemples, le risque
-					empirique de ce classifieur fixé est à moins de <KatexInline
-						formula={String.raw`0.1`}
-					/> de son risque théorique avec une probabilité d'au moins <KatexInline
-						formula={String.raw`1-0.0525 \approx 0.95`}
-					/>.
+					On retrouve le Théorème 1.1 en posant <KatexInline formula={String.raw`c_0=c_1`} />, ce
+					qui redonne le seuil <KatexInline formula={String.raw`1/2`} />. Cette généralisation n'est
+					pas démontrée dans le cours mais suit exactement la même démarche que la preuve du
+					Théorème 1.1 — seule l'expression du risque conditionnel change.
 				</p>
 			{/snippet}
 			<p>
-				Soit <KatexInline formula={String.raw`h`} /> un classifieur fixé avec
-				<KatexInline formula={String.raw`R(h) = 0.3`} />, et <KatexInline
-					formula={String.raw`\mathcal S_n`}
-				/> un échantillon de taille <KatexInline formula={String.raw`n = 400`} />.
-			</p>
-			<p>
-				<strong>(a)</strong> Calculez exactement <KatexInline
-					formula={String.raw`\mathrm{Var}(Z_i)`} /> avec
-				<KatexInline formula={String.raw`Z_i = \mathbb{1}_{h(X_i)\neq Y_i}`} />.
-			</p>
-			<p>
-				<strong>(b)</strong> Avec <KatexInline formula={String.raw`\varepsilon = 0.1`} />, calculez la
-				borne <KatexInline formula={String.raw`\mathrm{Var}(Z_i)/(n\varepsilon^2)`} /> et la borne
-				grossière <KatexInline formula={String.raw`1/(4n\varepsilon^2)`} />.
-			</p>
-		</ExercisePanel>
-
-		<ExercisePanel number="1.8" title="Pourquoi cette borne ne suffit pas pour l'ERM">
-			{#snippet solution()}
-				<p>
-					La borne de l'Exercice 1.7 est valable pour un <KatexInline formula={String.raw`h`} />
-					<strong>fixé avant</strong> de voir les données : elle contrôle la probabilité, sur
-					l'échantillon <KatexInline formula={String.raw`\mathcal S_n`} />, que l'écart
-					<KatexInline formula={String.raw`|R_{\mathcal S_n}(h)-R(h)|`} /> dépasse
-					<KatexInline formula={String.raw`\varepsilon`} /> pour ce <KatexInline
-						formula={String.raw`h`}
-					/> donné. Or <KatexInline formula={String.raw`\hat h_{\mathcal S_n}`} /> n'est pas fixé
-					à l'avance : c'est une <em>fonction de</em> <KatexInline
-						formula={String.raw`\mathcal S_n`}
-					/>, choisie précisément en minimisant <KatexInline
-						formula={String.raw`R_{\mathcal S_n}(h)`}
-					/> — donc en suivant les fluctuations de l'échantillon que la borne est censée contrôler.
-					Refaire la borne « après coup » pour le <KatexInline formula={String.raw`h`} /> choisi
-					n'est plus légitime : le choix et l'événement contrôlé ne sont plus indépendants. Il
-					faut une garantie <strong>uniforme</strong>, valable simultanément pour tous les
-					<KatexInline formula={String.raw`h\in\mathcal H`} /> — c'est exactement l'objet de
-					l'union bound de la section suivante.
-				</p>
-			{/snippet}
-			<p>
-				La borne de l'Exercice 1.7 est établie pour un classifieur <KatexInline
-					formula={String.raw`h`}
-				/> fixé à l'avance, indépendamment des données. Expliquez en deux ou trois phrases pourquoi on
-				ne peut pas l'appliquer directement à <KatexInline formula={ermDef} />, le classifieur appris
-				sur le même échantillon <KatexInline formula={String.raw`\mathcal S_n`} />.
-			</p>
-		</ExercisePanel>
-
-		<h2 id="classe-finie">Généralisation pour une classe finie</h2>
-
-		<p>
-			Cette section propose neuf exercices sur la généralisation pour une classe <KatexInline
-				formula={String.raw`\mathcal H`}
-			/> finie : échantillons trompeurs, union bound, et les bornes des Théorèmes 3.1 (cas séparable) et
-			3.2 (cas non séparable) de la Leçon 2.
-		</p>
-
-		<ExercisePanel number="2.1" title="L'échantillon trompeur">
-			{#snippet solution()}
-				<p>
-					Supposons <KatexInline formula={String.raw`R(\hat h_{\mathcal S_n}) > \varepsilon`} />. Par
-					réalisabilité, il existe <KatexInline formula={String.raw`h^*\in\mathcal H`} /> avec
-					<KatexInline formula={String.raw`R(h^*)=0`} />, donc <KatexInline
-						formula={String.raw`R_{\mathcal S_n}(h^*)=0`}
-					/> sur tout échantillon. Comme <KatexInline formula={String.raw`\hat h_{\mathcal S_n}`} />
-					minimise le risque empirique sur <KatexInline formula={String.raw`\mathcal H`} />, on a
-					<KatexInline
-						formula={String.raw`R_{\mathcal S_n}(\hat h_{\mathcal S_n}) \le R_{\mathcal S_n}(h^*) = 0`}
-					/>
-					donc <KatexInline formula={String.raw`R_{\mathcal S_n}(\hat h_{\mathcal S_n}) = 0`} />. Or
-					<KatexInline formula={String.raw`R(\hat h_{\mathcal S_n})>\varepsilon`} />, donc
-					<KatexInline formula={String.raw`\hat h_{\mathcal S_n}\in\mathcal H_{\text{bad}}`} />, et il
-					fait zéro erreur sur <KatexInline formula={String.raw`\mathcal S_n`} /> : par définition,
-					<KatexInline formula={String.raw`\mathcal S_n\in\mathcal M`} />. L'inclusion est établie.
-				</p>
-			{/snippet}
-			<p>
-				Soit <KatexInline formula={String.raw`\mathcal H`} /> fini, réalisable (il existe
-				<KatexInline formula={String.raw`h^*\in\mathcal H`} /> avec <KatexInline
-					formula={String.raw`R(h^*)=0`}
-				/>) et <KatexInline formula={ermDef} />. On pose <KatexInline formula={hBadDef} /> et
-				<KatexInline formula={mDef} />. Montrez l'inclusion
-				<KatexInline
-					formula={String.raw`\{R(\hat h_{\mathcal S_n}) > \varepsilon\} \subset \mathcal M`}
+				<em>(Exercice optionnel, au-delà du cours.)</em> On remplace la perte 0-1 par une perte
+				asymétrique : coût <KatexInline formula={String.raw`c_0 > 0`} /> pour un faux positif, coût
+				<KatexInline formula={String.raw`c_1 > 0`} /> pour un faux négatif. En reprenant la méthode de
+				la démonstration du Théorème 1.1, montrez que le classifieur optimal devient
+				<KatexInline formula={String.raw`h^*(x) = \mathbb{1}_{\eta(x) \ge c_0/(c_0+c_1)}`} />, et
+				vérifiez que l'on retrouve le seuil <KatexInline formula={String.raw`1/2`} /> quand <KatexInline
+					formula={String.raw`c_0=c_1`}
 				/>.
 			</p>
 		</ExercisePanel>
 
-		<ExercisePanel number="2.2" title="Un échantillon trompeur est rare">
-			{#snippet solution()}
-				<p>
-					<strong>(a)</strong> Les <KatexInline formula={String.raw`n`} /> essais sont i.i.d., et
-					<KatexInline formula={String.raw`R_{\mathcal S_n}(h)=0`} /> signifie qu'aucun essai n'a
-					échoué. Chaque essai réussit avec probabilité <KatexInline
-						formula={String.raw`1-R(h)`}
-					/>, donc par indépendance :
-				</p>
-				<KatexBlock
-					formula={String.raw`\mathbb{P}^n\big(R_{\mathcal S_n}(h)=0\big) = (1-R(h))^n.`}
-				/>
-				<p>
-					<strong>(b)</strong> On a <KatexInline formula={String.raw`0.8^{20} \approx 0.0115`} />,
-					tandis que <KatexInline formula={String.raw`e^{-2} \approx 0.135`} />. Comme
-					<KatexInline formula={String.raw`R(h) = 0.2 > \varepsilon = 0.1`} />, on a bien
-					<KatexInline
-						formula={String.raw`(1-R(h))^n < (1-\varepsilon)^n \le e^{-n\varepsilon}`}
-					/>
-					: la borne exponentielle est correcte, mais beaucoup moins serrée ici — l'écart vient du
-					passage <KatexInline formula={String.raw`(1-R(h))^n \le (1-\varepsilon)^n`} />, grossier
-					lorsque <KatexInline formula={String.raw`R(h)`} /> est bien plus grand que
-					<KatexInline formula={String.raw`\varepsilon`} />.
-				</p>
-			{/snippet}
-			<p>
-				Soit <KatexInline formula={String.raw`h\in\mathcal H_{\text{bad}}`} />, c'est-à-dire
-				<KatexInline formula={String.raw`R(h)>\varepsilon`} />.
-			</p>
-			<p>
-				<strong>(a)</strong> Montrez que
-				<KatexInline formula={String.raw`\mathbb{P}^n\big(R_{\mathcal S_n}(h)=0\big) = (1-R(h))^n`} />.
-			</p>
-			<p>
-				<strong>(b)</strong> Avec <KatexInline formula={String.raw`R(h) = 0.2`} />,
-				<KatexInline formula={String.raw`n = 20`} /> et <KatexInline
-					formula={String.raw`\varepsilon = 0.1`}
-				/>, comparez <KatexInline formula={String.raw`(1-R(h))^n`} /> et <KatexInline
-					formula={String.raw`e^{-n\varepsilon}`} />.
-			</p>
-		</ExercisePanel>
-
-		<ExercisePanel number="2.3" title="La démonstration de l'union bound">
-			{#snippet solution()}
-				<p>
-					Par définition de <KatexInline formula={String.raw`\mathcal M`} />, un échantillon
-					<KatexInline formula={String.raw`\mathcal S_n`} /> est trompeur si et seulement s'il
-					appartient à au moins un des événements <KatexInline
-						formula={String.raw`A_h = \{R_{\mathcal S_n}(h)=0\}`}
-					/> pour <KatexInline formula={String.raw`h\in\mathcal H_{\text{bad}}`} /> :
-				</p>
-				<KatexBlock
-					formula={String.raw`\mathcal M = \bigcup_{h\in\mathcal H_{\text{bad}}} A_h \implies \mathbb{P}^n(\mathcal M) \le \sum_{h\in\mathcal H_{\text{bad}}} \mathbb{P}^n(A_h).`}
-				/>
-				<p>
-					La propriété utilisée est la <strong>subadditivité</strong> de la probabilité
-					(inégalité de Boole), valable pour toute union finie d'événements, sans aucune hypothèse
-					d'indépendance. Le caractère <strong>fini</strong> de <KatexInline
-						formula={String.raw`\mathcal H_{\text{bad}}`}
-					/> est ici essentiel : la somme a un nombre fini de termes, et le majorant
-					<KatexInline formula={String.raw`\le |\mathcal H|`} /> (utilisé à la suite) n'a de sens
-					que pour un cardinal fini.
-				</p>
-			{/snippet}
-			<p>
-				L'ensemble des échantillons trompeurs <KatexInline formula={mDef} /> s'écrit comme une union
-				sur <KatexInline formula={String.raw`\mathcal H_{\text{bad}}`} /> d'événements
-				<KatexInline formula={String.raw`A_h = \{R_{\mathcal S_n}(h)=0\}`} />.
-			</p>
-			<p>
-				Écrivez <KatexInline
-					formula={String.raw`\mathbb{P}^n(\mathcal M) \le \sum_{h\in\mathcal H_{\text{bad}}} \mathbb{P}^n(A_h)`}
-				/>, et précisez quelle propriété de la mesure de probabilité est utilisée.
-			</p>
-		</ExercisePanel>
-
-		<ExercisePanel number="2.4" title="Reconstituer la preuve du Théorème 3.1">
-			{#snippet solution()}
-				<p>
-					L'ordre correct est <strong>C, A, B, D</strong> :
-				</p>
-				<ol>
-					<li>
-						<strong>C</strong> — réduction aux échantillons trompeurs :
-						<KatexInline
-							formula={String.raw`\{R(\hat h_{\mathcal S_n}) > \varepsilon\} \subset \mathcal M`}
-						/>
-						(Exercice 2.1).
-					</li>
-					<li>
-						<strong>A</strong> — union bound sur
-						<KatexInline formula={String.raw`\mathcal H_{\text{bad}}`} /> (Exercice 2.3).
-					</li>
-					<li>
-						<strong>B</strong> — borne par hypothèse : pour
-						<KatexInline formula={String.raw`h\in\mathcal H_{\text{bad}}`} />,
-						<KatexInline
-							formula={String.raw`R_{\mathcal S_n}(h)=0 \implies (1-R(h))^n < (1-\varepsilon)^n \le e^{-n\varepsilon}`}
-						/>
-						(Exercice 2.2).
-					</li>
-					<li>
-						<strong>D</strong> — conclusion : la somme a au plus
-						<KatexInline formula={String.raw`|\mathcal H_{\text{bad}}| \le |\mathcal H|`} /> termes,
-						donc <KatexInline formula={separableStatement} />.
-					</li>
-				</ol>
-				<p>
-					Chaque étape n'utilise que la précédente : cette modularité est ce qui rend la preuve
-					adaptable — c'est exactement l'étape B que l'on remplace par Hoeffding dans le cas non
-					séparable (Théorème 3.2).
-				</p>
-			{/snippet}
-			<p>
-				Réordonnez les quatre étapes suivantes dans le bon ordre pour reconstituer la démonstration du
-				Théorème 3.1, et indiquez ce que chacune établit :
-			</p>
-			<ol>
-				<li>
-					<strong>A</strong> : <KatexInline
-						formula={String.raw`\mathbb{P}^n(\mathcal M) \le \sum_{h\in\mathcal H_{\text{bad}}} \mathbb{P}^n\big(R_{\mathcal S_n}(h)=0\big)`}
-				/>
-				</li>
-				<li>
-					<strong>B</strong> : pour <KatexInline formula={String.raw`h\in\mathcal H_{\text{bad}}`} />,
-					<KatexInline
-						formula={String.raw`\mathbb{P}^n\big(R_{\mathcal S_n}(h)=0\big) = (1-R(h))^n \le e^{-n\varepsilon}`}
-					/>
-				</li>
-				<li>
-					<strong>C</strong> : <KatexInline
-						formula={String.raw`\{R(\hat h_{\mathcal S_n}) > \varepsilon\} \subset \mathcal M`}
-				/>
-				</li>
-				<li>
-					<strong>D</strong> : <KatexInline formula={String.raw`\mathbb{P}^n(R(\hat h_{\mathcal S_n})>\varepsilon) \le |\mathcal H|\,e^{-n\varepsilon}`}
-				/>
-				</li>
-			</ol>
-		</ExercisePanel>
-
-		<ExercisePanel number="2.5" title="Taille d'échantillon séparable">
-			{#snippet solution()}
-				<p>
-					Le Théorème 3.1 garantit <KatexInline
-						formula={String.raw`\mathbb{P}^n(R(\hat h_{\mathcal S_n})>\varepsilon) \le \delta`}
-					/> dès que <KatexInline formula={String.raw`n \ge \frac{\log(|\mathcal H|/\delta)}{\varepsilon}`}
-					/> :
-				</p>
-				<KatexBlock
-					formula={String.raw`n \ge \frac{\log(100/0.01)}{0.1} = \frac{\log(10^4)}{0.1} \approx \frac{9.21}{0.1} = 92.1.`}
-				/>
-				<p>
-					Il suffit donc de <KatexInline formula={String.raw`n \ge 93`} /> exemples. Avec 93
-					exemples, la probabilité que le risque de l'ERM dépasse <KatexInline
-						formula={String.raw`0.1`}
-					/> est au plus <KatexInline formula={String.raw`0.01`} /> — et cela sans aucune hypothèse
-					sur la distribution, seulement la réalisabilité.
-				</p>
-			{/snippet}
-			<p>
-				Soit <KatexInline formula={String.raw`|\mathcal H| = 100`} />. Pour une confiance
-				<KatexInline formula={String.raw`1-\delta`} /> avec <KatexInline
-					formula={String.raw`\delta = 0.01`}
-				/> et une garantie de risque <KatexInline formula={String.raw`\varepsilon = 0.1`} />, calculez
-				la taille d'échantillon <KatexInline formula={String.raw`n`} /> garantie par le Théorème 3.1.
-			</p>
-		</ExercisePanel>
-
-		<ExercisePanel number="2.6" title="Le corollaire en chiffres">
-			{#snippet solution()}
-				<p>
-					Avec probabilité au moins <KatexInline formula={String.raw`0.99`} /> :
-				</p>
-				<KatexBlock
-					formula={String.raw`R(\hat h_{\mathcal S_n}) \le \frac{\log(100/0.01)}{100} \approx \frac{9.21}{100} \approx 0.092.`}
-				/>
-				<p>
-					La borne garantie (≈ 0.092) est inférieure à l'<KatexInline
-						formula={String.raw`\varepsilon = 0.1`}
-					/> de l'Exercice 2.5 — ce qui est cohérent, puisque <KatexInline
-						formula={String.raw`n = 100 > 93`}
-					/>. Le corollaire reformule la même garantie sous la forme d'une borne sur le risque
-					plutôt que sur la probabilité de la dépasser.
-				</p>
-			{/snippet}
-			<p>
-				Avec les données de l'Exercice 2.5 (<KatexInline
-					formula={String.raw`|\mathcal H| = 100`}
-				/>, <KatexInline formula={String.raw`\delta = 0.01`} />) et un échantillon de taille
-				<KatexInline formula={String.raw`n = 100`} />, que donne le corollaire
-				<KatexInline formula={separableCorollary} /> ?
-			</p>
-		</ExercisePanel>
-
-		<ExercisePanel number="2.7" title="Quand Hoeffding est triviale">
-			{#snippet solution()}
-				<p>
-					<strong>(a)</strong> On obtient <KatexInline
-						formula={String.raw`2e^{-2\times 25\times 0.01} = 2e^{-0.5} \approx 1.21`}
-					/> : la « borne » dépasse 1, donc elle est triviale — une probabilité est toujours
-					<KatexInline formula={String.raw`\le 1`} />, la majoration ne porte aucune information.
-				</p>
-				<p>
-					<strong>(b)</strong> La borne est informative dès que
-					<KatexInline formula={String.raw`2e^{-2nt^2} < 1`} />, c'est-à-dire
-					<KatexInline
-						formula={String.raw`e^{-2nt^2} < \tfrac12 \iff 2nt^2 > \log 2 \iff t > \sqrt{\frac{\log 2}{2n}}`}
-					/>. Avec <KatexInline formula={String.raw`n = 25`} /> :
-				</p>
-				<KatexBlock
-					formula={String.raw`t > \sqrt{\frac{\log 2}{50}} \approx 0.118.`}
-				/>
-				<p>
-					Avec seulement 25 exemples, Hoeffding ne devient informative que pour des écarts
-					supérieurs à ≈ 0.118 : pour un petit <KatexInline formula={String.raw`n`} />, la borne
-					exponentielle ne « paie » que sur les grandes déviations.
-				</p>
-			{/snippet}
-			<p>
-				Soit <KatexInline formula={String.raw`|\mathcal H| = 1`} />, donc <KatexInline
-					formula={String.raw`\mathcal H = \{h\}`}
-				/> un classifieur fixé. On dispose de l'inégalité de Hoeffding
-				<KatexInline
-					formula={String.raw`\mathbb{P}\big(|R_{\mathcal S_n}(h)-R(h)| \ge t\big) \le 2e^{-2nt^2}`}
-				/>.
-			</p>
-			<p>
-				<strong>(a)</strong> Avec <KatexInline formula={String.raw`n = 25`} /> et
-				<KatexInline formula={String.raw`t = 0.1`} />, que donne la borne ? Est-elle informative ?
-			</p>
-			<p>
-				<strong>(b)</strong> À partir de quelle valeur de <KatexInline formula={String.raw`t`} /> la
-				borne devient-elle informative (inférieure à 1) ?
-			</p>
-		</ExercisePanel>
-
-		<ExercisePanel number="2.8" title="D'où vient la borne uniforme du Théorème 3.2">
-			{#snippet solution()}
-				<p>
-					<strong>(a)</strong> L'événement « il existe <KatexInline
-						formula={String.raw`h`}
-					/> dont l'écart dépasse <KatexInline formula={String.raw`t`}
-					/>, c'est l'union sur <KatexInline formula={String.raw`\mathcal H`} /> des événements
-					contrôlés par Hoeffding pour chaque <KatexInline formula={String.raw`h`} /> fixé. Par
-					subadditivité :
-				</p>
-				<KatexBlock
-					formula={String.raw`\mathbb{P}^n\big(\exists\, h\in\mathcal H,\ |R_{\mathcal S_n}(h)-R(h)| \ge t\big) \le \sum_{h\in\mathcal H} 2e^{-2nt^2} = 2|\mathcal H|\,e^{-2nt^2}.`}
-				/>
-				<p>
-					<strong>(b)</strong> En posant <KatexInline
-						formula={String.raw`2|\mathcal H|e^{-2nt^2} = \delta`}
-					/> et en résolvant :
-				</p>
-				<KatexBlock
-					formula={String.raw`e^{-2nt^2} = \frac{\delta}{2|\mathcal H|} \iff 2nt^2 = \log\frac{2|\mathcal H|}{\delta} = \log|\mathcal H| + \log(2/\delta) \iff t = \sqrt{\frac{\log|\mathcal H| + \log(2/\delta)}{2n}}.`}
-				/>
-				<p>
-					<strong>(c)</strong> L'événement contrôlé en (a) porte sur <strong>tous</strong> les
-					<KatexInline formula={String.raw`h\in\mathcal H`} /> simultanément : il est un événement
-					au sens du tirage <KatexInline formula={String.raw`\mathcal S_n`} />, et non d'un
-					<KatexInline formula={String.raw`h`} /> particulier. Il couvre donc le cas
-					<KatexInline formula={String.raw`h = \hat h_{\mathcal S_n}`}
-					/>, quelle que soit la valeur que prend <KatexInline
-						formula={String.raw`\hat h_{\mathcal S_n}`}
-					/>. C'est cette <em>uniformité en</em> <KatexInline
-						formula={String.raw`h`}
-					/> — et non l'indépendance de <KatexInline
-						formula={String.raw`h`}
-					/> des données — qui autorise à appliquer la borne au classifieur choisi après coup.
-				</p>
-			{/snippet}
-			<p>
-				<strong>(a)</strong> En appliquant l'union bound à la borne de Hoeffding pour <KatexInline
-					formula={String.raw`h`}
-				/> fixé, établissez
-				<KatexInline
-					formula={String.raw`\mathbb{P}^n\big(\exists\, h\in\mathcal H,\ |R_{\mathcal S_n}(h)-R(h)| \ge t\big) \le 2|\mathcal H|\,e^{-2nt^2}`}
-				/>.
-			</p>
-			<p>
-				<strong>(b)</strong> En posant <KatexInline
-					formula={String.raw`2|\mathcal H|e^{-2nt^2} = \delta`}
-				/>, montrez que la résolution pour <KatexInline formula={String.raw`t`} /> donne
-				<KatexInline
-					formula={String.raw`t = \sqrt{\frac{\log|\mathcal H| + \log(2/\delta)}{2n}}`}
-				/>.
-			</p>
-			<p>
-				<strong>(c)</strong> Pourquoi cette borne peut-elle ensuite s'appliquer à
-				<KatexInline formula={String.raw`\hat h_{\mathcal S_n}`} />, bien que
-				<KatexInline formula={String.raw`\hat h_{\mathcal S_n}`} /> dépende de
-				<KatexInline formula={String.raw`\mathcal S_n`} /> ?
-			</p>
-		</ExercisePanel>
-
-		<ExercisePanel number="2.9" title="1/n ou 1/√n ?">
-			{#snippet solution()}
-				<p>
-					<strong>(a)</strong> Dans le cas séparable, le corollaire donne <KatexInline
-						formula={String.raw`R(\hat h) \le \frac{\log(|\mathcal H|/\delta)}{n}`}
-					/> : décroissance en <KatexInline formula={String.raw`1/n`} />. Dans le cas non
-					séparable, la borne vaut <KatexInline formula={uniformRiskBound} /> : le terme
-					additif décroît en <KatexInline formula={String.raw`1/\sqrt n`} />, donc la convergence
-					est plus lente, d'un facteur <KatexInline formula={String.raw`\sqrt n`} />.
-				</p>
-				<p>
-					<strong>(b)</strong> En régime séparable, l'argument est purement combinatoire : un
-					échantillon trompeur est un événement <em>binaire</em> (une hypothèse mauvaise fait
-					<em>zéro</em> erreur), dont la probabilité décroît <em>exponentiellement</em> en
-					<KatexInline formula={String.raw`n`} />, <KatexInline
-						formula={String.raw`(1-R(h))^n \le e^{-n\varepsilon}`}
-					/> ; l'union bound, qui inverse cette exponentielle, donne
-					<KatexInline formula={String.raw`\log|\mathcal H|/n`} />. En l'absence de
-					réalisabilité, il n'y a plus d'événement binaire à compter : on doit passer par une
-					concentration de type Hoeffding, qui décroît en <KatexInline
-						formula={String.raw`e^{-2nt^2}`}
-					/> en le <em>carré</em> de la déviation ; inverser cette exponentielle en
-					<KatexInline formula={String.raw`n`} /> donne
-					<KatexInline formula={String.raw`t \propto 1/\sqrt n`} />. Le prix de l'absence d'un
-					<KatexInline formula={String.raw`h^*`} /> de risque nul est précisément la perte d'une
-					racine carrée.
-				</p>
-			{/snippet}
-			<p>
-				<strong>(a)</strong> Dans le cas séparable, le corollaire donne
-				<KatexInline formula={String.raw`R(\hat h) \le \frac{\log(|\mathcal H|/\delta)}{n`} /> ; dans
-				le cas non séparable, la borne de risque est <KatexInline
-					formula={uniformRiskBound}
-				/>. Comparez les deux vitesses de convergence en fonction de <KatexInline
-					formula={String.raw`n`}
-				/>.
-			</p>
-			<p>
-				<strong>(b)</strong> Expliquez pourquoi la réalisabilité est ce qui permet l'accélération en
-					<KatexInline formula={String.raw`1/n`} />.
-			</p>
-		</ExercisePanel>
-
-		<h2 id="dimension-vc">Dimension VC, Sauer-Shelah et SVM</h2>
-
-		<p>
-			Cette section propose douze exercices sur la brisure et la dimension VC, le coefficient de
-			brisure et le lemme de Sauer-Shelah, la borne VC (Théorème 3.3), et l'application au SVM
-			(Théorème 3.4) de la Leçon 3.
-		</p>
-
-		<ExercisePanel number="3.1" title="Un singleton est brisé">
-			{#snippet solution()}
-				<p>
-					Un singleton <KatexInline formula={String.raw`\{x_0\}`} /> admet exactement deux
-					étiquetages :
-				</p>
-				<ul>
-					<li>
-						l'étiquetage <KatexInline formula={String.raw`0`} /> : choisir <KatexInline
-							formula={String.raw`\theta > x_0`}
-						/>
-						(ou <KatexInline formula={String.raw`\theta = x_0 + 1`} />, par exemple), alors
-						<KatexInline formula={String.raw`\mathbb{1}_{x_0 \ge \theta} = 0`} /> ;
-					</li>
-					<li>
-						l'étiquetage <KatexInline formula={String.raw`1`} /> : choisir <KatexInline
-							formula={String.raw`\theta \le x_0`}
-						/>
-						(ou <KatexInline formula={String.raw`\theta = x_0`} />, par exemple), alors
-						<KatexInline formula={String.raw`\mathbb{1}_{x_0 \ge \theta} = 1`} />.
-					</li>
-				</ul>
-				<p>
-					Les deux étiquetages sont réalisés : <KatexInline formula={String.raw`\mathcal H`} />
-					brise tout singleton.
-				</p>
-			{/snippet}
-			<p>
-				Soit <KatexInline formula={String.raw`\mathcal H = \{x \mapsto \mathbb{1}_{x \ge \theta} : \theta \in \mathbb R\}`}
-				/> la classe des seuils. Montrez que <KatexInline formula={String.raw`\mathcal H`} /> brise
-				tout singleton <KatexInline formula={String.raw`\{x_0\} \subset \mathbb R`} />.
-			</p>
-		</ExercisePanel>
-
-		<ExercisePanel number="3.2" title="Une paire ne l'est pas : VCdim = 1">
-			{#snippet solution()}
-				<p>
-					<strong>(a)</strong> Il y a <KatexInline formula={String.raw`2^2 = 4`} /> étiquetages de la
-					paire ordonnée <KatexInline formula={String.raw`(x_1, x_2)`} /> : (0,0), (0,1), (1,0), (1,1).
-					Le seul qui échappe est <KatexInline formula={String.raw`(1, 0)`} />. En effet, si
-					<KatexInline formula={String.raw`\mathbb{1}_{x_1 \ge \theta} = 1`} /> alors
-					<KatexInline formula={String.raw`x_1 \ge \theta`} /> ; comme <KatexInline
-						formula={String.raw`x_1 < x_2`}
-					/>, on en déduit <KatexInline formula={String.raw`x_2 > x_1 \ge \theta`} />, donc
-					<KatexInline formula={String.raw`\mathbb{1}_{x_2 \ge \theta} = 1`} />, et non 0.
-					L'étiquetage (1,0) est donc impossible : au plus 3 dichotomies sont réalisées sur toute
-					paire.
-				</p>
-				<p>
-					<strong>(b)</strong> Les singletons sont brisés (Exercice 3.1) et aucune paire ne l'est :
-					<KatexInline formula={String.raw`\mathrm{VCdim}(\mathcal H) = 1`} />.
-				</p>
-			{/snippet}
-			<p>
-				Soit <KatexInline formula={String.raw`\mathcal H = \{x \mapsto \mathbb{1}_{x \ge \theta} : \theta \in \mathbb R\}`}
-				/> la classe des seuils.
-			</p>
-			<p>
-				<strong>(a)</strong> Montrez qu'aucune paire ordonnée <KatexInline
-					formula={String.raw`\{x_1, x_2\}`} />, <KatexInline formula={String.raw`x_1 < x_2`} />,
-				n'est brisée : donnez l'étiquetage impossible.
-			</p>
-			<p>
-				<strong>(b)</strong> Déduisez-en <KatexInline
-					formula={String.raw`\mathrm{VCdim}(\mathcal H)`} />.
-			</p>
-		</ExercisePanel>
-
-		<ExercisePanel number="3.3" title="Deux points, quatre étiquetages">
-			{#snippet solution()}
-				<p>
-					Soit <KatexInline formula={String.raw`x_1 < x_2`} />. Pour chacun des quatre étiquetages :
-				</p>
-				<ul>
-					<li>
-						<KatexInline formula={String.raw`(0, 0)`} /> : l'intervalle <KatexInline
-							formula={String.raw`[x_2+1,\, x_2+2]`}
-						/> ne contient ni <KatexInline formula={String.raw`x_1`} /> ni
-						<KatexInline formula={String.raw`x_2`} /> ;
-					</li>
-					<li>
-						<KatexInline formula={String.raw`(1, 0)`} /> : l'intervalle dégénéré
-						<KatexInline formula={String.raw`[x_1,\, x_1] = \{x_1\}`} /> contient
-						<KatexInline formula={String.raw`x_1`} /> mais pas <KatexInline
-							formula={String.raw`x_2`}
-						/> ;
-					</li>
-					<li>
-						<KatexInline formula={String.raw`(0, 1)`} /> : l'intervalle dégénéré
-						<KatexInline formula={String.raw`[x_2,\, x_2] = \{x_2\}`} /> contient
-						<KatexInline formula={String.raw`x_2`} /> mais pas <KatexInline
-							formula={String.raw`x_1`}
-						/> ;
-					</li>
-					<li>
-						<KatexInline formula={String.raw`(1, 1)`} /> : l'intervalle
-						<KatexInline formula={String.raw`[x_1,\, x_2]`} /> contient les deux points.
-					</li>
-				</ul>
-				<p>
-					Les <KatexInline formula={String.raw`2^2 = 4`} /> étiquetages sont tous réalisés : toute
-					paire est brisée par la classe des intervalles.
-				</p>
-			{/snippet}
-			<p>
-				Soit <KatexInline
-					formula={String.raw`\mathcal H = \{x \mapsto \mathbb{1}_{x \in [a,b]} : a \le b\}`}
-				/>
-				la classe des intervalles. Montrez que <KatexInline formula={String.raw`\mathcal H`} /> brise
-				toute paire <KatexInline formula={String.raw`\{x_1, x_2\}`} />, <KatexInline
-					formula={String.raw`x_1 < x_2`}
-				/> : donnez un intervalle <KatexInline formula={String.raw`[a,b]`} /> pour chacun des quatre
-				étiquetages.
-			</p>
-		</ExercisePanel>
-
-		<ExercisePanel number="3.4" title="Un triplet ne l'est pas : VCdim = 2">
-			{#snippet solution()}
-				<p>
-					<strong>(a)</strong> Il y a <KatexInline formula={String.raw`2^3 = 8`} /> étiquetages du
-					triplet ordonné. Celui qui échappe est <KatexInline
-						formula={String.raw`(1, 0, 1)`}
-					/> : si <KatexInline formula={String.raw`x_1`} /> et <KatexInline
-						formula={String.raw`x_3`}
-					/> appartiennent à un intervalle <KatexInline formula={String.raw`[a,b]`} />, alors
-					<KatexInline formula={String.raw`a \le x_1`} /> et <KatexInline
-						formula={String.raw`x_3 \le b`}
-					/> ; comme <KatexInline formula={String.raw`x_1 < x_2 < x_3`} />, on en déduit
-					<KatexInline formula={String.raw`a \le x_1 < x_2 < x_3 \le b`} />, donc
-					<KatexInline formula={String.raw`x_2 \in [a,b]`} /> — contradiction avec l'étiquette 0 en
-					<KatexInline formula={String.raw`x_2`} />.
-				</p>
-				<p>
-					<strong>(b)</strong> Les paires sont brisées (Exercice 3.3) et aucun triplet ne l'est :
-					<KatexInline formula={String.raw`\mathrm{VCdim}(\mathcal H) = 2`} />.
-				</p>
-			{/snippet}
-			<p>
-				Soit <KatexInline
-					formula={String.raw`\mathcal H = \{x \mapsto \mathbb{1}_{x \in [a,b]} : a \le b\}`}
-				/>
-				la classe des intervalles.
-			</p>
-			<p>
-				<strong>(a)</strong> Montrez qu'aucun triplet ordonné <KatexInline
-					formula={String.raw`\{x_1 < x_2 < x_3\}`}
-				/> n'est brisé : donnez l'étiquetage impossible.
-			</p>
-			<p>
-				<strong>(b)</strong> Déduisez-en <KatexInline
-					formula={String.raw`\mathrm{VCdim}(\mathcal H)`} />.
-			</p>
-		</ExercisePanel>
-
-		<ExercisePanel number="3.5" title="Les demi-plans de R²">
-			{#snippet solution()}
-				<p>
-					<strong>(a)</strong> Soient <KatexInline formula={String.raw`A, B, C`} /> trois points
-					n'alignés. Pour chaque étiquetage, il faut séparer les points étiquetés 1 des points
-					étiquetés 0 par une droite. Le cas trivial (tout 0 ou tout 1) se résout par une droite
-					lointaine. Dans le cas mélangé, un seul point est d'un côté et deux de l'autre : le
-					contraire étant symétrique, prenons un point <KatexInline
-						formula={String.raw`P`}
-					/> à séparer de <KatexInline formula={String.raw`Q, R`} />. Les ensembles
-					<KatexInline formula={String.raw`\{P\}`} /> et
-					<KatexInline formula={String.raw`[Q, R]`} /> sont deux convexes compacts disjoints —
-					<KatexInline formula={String.raw`P`} /> n'est pas sur la droite
-					<KatexInline formula={String.raw`(QR)`} /> puisque les points ne sont pas alignés — donc
-					il existe une droite de séparation stricte, qui réalise l'étiquetage demandé. Les huit
-					étiquetages sont réalisables : <KatexInline formula={String.raw`\mathcal H`} /> brise tout
-					triplet non aligné.
-				</p>
-				<p>
-					<strong>(b)</strong> Soient <KatexInline
-						formula={String.raw`v_1, v_2, v_3, v_4`}
-					/> les sommets du carré, dans l'ordre. Les diagonales ont le même milieu, donc
-					<KatexInline formula={String.raw`v_1 + v_3 = v_2 + v_4`} />. Considérons l'étiquetage
-					<KatexInline formula={String.raw`(1, 0, 1, 0)`} />. S'il était réalisé par un demi-plan
-					fermé <KatexInline formula={String.raw`\{x : w^\top x \ge b\}`} />, on aurait
-					<KatexInline formula={String.raw`w^\top v_1 \ge b`} /> et <KatexInline
-						formula={String.raw`w^\top v_3 \ge b`}
-					/>, donc <KatexInline formula={String.raw`w^\top(v_1 + v_3) \ge 2b`} />, c'est-à-dire
-					<KatexInline formula={String.raw`w^\top(v_2 + v_4) \ge 2b`} />. Mais ni
-					<KatexInline formula={String.raw`v_2`} /> ni <KatexInline
-						formula={String.raw`v_4`}
-					/> n'est dans le demi-plan, donc <KatexInline
-						formula={String.raw`w^\top v_2 < b`}
-					/> et <KatexInline formula={String.raw`w^\top v_4 < b`} />, soit
-					<KatexInline formula={String.raw`w^\top(v_2 + v_4) < 2b`} /> : contradiction.
-					L'étiquetage (1,0,1,0) n'est pas réalisable : le carré n'est pas brisé.
-				</p>
-				<p>
-					Triplets brisés, quadruplets jamais brisés : <KatexInline
-						formula={String.raw`\mathrm{VCdim}(\mathcal H) = 3`}
-					/> dans <KatexInline formula={String.raw`\mathbb R^2`} />. Plus généralement, les
-					hyperplans de <KatexInline formula={String.raw`\mathbb R^d`} /> ont
-					<KatexInline formula={String.raw`\mathrm{VCdim} = d+1`} />.
-				</p>
-			{/snippet}
-			<p>
-				Soit <KatexInline
-					formula={String.raw`\mathcal H = \{x \mapsto \mathbb{1}_{w^\top x \ge b} : w \in \mathbb R^2,\ b \in \mathbb R\}`}
-				/>
-				la classe des demi-plans fermés de <KatexInline formula={String.raw`\mathbb R^2`} />.
-			</p>
-			<p>
-				<strong>(a)</strong> Montrez que <KatexInline formula={String.raw`\mathcal H`} /> brise tout
-				triplet de points non alignés.
-			</p>
-			<p>
-				<strong>(b)</strong> Montrez que <KatexInline formula={String.raw`\mathcal H`} /> ne brise pas
-				les quatre sommets d'un carré : donnez l'étiquetage impossible et justifiez-le à l'aide d'une
-				relation entre les sommets.
-			</p>
-			<p>Concluez : <KatexInline formula={String.raw`\mathrm{VCdim}(\mathcal H) = 3`} />.</p>
-		</ExercisePanel>
-
-		<ExercisePanel number="3.6" title="Le coefficient de brisure des seuils">
-			{#snippet solution()}
-				<p>
-					Soit <KatexInline formula={String.raw`C = \{x_1 < \dots < x_m\}`} /> un ensemble de
-					<KatexInline formula={String.raw`m`} /> points distincts. Un seuil <KatexInline
-						formula={String.raw`\theta`}
-					/> classe en 1 un <em>suffixe</em> de la suite ordonnée : il existe un entier
-					<KatexInline formula={String.raw`k \in \{0, \dots, m\}`} /> tel que
-					<KatexInline
-						formula={String.raw`(h(x_1), \dots, h(x_m)) = (0, \dots, 0, 1, \dots, 1)`}
-					/>
-					avec <KatexInline formula={String.raw`m-k`} /> uns (on place <KatexInline
-						formula={String.raw`\theta`}
-					/> entre <KatexInline formula={String.raw`x_k`} /> et
-					<KatexInline formula={String.raw`x_{k+1}`} />, ou en dehors de
-					<KatexInline formula={String.raw`[x_1, x_m]`} /> pour les cas extrêmes). Il y a exactement
-					<KatexInline formula={String.raw`m+1`} /> tels suffixes, et aucun autre étiquetage n'est
-					réalizable :
-				</p>
-				<KatexBlock
-					formula={String.raw`\Pi_{\mathcal H}(m) = m+1.`}
-				/>
-				<p>
-					Remarquons que c'est exactement la borne de Sauer-Shelah avec
-					<KatexInline formula={String.raw`d = 1`} /> :
-					<KatexInline
-						formula={String.raw`\binom{m}{0} + \binom{m}{1} = 1 + m`}
-					/>
-					— elle est atteinte à l'égalité.
-				</p>
-			{/snippet}
-			<p>
-				Soit <KatexInline formula={String.raw`\mathcal H = \{x \mapsto \mathbb{1}_{x \ge \theta} : \theta \in \mathbb R\}`}
-				/> la classe des seuils. Montrez que son coefficient de brisure vaut
-				<KatexInline formula={String.raw`\Pi_{\mathcal H}(m) = m+1`} /> pour tout
-				<KatexInline formula={String.raw`m \ge 1`} />.
-			</p>
-		</ExercisePanel>
-
-		<ExercisePanel number="3.7" title="Le coefficient de brisure des intervalles">
-			{#snippet solution()}
-				<p>
-					Comme pour les seuils, fixons <KatexInline
-						formula={String.raw`C = \{x_1 < \dots < x_m\}`}
-					/>. L'intersection d'un intervalle <KatexInline
-						formula={String.raw`[a,b]`}
-					/> avec <KatexInline formula={String.raw`C`} /> est un bloc de points
-					<strong>consecutifs</strong> (éventuellement vide), caractérisé par ses bornes :
-				</p>
-				<ul>
-					<li>
-						bloc vide (étiquetage tout 0) : <KatexInline formula={String.raw`1`} /> ;
-					</li>
-					<li>
-						bloc d'un seul point : <KatexInline formula={String.raw`m`} /> choix ;
-					</li>
-					<li>
-						bloc de deux points ou plus : caractérisé par ses deux bornes, donc
-						<KatexInline formula={String.raw`\frac{m(m-1)}{2}`} /> paires.
-					</li>
-				</ul>
-				<p>Le total est :</p>
-				<KatexBlock
-					formula={String.raw`\Pi_{\mathcal H}(m) = 1 + m + \frac{m(m-1)}{2}.`}
-				/>
-				<p>
-					Or la somme de Sauer-Shelah avec <KatexInline formula={String.raw`d = 2`} /> vaut
-					<KatexInline
-						formula={String.raw`\sum_{i=0}^{2} \binom{m}{i} = 1 + m + \frac{m(m-1)}{2}`}
-					/>
-					: les deux expressions sont identiques. Pour la classe des intervalles, la borne de
-					Sauer-Shelah est donc <strong>atteinte à l'égalité</strong> :
-					<KatexInline formula={String.raw`\Pi_{\mathcal H}(m) = \sum_{i=0}^{2} \binom{m}{i}`} />.
-				</p>
-			{/snippet}
-			<p>
-				Soit <KatexInline
-					formula={String.raw`\mathcal H = \{x \mapsto \mathbb{1}_{x \in [a,b]} : a \le b\}`}
-				/>
-				la classe des intervalles.
-			</p>
-			<p>
-				<strong>(a)</strong> Montrez que sur <KatexInline formula={String.raw`m`} /> points ordonnés,
-				les étiquetages réalisables sont exactement les blocs de points consécutifs, et en déduisez
-				<KatexInline
-					formula={String.raw`\Pi_{\mathcal H}(m) = 1 + m + \frac{m(m-1)}{2}`}
-				/>.
-			</p>
-			<p>
-				<strong>(b)</strong> Vérifiez que cette expression est égale à
-				<KatexInline formula={String.raw`\sum_{i=0}^{2} \binom{m}{i`} />.
-			</p>
-		</ExercisePanel>
-
-		<ExercisePanel number="3.8" title="Sauer-Shelah en chiffres">
-			{#snippet solution()}
-				<p>
-					<strong>(a)</strong> On a
-					<KatexInline
-						formula={String.raw`\binom{10}{0} + \binom{10}{1} + \binom{10}{2} = 1 + 10 + 45 = 56`}
-					/>, tandis que <KatexInline formula={String.raw`2^{10} = 1024`} /> : le nombre de
-					dichotomies réalisables est au plus 56, soit environ 18 fois moins que le nombre total
-					d'étiquetages.
-				</p>
-				<p>
-					<strong>(b)</strong> Avec <KatexInline formula={String.raw`d = 3`} /> :
-					<KatexInline
-						formula={String.raw`1 + 10 + 45 + \binom{10}{3} = 1 + 10 + 45 + 120 = 176`}
-					/>, encore très loin de <KatexInline formula={String.raw`1024`} />.
-				</p>
-				<p>
-					La borne polynomiale en <KatexInline formula={String.raw`m`} /> (de degré
-					<KatexInline formula={String.raw`d`} />) remplace la croissance exponentielle : dès que
-					<KatexInline formula={String.raw`m \gg d`} />, le rapport
-					<KatexInline formula={String.raw`2^m / \sum_{i \le d} \binom{m}{i}`} /> croît
-					exponentiellement, et la perte d'information est considérable.
-				</p>
-			{/snippet}
-			<p>
-				Le lemme de Sauer-Shelah affirme que si <KatexInline
-					formula={String.raw`\mathrm{VCdim}(\mathcal H) = d < +\infty`}
-				/>, alors <KatexInline
-					formula={String.raw`\Pi_{\mathcal H}(m) \le \sum_{i=0}^{d} \binom{m}{i}`}
-				/> pour tout <KatexInline formula={String.raw`m`} />.
-			</p>
-			<p>
-				<strong>(a)</strong> Avec <KatexInline formula={String.raw`d = 2`} /> et
-				<KatexInline formula={String.raw`m = 10`} />, calculez la borne et comparez-la à
-				<KatexInline formula={String.raw`2^{10}`} />.
-			</p>
-			<p>
-				<strong>(b)</strong> Faites de même avec <KatexInline formula={String.raw`d = 3`} />.
-			</p>
-		</ExercisePanel>
-
-		<ExercisePanel number="3.9" title="Le basculement exponentiel vers polynomial">
-			{#snippet solution()}
-				<p>
-					<strong>(a)</strong> On compare les logarithmes. On a
-					<KatexInline
-						formula={String.raw`\log\left(\frac{em}{10}\right)^{10} = 10\,(1 + \log m - \log 10)`}
-					/>
-					et <KatexInline formula={String.raw`\log 2^m = m\log 2`} /> :
-				</p>
-				<KatexBlock
-					formula={String.raw`\begin{array}{c|c|c} m & \log\left(\frac{em}{10}\right)^{10} & \log 2^m \\ \hline 20 & 10(1 + 2.996 - 2.303) \approx 16.93 & 20 \times 0.693 \approx 13.86 \\ 30 & 10(1 + 3.401 - 2.303) \approx 20.99 & 30 \times 0.693 \approx 20.79 \\ 40 & 10(1 + 3.689 - 2.303) \approx 23.86 & 40 \times 0.693 \approx 27.73 \end{array}`}
-				/>
-				<p>
-					<strong>(b)</strong> L'enveloppe polynomiale <KatexInline
-						formula={String.raw`(em/10)^{10}`}
-					/> reste supérieure à <KatexInline formula={String.raw`2^m`} /> jusqu'à
-					<KatexInline formula={String.raw`m \approx 31`} /> (le basculement est entre
-					<KatexInline formula={String.raw`m = 30`} /> et <KatexInline
-						formula={String.raw`m = 40`}
-					/>, c'est-à-dire autour de <KatexInline formula={String.raw`m \approx 3d`} />), puis
-					<KatexInline formula={String.raw`2^m`} /> la dépasse et ne cesse de l'éloigner.
-					Interprétation : pour <KatexInline formula={String.raw`m`} />, inférieur à quelques fois
-					<KatexInline formula={String.raw`d`} />, la borne de Sauer-Shelah peut être supérieure à
-					<KatexInline formula={String.raw`2^m`} />, donc triviale ; au-delà, le nombre de
-					dichotomies réalisables est <em>polynomial</em> en <KatexInline
-						formula={String.raw`m`}
-					/> de degré <KatexInline formula={String.raw`d`} />, alors que le nombre total
-					<KatexInline formula={String.raw`2^m`} /> est exponentiel — c'est précisément ce
-					basculement qui rend une borne de généralisation possible pour une classe infinie.
-				</p>
-			{/snippet}
-			<p>
-				Soit <KatexInline formula={String.raw`d = 10`} />. On dispose de la double majoration
-				<KatexInline
-					formula={String.raw`\Pi_{\mathcal H}(m) \le \min\left(2^m,\ \left(\frac{em}{d}\right)^d\right)`}
-				/>.
-			</p>
-			<p>
-				<strong>(a)</strong> Calculez <KatexInline
-					formula={String.raw`\log\left(\frac{em}{10}\right)^{10}`}
-				/>
-				et <KatexInline formula={String.raw`\log 2^m`} /> pour <KatexInline
-					formula={String.raw`m = 20`}
-				/>, <KatexInline formula={String.raw`30`} /> et <KatexInline
-					formula={String.raw`40`}
-				/>.
-			</p>
-			<p>
-				<strong>(b)</strong> À partir de quelle valeur de <KatexInline formula={String.raw`m`} />
-				l'exponentielle <KatexInline formula={String.raw`2^m`} /> domine-t-elle clairement
-				l'enveloppe <KatexInline formula={String.raw`(em/10)^{10}`} /> ? Qu'apporte cela sur le
-				sens de <KatexInline formula={String.raw`\mathrm{VCdim} = 10`} /> ?
-			</p>
-		</ExercisePanel>
-
-		<ExercisePanel number="3.10" title="La borne VC en chiffres">
-			{#snippet solution()}
-				<p>
-					Le terme de complexité vaut :
-				</p>
-				<KatexBlock
-					formula={String.raw`8d\log(2en/d) + 8\log(4/\delta) = 16\log(2e \times 100 / 2) + 8\log(80) = 16\log(271.8) + 8\log(80) \approx 16 \times 5.605 + 8 \times 4.382 \approx 89.7 + 35.1 \approx 124.8.`}
-				/>
-				<p>
-					<strong>(a)</strong> Avec <KatexInline formula={String.raw`n = 100`} /> :
-					<KatexInline
-						formula={String.raw`\sqrt{124.8/100} \approx \sqrt{1.25} \approx 1.12`}
-					/>. La borne dépasse 1, donc elle est <strong>triviale</strong> — une borne sur un
-					écart de risques (tous deux dans <KatexInline formula={String.raw`[0,1]`} />) supérieure
-					à 1 ne porte aucune information.
-				</p>
-				<p>
-					<strong>(b)</strong> Avec <KatexInline formula={String.raw`n = 1000`} /> :
-					<KatexInline
-						formula={String.raw`\sqrt{124.8/1000} \approx \sqrt{0.125} \approx 0.35`}
-					/>. La borne devient informative : avec une confiance de 95 %, le risque théorique est à
-					moins de ≈ 0.35 du risque empirique, <em>uniformément</em> sur toute la classe
-					<KatexInline formula={String.raw`\mathcal H`} />, y compris pour le classifieur appris.
-				</p>
-			{/snippet}
-			<p>
-				Soit <KatexInline formula={String.raw`\mathcal H`} /> de dimension VC <KatexInline
-					formula={String.raw`d = 2`}
-				/>, et <KatexInline formula={String.raw`\mathcal S_n`} /> un échantillon de taille
-				<KatexInline formula={String.raw`n`} />. Le Théorème 3.3 affirme que pour tout
-				<KatexInline formula={String.raw`\delta \in (0,1)`} />, avec probabilité au moins
-				<KatexInline formula={String.raw`1-\delta`} /> :
-				<KatexInline formula={vcBoundStatement} />.
-			</p>
-			<p>
-				<strong>(a)</strong> Avec <KatexInline formula={String.raw`n = 100`} /> et
-				<KatexInline formula={String.raw`\delta = 0.05`} />, calculez la borne. Est-elle informative ?
-			</p>
-			<p>
-				<strong>(b)</strong> Faites de même avec <KatexInline formula={String.raw`n = 1000`} />.
-			</p>
-		</ExercisePanel>
-
-		<ExercisePanel number="3.11" title="La VCdim du SVM">
-			{#snippet solution()}
-				<p>
-					<strong>(a)</strong> Avec <KatexInline formula={String.raw`R = 1`} /> :
-				</p>
-				<KatexBlock
-					formula={String.raw`\gamma = 0.5 : \quad \left\lfloor \frac{1}{0.25} \right\rfloor = 4, \qquad \gamma = 0.1 : \quad \left\lfloor \frac{1}{0.01} \right\rfloor = 100.`}
-				/>
-				<p>
-					<strong>(b)</strong> La borne croît comme <KatexInline
-						formula={String.raw`R^2/\gamma^2`}
-					/> : si les données s'éloignent de l'origine (<KatexInline
-						formula={String.raw`R`}
-					/> plus grand) ou si la marge obtenue est petite (<KatexInline
-						formula={String.raw`\gamma`}
-					/> plus petit), la complexité effective de la classe augmente. Maximiser la marge, c'est
-					précisément minimiser ce rapport — et donc la complexité qui entre dans la borne de
-					généralisation.
-				</p>
-			{/snippet}
-			<p>
-				Soit <KatexInline formula={String.raw`\|X_i\|_2 \le R = 1`} /> presque sûrement, et
-				<KatexInline formula={String.raw`\mathcal H_\gamma`} /> la classe des hyperplans de marge
-				<KatexInline formula={String.raw`\gamma`} /> (avec <KatexInline
-					formula={String.raw`\|w\|_2 = 1`}
-				/>). Le Théorème 3.4 affirme
-				<KatexInline formula={svmVCDimBound} />.
-			</p>
-			<p>
-				<strong>(a)</strong> Calculez cette borne pour <KatexInline
-					formula={String.raw`\gamma = 0.5`}
-				/> et <KatexInline formula={String.raw`\gamma = 0.1`} />.
-			</p>
-			<p>
-				<strong>(b)</strong> Que se passe-t-il lorsque <KatexInline formula={String.raw`R`} />
-				augmente ?
-			</p>
-		</ExercisePanel>
-
-		<ExercisePanel number="3.12" title="L'effet de la marge">
-			{#snippet solution()}
-				<p>
-					<strong>(a)</strong> On a
-					<KatexInline
-						formula={String.raw`\frac{R^2}{(2\gamma)^2} = \frac{R^2}{4\gamma^2} = \frac14 \cdot \frac{R^2}{\gamma^2}`}
-					/>
-					: la borne est divisée par 4. Doubler la marge divise la complexité effective par 4 — la
-					marge est l'unique « levier » de complexité dans cette borne.
-				</p>
-				<p>
-					<strong>(b)</strong> Pour les hyperplans ordinaires, <KatexInline
-						formula={String.raw`\mathrm{VCdim} = d+1`}
-					/>, donc la borne VC est inutilisable dès que <KatexInline
-						formula={String.raw`d`}
-					/> est grand (ou que les caractéristiques vivent dans un espace de Hilbert de
-					dimension infinie, via le kernel trick). En revanche, <KatexInline
-						formula={String.raw`\lfloor R^2/\gamma^2 \rfloor`}
-					/> ne dépend que de la géométrie de la solution apprise : un problème bien séparé en
-					1000 dimensions peut avoir une complexité effective bien plus petite que
-					<KatexInline formula={String.raw`d+1 = 1001`}
-					/>. C'est pourquoi le SVM peut généraliser correctement même lorsque le nombre de
-					caractéristiques dépasse largement la taille de l'échantillon.
-				</p>
-			{/snippet}
-			<p>
-				Rappel : <KatexInline formula={String.raw`\mathrm{VCdim}(\mathcal H_\gamma) \le \lfloor R^2/\gamma^2 \rfloor`}
-				/>.
-			</p>
-			<p>
-				<strong>(a)</strong> Si la marge double, <KatexInline
-					formula={String.raw`\gamma \to 2\gamma`}
-				/>, comment varie la borne <KatexInline
-					formula={String.raw`\lfloor R^2/\gamma^2 \rfloor`}
-				/> ?
-			</p>
-			<p>
-				<strong>(b)</strong> La borne <KatexInline
-					formula={String.raw`\lfloor R^2/\gamma^2 \rfloor`}
-				/> ne fait pas intervenir la dimension ambiante <KatexInline
-					formula={String.raw`d`}
-				/>. Expliquez en une phrase pourquoi c'est un atout du SVM comparé à la borne
-				<KatexInline formula={String.raw`\mathrm{VCdim} = d+1`} /> des hyperplans.
-			</p>
-		</ExercisePanel>
-
-		<h2 id="limites-vc-double-descente">Limites de VC et double descente</h2>
-
-		<p>
-			Cette section propose neuf exercices sur les limites de la théorie VC pour les réseaux de
-			neurones : la borne de Bartlett, le paradoxe de la double descente, la régularisation implicite
-			de SGD, les bornes par normes des poids, et la complexité de Rademacher (Leçon 4).
-		</p>
-
-		<ExercisePanel number="4.1" title="Bartlett en chiffres">
-			{#snippet solution()}
-				<p>
-					On a <KatexInline formula={String.raw`\log W = \log(10^8) = 8\log 10 \approx 18.42`} />,
-					donc :
-				</p>
-				<KatexBlock
-					formula={String.raw`W\,L\log W = 10^8 \times 10 \times 18.42 \approx 1.84 \times 10^{10}.`}
-				/>
-				<p>
-					La dimension VC du réseau est de l'ordre de <KatexInline
-						formula={String.raw`10^{10}`}
-					/> : des dizaines de milliards. C'est le même ordre de grandeur que le nombre de
-					paramètres lui-même, multiplié par un facteur logarithmique.
-				</p>
-			{/snippet}
-			<p>
-				Bartlett (1998) montre que pour un réseau à fonctions d'activation seuil, à
-				<KatexInline formula={String.raw`L`} /> couches et <KatexInline
-					formula={String.raw`W`}
-				/> paramètres : <KatexInline formula={vcDimNetwork} />.
-			</p>
-			<p>
-				Avec <KatexInline formula={String.raw`W = 10^8`} /> paramètres et
-				<KatexInline formula={String.raw`L = 10`} /> couches, donnez un ordre de grandeur de la
-				dimension VC du réseau.
-			</p>
-		</ExercisePanel>
-
-		<ExercisePanel number="4.2" title="Une borne triviale">
-			{#snippet solution()}
-				<p>
-					<strong>(a)</strong> Pour que <KatexInline
-						formula={String.raw`\sqrt{\mathrm{VCdim}/n} < 1`}
-					/>, il faut <KatexInline formula={String.raw`n \gg \mathrm{VCdim}`} /> : pour le réseau
-					de l'Exercice 4.1, il faudrait <KatexInline
-						formula={String.raw`n \gtrsim 10^{10}\text{ à }10^{11}`}
-					/> exemples.
-				</p>
-				<p>
-					<strong>(b)</strong> Les jeux de données typiques comptent <KatexInline
-						formula={String.raw`10^6 \text{ à } 10^7`}
-					/> exemples, soit 1000 à 10000 fois moins. La borne VC vaut donc
-					<KatexInline formula={String.raw`\ge 1`} />, c'est-à-dire qu'elle est triviale, sur tout
-					jeu de données réaliste : elle ne peut pas expliquer la bonne généralisation observée en
-					pratique. La théorie VC « ne peut rien dire » précisément là où la pratique fonctionne
-					mieux qu'elle ne le prédit.
-				</p>
-			{/snippet}
-			<p>
-				La borne VC donne une erreur de généralisation de l'ordre de
-				<KatexInline formula={String.raw`\sqrt{\mathrm{VCdim}/n}`} /> (à facteurs logarithmiques
-				près).
-			</p>
-			<p>
-				<strong>(a)</strong> Pour le réseau de l'Exercice 4.1 (<KatexInline
-					formula={String.raw`\mathrm{VCdim} \approx 1.8\times 10^{10}`}
-				/>), quelle taille d'échantillon <KatexInline formula={String.raw`n`} /> faut-il pour que la
-				borne soit inférieure à 1, donc informative ?
-			</p>
-			<p>
-				<strong>(b)</strong> Comparez avec la taille des jeux de données d'entraînement typiques
-				(<KatexInline formula={String.raw`10^6 \text{ à } 10^7`} />). Que concluez-vous ?
-			</p>
-		</ExercisePanel>
-
-		<ExercisePanel number="4.3" title="Lire la courbe de double descente">
-			{#snippet solution()}
-				<p>
-					Dans la démo de la Leçon 4 (régression linéaire par pseudo-inverse, taille
-					d'échantillon <KatexInline formula={String.raw`n`} /> fixée par le curseur,
-					dimension <KatexInline formula={String.raw`d`} /> variant autour du seuil
-					<KatexInline formula={String.raw`d = n`} />) :
-				</p>
-				<ul>
-					<li>
-						<KatexInline formula={String.raw`d < n`} /> (régime sous-paramétré) : le système est
-						sur-déterminé, la pseudo-inverse calcule la solution aux moindres carrés ; l'erreur de
-						test suit le compromis biais-variance classique (biais décroissant, variance
-						croissante avec d).
-					</li>
-					<li>
-						<KatexInline formula={String.raw`d = n`} /> (seuil d'interpolation) : le système est
-						exactement déterminé, la matrice de conception est mal conditionnée et l'erreur de
-						test <strong>explose</strong>.
-					</li>
-				<li>
-					<KatexInline formula={String.raw`d > n`} /> (régime sur-paramétré) : le système est
-					sous-déterminé, la pseudo-inverse choisit la solution de norme minimale parmi une
-					infinité de solutions — le risque empirique est nul (interpolation) ; l'erreur de
-					test, explosée au seuil, redescend avec d vers un niveau bas, légèrement supérieur
-					au bruit irréductible <KatexInline formula={String.raw`\sigma^2 = 1`} /> : la solution
-					de norme minimale ne capture que la composante du signal dans le sous-espace de rang
-					<KatexInline formula={String.raw`n`} /> engendré par les observations (biais résiduel au
-					carré <KatexInline formula={String.raw`(1 - n/d)^2\,\|\beta\|^2`} />).
-				</li>
-				</ul>
-				<p>
-					Le risque empirique est nul (interpolation) pour <KatexInline
-						formula={String.raw`d \ge n`} /> ; c'est l'erreur de <em>test</em> qui explose
-					précisément au seuil, et le minimum global de l'erreur de test est atteint
-					<em>après</em> le seuil, dans le régime sur-paramétré — d'où la « double descente ».
-				</p>
-			{/snippet}
-			<p>
-				Dans la démonstration interactive de la Leçon 4 (régression linéaire par pseudo-inverse,
-				taille d'échantillon <KatexInline formula={String.raw`n`} /> fixée par le curseur,
-				dimension <KatexInline formula={String.raw`d`} /> variant autour du seuil
-				<KatexInline formula={String.raw`d = n`} />), décrivez qualitativement ce qui arrive à
-				l'erreur de test dans les trois régimes <KatexInline
-					formula={String.raw`d < n`}
-				/>, <KatexInline formula={String.raw`d = n`} /> et <KatexInline
-					formula={String.raw`d > n`}
-				/> . Dans quel(s) régime(s) le modèle interpole-t-il les données (risque empirique nul) ?
-			</p>
-		</ExercisePanel>
-
-		<ExercisePanel number="4.4" title="Pourquoi l'explosion au seuil ?">
-			{#snippet solution()}
-				<p>
-					À <KatexInline formula={String.raw`n = d`} />, la matrice de conception <KatexInline
-						formula={String.raw`X`}
-					/> est carrée et (en général) inversible : la solution <KatexInline
-						formula={String.raw`\hat\beta = X^{-1}y`}
-					/> interpole exactement les données, donc le risque empirique est bien nul. Mais
-					<KatexInline formula={String.raw`X`} /> est proche de la singularité : elle est
-					<strong>mal conditionnée</strong>, et son inverse amplifie énormément le bruit présent
-					dans <KatexInline formula={String.raw`y`} />. La solution obtenue a une norme gigantesque
-					: elle passe exactement par tous les points bruités, mais oscille fortement entre eux.
-					Le risque empirique nul est donc, au seuil, le <em>pire</em> indicateur possible de la
-					qualité de généralisation — c'est le point exact où l'interpolation capte le bruit
-					plutôt que le signal.
-				</p>
-			{/snippet}
-			<p>
-				Dans la démo de l'Exercice 4.3, expliquez en deux ou trois phrases pourquoi l'erreur de test
-				explose précisément au seuil <KatexInline formula={String.raw`n = d`} />, alors même que le
-				risque empirique y est nul.
-			</p>
-		</ExercisePanel>
-
-		<ExercisePanel number="4.5" title="Bornes par normes contre VC">
-			{#snippet solution()}
-				<p>
-					<strong>(a)</strong> La borne de Bartlett-Foster-Telgarsky dépend des <strong>normes
-					des poids</strong> — la norme spectrale <KatexInline
-						formula={String.raw`\|\cdot\|_{\mathrm{op}}`}
-					/> (produit sur les couches) et la norme de Frobenius <KatexInline
-						formula={String.raw`\|\cdot\|_F`}
-					/> (somme sur les couches) — et non du <em>nombre de paramètres</em>
-					<KatexInline formula={String.raw`W`} />, qui contrôle la borne VC.
-				</p>
-				<p>
-					<strong>(b)</strong> Un réseau très large (<KatexInline
-						formula={String.raw`W \approx 10^8`}
-					/> paramètres, donc <KatexInline
-						formula={String.raw`\mathrm{VCdim} \approx 10^{10}`}
-					/> et borne VC triviale pour tout <KatexInline formula={String.raw`n`} /> réaliste) mais
-					dont les poids sont petits — par exemple <KatexInline
-						formula={String.raw`\|W_l\|_{\mathrm{op}} \le 1`}
-					/> et <KatexInline formula={String.raw`\|W_l\|_F`} /> bornés, comme le produisent
-					l'initialisation soignée ou la régularisation — peut avoir une borne BFT bien
-					inférieure à 1, donc informative, alors même que la borne VC dépasse 1. Les deux bornes
-					ne mesurent pas la même chose : la capacité de la classe (VC) contre la
-					<strong>régularité de la solution sélectionnée</strong> (BFT).
-				</p>
-			{/snippet}
-			<p>
-				Bartlett, Foster, Telgarsky (2017) montrent que pour un réseau à <KatexInline
-					formula={String.raw`L`}
-				/> couches de matrices de poids <KatexInline
-					formula={String.raw`W_1, \dots, W_L`}
-				/>, avec probabilité au moins <KatexInline
-					formula={String.raw`1-\delta`}
-				/> : <KatexInline formula={bftBound} />.
-			</p>
-			<p>
-				<strong>(a)</strong> Sur quoi cette borne dépend-elle, à la différence de la borne VC ?
-			</p>
-			<p>
-				<strong>(b)</strong> Décrivez un scénario où la borne BFT est informative alors que la borne
-				VC est triviale.
-			</p>
-		</ExercisePanel>
-
-		<ExercisePanel number="4.6" title="La complexité de Rademacher">
-			{#snippet solution()}
-				<p>
-					<strong>(a)</strong> La complexité de Rademacher empirique est
-					<strong>data-dependent</strong> : elle est calculée sur l'échantillon
-					<KatexInline formula={String.raw`\mathcal S_n`} /> (les <KatexInline
-						formula={String.raw`X_i`}
-					/> fixés, en moyennant sur les bruits <KatexInline
-						formula={String.raw`\sigma_i`}
-					/>). La dimension VC, en revanche, est une propriété intrinsèque de la classe
-					<KatexInline formula={String.raw`\mathcal H`} />, indépendante de toute donnée
-					particulière.
-				</p>
-				<p>
-					<strong>(b)</strong> Une classe « difficile » au sens VC peut se comporter simplement
-					sur un échantillon particulier — par exemple des données bien séparées, pour lesquelles
-					beaucoup de dichotomies de la classe ne sont pas cohérentes avec les observations.
-					<KatexInline formula={String.raw`\widehat{\mathfrak R}_n(\mathcal H)`} /> mesure alors
-					la capacité effective de la classe à s'adapter au bruit <em>sur cet échantillon</em>,
-					qui peut être très inférieure à la dimension VC, qui est un pire cas sur tous les
-					échantillons possibles. La borne s'adapte aux données : elle peut être informative dans
-					des situations où la borne VC est triviale.
-				</p>
-			{/snippet}
-			<p>
-				La complexité de Rademacher empirique est
-				<KatexInline
-					formula={String.raw`\widehat{\mathfrak R}_n(\mathcal H) = \mathbb E_{\sigma}\left[\sup_{h\in\mathcal H} \frac{1}{n}\sum_{i=1}^n \sigma_i\, h(X_i)\right]`}
-				/>
-				où les <KatexInline formula={String.raw`\sigma_i`} /> sont des variables de Rademacher, et
-				la borne de Rademacher s'écrit <KatexInline formula={rademacherBound} />.
-			</p>
-			<p>
-				<strong>(a)</strong> Quelle est la différence essentielle entre
-				<KatexInline formula={String.raw`\widehat{\mathfrak R}_n(\mathcal H)`} /> et
-				<KatexInline formula={String.raw`\mathrm{VCdim}(\mathcal H)`} /> ?
-			</p>
-			<p>
-				<strong>(b)</strong> Expliquez pourquoi cette différence rend la borne de Rademacher
-				potentiellement plus informative pour un échantillon donné.
-			</p>
-		</ExercisePanel>
-
-		<ExercisePanel number="4.7" title="Le biais implicite de SGD">
-			{#snippet solution()}
-				<p>
-					<strong>(a)</strong> Les réseaux profonds entraînés par SGD atteignent en pratique un
-					risque empirique nul (interpolation) : dans cette situation, la solution
-					<KatexInline formula={String.raw`h`} /> qui interpole les données n'est pas unique — il
-					y en a une infinité, de régularité très différente. Le biais implicite montre que
-					l'optimisation ne sélectionne pas une solution arbitraire : elle converge systématiquement
-					vers la solution <strong>la plus régulière</strong> de la famille des solutions
-					interpolantes — ici, celle de marge maximale, qui est exactement la solution du SVM. Or
-					c'est précisément la régularité de la solution (la marge, les normes) qui contrôle la
-					généralisation : la marge via le Théorème 3.4, les normes via la borne par normes de la
-					Leçon 4 (Bartlett, Foster, Telgarsky, 2017). Le biais implicite explique donc une
-					part de la bonne généralisation des réseaux qui « sur-apprennent » leurs données.
-				</p>
-				<p>
-					<strong>(b)</strong> La question change de sujet : on ne se demande plus « la classe est-elle
-					trop riche ? » (question de capacité, à laquelle la théorie VC répond de façon triviale
-					pour les réseaux), mais « quelle solution l'algorithme d'optimisation sélectionne-t-il
-					parmi toutes celles qui s'ajustent aux données, et combien cette solution est-elle
-					régulière ? ». La généralisation devient une question sur le <em>couple</em>
-					algorithme-données, et non plus sur la classe seule.
-				</p>
-			{/snippet}
-			<p>
-				Il est montré (Zhang et al., 2017 ; Soudry et al., 2018) que pour la régression logistique
-				sur des données linéairement séparables, la descente de gradient converge vers le
-				classifieur de <strong>marge maximale</strong> — la solution du SVM — même sans
-				régularisation explicite.
-			</p>
-			<p>
-				<strong>(a)</strong> Pourquoi ce résultat est-il intéressant pour comprendre la
-				généralisation des réseaux profonds ?
-			</p>
-			<p>
-				<strong>(b)</strong> En une phrase : vers quelle nouvelle question déplace-t-il l'analyse de
-				la généralisation ?
-			</p>
-		</ExercisePanel>
-
-		<ExercisePanel number="4.8" title="Vrai ou faux">
+		<ExercisePanel number="1.10" title="Vrai ou faux">
 			<p>Indiquez si chaque affirmation est vraie ou fausse, en justifiant brièvement.</p>
 			<ol>
+				<li>Le classifieur de Bayes dépend de l'algorithme d'apprentissage utilisé.</li>
 				<li>
-					La dimension VC de la classe des hyperplans de <KatexInline
-						formula={String.raw`\mathbb R^d`}
-					/> vaut <KatexInline formula={String.raw`d`} />.
+					Le risque de Bayes <KatexInline formula={String.raw`R^*`} /> peut être strictement négatif.
 				</li>
 				<li>
-					Le lemme de Sauer-Shelah ne donne une borne non triviale que lorsque
-					<KatexInline formula={String.raw`m \le d`} />.
+					Si <KatexInline formula={String.raw`\eta(x)\in\{0,1\}`} /> presque sûrement, alors
+					<KatexInline formula={String.raw`R^*=0`} />.
 				</li>
-				<li>
-					La borne <KatexInline
-						formula={String.raw`\mathrm{VCdim}(\mathcal H_\gamma) \le \lfloor R^2/\gamma^2 \rfloor`}
-					/>
-					dépend de la dimension ambiante <KatexInline formula={String.raw`d`} />.
-				</li>
-				<li>Dans la double descente, l'erreur de test explose au seuil d'interpolation.</li>
-				<li>
-					La complexité de Rademacher <KatexInline
-						formula={String.raw`\widehat{\mathfrak R}_n(\mathcal H)`} /> est indépendante de
-					l'échantillon <KatexInline formula={String.raw`\mathcal S_n`} />.
-				</li>
+				<li>Le risque de Bayes est une borne atteinte par au moins un classifieur mesurable.</li>
 			</ol>
 			{#snippet solution()}
 				<ol>
 					<li>
-						<strong>Faux.</strong> Les hyperplans de <KatexInline
-							formula={String.raw`\mathbb R^d`}
-						/> brisent <KatexInline formula={String.raw`d+1`} /> points en position générale
-						(Exercice 3.5) et n'en brisent jamais <KatexInline
-							formula={String.raw`d+2`}
-						/> : <KatexInline formula={String.raw`\mathrm{VCdim} = d+1`} />.
+						<strong>Faux.</strong> Le classifieur de Bayes ne dépend que de <KatexInline
+							formula={String.raw`P_{X,Y}`}
+						/>, qui est supposée connue exactement — aucune notion d'algorithme ou d'échantillon
+						n'intervient dans sa définition.
 					</li>
 					<li>
-						<strong>Faux.</strong> Le lemme est valable pour <strong>tout</strong>
-						<KatexInline formula={String.raw`m`} />. Pour <KatexInline
-							formula={String.raw`m \le d`} />, la somme
-						<KatexInline
-							formula={String.raw`\sum_{i=0}^{d} \binom{m}{i} = 2^m`}
-						/>
-						reproduit le nombre total d'étiquetages : la borne y est triviale (elle
-						redonne <KatexInline formula={String.raw`\Pi_{\mathcal H}(m) \le 2^m`} />). Elle
-						devient <em>non</em> triviale pour <KatexInline formula={String.raw`m > d`} />,
-						lorsque la somme est strictement plus petite que
-						<KatexInline formula={String.raw`2^m`} /> (Exercice 3.9).
+						<strong>Faux.</strong>
+						<KatexInline formula={String.raw`R^*`} /> est une espérance de quantités de la forme <KatexInline
+							formula={String.raw`\min(\eta,1-\eta) \ge 0`}
+						/>, donc toujours
+						<KatexInline formula={String.raw`R^* \ge 0`} />.
 					</li>
 					<li>
-						<strong>Faux.</strong> La borne ne dépend que de <KatexInline
-							formula={String.raw`R`}
-						/> et <KatexInline formula={String.raw`\gamma`} />, jamais de
-						<KatexInline formula={String.raw`d`} /> — c'est précisément sa force (Exercices
-						3.11 et 3.12).
+						<strong>Vrai.</strong> C'est exactement la condition de séparabilité vue à l'Exercice 1.5.
 					</li>
 					<li>
-						<strong>Vrai.</strong> Au seuil, la matrice de conception est mal conditionnée et la
-						solution interpolante a une norme gigantesque (Exercice 4.4).
-					</li>
-					<li>
-						<strong>Faux.</strong> <KatexInline
-							formula={String.raw`\widehat{\mathfrak R}_n(\mathcal H)`}
-						/> est data-dependent : elle est calculée sur
-						<KatexInline formula={String.raw`\mathcal S_n`}
-						/> (Exercice 4.6). C'est exactement ce qui la distingue de la dimension VC.
+						<strong>Vrai.</strong> Par définition, <KatexInline
+							formula={String.raw`R^* = R(h^*)`}
+						/> — c'est le classifieur de Bayes lui-même qui atteint cette valeur (le Théorème 1.1 en donne
+						la construction explicite).
 					</li>
 				</ol>
 			{/snippet}
 		</ExercisePanel>
 
-		<ExercisePanel number="4.9" title="Synthèse">
+		<ExercisePanel number="1.11" title="Compléter la démonstration de l'optimalité globale">
 			{#snippet solution()}
 				<p>
-					La borne VC compte la capacité de la classe : pour un réseau à <KatexInline
-						formula={String.raw`W`}
-					/> paramètres, cette capacité est de l'ordre de <KatexInline
-						formula={String.raw`WL\log W`}
-					/> (Bartlett), soit <KatexInline formula={String.raw`10^{10}`} /> ou plus pour les
-					architectures modernes ; la borne <KatexInline
-						formula={String.raw`\sqrt{\mathrm{VCdim}/n}`}
-					/> dépasse donc 1 pour tout <KatexInline formula={String.raw`n`} /> réaliste — la
-					théorie répond « aucune information » là où la pratique généralise bien. La racine du
-					problème est que la classe est immense mais que l'algorithme ne l'explore pas : la
-					régularisation implicite de SGD sélectionne des solutions régulières (marge maximale,
-					petites normes), dont la complexité est mesurée par les normes des poids (borne
-					Bartlett-Foster-Telgarsky) ou par la capacité d'ajustement au bruit sur l'échantillon
-					(complexité de Rademacher data-dependent), et non par le nombre de paramètres. Parmi ces
-					trois outils, la borne par normes traite le plus directement la racine du problème :
-					c'est elle qui remplace le <em>comptage</em> des paramètres — source de la trivialité —
-					par une mesure de la régularité <em>effective</em> de la solution apprise.
+					Pour <KatexInline formula={String.raw`h`} /> quelconque :
+				</p>
+				<KatexBlock
+					formula={String.raw`R(h) - R(h^*) = \mathbb{E}_X\big[r(h(X),X) - r(h^*(X),X)\big].`}
+				/>
+				<p>
+					Par construction de <KatexInline formula={String.raw`h^*`} /> (minimiseur ponctuel de
+					<KatexInline formula={String.raw`r(\cdot,x)`} />), on a <KatexInline
+						formula={String.raw`r(h^*(x),x) \le r(a,x)`}
+					/> pour tout <KatexInline formula={String.raw`a\in\{0,1\}`} /> et tout <KatexInline
+						formula={String.raw`x`}
+					/>
+					— en particulier pour <KatexInline formula={String.raw`a=h(x)`} />. Donc
+					<KatexInline formula={String.raw`r(h(x),x) - r(h^*(x),x) \ge 0`} /> pour tout <KatexInline
+						formula={String.raw`x`}
+					/>. Par positivité de l'espérance d'une quantité positive :
+				</p>
+				<KatexBlock formula={String.raw`R(h)-R(h^*) \ge 0 \iff R(h^*) \le R(h).`} />
+				<p>
+					Ceci vaut pour tout <KatexInline formula={String.raw`h`} /> mesurable, d'où l'optimalité globale.
 				</p>
 			{/snippet}
 			<p>
-				En trois ou quatre phrases : expliquez pourquoi la borne VC — le résultat central de la
-				théorie statistique de l'apprentissage — devient inutile pour les réseaux de neurones
-				modernes, et lequel des outils modernes (biais implicite de SGD, bornes par normes, complexité
-				de Rademacher) traite le plus directement la racine du problème.
+				Soit <KatexInline formula={String.raw`h`} /> un classifieur mesurable quelconque. En partant de
+				<KatexInline formula={String.raw`R(h) - R(h^*) = \mathbb{E}_X[r(h(X),X) - r(h^*(X),X)]`} />,
+				justifiez chaque étape qui permet de conclure <KatexInline
+					formula={String.raw`R(h^*) \le R(h)`}
+				/>.
 			</p>
 		</ExercisePanel>
+
+		<ExercisePanel number="1.12" title="Régions de décision pour un η(x) linéaire par morceaux">
+			{#snippet solution()}
+				<p>
+					Sur <KatexInline formula={String.raw`[0,1]`} />, <KatexInline
+						formula={String.raw`\eta(x) = 2x`}
+					/> atteint
+					<KatexInline formula={String.raw`1/2`} /> en <KatexInline formula={String.raw`x=1/4`} /> : pour
+					<KatexInline formula={String.raw`x<1/4`} />, <KatexInline
+						formula={String.raw`\eta(x)<1/2`}
+					/>, action 0. Sur
+					<KatexInline formula={String.raw`[1,2]`} />, <KatexInline
+						formula={String.raw`\eta(x)=1`}
+					/> partout (au-dessus du seuil), action 1. Donc <KatexInline
+						formula={String.raw`h^*(x) = \mathbb{1}_{x \ge 1/4}`}
+					/> sur tout le domaine <KatexInline formula={String.raw`[0,2]`} />. Le risque de Bayes,
+					avec
+					<KatexInline formula={String.raw`X\sim\mathrm{Unif}[0,2]`} /> :
+				</p>
+				<KatexBlock
+					formula={String.raw`R^* = \frac12\int_0^1 \min(2x,1-2x)\,dx + \frac12\int_1^2 \min(1,0)\,dx = \frac12\int_0^{1/4} 2x\,dx = \frac{1}{32}.`}
+				/>
+			{/snippet}
+			<p>
+				Soit <KatexInline formula={String.raw`X\sim\mathrm{Unif}[0,2]`} /> avec
+				<KatexInline formula={String.raw`\eta(x) = 2x`} /> pour <KatexInline
+					formula={String.raw`x\in[0,1]`}
+				/> et
+				<KatexInline formula={String.raw`\eta(x)=1`} /> pour <KatexInline
+					formula={String.raw`x\in(1,2]`}
+				/>. Déterminez la région de décision de <KatexInline formula={String.raw`h^*`} />, puis
+				calculez <KatexInline formula={String.raw`R^*`} />.
+			</p>
+		</ExercisePanel>
+
+		<h2 id="regression-moyenne-mediane">Régression : moyenne et médiane conditionnelles</h2>
+
+		<p>
+			Cette section propose dix exercices sur les prédicteurs optimaux en régression : calculs
+			numériques de moyenne et médiane conditionnelles, vérification de la décomposition
+			biais-variance, non-unicité de la médiane, et comparaison de la robustesse entre L1 et L2.
+		</p>
+
+		<ExercisePanel number="2.1" title="Calcul de la moyenne conditionnelle">
+			{#snippet solution()}
+				<KatexBlock
+					formula={String.raw`\mathbb{E}[Y\mid X=x] = 2(0.2) + 5(0.5) + 9(0.3) = 0.4+2.5+2.7 = 5.6.`}
+				/>
+			{/snippet}
+			<p>
+				Soit <KatexInline formula={String.raw`Y\mid X=x`} /> prenant les valeurs
+				<KatexInline formula={String.raw`\{2,5,9\}`} /> avec probabilités
+				<KatexInline formula={String.raw`\{0.2,0.5,0.3\}`} />. Calculez <KatexInline
+					formula={mDef}
+				/>.
+			</p>
+		</ExercisePanel>
+
+		<ExercisePanel number="2.2" title="Calcul de la médiane conditionnelle et comparaison">
+			{#snippet solution()}
+				<p>
+					La fonction de répartition cumulée vaut <KatexInline formula={String.raw`0.2`} /> en
+					<KatexInline formula={String.raw`y=2`} />, puis <KatexInline formula={String.raw`0.7`} /> en
+					<KatexInline formula={String.raw`y=5`} /> (qui dépasse <KatexInline
+						formula={String.raw`1/2`}
+					/> pour la première fois). La médiane est donc <KatexInline formula={String.raw`5`} />,
+					différente de la moyenne <KatexInline formula={String.raw`5.6`} /> calculée à l'exercice précédent
+					— la distribution n'est pas symétrique, donc les deux notions de « centre » divergent.
+				</p>
+			{/snippet}
+			<p>
+				Pour la même distribution qu'à l'exercice précédent, calculez <KatexInline
+					formula={medDef}
+				/>. Coïncide-t-elle avec la moyenne ? Pourquoi ?
+			</p>
+		</ExercisePanel>
+
+		<ExercisePanel number="2.3" title="Non-unicité de la médiane conditionnelle">
+			{#snippet solution()}
+				<p>
+					Pour <KatexInline formula={String.raw`c\in[1,3]`} /> :
+				</p>
+				<KatexBlock formula={String.raw`g(c) = 0.5|1-c| + 0.5|3-c| = 0.5(c-1) + 0.5(3-c) = 1.`} />
+				<p>
+					La fonction <KatexInline formula={String.raw`g`} /> est donc <strong>constante</strong>
+					sur tout l'intervalle <KatexInline formula={String.raw`[1,3]`} /> : n'importe quel <KatexInline
+						formula={String.raw`c\in[1,3]`}
+					/> minimise le risque L1, pas seulement un point isolé. La médiane conditionnelle n'est ici
+					<strong>pas unique</strong>
+					— c'est exactement la situation évoquée dans la preuve du Théorème 1.2 : quand la fonction de
+					répartition a un palier à hauteur <KatexInline formula={String.raw`1/2`} />, tout point de
+					ce palier est un minimiseur valide.
+				</p>
+			{/snippet}
+			<p>
+				Soit <KatexInline formula={String.raw`Y\mid X=x`} /> prenant les valeurs <KatexInline
+					formula={String.raw`\{1,3\}`}
+				/> chacune avec probabilité <KatexInline formula={String.raw`0.5`} />. Calculez <KatexInline
+					formula={String.raw`g(c)=\mathbb{E}[|Y-c|\mid X=x]`}
+				/> pour <KatexInline formula={String.raw`c\in[1,3]`} />, et montrez que la médiane
+				conditionnelle n'est pas unique.
+			</p>
+		</ExercisePanel>
+
+		<ExercisePanel number="2.4" title="Vérification numérique de la décomposition biais-variance">
+			{#snippet solution()}
+				<p>
+					Avec <KatexInline formula={String.raw`m(x)=5.6`} /> (Exercice 2.1) et <KatexInline
+						formula={String.raw`c=4`}
+					/>
+					:
+				</p>
+				<p>Calcul direct :</p>
+				<KatexBlock
+					formula={String.raw`\mathbb{E}[(Y-4)^2\mid x] = 0.2(2-4)^2+0.5(5-4)^2+0.3(9-4)^2 = 0.8+0.5+7.5 = 8.8.`}
+				/>
+				<p>Via la décomposition :</p>
+				<KatexBlock
+					formula={String.raw`\mathbb{E}[(Y-m(x))^2\mid x] = 0.2(2-5.6)^2+0.5(5-5.6)^2+0.3(9-5.6)^2 = 2.592+0.18+3.468 = 6.24,`}
+				/>
+				<KatexBlock formula={String.raw`(m(x)-c)^2 = (5.6-4)^2 = 2.56.`} />
+				<p>
+					Somme : <KatexInline formula={String.raw`6.24+2.56=8.8`} />, identique au calcul direct —
+					la décomposition est vérifiée.
+				</p>
+			{/snippet}
+			<p>
+				Pour la distribution de l'Exercice 2.1, vérifiez numériquement que
+				<KatexInline
+					formula={String.raw`\mathbb{E}[(Y-c)^2\mid x] = \mathbb{E}[(Y-m(x))^2\mid x] + (m(x)-c)^2`}
+				/>
+				pour <KatexInline formula={String.raw`c=4`} />, en calculant les deux membres séparément.
+			</p>
+		</ExercisePanel>
+
+		<ExercisePanel number="2.5" title="Retrouver la moyenne par annulation de la dérivée">
+			{#snippet solution()}
+				<p>
+					On pose <KatexInline formula={String.raw`g(c) = \sum_i p_i(y_i-c)^2`} />. Alors
+					<KatexInline formula={String.raw`g'(c) = -2\sum_i p_i(y_i-c)`} />, et
+					<KatexInline formula={String.raw`g'(c)=0`} /> donne :
+				</p>
+				<KatexBlock
+					formula={String.raw`\sum_i p_i y_i = c\sum_i p_i = c \implies c = \sum_i p_i y_i = \mathbb{E}[Y\mid x] = 5.6,`}
+				/>
+				<p>ce qui redonne exactement la moyenne calculée à l'Exercice 2.1.</p>
+			{/snippet}
+			<p>
+				Pour la distribution de l'Exercice 2.1, posez <KatexInline
+					formula={String.raw`g(c)=\mathbb{E}[(Y-c)^2\mid x]`}
+				/>, calculez <KatexInline formula={String.raw`g'(c)`} /> directement (sans passer par la décomposition
+				biais-variance), et retrouvez que le minimiseur est la moyenne conditionnelle.
+			</p>
+		</ExercisePanel>
+
+		<ExercisePanel number="2.6" title="Robustesse : moyenne vs médiane face à un outlier">
+			{#snippet solution()}
+				<p>
+					Moyenne : <KatexInline
+						formula={String.raw`\mathbb{E}[Y\mid x] = 1(0.3)+2(0.3)+3(0.3)+100(0.1) = 0.3+0.6+0.9+10 = 11.8.`}
+					/>
+				</p>
+				<p>
+					Médiane : cumulative <KatexInline formula={String.raw`0.3`} /> en <KatexInline
+						formula={String.raw`1`}
+					/>,
+					<KatexInline formula={String.raw`0.6`} /> en <KatexInline formula={String.raw`2`} /> (dépasse
+					<KatexInline formula={String.raw`1/2`} />), donc <KatexInline
+						formula={String.raw`\mathrm{Med}(Y\mid x) = 2`}
+					/>.
+				</p>
+				<p>
+					La moyenne (<KatexInline formula={String.raw`11.8`} />) est complètement déplacée par la
+					valeur extrême <KatexInline formula={String.raw`100`} />, malgré sa faible probabilité (<KatexInline
+						formula={String.raw`0.1`}
+					/>), alors que la médiane (<KatexInline formula={String.raw`2`} />) reste au cœur de la
+					masse de probabilité — c'est précisément la robustesse évoquée dans la Leçon 2.
+				</p>
+			{/snippet}
+			<p>
+				Soit <KatexInline formula={String.raw`Y\mid X=x`} /> prenant les valeurs
+				<KatexInline formula={String.raw`\{1,2,3,100\}`} /> avec probabilités
+				<KatexInline formula={String.raw`\{0.3,0.3,0.3,0.1\}`} />. Calculez la moyenne et la médiane
+				conditionnelles, et commentez l'écart entre les deux.
+			</p>
+		</ExercisePanel>
+
+		<ExercisePanel number="2.7" title="Convexité de g via ses pentes">
+			{#snippet solution()}
+				<p>
+					Pour une distribution discrète, <KatexInline
+						formula={String.raw`g(c)=\sum_i p_i|y_i-c|`}
+					/> est affine par morceaux entre deux valeurs consécutives <KatexInline
+						formula={String.raw`y_i`}
+					/>
+					. La pente sur chaque morceau est <KatexInline
+						formula={String.raw`\sum_{y_i<c} p_i - \sum_{y_i>c} p_i`}
+					/>, qui est <strong>croissante</strong> en <KatexInline formula={String.raw`c`} /> (chaque fois
+					qu'on dépasse un <KatexInline formula={String.raw`y_i`} />, un terme change de signe,
+					augmentant la pente de <KatexInline formula={String.raw`2p_i`} />). Une fonction affine
+					par morceaux dont les pentes sont croissantes est convexe — c'est la version discrète de
+					<KatexInline formula={String.raw`g''(c)=2f_{Y|x}(c)\ge0`} /> vue dans la démonstration continue.
+				</p>
+			{/snippet}
+			<p>
+				Pour une distribution discrète quelconque, montrez que la pente de
+				<KatexInline formula={gDef} /> est croissante en <KatexInline formula={String.raw`c`} />, et
+				expliquez pourquoi cela implique que <KatexInline formula={String.raw`g`} /> est convexe.
+			</p>
+		</ExercisePanel>
+
+		<ExercisePanel number="2.8" title="Distribution symétrique : moyenne = médiane">
+			{#snippet solution()}
+				<p>
+					Pour <KatexInline formula={String.raw`Y\mid X=x \sim \mathrm{Unif}[a,b]`} />, la moyenne
+					est
+					<KatexInline formula={String.raw`(a+b)/2`} /> par symétrie. La médiane vérifie
+					<KatexInline formula={String.raw`F(c)=1/2`} />, et par la fonction de répartition uniforme
+					<KatexInline formula={String.raw`F(c) = (c-a)/(b-a)`} />, donc <KatexInline
+						formula={String.raw`c=(a+b)/2`}
+					/> également. Les deux prédicteurs coïncident exactement dès que la distribution conditionnelle
+					est symétrique — la différence entre L1 et L2 ne se manifeste que pour des distributions asymétriques
+					ou à queue lourde (cf. Exercice 2.6).
+				</p>
+			{/snippet}
+			<p>
+				Soit <KatexInline formula={String.raw`Y\mid X=x \sim \mathrm{Unif}[a,b]`} />. Montrez que la
+				moyenne et la médiane conditionnelles coïncident, et expliquez pourquoi ce n'était pas le
+				cas dans les Exercices 2.1–2.2.
+			</p>
+		</ExercisePanel>
+
+		<ExercisePanel number="2.9" title="Vrai ou faux">
+			<p>Indiquez si chaque affirmation est vraie ou fausse, en justifiant brièvement.</p>
+			<ol>
+				<li>Le prédicteur optimal pour L2 est toujours différent du prédicteur optimal pour L1.</li>
+				<li>La médiane conditionnelle peut ne pas être unique.</li>
+				<li>
+					Dans la décomposition biais-variance ponctuelle, le terme
+					<KatexInline formula={String.raw`\mathbb{E}[(Y-m(x))^2\mid x]`} /> dépend du choix du prédicteur
+					<KatexInline formula={String.raw`c`} />.
+				</li>
+				<li>La moyenne conditionnelle minimise toujours le risque L1.</li>
+			</ol>
+			{#snippet solution()}
+				<ol>
+					<li>
+						<strong>Faux.</strong> Ils coïncident dès que la distribution conditionnelle est symétrique
+						(Exercice 2.8).
+					</li>
+					<li>
+						<strong>Vrai.</strong> Voir l'Exercice 2.3 — un palier de la fonction de répartition à
+						hauteur <KatexInline formula={String.raw`1/2`} /> rend tout un intervalle minimiseur.
+					</li>
+					<li>
+						<strong>Faux.</strong> C'est tout l'intérêt de la décomposition : ce terme ne dépend que
+						de la distribution de <KatexInline formula={String.raw`Y\mid x`} />, pas de <KatexInline
+							formula={String.raw`c`}
+						/> — seul le second terme, <KatexInline formula={String.raw`(m(x)-c)^2`} />, en dépend.
+					</li>
+					<li>
+						<strong>Faux.</strong> La moyenne minimise le risque <strong>L2</strong>. C'est la
+						médiane qui minimise le risque L1 (Théorème 1.2).
+					</li>
+				</ol>
+			{/snippet}
+		</ExercisePanel>
+
+		<ExercisePanel number="2.10" title="Compléter la démonstration pour la perte L1">
+			{#snippet solution()}
+				<p>
+					En supposant une densité conditionnelle <KatexInline formula={String.raw`f_{Y|x}`} />, on
+					dérive
+					<KatexInline formula={String.raw`g(c)=\mathbb{E}[|Y-c|\mid x]`} /> sous le signe intégrale :
+				</p>
+				<KatexBlock formula={String.raw`g'(c) = F_{Y|x}(c) - (1-F_{Y|x}(c)) = 2F_{Y|x}(c)-1.`} />
+				<p>
+					La condition <KatexInline formula={String.raw`g'(c)=0`} /> équivaut à
+					<KatexInline formula={String.raw`F_{Y|x}(c)=1/2`} />, c'est-à-dire <KatexInline
+						formula={String.raw`c=\mathrm{Med}(Y\mid x)`}
+					/> par définition de la médiane. Pour vérifier qu'il s'agit bien d'un minimum
+					<em>global</em> et non simplement local, on calcule la dérivée seconde :
+					<KatexInline formula={String.raw`g''(c) = 2f_{Y|x}(c) \ge 0`} />, qui est toujours
+					positive ou nulle (une densité est positive) — <KatexInline formula={String.raw`g`} /> est donc
+					convexe, et tout point critique d'une fonction convexe est un minimiseur global.
+				</p>
+			{/snippet}
+			<p>
+				En partant de <KatexInline formula={String.raw`g'(c) = 2F_{Y|x}(c) - 1`} />, complétez la
+				démonstration du Théorème 1.2 pour la perte L1 : trouvez la condition d'optimalité, puis
+				justifiez qu'il s'agit d'un minimum global et non seulement local.
+			</p>
+		</ExercisePanel>
+
+		<h2 id="synthese-classification-regression">Synthèse classification / régression</h2>
+
+		<p>
+			Ces trois derniers exercices prennent du recul sur les deux leçons de cette partie, pour en
+			dégager le principe commun.
+		</p>
+
+		<ExercisePanel number="3.1" title="Le principe commun : minimisation ponctuelle">
+			{#snippet solution()}
+				<p>
+					Dans les deux cas, on part de <KatexInline
+						formula={String.raw`R(h) = \mathbb{E}_X[\text{risque conditionnel}(h(x), x)]`}
+					/> par la loi des espérances totales, ce qui permet de minimiser
+					<strong>point par point</strong> en <KatexInline formula={String.raw`x`} /> plutôt que globalement.
+					Ce qui varie d'un cas à l'autre, c'est uniquement la <em>forme</em> du risque conditionnel
+					— <KatexInline formula={String.raw`r(a,x)`} /> pour la perte 0-1,
+					<KatexInline formula={String.raw`\mathbb{E}[(Y-c)^2\mid x]`} /> pour L2,
+					<KatexInline formula={gDef} /> pour L1 — et donc la nature de la quantité qui la minimise (seuil
+					sur <KatexInline formula={String.raw`\eta(x)`} />, moyenne, médiane). Le
+					<em>schéma de preuve</em> est, lui, identique dans les trois cas.
+				</p>
+			{/snippet}
+			<p>
+				Énoncez, en une ou deux phrases, le principe structurel commun aux démonstrations du
+				Théorème 1.1 (classification) et du Théorème 1.2 (régression). Qu'est-ce qui varie d'un
+				résultat à l'autre, et qu'est-ce qui reste identique ?
+			</p>
+		</ExercisePanel>
+
+		<ExercisePanel number="3.2" title="Vers une théorie générale des pertes">
+			{#snippet solution()}
+				<p>
+					Chaque perte induit sa propre notion de « centre » optimal de la distribution
+					conditionnelle de <KatexInline formula={String.raw`Y`} /> : un seuil sur <KatexInline
+						formula={String.raw`\eta(x)`}
+					/> pour la perte 0-1, la moyenne pour L2, la médiane pour L1. On peut anticiper que
+					<em>toute</em> perte convexe <KatexInline formula={String.raw`\ell(y,c)`} /> définit de même
+					un prédicteur ponctuel optimal, une sorte de « quantile généralisé » associé à la perte choisie.
+					C'est précisément la question qu'aborde la Partie IX de ce cours (fonctions de perte calibrées)
+					: quelles pertes de substitution à la perte 0-1 préservent malgré tout l'optimalité du classifieur
+					de Bayes ?
+				</p>
+			{/snippet}
+			<p>
+				Sans chercher à démontrer quoi que ce soit de nouveau : en généralisant l'intuition des
+				Théorèmes 1.1 et 1.2, que pensez-vous qu'il se passerait pour une perte
+				<KatexInline formula={String.raw`\ell(y,c)`} /> convexe quelconque, autre que 0-1, L1 ou L2 ?
+				Quel type de résultat anticipez-vous ?
+			</p>
+		</ExercisePanel>
+
+		<ExercisePanel number="3.3" title="Tableau de synthèse">
+			<p>
+				Complétez le tableau suivant en indiquant, pour chaque perte, le prédicteur optimal et une
+				hypothèse nécessaire à sa bonne définition.
+			</p>
+			<table>
+				<thead>
+					<tr>
+						<th>Perte</th>
+						<th>Prédicteur optimal</th>
+						<th>Hypothèse requise</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<td>0-1 (classification)</td>
+						<td>?</td>
+						<td>?</td>
+					</tr>
+					<tr>
+						<td>L2 (régression)</td>
+						<td>?</td>
+						<td>?</td>
+					</tr>
+					<tr>
+						<td>L1 (régression)</td>
+						<td>?</td>
+						<td>?</td>
+					</tr>
+				</tbody>
+			</table>
+			{#snippet solution()}
+				<table>
+					<thead>
+						<tr>
+							<th>Perte</th>
+							<th>Prédicteur optimal</th>
+							<th>Hypothèse requise</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr>
+							<td>0-1 (classification)</td>
+							<td>
+								<KatexInline formula={bayesClassifierCases} />
+							</td>
+							<td
+								>Aucune (toujours bien défini, à un choix de convention près en <KatexInline
+									formula={String.raw`\eta=1/2`}
+								/>)</td
+							>
+						</tr>
+						<tr>
+							<td>L2 (régression)</td>
+							<td><KatexInline formula={mDef} /></td>
+							<td>
+								<KatexInline formula={String.raw`\mathbb{E}[|Y|]<\infty`} /> (existence de la moyenne)
+							</td>
+						</tr>
+						<tr>
+							<td>L1 (régression)</td>
+							<td><KatexInline formula={medDef} /></td>
+							<td>
+								Toujours bien définie, mais potentiellement <strong>non unique</strong> (Exercice 2.3)
+							</td>
+						</tr>
+					</tbody>
+				</table>
+			{/snippet}
+		</ExercisePanel>
+
+		<h2 id="expert-classification-regression">Pourquoi la classification est plus facile que la régression</h2>
+
+		<Callout type="note" title="Au-delà du cours">
+			<p>
+				Cette section n'est pas au programme du cours et ne figure pas dans le support :
+				elle reconstruit un résultat standard de la littérature, dû à Devroye, Györfi et
+				Lugosi (1996), <em>A Probabilistic Theory of Pattern Recognition</em> (§6.7). Il
+				s'agit d'un exercice optionnel de niveau expert.
+			</p>
+		</Callout>
+
+		<p>
+			Cette série d'exercices reconstruit progressivement un
+			<strong>résultat de Devroye, Györfi et Lugosi (1996)</strong>, <em>A
+			Probabilistic Theory of Pattern Recognition</em>, section 6.7. L'idée
+			fondamentale est surprenante : pour classer, il n'est pas nécessaire
+			d'estimer précisément toute la fonction
+			<KatexInline formula={String.raw`\eta(x)`} />. Il suffit de savoir de quel côté de
+			<KatexInline formula={String.raw`1/2`} /> elle se trouve.
+		</p>
+
+		<InteractiveSection title="Classifier est plus facile que régresser" onInteract={tracker.trackInteraction}>
+			L'animation ci-dessous permet de jouer avec le bruit de la vraie probabilité, la qualité de
+			l'approximation et le bruit autour de l'approximation. Étudiez dans quel scénario le
+			classifieur résultat devient incorrect par rapport à l'optimum de Bayes.
+			<ClassificationIsEasierThanRegression />
+		</InteractiveSection>
+
+		<ExercisePanel number="1" title="Le coût d'une erreur de décision">
+			<p>
+				On note
+				<KatexInline formula={String.raw`\eta(x)=\mathbb{P}(Y=1\mid X=x)`} />,
+				<KatexInline formula={String.raw`g^*(x)=\mathbf{1}_{\{\eta(x)\geq1/2\}}`} />
+				le classifieur de Bayes et
+				<KatexInline formula={String.raw`g_n(x)=\mathbf{1}_{\{\eta_n(x)\geq1/2\}}`} />
+				le classifieur construit à partir d'un estimateur <KatexInline
+					formula={String.raw`\eta_n`}
+				/>.
+			</p>
+
+			<p>
+				Montrer que le risque conditionnel de <KatexInline formula={String.raw`g^*`} /> en
+				<KatexInline formula={String.raw`x`} /> vaut
+				<KatexInline formula={String.raw`\min(\eta(x),1-\eta(x))`} /> et que, lorsque
+				<KatexInline formula={String.raw`g_n(x)\neq g^*(x)`} />, la différence entre les deux
+				risques conditionnels vaut
+				<KatexInline formula={String.raw`2|\eta(x)-1/2|`} />.
+			</p>
+
+			{#snippet solution()}
+				<p>
+					Si <KatexInline formula={String.raw`g^*(x)=1`} />, alors
+					<KatexInline formula={String.raw`\eta(x)\geq1/2`} /> et le risque de Bayes est
+					<KatexInline formula={String.raw`1-\eta(x)`} />. Si <KatexInline
+						formula={String.raw`g^*(x)=0`}
+					/>, il vaut <KatexInline formula={String.raw`\eta(x)`} />. Dans les deux cas :
+				</p>
+
+				<KatexBlock formula={String.raw`r(g^*(x),x)=\min(\eta(x),1-\eta(x))`} />
+
+				<p>
+					Si <KatexInline formula={String.raw`g_n`} /> choisit l'autre classe, son risque conditionnel
+					est <KatexInline formula={String.raw`\max(\eta(x),1-\eta(x))`} />. La différence vaut donc
+				</p>
+
+				<KatexBlock
+					formula={String.raw`\max(\eta(x),1-\eta(x))-\min(\eta(x),1-\eta(x))
+					=2\left|\eta(x)-\frac12\right|.`}
+				/>
+
+				<p>
+					En intégrant sur <KatexInline formula={String.raw`X`} />, on obtient l'identité
+					fondamentale :
+				</p>
+
+				<KatexBlock formula={exBayesExcess} />
+			{/snippet}
+		</ExercisePanel>
+
+		<ExercisePanel number="2" title="Relier l'erreur de classification à l'erreur de régression">
+			<p>
+				Dans l'expression précédente, on ne connaît pas directement
+				<KatexInline formula={String.raw`|\eta(X)-1/2|`} />. Montrer que, sur l'événement
+				<KatexInline formula={String.raw`{g_n(X)\neq g^*(X)}`} />, on peut écrire
+			</p>
+
+			<KatexBlock
+				formula={String.raw`\left|\eta(X)-\frac12\right|
+				\leq |\eta(X)-\eta_n(X)|.`}
+			/>
+
+			<p>En déduire la borne :</p>
+
+			<KatexBlock
+				formula={String.raw`L_n-L^*
+				\leq
+				2\,\mathbb{E}\!\left[
+					|\eta(X)-\eta_n(X)|
+					\mathbf{1}_{\{g_n(X)\neq g^*(X)\}}
+				\right].`}
+			/>
+
+			{#snippet solution()}
+				<p>
+					Si les deux classifieurs prennent des décisions différentes, alors
+					<KatexInline formula={String.raw`\eta_n(X)`} /> et <KatexInline
+						formula={String.raw`\eta(X)`}
+					/>
+					sont de part et d'autre du seuil <KatexInline formula={String.raw`1/2`} />. La distance
+					entre eux est donc au moins la distance de
+					<KatexInline formula={String.raw`\eta(X)`} /> au seuil :
+				</p>
+
+				<KatexBlock
+					formula={String.raw`g_n(X)\neq g^*(X)
+					\quad\Longrightarrow\quad
+					|\eta_n(X)-\eta(X)|
+					\geq
+					\left|\eta(X)-\frac12\right|.`}
+				/>
+
+				<p>
+					En remplaçant le terme dans l'identité de l'exercice précédent, on obtient immédiatement
+					la borne demandée.
+				</p>
+			{/snippet}
+		</ExercisePanel>
+
+		<ExercisePanel number="3" title="Séparer les zones faciles et difficiles">
+			<p>
+				Fixons <KatexInline formula={String.raw`\varepsilon>0`} />. Séparer l'espérance de
+				l'exercice précédent en deux régions :
+			</p>
+
+			<KatexBlock formula={exSplit} />
+
+			<p>
+				Pourquoi cette séparation est-elle pertinente ? Que représente la région
+				<KatexInline formula={String.raw`|\eta(X)-1/2|\leq\varepsilon`} /> ?
+			</p>
+
+			{#snippet solution()}
+				<p>
+					La région proche de <KatexInline formula={String.raw`1/2`} /> correspond aux points pour lesquels
+					les deux classes sont difficiles à distinguer. Une petite erreur d'estimation peut alors inverser
+					la décision.
+				</p>
+
+				<p>
+					À l'inverse, lorsque
+					<KatexInline formula={String.raw`|\eta(X)-1/2|>\varepsilon`} />, la vraie probabilité est
+					suffisamment éloignée du seuil pour que la classification soit robuste aux petites erreurs
+					d'estimation.
+				</p>
+
+				<p>
+					C'est précisément cette distinction qui permet d'obtenir un taux de convergence plus
+					rapide pour la classification que pour l'estimation de <KatexInline
+						formula={String.raw`\eta`}
+					/> elle-même.
+				</p>
+			{/snippet}
+		</ExercisePanel>
+
+		<ExercisePanel number="4" title="Contrôler la première région">
+			<p>
+				Montrer, en utilisant l'inégalité de Cauchy-Schwarz, que pour tout événement
+				<KatexInline formula={String.raw`A`} /> :
+			</p>
+
+			<KatexBlock formula={exCauchy} />
+
+			<p>
+				Appliquer cette inégalité à
+				<KatexInline formula={String.raw`A=\{|\eta(X)-1/2|\leq\varepsilon\}`} />. En déduire que le
+				premier terme de <KatexInline formula={String.raw`A_n`} /> est borné par
+			</p>
+
+			<KatexBlock
+				formula={String.raw`\sqrt{\mathbb{E}[(\eta_n(X)-\eta(X))^2]}\,
+				\sqrt{\mathbb{P}(|\eta(X)-1/2|\leq\varepsilon)}.`}
+			/>
+
+			{#snippet solution()}
+				<p>
+					L'inégalité de Cauchy-Schwarz appliquée aux variables
+					<KatexInline formula={String.raw`|\eta_n(X)-\eta(X)|`} /> et
+					<KatexInline formula={String.raw`\mathbf{1}_A`} /> donne directement le résultat. Or <KatexInline
+						formula={String.raw`\mathbf{1}_A^2=\mathbf{1}_A`}
+					/>, donc
+				</p>
+
+				<KatexBlock
+					formula={String.raw`\mathbb{E}[
+						|\eta_n-\eta|\mathbf{1}_A]
+					\leq
+					\sqrt{\mathbb{E}[(\eta_n-\eta)^2]}
+					\sqrt{\mathbb{P}(A)}.`}
+				/>
+
+				<p>
+					Le premier facteur mesure l'erreur globale de régression, tandis que le second mesure la
+					masse de probabilité située près de la frontière de décision.
+				</p>
+			{/snippet}
+		</ExercisePanel>
+
+		<ExercisePanel number="5" title="Pourquoi les erreurs loin du seuil disparaissent">
+			<p>Montrer l'implication :</p>
+
+			<KatexBlock formula={exImplication} />
+
+			<p>
+				En déduire que, pour tout <KatexInline formula={String.raw`\varepsilon>0`} />,
+			</p>
+
+			<KatexBlock
+				formula={String.raw`\mathbb{P}\!\left(
+					g_n(X)\neq g^*(X),
+					\left|\eta(X)-\frac12\right|>\varepsilon
+				\right)
+				\leq
+				\mathbb{P}\!\left(|\eta_n(X)-\eta(X)|>\varepsilon\right).`}
+			/>
+
+			<p>
+				Si <KatexInline formula={String.raw`\eta_n`} /> est consistant au sens
+				<KatexInline formula={String.raw`L^2`} />, montrer que le membre de droite tend vers zéro.
+			</p>
+
+			{#snippet solution()}
+				<p>
+					Si les deux décisions sont différentes, <KatexInline formula={String.raw`\eta_n`} />
+					et <KatexInline formula={String.raw`\eta`} /> sont de part et d'autre de
+					<KatexInline formula={String.raw`1/2`} />. Si <KatexInline formula={String.raw`\eta`} /> est
+					à une distance supérieure à <KatexInline formula={String.raw`\varepsilon`} /> du seuil, il faut
+					donc nécessairement déplacer <KatexInline formula={String.raw`\eta`} /> d'au moins <KatexInline
+						formula={String.raw`\varepsilon`}
+					/> pour franchir le seuil.
+				</p>
+
+				<p>L'implication demandée en découle. Puis, par l'inégalité de Markov :</p>
+
+				<KatexBlock
+					formula={String.raw`\mathbb{P}(|\eta_n-\eta|>\varepsilon)
+					\leq
+					\frac{\mathbb{E}[(\eta_n-\eta)^2]}{\varepsilon^2}
+					\longrightarrow0.`}
+				/>
+			{/snippet}
+		</ExercisePanel>
+
+		<ExercisePanel number="6" title="La masse autour de la frontière">
+			<p>Justifier que</p>
+
+			<KatexBlock formula={exMargin} />
+
+			<p>
+				sous la seule condition
+				<KatexInline formula={String.raw`\mathbb{P}(\eta(X)=1/2)=0`} />. Pourquoi cette hypothèse
+				est-elle naturelle dans le contexte du théorème ?
+			</p>
+
+			{#snippet solution()}
+				<p>
+					Les événements
+					<KatexInline formula={String.raw`{|\eta(X)-1/2|\leq\varepsilon}`} />
+					décroissent lorsque <KatexInline formula={String.raw`\varepsilon\downarrow0`} /> et leur intersection
+					est exactement
+					<KatexInline formula={String.raw`{\eta(X)=1/2}`} />.
+				</p>
+
+				<p>Par continuité décroissante de la mesure :</p>
+
+				<KatexBlock
+					formula={String.raw`\lim_{\varepsilon\downarrow0}
+					\mathbb{P}\!\left(
+						\left|\eta(X)-\frac12\right|\leq\varepsilon
+					\right)
+					=
+					\mathbb{P}\!\left(\eta(X)=\frac12\right).`}
+				/>
+
+				<p>
+					Si cette dernière probabilité est nulle, la masse située arbitrairement près de la
+					frontière peut être rendue arbitrairement petite.
+				</p>
+			{/snippet}
+		</ExercisePanel>
+
+		<ExercisePanel number="7" title="Assembler les deux régions">
+			<p>
+				On suppose maintenant
+				<KatexInline formula={String.raw`\mathbb{E}[(\eta_n(X)-\eta(X))^2]\to0`} />. À partir des
+				exercices précédents, montrer que pour tout
+				<KatexInline formula={String.raw`\varepsilon>0`} /> :
+			</p>
+
+			<KatexBlock
+				formula={String.raw`\begin{aligned}
+				L_n-L^*
+				\leq 2\Bigg[
+				&\sqrt{\mathbb{E}[(\eta_n-\eta)^2]}
+				\sqrt{\mathbb{P}(|\eta-1/2|\leq\varepsilon)}
+				\\
+				&+
+				\sqrt{\mathbb{E}[(\eta_n-\eta)^2]}
+				\sqrt{\mathbb{P}(g_n\neq g^*,|\eta-1/2|>\varepsilon)}
+				\Bigg].
+				\end{aligned}`}
+			/>
+
+			<p>
+				Expliquer comment choisir d'abord <KatexInline formula={String.raw`\varepsilon`} />, puis
+				<KatexInline formula={String.raw`n`} />, pour montrer que
+				<KatexInline
+					formula={String.raw`L_n-L^*=o\!\left(\sqrt{\mathbb{E}[(\eta_n-\eta)^2]}\right)`}
+				/>.
+			</p>
+
+			{#snippet solution()}
+				<p>
+					Le second facteur du deuxième terme tend vers zéro pour tout
+					<KatexInline formula={String.raw`\varepsilon>0`} /> grâce à l'exercice 5. Le premier facteur
+					de chaque terme est l'erreur
+					<KatexInline formula={String.raw`L^2`} />, qui tend vers zéro.
+				</p>
+
+				<p>
+					Pour obtenir le résultat de petit-o, on divise l'inégalité par
+					<KatexInline formula={String.raw`\sqrt{\mathbb{E}[(\eta_n-\eta)^2]}`} />. Pour un <KatexInline
+						formula={String.raw`\varepsilon`}
+					/> fixé, on fait tendre
+					<KatexInline formula={String.raw`n`} /> vers l'infini : le terme correspondant aux points éloignés
+					de la frontière disparaît. Il reste une quantité contrôlée par
+					<KatexInline formula={String.raw`\sqrt{\mathbb{P}(|\eta-1/2|\leq\varepsilon)}`} />.
+				</p>
+
+				<p>
+					On fait ensuite tendre <KatexInline formula={String.raw`\varepsilon`} /> vers zéro. L'hypothèse
+					de l'exercice 6 permet de rendre cette quantité arbitrairement petite.
+				</p>
+			{/snippet}
+		</ExercisePanel>
+
+		<ExercisePanel number="8" title="Conclusion : la classification est plus facile que la régression">
+			<p>
+				On suppose que <KatexInline formula={String.raw`\eta_n`} /> est un estimateur consistant de la
+				fonction de régression au sens
+			</p>
+
+			<KatexBlock
+				formula={String.raw`\mathbb{E}\!\left[(\eta_n(X)-\eta(X))^2\right]\longrightarrow0.`}
+			/>
+
+			<p>En reprenant l'argument précédent, établir la conclusion :</p>
+
+			<KatexBlock formula={exFinal} />
+
+			<p>
+				Interpréter ce résultat en termes de difficulté relative de la régression et de la
+				classification.
+			</p>
+
+			{#snippet solution()}
+				<p>
+					Le résultat signifie que l'excès de risque de classification disparaît
+					<strong>strictement plus vite</strong> que l'erreur quadratique de l'estimation
+					de la probabilité a posteriori, à savoir
+					<KatexInline
+						formula={String.raw`\sqrt{\mathbb{E}[(\eta_n(X)-\eta(X))^2]}`}
+					/> :
+				</p>
+
+				<KatexBlock
+					formula={String.raw`L_n-L^*
+				=o\!\left(
+					\sqrt{\mathbb{E}[(\eta_n(X)-\eta(X))^2]}
+				\right).`}
+				/>
+
+				<p>
+					La raison profonde est que la classification ne demande pas de connaître
+					<KatexInline formula={String.raw`\eta(x)`} /> avec précision partout. Elle demande seulement
+					de déterminer si <KatexInline formula={String.raw`\eta(x)`} /> est au-dessus ou au-dessous de
+					<KatexInline formula={String.raw`1/2`} />.
+				</p>
+
+				<p>
+					L'erreur d'estimation n'est donc pénalisante que lorsqu'elle provoque un franchissement de
+					la frontière de décision. Loin de
+					<KatexInline formula={String.raw`1/2`} />, même une estimation relativement imprécise
+					donne la bonne classe. La classification « jette » ainsi une grande partie de
+					l'information que la régression doit estimer.
+				</p>
+			{/snippet}
+		</ExercisePanel>
+
+		<Callout type="insight" title="L'idée à retenir">
+			<p>
+				<strong>Régression :</strong> il faut estimer précisément la valeur de
+				<KatexInline formula={String.raw`\eta(x)`} />.
+			</p>
+			<p>
+				<strong>Classification :</strong> il suffit généralement de savoir de quel côté de <KatexInline
+					formula={String.raw`1/2`}
+				/> elle se trouve.
+			</p>
+			<p>
+				Une erreur de régression loin de la frontière n'a aucune conséquence sur la décision. C'est
+				pourquoi une même estimation de <KatexInline formula={String.raw`\eta`} />
+				peut produire une classification très précise alors qu'elle reste relativement imprécise en termes
+				de probabilité.
+			</p>
+		</Callout>
 	</TheorySection>
 </PageTemplate>
