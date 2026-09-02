@@ -8,7 +8,7 @@ import {
 import { mulberry32 } from './util.js';
 
 // Note: Random Forests are not part of theorie.typ (which covers
-// Théorèmes 1.1–4.2); this module supports Part 2, lesson 2 of the course,
+// Théorèmes 1.1–4.2); this module supports Part 4, lesson 2 of the course,
 // where Définition 6.2 (impureté de Gini et division optimale), Définition 6.3
 // (division optimale restreinte) and Théorème 6.1 (décorrélation) are taught.
 

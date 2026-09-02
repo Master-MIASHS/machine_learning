@@ -1,6 +1,6 @@
 // src/lib/math/calibration.ts
 //
-// Part VII — Fonctions de perte : pertes de substitution et calibration
+// Part IX — Fonctions de perte : pertes de substitution et calibration
 // Reference: theorie.typ — "Motivation : pourquoi ne pas minimiser la perte 0-1 ?",
 // "Formalisation" (perte phi, phi-risque, phi-risque de Bayes), "Calibration"
 // (risque conditionnel C_phi, calibration ponctuelle, Théorème 4.1 —
@@ -335,7 +335,7 @@ export function phiMinimizerZeroOneGap(
 // global phi-minimizer f** at calibrationGap above Bayes (0 for calibrated
 // phi), a best-in-class f* at an in-class gap shrinking with classCapacity,
 // and an estimation gap A concentrating at rate 1/sqrt(n) — half-normal with
-// scale sqrt(r*(1-r*)/n), the Bernoulli variance used in Part VI.
+// scale sqrt(r*(1-r*)/n), the Bernoulli variance used in Part VIII.
 // ---------------------------------------------------------------------------
 
 /** Illustrative reference magnitude of the in-class gap (term B) at zero capacity. */
@@ -388,7 +388,7 @@ export function simulateExcessRiskDecomposition(
 
 /**
  * Mean over nReplicates independent draws of the estimation term. Théorème
- * 4.2 controls A in expectation (Part VI concentration bounds), and a single
+ * 4.2 controls A in expectation (Part VIII concentration bounds), and a single
  * half-normal draw would be 0 for about half of the (seed, n) pairs — so the
  * RiskDecompositionDemo displays this Monte-Carlo mean.
  *

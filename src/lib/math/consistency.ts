@@ -1,6 +1,6 @@
 // src/lib/math/consistency.ts
 //
-// Part V — Consistance
+// Part VII — Consistance
 // Reference: theorie.typ — "Consistance", "Définition", "Pourquoi cette
 // notion est-elle centrale ?", "Consistance universelle",
 // "Consistance du classifieur k-NN" (Théorème 2.1, Stone 1977).

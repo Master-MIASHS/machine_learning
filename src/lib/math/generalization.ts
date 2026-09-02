@@ -1,6 +1,6 @@
 // src/lib/math/generalization.ts
 //
-// Part VI — Généralisation
+// Part VIII — Généralisation
 // Reference: theorie.typ — "Majoration de l'erreur de généralisation : cas
 // fini" (Théorème 3.1 séparable, Théorème 3.2 non séparable/Hoeffding), and
 // "Limites de la théorie VC pour les réseaux de neurones" (double descente,

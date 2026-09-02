@@ -1,7 +1,7 @@
 /**
  * Random Forest utilities: stumps, impurity measures, feature importance.
  *
- * Supports Part II, lesson 2 of the course (random forests — `regularization.typ`,
+ * Supports Part IV, lesson 2 of the course (random forests — `regularization.typ`,
  * section "Random Forest"): Définition 6.2 (impureté de Gini et division
  * optimale), Définition 6.3 (division optimale restreinte) and the impurity-based
  * feature importance of Section 4 of the lesson.
@@ -18,7 +18,7 @@ export interface DecisionStump {
 	rightValue: number; // prediction when x[feature] > threshold
 	/**
 	 * Normalized impurity decrease brought by this split — the
-	 * ΔImpureté of Définition 6.2 (Part II, lesson 2):
+	 * ΔImpureté of Définition 6.2 (Part IV, lesson 2):
 	 * Gini(t) − (n_L/n_t)·Gini(t_L) − (n_R/n_t)·Gini(t_R) for classification
 	 * (MSE-based analogue for regression). Always ≥ 0. Set by
 	 * `buildDecisionStump` (which selects splits by impurity); absent on

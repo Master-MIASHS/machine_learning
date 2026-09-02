@@ -2,9 +2,9 @@
 
 > Cours en ligne de niveau Master (MIASHS M1, semestre 2 — « Régularisation et
 > optimisation ») couvrant les fondements théoriques et numériques de
-> l'apprentissage automatique : optimisation, régularisation, prédiction
-> conformelle, optimum de Bayes, consistance, généralisation et calibration des
-> fonctions de perte. Chaque concept s'appuie sur des simulations interactives,
+> l'apprentissage automatique : optimisation, régularisation, classification
+> supervisée et clustering _(parties à venir)_, prédiction conformelle, optimum
+> de Bayes, consistance, généralisation et calibration des fonctions de perte. Chaque concept s'appuie sur des simulations interactives,
 > des démonstrations animées et des exercices (avec mode enseignant).
 
 Université de Montpellier Paul-Valéry · Master MIASHS
@@ -64,12 +64,21 @@ L'apprentissage automatique moderne repose sur trois piliers : la
 | Partie                       | Contenu                                                                                                                                                                         |
 | ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **I — Optimisation**         | Conditions d'un minimum · Fonctions d'optimisation en ML · Descente de gradient & accélération · Adam _(mode expert)_ · SGD, descente par coordonnées & Newton · Exercices · TP |
-| **II — Régularisation**      | Méthodes ensemblistes & Bagging · Random Forest & sélection de features · Boosting (AdaBoost, Gradient Boosting) · Régularisation L1/L2/Elastic Net · Exercices · TP            |
-| **III — Set-valued**         | Classification Top-K · Prédiction conformelle · Intervalles de prédiction · Exercices                                                                                           |
-| **IV — Optimum de Bayes**    | Classifieur optimal · Régression optimale · Exercices                                                                                                                           |
-| **V — Consistance**          | Convergence · Consistance k-NN · Exercices                                                                                                                                      |
-| **VI — Généralisation**      | Concentration & risque empirique · Généralisation pour une classe finie · Dimension VC, Sauer–Shelah & SVM · Limites de la théorie VC & double descente · Exercices             |
-| **VII — Fonctions de perte** | De la perte 0-1 aux pertes proxy · Calibration des pertes convexes · Décomposition de l'erreur · Exercices                                                                      |
+| **II — Classification supervisée** _(contenu à venir)_ | Cadre de l'apprentissage supervisé & k-NN · Classifieurs linéaires & régression logistique · Arbres de décision · SVM · Exercices · TP               |
+| **III — Clustering** _(contenu à venir)_ | Clustering hiérarchique · K-moyennes & évaluation · Exercices · TP                                                                          |
+| **IV — Régularisation**      | Méthodes ensemblistes & Bagging · Random Forest & sélection de features · Boosting (AdaBoost, Gradient Boosting) · Régularisation L1/L2/Elastic Net · Exercices · TP            |
+| **V — Set-valued**           | Classification Top-K · Prédiction conformelle · Intervalles de prédiction · Exercices                                                                                           |
+| **VI — Optimum de Bayes**    | Classifieur optimal · Régression optimale · Exercices                                                                                                                           |
+| **VII — Consistance**        | Convergence · Consistance k-NN · Exercices                                                                                                                                      |
+| **VIII — Généralisation**    | Concentration & risque empirique · Généralisation pour une classe finie · Dimension VC, Sauer–Shelah & SVM · Limites de la théorie VC & double descente · Exercices            |
+| **IX — Fonctions de perte**  | De la perte 0-1 aux pertes proxy · Calibration des pertes convexes · Décomposition de l'erreur · Exercices                                                                      |
+
+Les Parties II et III sont des emplacements réservés (pages « contenu en cours
+de rédaction ») : le contenu sera rédigé à partir des supports de cours de
+classification (CM en LaTeX et TP en R Markdown, conservés hors dépôt dans
+`marine/Cours/`). Les énoncés de TP sont déjà servis dans `static/rmd/`.
+L'ordre I → II → III → IV est pédagogique : la régularisation (bagging, forêts
+aléatoires, boosting) s'appuie sur les arbres de décision enseignés en Partie II.
 
 La liste des pages, leur ordre et leur appartenance aux parties est centralisée
 dans `src/lib/navigation.ts` (barre latérale, navigation précédent/suivant,
@@ -94,11 +103,11 @@ suivi de progression).
   notes Typst de `typst/` ; les versions PDF servies au site sont dans
   `static/pdf/` :
   - _Optimisation pour l'Apprentissage_ (`optim.pdf`) — Partie I
-  - _Agrégation, Forêts & Régularisation_ (`regularization.pdf`) — Partie II
-  - _Évaluation & Prédictions Conformelles_ (`set_valued.pdf`) — Partie III
-  - _Théorie de l'Apprentissage Statistique_ (`theory.pdf`) — Parties IV à VII
+  - _Agrégation, Forêts & Régularisation_ (`regularization.pdf`) — Partie IV
+  - _Évaluation & Prédictions Conformelles_ (`set_valued.pdf`) — Partie V
+  - _Théorie de l'Apprentissage Statistique_ (`theory.pdf`) — Parties VI à IX
 - **Travaux pratiques** — notebooks Jupyter dans `static/notebooks/`
-  (Parties I et II).
+  (Parties I et IV) ; énoncés R Markdown dans `static/rmd/` (Parties II et III).
 
 ## Architecture
 
@@ -131,12 +140,13 @@ src/
 │   ├── intro/                    # introduction du cours + références complètes
 │   ├── partN/lessonM/            # cours
 │   ├── partN/exercices/          # exercices (une page par partie)
-│   ├── partN/practice/           # travaux pratiques (parties I et II)
+│   ├── partN/practice/           # travaux pratiques (parties I, II, III, IV)
 │   └── demo/                     # bac à sable interne des composants (hors cours)
 typst/                            # notes de cours source (vérité mathématique)
 static/
 ├── pdf/                          # les 4 notes de cours (PDF)
-├── notebooks/                    # notebooks Jupyter des TP
+├── notebooks/                    # notebooks Jupyter des TP (parties I et IV)
+├── rmd/                          # énoncés R Markdown des TP (parties II et III)
 └── logos/                        # logos UMPV et AMIS
 .github/workflows/deploy.yml      # CI : check → tests → build → GitHub Pages
 ```

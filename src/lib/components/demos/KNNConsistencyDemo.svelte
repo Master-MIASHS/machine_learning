@@ -202,7 +202,7 @@
 	/>
 
 	{#snippet caption()}
-		Risque excédentaire k-NN selon le modèle jouet V/k + B(k/n) de la Partie V.1, pour n fixé au
+		Risque excédentaire k-NN selon le modèle jouet V/k + B(k/n) de la Partie VII.1, pour n fixé au
 		curseur ci-dessus. Ce n'est pas le risque du jeu de données affiché plus haut — c'est le modèle
 		abstrait qui motive pourquoi ni k trop petit (variance) ni k trop grand (biais) ne conviennent.
 	{/snippet}

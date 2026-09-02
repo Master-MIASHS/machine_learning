@@ -23,7 +23,7 @@ export * from './coordinate-descent.js';
 export * from './newton.js';
 export * from './adam.js';
 
-// ── Part II — Ensembles & Regularization ──
+// ── Part IV — Ensembles & Regularization ──
 export * from './synthetic-data.js';
 export * from './regression.js';
 export * from './loss-functions.js';
@@ -35,27 +35,27 @@ export * from './tree-utils.js';
 export * from './boosting.js';
 export * from './margin-analysis.js';
 
-// ── Part III — Set-valued Prediction (Phase 6) ──
+// ── Part V — Set-valued Prediction (Phase 6) ──
 export * from './prediction-sets.js';
 export * from './conformal.js';
 export * from './regression-conformal.js';
 export * from './bootstrap.js';
 
-// --- Part IV – Optimum de Bayes
+// --- Part VI – Optimum de Bayes
 export * from './bayes-learning.js';
 
-// --- Part V – Consistance
+// --- Part VII – Consistance
 export * from './consistency.js';
 
-// --- Part VI – Généralisation
+// --- Part VIII – Généralisation
 export * from './concentration.js';
 export * from './generalization.js';
 export * from './vc.js';
 
-// --- Part VII – Fonctions de perte
+// --- Part IX – Fonctions de perte
 export * from './calibration.js';
 
-// ── Part VI — Généralisation
+// ── Part VIII — Généralisation
 export * from './concentration';
 export * from './generalization';
 export * from './vc';

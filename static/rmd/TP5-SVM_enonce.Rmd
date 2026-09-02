@@ -1,0 +1,359 @@
+---
+title: "TP5 : les SVM"
+date: '2025-2026'
+output: html_document
+---
+  
+***  
+
+```{r,echo=FALSE}
+#install.packages("ggplot2")
+#install.packages("e1071")
+library(ggplot2)
+library(e1071)
+```
+
+
+#Exercice 1 : Quelle influence pour $C$ ?
+
+On considère le jeu de données d'apprentissage suivant
+```{r}
+set.seed(1050)
+n=100 #nombre observations
+p=2 #nombre de variables explicatives
+
+#génération données explicatives
+x1=c(rnorm(n/2,0,1),rnorm(n/2,3,1))
+x2=c(rnorm(n/2,0,1),rnorm(n/2,3,1))
+
+#génération étiquettes
+y=c(rep(1, n/2), rep(-1, n/2))
+
+#données
+data_train=data.frame(x1=x1,x2=x2,y=y)
+
+#plot des données
+plot_sep <- ggplot(data=data_train, aes(x = x1, y = x2)) +
+geom_point(aes(color=as.factor(y))) +
+scale_color_manual(name = "y",values=c("blue","orange")) +
+xlab("x1") +  ylab("x2") + ggtitle("Données simulés - apprentissage")
+plot_sep
+```
+
+**1.** Les données sont-elles séparables linéairement ?
+
+
+On souhaite ajuster un classifeur binaire à l'aide de l'algorithme SVM linéaire à marge souple.
+
+**2.** Lorsque $C\to +\infty$ quel algorithme retrouve-t-on ?
+
+
+**3.** Pour quelques valeurs différentes de $C$ ($C$>0) stockées dans une variable `nC`, par exemple pour $C=0.001, 0.01, 1, 10$ :
+
+   - Appliquer l'algorithme sur les données à l'aide de la fonction `svm` du package `e1071` ; vous pourrez préciser les options `kernel = "linear"` et `scale = FALSE`. Vous devez aussi signifier à la fonction que vous souhaitez faire de la classification : soit en utilisant le paramètre `type` de la fonction, soit en indiqiuant que $y$ est de type `factor`(avec la fonction `as.factor`). Pour chaque valeur de $C$, stocker dans un vecteur nommé `nbMalClassees` le nombre de données mal prédites.
+    
+ - Trouver ensuite les paramètres de l'hyperplan séparateur stockés dans $coef$ (vous pourrez vous référer aux exemples données à la fin de l'aide de la fonction) et stocker-les dans les objets `w.vect` et `b.vect` 
+ 
+Remarque : on peut aussi retrouver ces coefficients à l'aide de l'objet `rho` qui correspond à $-\hat{b}$, de l'objet `coefs` qui renvoie la liste des $\alpha_iy_i$ pour lesquels $\alpha_i \neq0$ et l'objet `index` qui retourne l'index $i$ des observations dans le jeu de données pour lesquelles $\alpha_i \neq 0$. Pour rappel, les $\alpha_i$ sont les multiplicateurs de Lagrange dans la formulation duale de la SVM à marge souple.
+
+```{r,eval=FALSE}
+C=c(0.001, 0.01, 1, 10)#différentes valeurs de C
+nC=length(C)
+data=data.frame(x1,x2,y=as.factor(y))#on regroupe les données dans un data.frame
+
+#paramètres pour stocker :
+w.vect=NULL #le paramètre w.hat de l'hyperplan
+b.vect=numeric(0) #le paramètre b.hat de l'hyperplan
+nbMalClassees=numeric(0) #le nombre d'observations mal classées
+
+for(i in 1:nC){
+#à remplir
+}
+```
+
+On affiche ensuite l'hyperplan séparateur $H$ ainsi que les hyperplans $H^+$ et $H^-$ associés. Pour rappel l'équation de $H$ est donné par $<w\cdot x> + b =0$ et celui de $H^+$ et $H^-$ par $<w\cdot x> + b =-1$ et $<w\cdot x> + b =1$ respectivement.
+    
+```{r,eval=F}
+#On peut réécrire les équations des hyperplans H, H+ et H- pour retomber sur l'équation d'une droite. Cela permet de supperposer les hyperplans au nuage de points.
+
+graph.list=list(NULL)
+for(i in 1:nC){
+  graph.list[[i]]<- ggplot(data, aes(x=x1,y=x2)) +
+  geom_point(color=(3 - y))+
+  geom_abline(slope=-w.vect[i,1]/w.vect[i,2], intercept=-b.vect[i]/w.vect[i,2], col="gray")+ #H
+    geom_abline(slope=-w.vect[i,1]/w.vect[i,2], intercept=-(1+b.vect[i])/w.vect[i,2], col="gray", linetype = "dashed")+#H-
+    geom_abline(slope=-w.vect[i,1]/w.vect[i,2], intercept=(1-b.vect[i])/w.vect[i,2], col="gray", linetype = "dashed")#H+
+  }
+
+
+library(cowplot)#permet de combiner plusieurs graphiques
+cowplot::plot_grid(plotlist = graph.list, ncol = 2)
+
+```
+    
+**4.** Pour les différentes valeurs de $C$, on affiche sur un graphique la taille de la marge $\gamma = 1/\|w\|$ ainsi que le nombre d'observations mal classées. Expliquer pourquoi le choix du paramètre $C$ représente un compromis entre le biais et la variance. Vous pourrez utiliser le cours où vous référez à la partie 2.5.3 (pages 32-34) de [cet ouvrage](https://cazencott.info/dotclear/public/lectures/IntroML_Azencott.pdf) et en particulier à l'exemple en fin de partie (page 34).
+
+```{r,eval=F}
+#D'abord on calcule la marge pour chaque modèle à partir de w.vect
+marge=1/sqrt((w.vect^2)[,1]+(w.vect^2)[,1])
+
+#on met le tout dans un data.frame
+dataplot=data.frame(C=C, marge=marge, malClass=as.numeric(nbMalClassees))
+
+scaleFactor <- max(dataplot$marge) / max(dataplot$malClass)
+
+ggplot(dataplot, aes(x=C,y=marge))+
+  geom_line(color="red")+
+  geom_line(aes(y = malClass*scaleFactor), color = "blue") +
+  scale_x_log10() + #échelle log pour l'axe des abscisses
+  scale_y_continuous("Marge", sec.axis = sec_axis(~ ./scaleFactor, name = "Nombre observations mal classées")) 
+```
+
+**5.** Pour chaque classifieur ajusté (i.e. pour les différentes valeurs de $C$), calculer sur les données d'apprentissage le pourçentage d'observations bien classées. Quel est le meilleur modèle ? 
+
+```{r}
+nObs=nrow(data)
+accuracy=1-nbMalClassees/nObs
+accuracy
+```
+
+
+On cherche à trouver le le meilleur paramètre $C$ par validation croisée sur le jeu de données d'apprentissage. On utilise la fonction `tune`. Par défaut, cette fonction fait un validation croisée $K$-fold avec $K=10$. On peut changer la valeur de $K$ en précisant `tune.control(cross=K)`, avec $K$ la valeur souhaitée. 
+
+```{r}
+K=10
+tune.out <- tune(svm , y ~ ., data = data , kernel = "linear",ranges = list(cost = c(0.001, 0.01, 1, 10)),tunecontrol = tune.control(cross=5))
+#summary(tune.out)
+plot(tune.out)
+bestmod <- tune.out$best.model
+summary(bestmod)
+```
+
+On considère maintenant le jeu de données de validation suivant
+
+```{r}
+set.seed(21)
+n=50 #nombre observations
+p=2 #nombre de variables explicatives
+
+#génération données explicatives
+x1=c(rnorm(n/2,0,1),rnorm(n/2,3,1))
+x2=c(rnorm(n/2,0,1),rnorm(n/2,3,1))
+
+#génération étiquettes
+y=c(rep(1, n/2), rep(-1, n/2))
+
+#données
+data_val=data.frame(x1=x1,x2=x2,y=y)
+
+#plot des données
+plot_sep <- ggplot(data=data_val, aes(x = x1, y = x2)) +
+geom_point(aes(color=as.factor(y))) +
+scale_color_manual(name = "y",values=c("blue","orange")) +
+xlab("x1") +  ylab("x2") + ggtitle("Données simulés - validation")
+plot_sep
+```
+
+
+**6)** En utilisant ce jeu de données (et le jeu précédent comme données d'apprentissage)  sélectionner le meilleur paramètre $C$ en calculant, pour chaque modèle, le pourçentage de bien classés. Vous pourrez vous aider de la fonction `predict` qui prend deux arguments `object` et `newdata`
+
+```{r}
+#paramètres pour stocker :
+
+
+```
+
+
+On regarde ce que ça donne avec les hyperplans séparateurs
+
+```{r}
+#On peut réécrire les équations des hyperplans H, H+ et H- pour retomber sur l'équation d'une droite. Cela permet de supperposer les hyperplans au nuage de points.
+
+graph.list=list(NULL)
+for(i in 1:nC){
+  graph.list[[i]]<- ggplot(data_val, aes(x=x1,y=x2)) +
+  geom_point(color=(3 - y))+
+  geom_abline(slope=-w.vect[i,1]/w.vect[i,2], intercept=-b.vect[i]/w.vect[i,2], col="gray")+ #H
+    geom_abline(slope=-w.vect[i,1]/w.vect[i,2], intercept=-(1+b.vect[i])/w.vect[i,2], col="gray", linetype = "dashed")+#H-
+    geom_abline(slope=-w.vect[i,1]/w.vect[i,2], intercept=(1-b.vect[i])/w.vect[i,2], col="gray", linetype = "dashed")#H+
+  }
+
+
+library(cowplot)#permet de combiner plusieurs graphiques
+cowplot::plot_grid(plotlist = graph.list, ncol = 2)
+
+```
+
+
+# Exercice 2 : l'astuce du noyau
+
+```{r}
+library(ISLR2)
+?ISLR2::Khan
+data=data.frame(ISLR2::Khan$xtrain,ISLR2::Khan$ytrain)
+```
+
+**1.** Combien d'observations comporte le jeu de données ? Quelles sont les variables explicatives et combien y en a-t-il ? Quelle est la variable à expliquer.
+
+Dans la suite, on va considérer uniquement les 100 premières variables explicatives
+
+```{r}
+long=100#on ne va considérer que les 100 premières variables explicatives
+data=data.frame(ISLR2::Khan$xtrain[,1:long],y=ISLR2::Khan$ytrain)
+```
+
+**2.** On s'intéresse à la transformation suivante : $$ \phi(z) = \left(c, \sqrt{2c} z_1, \sqrt{2c} z_2,\sqrt{2c} z_3, \sqrt{2} z_1 z_2,\sqrt{2} z_1 z_3,\sqrt{2} z_2 z_3, z_1^2,z_2^2,z_3^2\right)$$
+où $c=2$.
+	
+	Montrez que pour tout $z, \tilde{z} \in \mathbb{R}^3$, $\langle \phi(z), \phi(\tilde{z}) \rangle = \left( \langle z, \tilde{z} \rangle +c \right)^2$ où $\langle \cdot, \cdot \rangle$ représente le produit scalaire classique dans $\mathbb{R}^3$ : $\langle z, \tilde{z} \rangle = z_1\tilde{z}_1 + z_2\tilde{z}_2 +z_3\tilde{z}_3$. Quelle noyau usuel retrouve-t-on ?
+	
+	De manière générale, pour $z\in \mathbb{R}^d$, on a $\langle \phi(z), \phi(\tilde{z}) \rangle = \left( \langle z, \tilde{z} \rangle +c \right)^2$ où 
+	$$ \phi(z) = \left(c, \sqrt{2c} z_1, \sqrt{2c} z_2,\dots, \sqrt{2c} z_d, \sqrt{2} z_1 z_2,\sqrt{2} z_1 z_3,\dots, \sqrt{2} z_1 z_d, \sqrt{2} z_2 z_3, \dots,\sqrt{2} z_{d-1} z_d, z_1^2,z_2^2,\dots, z_d^2\right).$$
+
+**3.** Implémenter la fonction $\phi$. Vous pourrez utiliser la fonction `combn`.
+
+```{r}
+
+```
+
+
+**4.** Transformer les données avec la fonction $\phi$. Vous pourrez utiliser la fonction `apply` sur `ISLR2::Khan$xtrain`. On va stocker le temps de calcul avec `Sys.time()`
+
+```{r}
+T1_1<-Sys.time()
+#à remplir
+T2_1<-Sys.time()
+```
+
+**5.** Appliquer ensuite un algorithme SVM linéaire sur les données transformées puis un algorithme non-linéaire en spécifiant le noyau adéquat. Comparer le temps de calcul de ces deux algorithmes. Vous pourrez utiliser la fonction `Sys.time()`.
+
+```{r}
+
+```
+ 
+ 
+6. La fonction a fait de la classification multiclasse alors que l'algorithme des SVM s'applique à des données dont les étiquettes prennent seulement 2 valeurs (classification binaire). Une manière de faire de la classification multiclasse à partir de classifieurs binaires est de faire du **one versus all**. On peut aussi faire du **one versus one**. Vous pouvez consulter [https://cazencott.info/dotclear/public/lectures/IntroML_Azencott.pdf](cette référence), page 22, pour voir quelles sont les différences entre ces deux méthodes. Ici, quelle méthode utilise la fonction `svm` ?
+
+```{r}
+?svm
+```
+
+
+
+# Exercice 3 : le noyau radial
+
+On va regarder quelle influence a le paramètre `gamma` du noyau radial (c'est-à-dire le noyau gaussien) sur la classification à l'aide du jeu de données suivant. 
+
+```{r}
+set.seed (100)
+x=matrix (rnorm (200*2) , ncol =2)
+x[1:100 ,]=x[1:100 ,]+2
+x[101:150 ,]= x[101:150 ,] -2
+y=c(rep (1 ,150) ,rep (2 ,50) )
+data=data.frame(x1=x[,1],x2=x[,2],y=as.factor (y))
+plot(data[,1:2], col =(3-y))
+#dataScale=data.frame(x1=scale(x[,1]),x2=scale(x[,2]),y=as.factor (y))
+#plot(dataScale[,1:2], col =(3-y))
+#summary((dataScale[,1]-dataScale[,2])^2*0.01)
+#summary((data[,1]-data[,2])^2*0.01)
+```
+
+Pour cela utiliser la fonction `svm` du package `e1071` en prenant $C=10$ (vous utiliserez aussi `scale=FALSE`) et plusieurs valeurs différentes pour $gamma$ puis vous utiliserez la fonction suivante pour afficher les frontières de décisions.
+
+```{r}
+myplot<-function(svmfit, data)
+{
+px1=seq(min(data[,1]),max(data[,1]),length=60)
+px2=seq(min(data[,2]),max(data[,2]),length=60)
+xgrid = expand.grid(x1 = px1, x2 = px2) #on crée une grille
+
+#on prédit pour chaque point de la grille à quelle classe il appartient d'après le modèle svmfit
+ygrid = predict(svmfit, xgrid)
+
+#on récupère pour chaque point t de la grille la valeur de <w.hat . t > + b.hat
+func = predict(svmfit, xgrid, decision.values = TRUE)
+func = attributes(func)$decision
+
+dataplot=data.frame(xgrid,func)
+colnames(dataplot) <- c('x1','x2','z') 
+
+g<-ggplot(dataplot, aes(x=x1,y=x2,z=z)) +
+geom_point(color=(3-as.numeric(ygrid)), pch = 20, cex = .4)+#on affiche la classe de point de la grille 
+stat_contour(breaks=c(0),color="red")+#on affiche la frontière de décision
+geom_point(data=data,mapping = aes(x=data[,1],y=data[,2],z=NULL), pch = 19,col = (3-as.numeric(data[,3])))+#on affiche les données
+theme_bw()+
+theme(axis.title.x = element_blank(),axis.title.y = element_blank())
+return(g)
+}
+```
+
+
+```{r,eval=F}
+Gamma = c(0.01,1,20,50)
+graph.list=list(NULL)
+for(i in 1:length(Gamma)){
+svmfit <- ...
+ graph.list[[i]]=...
+}
+
+#library(cowplot)#permet de combiner plusieurs graphiques
+cowplot::plot_grid(plotlist = graph.list, ncol = 2)
+```
+
+**1.** En vous appuyant sur les graphiques obtenus pour les différentes valeurs de `gamma`, expliquer pourquoi le choix du paramètre `gamma` représente un compromis entre le biais et la variance.
+
+
+
+Avec ces lignes de code, on n'obtient pas le même résultat
+```{r}
+C=10
+svmfit <- svm(y ~ ., data = data, kernel = "radial", gamma =0.01, cost = C)
+g=myplot(svmfit,data)
+g
+```
+
+**2.** Qu'est-ce qui a changé ? Expliquer en quoi cela produit le résultat obtenu.
+
+
+
+
+
+# Exercice 4 : Quel noyau choisir ?
+
+On va maintenant utiliser le package `caret`.
+
+On s'intéresse aux données `OJ` disponibles dans la library `ISLR2`.
+```{r}
+?ISLR2::OJ
+```
+
+
+On souhaite prédire la variable `Purchase` à l'aide des autres variables. Nous allons sélectionner le meilleur modèle par validation croisée.
+
+**1.** Diviser le jeu de données en un jeu d'apprentissage/validation de taille $800$ et un jeu test avec les données restantes.
+
+```{r}
+
+```
+
+On souhaite ajuster un classifieur à l'aide d'une SVM non linéaire pour deux noyaux différents : le noyau radial et le noyau polynomial. Pour chaque noyau, on choisit de déterminer les meilleurs paramètres par validation croisée.
+
+**2.** À l'aide de la fonction `createFolds` du package `caret`, définir la partition de la validation croisée pour qu'on puisse utiliser la même pour chaque modèle. On pourra prendre $k=10$.
+```{r}
+library(caret)
+```
+
+**3.** Pour chaque modèle, choisissez les meilleurs hyperparamètres par validation croisée. Vous pourrez préciser `trControl=trainControl(method='cv',index=CV_Folds)` avec `CV_Folds` la partition précédemment créée. 
+
+```{r}
+#http://topepo.github.io/caret/train-models-by-tag.html#Kernel_Method pour voir les paramètres des différents noyaux
+
+```
+
+**4.** Lequel des deux modèles à la meilleure performance ?
+
+**5.** Évaluer le modèle sélectionné sur le jeu de test. 
+
+```{r}
+
+```

@@ -1,0 +1,175 @@
+---
+title: "TP 2 : toujours plus de KNN"
+output: html_document
+date: "2025-2026"
+---
+  
+***  
+## A -- Le jeu de données IRIS
+
+Le jeu de données IRIS regroupe 150 observations chacune appartenant à une des trois espèces d’iris suivantes : iris setosa, iris virginica et iris versicolor. Pour chaque observation, quatre caractéristiques ont été mesurées : la longueur et la largeur des sépales et des pétales, en centimètres. L'objectif est de mettre en place un algorithme des $K$ plus proches voisins permettant de prédire l'espèce d'une observation en fonction de ces quatres caractéristiques.
+
+```{r,echo=FALSE,message=FALSE}
+library(ggvis)
+library(class)   # required for knn
+library(caret)
+data(iris)
+```
+
+### 1) Exploration des données
+  En vous appuyant sur les figures ci-dessous, répondez aux questions suivantes : 
+  
+  * Est-ce un problème de régression ou de classification (supervisé) ? Pourquoi ?  
+  
+  * Combien y a-t-il de classes ?  
+
+  * Quelles classes semblent plus difficiles à séparer ?  
+  
+
+```{r,echo=FALSE}
+pairs(iris[1:4], main = "Données Iris -- 3 espèces", pch = 21, bg = c("blue","orange", "green3")[iris$Species], lower.panel=NULL, labels=c("Sepal.Length","Sepal.Width","Petal.Length","Petal.Width"), font.labels=0.5, cex.labels=2) 
+legend(0.08, 0.43, as.vector(unique(iris$Species)),  fill=c("blue","orange", "green3"))
+```
+
+ **On peut regarder à quoi ressemblent les données**
+
+```{r}
+head(iris) #affiche les premières lignes du jeu de données
+```
+
+```{r}
+str(iris) #Quelles sont les différentes variables ?
+summary(iris) #résumé plus complet des données
+```
+
+<br />
+
+* Quelle est la taille du jeu de données ?  
+
+* Calculez avec la fonction *table* le nombre d'individus dans chaque espèce, et avec *prop.table* leurs proportions  
+
+
+<br />
+
+* Est-ce intéressant de standardiser les données ? Pourquoi ?  
+
+* Créez une fonction *stdize* qui normalise un vecteur de données (avec la méthode de normalisation min-max : [https://en.wikipedia.org/wiki/Feature_scaling](https://en.wikipedia.org/wiki/Feature_scaling)) puis normalisez vos données avec cette fonction et la fonction *apply*  
+  
+<br />
+
+* Créez un jeu d'apprentissage et de test (le jeu de test pourra représenter par exemple 1/3 du jeu de données) puis calculez un KNN pour K=1 avec la fonction *knn*. La fonction *knn* va entraîner le modèle sur les données d'apprentissage (dans le cas des KNN, apprendre revient "juste" à connaître les données d'apprentissage) puis, avec ce modèle entraîné, prédisez l'espèce d'iris pour les données tests. 
+
+* Calculez ensuite la matrice de confusion (grâce à la fonction *table* et le taux d'erreur (i.e. le nombre d'observations du jeu de données test mal classées) associés
+
+
+<br />
+Parfois on donne plutôt le taux d'observations bien classées plutôt que le taux d'erreur (correspond à *l'accuracy* en anglais. Attention *l'accuracy* est donc différente de *la précision* qui est la proportion de prédictions correctes parmi les prédictions positives dans le cas d'une classification binaire). Le taux de biens classés correspond donc à *1-taux d'erreur*. Donner l'accuracy sous forme d'un pourcentage.
+
+
+<br />
+
+
+* Sans coder, quel serait le score de votre 1NN sur le jeu d'apprentissage ?  
+
+* Tester pour K égal à la taille du jeu d'apprentissage. Qu'observez-vous (quelles sont les classes prédites et l'acccuracy) ?  
+
+<br />
+
+* Tester maintenant pour d'autres valeurs de K. Afficher ensuite, pour chaque valeur de $K$, l'accuracy obtenue et commenter.
+
+* Calculer maintenant le score F1 (en macro-average) et afficher la valeur du score pour chaque valeur de $K$. Les deux indicateurs (F1-score et accuracy) ont-ils un comportement différent ? Vous pourrez utiliser la fonction `confusionMatrix` qui vous permettra de récupérer certains scores de performance du modèle à l'aide de la commande `cm$byClass`, (avec `cm` l'objet qui a permis de stocker le résultat de la fonction `confusionMatrix`)
+
+
+* Récupérer les valeurs de K pour lesquelles l'accuracy a été maximale
+
+<br /> 
+
+Cette procédure nous permet d'obtenir la (ou les) valeur(s) de K pour lesquelles les performances sont les meilleures. Cependant, ces performances ont été évaluées avec un seul découpage en un jeu d'apprentissage et un jeu test : le risque est d'avoir créer, par hasard, des jeux de données qui ne sont pas représentatifs. L'idée est donc de reproduire plusieurs fois la procédure apprentissage/test qu'on vient de faire (=faire des itérations). On va le faire pour quelques valeurs de K.  L'intérêt est ensuite, pour chaque valeur de K, de regarder comment se comporte le taux d'erreur ou l'accuracy en fonction des itérations.
+
+```{r,eval=FALSE}
+vK = c(1:10) #différentes valeurs de K considérées
+imax=100 #nombre de fois où on réitère la procédure apprentissage/test
+cpt = 1#utile si on prend pour vK des valeurs discontinues qui ne commencent pas par 1
+err.at<-matrix(0,imax,length(vK)) #on va stocker les taux d'erreur pour chaque K et chaque itération
+for(K in vK){
+for(i in 1:imax){
+test.ind<-sample(1:Npop,taille.test)
+appr.ind<-setdiff(1:Npop,test.ind)
+knn.pred<-knn(iris[appr.ind,-5],iris[test.ind,-5],iris[appr.ind,5],k=K)
+err.at[i,cpt]<-mean(iris[test.ind,5]!=knn.pred)}
+cpt = cpt + 1
+}
+boxplot(err.at, names = vK)
+
+#Pour chaque K, on regarde la moyenne des erreurs faites sur les imax itérations
+apply(err.at,2,mean)
+```
+
+<br /> 
+
+
+On peut aussi reproduire plusieurs fois la procédure apprentissage/test en faisant de la validation croisée. La différence avec ce que nous venons de faire est qu'une observation, dans tous les cas, ne se retrouvera exactement qu'une seule fois dans le jeu de données test. C'est ce que nous allons faire dans l'exercice suivant
+
+## B-- Données de qualité de l'air
+
+Le jeu de données de cet exercice regroupe des mesures faites à New-York entre Mai et Septembre 1973 sur la qualité de l'air. Les détails à propos de cette base de données peuvent être trouvés ici : https://stat.ethz.ch/R-manual/R-devel/library/datasets/html/airquality.html  
+
+
+```{r,echo=FALSE}
+require("class")
+require("datasets")
+data("airquality")
+```
+
+
+Regardons un peu les données.
+
+```{r,echo=FALSE}
+str(airquality)
+summary(airquality)
+```
+<br /> 
+L'objectif de l'exercice est de prédire le mois auquel a été fait une mesure. La variable *Jour* ne nous intéresse donc pas. On remarque aussi qu'il y a des données manquantes dans certains des variables explicatives/des prédicteurs (la variable *Ozone* et *Solar.R*). On décide ici d'imputer ces données manquantes (on pourrait aussi n'utiliser que les observations pour lesquelles il n'y a pas de données manquantes mais ça excluerait pas mal d'observations). On va donc faire un pré-traitement des données.  
+
+D'abord on enlève la variable *Jour*
+```{r}
+airquality$Day<- NULL
+head(airquality)
+```
+<br /> 
+
+Ensuite on impute les données manquantes. En particulier, chaque donnée manquante d'une variable est remplacée par la moyenne des données observées le même mois (imputation par la moyenne mensuelle). C'est une manière de faire qui est discutable et il y a plein d'autres méthodes pour imputer les données manquantes. Puisque ce n'est ps l'objet de l'exercice, on utilise une procédure d'imputation simple.
+
+```{r}
+# Imputation des NA de la variable Ozone par la moyenne mensuelle
+for (i in 1:nrow(airquality)){
+  if(is.na(airquality[i,"Ozone"])){
+    airquality[i,"Ozone"]<- mean(airquality[which(airquality[,"Month"]==airquality[i,"Month"]),"Ozone"],na.rm = TRUE)
+  }
+
+# Imputation des NA de la variable Solar.R par la moyenne mensuelle
+    if(is.na(airquality[i,"Solar.R"])){
+    airquality[i,"Solar.R"]<- mean(airquality[which(airquality[,"Month"]==airquality[i,"Month"]),"Solar.R"],na.rm = TRUE)
+  }
+}
+```
+
+<br />  
+
+* Utilisez la fonction *train* du package *caret* pour 
+  - normaliser les données  
+  - tester différentes valeurs de K et trouver le K optimal qui optimise le taux d'erreur moyen obtenu par validation croisée de type *M-fold* où $M=20$.
+
+Des informations sur le package caret : http://topepo.github.io/caret/index.html
+
+
+<br />  
+
+On peut maintenant regarder quels sont les résultats (en terme d'Accuracy) pour les différentes valeurs de K testées par validation croisée `M-fold.  Pour cela, utilisez la fonction *plot* du package *caret* et retournez le K optimal. Les performances du modèle choisi vous semblent-telles correctes ?
+
+
+<br /> 
+Comme vu dans le cours, on pourrait également séparer notre jeu de données en un jeu d'apprentissage-validation sur lequel on entraînerait les différents modèles et on choisirait la valeur de K optimal à l'aide de la validation croisée et un jeu de test sur lequel on évaluerait les performances du modèle sélectionné final.
+
+Faite-le en divisant d'abord le jeu de données (vous pourrez utiliser la fonction `createDataPartition` du package `caret` et prendre $75$% des données dans le jeu d'apprentissage/validation)), puis entrainez et sélectionnez le modèle optimal avec le jeu d'apprentissage-validation. Enfin testez le modèle sélectionner.
+

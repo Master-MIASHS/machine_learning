@@ -1,6 +1,6 @@
 // src/lib/math/vc.ts
 //
-// Part VI — Cas |H|=+infty : théorie de Vapnik-Chervonenkis
+// Part VIII — Cas |H|=+infty : théorie de Vapnik-Chervonenkis
 // Reference: theorie.typ — "Dimension de Vapnik-Chervonenkis" (brisure,
 // VCdim, coefficient de brisure, lemme de Sauer-Shelah), "Théorème de
 // généralisation VC" (Théorème 3.3), "Application : borne VC pour le SVM"

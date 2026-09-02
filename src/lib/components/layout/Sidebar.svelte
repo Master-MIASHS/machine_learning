@@ -11,7 +11,11 @@
 
 	let { collapsed = $bindable(true) }: Props = $props();
 
-	const parts = [1, 2, 3, 4, 5, 6, 7];
+	// Derivé de PAGES pour que la barre latérale ne puisse plus
+	// dériver du registre de navigation (ajout/suppression de parties).
+	const parts = [
+		...new Set(PAGES.map((p) => p.part).filter((p): p is number => p !== null))
+	].sort((a, b) => a - b);
 </script>
 
 {#if collapsed}

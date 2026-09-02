@@ -1,6 +1,6 @@
 // src/lib/math/bayes-learning.ts
 //
-// Part IV — Optimum de Bayes
+// Part VI — Optimum de Bayes
 // Core formulas for Bayesian decision theory: conditional risk, the Bayes
 // classifier, Bayes risk, and optimality of the conditional mean (L2) /
 // conditional median (L1) for regression.

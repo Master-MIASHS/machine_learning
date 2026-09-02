@@ -1,0 +1,111 @@
+---
+title: "TP4 : les arbres de décision"
+date: '2025-2026'
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(dplyr)
+```
+
+  
+*** 
+
+## Exercice 1
+
+**1)** On s'intéresse de nouveau aux données sur la prostate. 
+Charger les données
+
+
+
+
+Indiquons à `R`quelles sont les variables qualitatives.  
+
+```{r, include=FALSE}
+prostate = mutate(prostate, radio = as.factor(radio))
+prostate = mutate(prostate, taille = as.factor(taille))
+prostate = mutate(prostate, gravite = as.factor(gravite))
+prostate = mutate(prostate, lymph = as.factor(lymph))
+```
+
+
+
+**Apprendre un arbre**
+
+**2)** Construire un arbre `tree.fit` avec la fonction `rpart` de la library `rpart` 
+
+```{r}
+library(rpart)
+
+```
+
+
+On affiche ensuite l'arbre obtenu.
+
+```{r}
+# affichage de l'arborescence
+par(xpd=NA)#sinon le texte est parfois rogné
+plot(tree.fit)
+text(tree.fit, digits=3)
+
+#on peut afficher de l'information sur les partitions de cet arbre :
+print(tree.fit,digits=3)
+
+```
+
+Pour obtenir cet arbre, certains critères renseignés dans `rpart.control`contrôlent la manière dont on construit l'arbre.
+
+Parmi les critères que l'on peut fixer, il y a le critère `cp` : le critère de complexité qui est relié au paramètre $\alpha$ du critère de complexité vu en cours. Automatiquement, la fonction `rpart` teste différentes valeurs pour ce paramètre par validation croisée (par défaut : une CV 10-folds). Voir e.g. la dernière réponse de ce lien pour plus de détails sur la manière dont cela est fait : (https://stackoverflow.com/questions/27862280/tree-sizes-given-by-cp-table-in-rpart)[https://stackoverflow.com/questions/27862280/tree-sizes-given-by-cp-table-in-rpart]
+
+```{r}
+?rpart.control
+
+#valeurs de l'accuracy (relative) xerror pour chaque valeur de CV
+printcp(tree.fit)
+plotcp(tree.fit)
+#on peut choisir la valeur de CV qui minimise l'erreur relative xerror et élager l'arbre en fonction 
+
+#On récupère le cp qui minimise l'erreur de CV
+bestcp <- tree.fit$cptable[which.min(tree.fit$cptable[,"xerror"]), "CP"]
+
+# On élague l'arbre avec ce cp (ici, le cp optimal est déjà à 0.01)
+pruned_fit <- prune(tree.fit, cp = bestcp)
+
+# 5. Visualisation (optionnelle)
+par(xpd=NA)#sinon le texte est parfois rogné
+plot(pruned_fit)
+text(tree.fit, digits=3)
+
+
+```
+
+
+
+**3)** Prédire la classe prédite sur le jeu de données d'apprentissage/validation grâce à la fonction `predict` 
+
+
+
+
+**4)** Donner la matrice de confusion du modèle final (calculé sur le jeu de données d'apprentissage/validation). Dans l'idéal, il faudrait regarder les performances du modèle sur un jeu de données test. Mais le jeu de départ est assez petit (53 observations)
+
+
+
+
+**5) ** Quel est le nombre de faux positifs ? faux négatifs ?
+
+
+
+**6)** Calculer plusieurs métriques d'évaluation du modèle : l'accuracy, la précision, le rappel
+
+
+
+
+**7)** Installer le package 'rpart.plot' et exécuter le code ci-dessous. Que signifie chaque information mentionnée sur les noeuds de l'arbre représenté avec la fonction 'rpart.plot()' ? 
+ 
+
+ 
+
+
+
+ 

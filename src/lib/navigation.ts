@@ -30,50 +30,72 @@ const RAW_PAGES = [
 	{ path: '/part1/exercices', title: 'Exercices', part: 1 },
 	{ path: '/part1/practice/travaux-pratiques', title: 'Travaux pratiques', part: 1 },
 
-	// Partie II — Régularisation
-	{ path: '/part2/lesson1', title: 'Méthodes ensemblistes et Bagging', part: 2 },
-	{ path: '/part2/lesson2', title: 'Random Forest & sélection de features', part: 2 },
-	{ path: '/part2/lesson3', title: 'Boosting (AdaBoost, Gradient Boosting)', part: 2 },
-	{ path: '/part2/lesson4', title: 'Régularisation L1/L2/Elastic Net', part: 2 },
+	// Partie II — Classification supervisée (contenu à venir)
+	{
+		path: '/part2/lesson1',
+		title: 'Cadre de l’apprentissage supervisé & k-NN',
+		part: 2
+	},
+	{
+		path: '/part2/lesson2',
+		title: 'Classifieurs linéaires & régression logistique',
+		part: 2
+	},
+	{ path: '/part2/lesson3', title: 'Arbres de décision', part: 2 },
+	{ path: '/part2/lesson4', title: 'Support Vector Machines (SVM)', part: 2 },
 	{ path: '/part2/exercices', title: 'Exercices', part: 2 },
 	{ path: '/part2/practice/travaux-pratiques', title: 'Travaux pratiques', part: 2 },
 
-	// Partie III — Prédiction d'ensembles
-	{ path: '/part3/lesson1', title: 'Classification Top-K', part: 3 },
-	{ path: '/part3/lesson2', title: 'Prédiction conformelle', part: 3 },
-	{ path: '/part3/lesson3', title: 'Intervalles de prédiction', part: 3 },
+	// Partie III — Clustering (contenu à venir)
+	{ path: '/part3/lesson1', title: 'Clustering hiérarchique', part: 3 },
+	{ path: '/part3/lesson2', title: 'K-moyennes & évaluation', part: 3 },
 	{ path: '/part3/exercices', title: 'Exercices', part: 3 },
+	{ path: '/part3/practice/travaux-pratiques', title: 'Travaux pratiques', part: 3 },
 
-	// Partie IV – Bayes optimum
-	{ path: '/part4/lesson1', title: 'Classifieur optimal', part: 4 },
-	{ path: '/part4/lesson2', title: 'Régression optimale', part: 4 },
+	// Partie IV — Régularisation
+	{ path: '/part4/lesson1', title: 'Méthodes ensemblistes et Bagging', part: 4 },
+	{ path: '/part4/lesson2', title: 'Random Forest & sélection de features', part: 4 },
+	{ path: '/part4/lesson3', title: 'Boosting (AdaBoost, Gradient Boosting)', part: 4 },
+	{ path: '/part4/lesson4', title: 'Régularisation L1/L2/Elastic Net', part: 4 },
 	{ path: '/part4/exercices', title: 'Exercices', part: 4 },
+	{ path: '/part4/practice/travaux-pratiques', title: 'Travaux pratiques', part: 4 },
 
-	// Partie V – Convergence
-	{ path: '/part5/lesson1', title: 'Convergence', part: 5 },
-	{ path: '/part5/lesson2', title: 'Consistance k-NN', part: 5 },
+	// Partie V — Prédiction d'ensembles
+	{ path: '/part5/lesson1', title: 'Classification Top-K', part: 5 },
+	{ path: '/part5/lesson2', title: 'Prédiction conformelle', part: 5 },
+	{ path: '/part5/lesson3', title: 'Intervalles de prédiction', part: 5 },
 	{ path: '/part5/exercices', title: 'Exercices', part: 5 },
 
-	// Part VI – Généralisation
-	{ path: '/part6/lesson1', title: 'Concentration et risque empirique', part: 6 },
-	{ path: '/part6/lesson2', title: 'Généralisation pour une classe finie', part: 6 },
-	{
-		path: '/part6/lesson3',
-		title: 'Dimension VC, Sauer-Shelah et SVM',
-		part: 6
-	},
-	{
-		path: '/part6/lesson4',
-		title: 'Limites de VC et double descente',
-		part: 6
-	},
+	// Partie VI – Bayes optimum
+	{ path: '/part6/lesson1', title: 'Classifieur optimal', part: 6 },
+	{ path: '/part6/lesson2', title: 'Régression optimale', part: 6 },
 	{ path: '/part6/exercices', title: 'Exercices', part: 6 },
 
-	// Partie VII – Fonctions de perte
-	{ path: '/part7/lesson1', title: 'De la perte 0-1 aux pertes proxy', part: 7 },
-	{ path: '/part7/lesson2', title: 'Calibration des pertes convexes', part: 7 },
-	{ path: '/part7/lesson3', title: 'Décomposition de l’erreur', part: 7 },
-	{ path: '/part7/exercices', title: 'Exercices', part: 7 }
+	// Partie VII – Convergence
+	{ path: '/part7/lesson1', title: 'Convergence', part: 7 },
+	{ path: '/part7/lesson2', title: 'Consistance k-NN', part: 7 },
+	{ path: '/part7/exercices', title: 'Exercices', part: 7 },
+
+	// Part VIII – Généralisation
+	{ path: '/part8/lesson1', title: 'Concentration et risque empirique', part: 8 },
+	{ path: '/part8/lesson2', title: 'Généralisation pour une classe finie', part: 8 },
+	{
+		path: '/part8/lesson3',
+		title: 'Dimension VC, Sauer-Shelah et SVM',
+		part: 8
+	},
+	{
+		path: '/part8/lesson4',
+		title: 'Limites de VC et double descente',
+		part: 8
+	},
+	{ path: '/part8/exercices', title: 'Exercices', part: 8 },
+
+	// Partie IX – Fonctions de perte
+	{ path: '/part9/lesson1', title: 'De la perte 0-1 aux pertes proxy', part: 9 },
+	{ path: '/part9/lesson2', title: 'Calibration des pertes convexes', part: 9 },
+	{ path: '/part9/lesson3', title: 'Décomposition de l’erreur', part: 9 },
+	{ path: '/part9/exercices', title: 'Exercices', part: 9 }
 ] as const;
 
 // 2. Hydrate indices and inject runtime resolved path property
@@ -87,12 +109,14 @@ export const PAGES: PageMeta[] = RAW_PAGES.map((page, idx) => ({
 
 export const PART_NAMES: Record<number, string> = {
 	1: 'Partie I — Optimisation',
-	2: 'Partie II — Régularisation',
-	3: 'Partie III — Set-valued',
-	4: 'Partie IV — Optimum de Bayes',
-	5: 'Partie V — Consistance',
-	6: 'Partie VI — Généralisation',
-	7: 'Partie VII — Fonctions de perte'
+	2: 'Partie II — Classification supervisée',
+	3: 'Partie III — Clustering',
+	4: 'Partie IV — Régularisation',
+	5: 'Partie V — Set-valued',
+	6: 'Partie VI — Optimum de Bayes',
+	7: 'Partie VII — Consistance',
+	8: 'Partie VIII — Généralisation',
+	9: 'Partie IX — Fonctions de perte'
 };
 
 export function getPageByPath(path: string): PageMeta | undefined {

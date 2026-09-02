@@ -1,6 +1,6 @@
 // src/lib/math/concentration.ts
 //
-// Part VI — Inégalités de concentration et Généralisation
+// Part VIII — Inégalités de concentration et Généralisation
 // Reference: theorie.typ — "Inégalités fondamentales" (Markov,
 // Bienaymé-Tchebychev, application à la consistance en probabilité de la
 // moyenne empirique, application au risque empirique d'un classifieur fixé).
@@ -141,7 +141,7 @@ export function empiricalOneSidedExceedanceProbability(
 // so Chebyshev gives:
 //   P(|R_n(h) - R(h)| >= epsilon) <= R(h)(1-R(h)) / (n*epsilon^2) <= 1/(4n*epsilon^2)
 // This bound holds for ONE h fixed in advance — it is not uniform over a
-// class H (see the finite-class generalization bounds later in Part VI).
+// class H (see the finite-class generalization bounds later in Part VIII).
 // ---------------------------------------------------------------------------
 
 /** The risk-dependent version of the fixed-classifier bound: R(h)(1-R(h)) / (n*epsilon^2). */

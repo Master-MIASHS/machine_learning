@@ -42,17 +42,17 @@
 			</li>
 			<li>
 				<a href={asset('/pdf/regularization.pdf')} target="_blank" rel="noopener noreferrer">
-					<strong>Partie 2 :</strong> Agrégation, Forêts & Régularisation (PDF)
+					<strong>Partie 4 :</strong> Agrégation, Forêts & Régularisation (PDF)
 				</a>
 			</li>
 			<li>
 				<a href={asset('/pdf/set_valued.pdf')} target="_blank" rel="noopener noreferrer">
-					<strong>Partie 3 :</strong> Évaluation & Prédictions Conformelles (PDF)
+					<strong>Partie 5 :</strong> Évaluation & Prédictions Conformelles (PDF)
 				</a>
 			</li>
 			<li>
 				<a href={asset('/pdf/theory.pdf')} target="_blank" rel="noopener noreferrer">
-					<strong>Parties 4 à 7 :</strong> Théorie de l'Apprentissage Statistique —
+					<strong>Parties 6 à 9 :</strong> Théorie de l'Apprentissage Statistique —
 					optimum de Bayes, consistance, généralisation, fonctions de perte (PDF)
 				</a>
 			</li>
@@ -70,39 +70,52 @@
 			</li>
 			<li>
 				<a href={resolve('/part2/lesson1')}>
-					<strong>Partie II — Régularisation :</strong> méthodes ensemblistes et Bagging,
+					<strong>Partie II — Classification supervisée (contenu à venir) :</strong>
+					cadre de l'apprentissage supervisé et k-NN, classifieurs linéaires et
+					régression logistique, arbres de décision, SVM.
+				</a>
+			</li>
+			<li>
+				<a href={resolve('/part3/lesson1')}>
+					<strong>Partie III — Clustering (contenu à venir) :</strong> clustering
+					hiérarchique, k-moyennes et évaluation d'un clustering.
+				</a>
+			</li>
+			<li>
+				<a href={resolve('/part4/lesson1')}>
+					<strong>Partie IV — Régularisation :</strong> méthodes ensemblistes et Bagging,
 					Random Forest et sélection de features, Boosting (AdaBoost, Gradient Boosting),
 					régularisation L1/L2/Elastic Net.
 				</a>
 			</li>
 			<li>
-				<a href={resolve('/part3/lesson1')}>
-					<strong>Partie III — Set-valued / Prédictions conformelles :</strong>
+				<a href={resolve('/part5/lesson1')}>
+					<strong>Partie V — Set-valued / Prédictions conformelles :</strong>
 					classification Top-K, prédiction conformelle, intervalles de prédiction.
 				</a>
 			</li>
 			<li>
-				<a href={resolve('/part4/lesson1')}>
-					<strong>Partie IV — Optimum de Bayes :</strong> classifieur de Bayes,
+				<a href={resolve('/part6/lesson1')}>
+					<strong>Partie VI — Optimum de Bayes :</strong> classifieur de Bayes,
 					régression optimale (L2/L1), risque de Bayes comme borne irréductible.
 				</a>
 			</li>
 			<li>
-				<a href={resolve('/part5/lesson1')}>
-					<strong>Partie V — Consistance :</strong> convergence des classifieurs appris
+				<a href={resolve('/part7/lesson1')}>
+					<strong>Partie VII — Consistance :</strong> convergence des classifieurs appris
 					(en probabilité, en moyenne quadratique, presque sûrement — et au sens universel), consistance du k-NN.
 				</a>
 			</li>
 			<li>
-				<a href={resolve('/part6/lesson1')}>
-					<strong>Partie VI — Généralisation :</strong> inégalités de concentration
+				<a href={resolve('/part8/lesson1')}>
+					<strong>Partie VIII — Généralisation :</strong> inégalités de concentration
 					(Markov, Tchebychev), bornes de généralisation pour classes finies, dimension VC
 					et lemme de Sauer–Shelah, SVM, limites de la théorie VC et double descente.
 				</a>
 			</li>
 			<li>
-				<a href={resolve('/part7/lesson1')}>
-					<strong>Partie VII — Fonctions de perte :</strong> de la perte 0-1 aux pertes
+				<a href={resolve('/part9/lesson1')}>
+					<strong>Partie IX — Fonctions de perte :</strong> de la perte 0-1 aux pertes
 					proxy convexes, calibration des pertes, décomposition de l'erreur.
 				</a>
 			</li>
