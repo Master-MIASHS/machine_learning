@@ -1,0 +1,583 @@
+---
+title: "TP6 : le clustering"
+date: '2025-2026'
+output: html_document
+---
+  
+***  
+
+```{r,echo=FALSE}
+#install.packages("factoextra")
+#library(factoextra)
+library(ggplot2)
+library(cluster)
+library(kernlab)
+```
+
+## A -- Exercices
+
+*	Soit des données $x_1,\dots,x_n \in \mathbb{R}^d$ et $\mu = \frac{1}{n} \sum_{i=1}^n x_i$. Montrez que 
+	$$ I = \sum_{i =1}^n \| x_i - \mu \|^2 = I_W + I_B$$
+	
+avec
+
+- $I_W  = \sum_{k =1}^K \sum_{i \in C_k} \|x_i - \mu_k \|^2$ l'inertie intra-classes
+- $I_B = \sum_{k =1}^K \vert C_k \vert \, \| \mu_k - \mu \|^2$ l'inertie inter-classes
+
+<br>
+Rappel : $\forall x=(x^.1,x^.2,\dots,x^{.d}),y=(y^.1,y^.2,\dots,y^{.d}) \in \mathbb{R}^d$, $\|x+y\|^2 = \|x\|^2+\|y\|^2+2\langle x,y \rangle$. En effet,
+
+$\begin{aligned}
+\|x+y\|^2 &= (x^.1+y^.1)^2 + (x^.2+y^.2)^2 + (x^{.d}+y^{.d})^2\\
+&= (x^.1)^2+(y^.1)^2 + 2(x^.1)(y^.1) + \dots + (x^{.d})^2+(y^{.d})^2 + 2(x^{.d})(y^{.d}) \\
+&= \|x\|^2 + \|y\|^2 + 2 \langle x,y\rangle 
+\end{aligned}$
+
+ou, plus rapidement,
+
+$\begin{aligned}
+\|x+y\|^2 &= \langle x+y,x+y\rangle \\
+&= \langle x,x\rangle+ 2\langle x,y\rangle + \langle y,y\rangle\\
+&= \|x\|^2 + \|y\|^2 + 2 \langle x,y\rangle 
+\end{aligned}$
+
+On a donc 
+<br>
+
+
+<br><br>
+
+On dispose d'un jeu de données $x_1,\dots,x_5$ dont la matrice de distance est donnée par
+
+```{r,echo=FALSE}
+distances=matrix(c(0,23,35,43,50,23,0,21,32,45,35,21,0,11,25,43,32,11,0,17,50,45,25,17,0),5,5,byrow=T)
+colnames(distances)<-c("x1","x2","x3","x4","x5")
+rownames(distances)<-c("x1","x2","x3","x4","x5")
+
+distances
+```
+
+**1)** Appliquer un algorithme de classification ascendante hiérarchique avec une fonction de lien complet (saut maximum)
+
+
+
+**2)** Tracer le dendogramme correspondant
+
+```{r}
+distances=matrix(c(0,23,35,43,50,23,0,21,32,45,35,21,0,11,25,43,32,11,0,17,50,45,25,17,0),5,5,byrow=T)
+colnames(distances)<-c("x1","x2","x3","x4","x5")
+rownames(distances)<-c("x1","x2","x3","x4","x5")
+
+distances=as.dist(distances)
+CAH_max=hclust(distances,method="complete")  #saut maximum
+plot(CAH_max)
+```
+
+## B -- Données simulées
+
+### Comprendre les distances entre clusters dans la classification hiérarchique
+
+On simule des données dans $\mathbb{R}^2$.
+
+```{r}
+x=c(rep(1:10,2))
+y=c(rep(-1,10), rep(1,10))
+
+#données
+data_sim=data.frame(x=x,y=y)
+
+#plot des données
+plot_sep <- ggplot(data=data_sim, aes(x = x, y = y)) +
+geom_point() +
+coord_equal() +
+xlab("x") +  ylab("y") + ggtitle("Données simulés")
+plot_sep
+```
+On propose ensuite une partition des données en $2$ clusters en utilisant un algorithme de classification ascendante hiérarchique pour différentes fonctions de liens : lien simple, complet, moyen, centroid et distance de Ward.
+
+```{r}
+dist_eucl=dist(data_sim,method="euclidian") #calcul des distances
+
+k=2
+
+#-----------Lien simple
+CAH_min=hclust(dist_eucl,method="single") #saut minimum
+cut_min <- cutree(CAH_min, k = k)
+data=data.frame(data_sim, c=cut_min)
+
+#plot des données
+plot_clusters1 <- ggplot(data=data, aes(x = x, y = y)) +
+geom_point(aes(color=as.factor(c))) +
+coord_equal() +
+scale_color_manual(name = "clusters",values=c("blue","orange")) +
+xlab("x") +  ylab("y") + ggtitle("Clusters")
+plot(CAH_min,hang=-1)
+plot_clusters1
+
+#-----------Lien complet
+CAH_max=hclust(dist_eucl,method="complete")  #saut maximum
+cut_max <- cutree(CAH_max, k = k)
+data=data.frame(data_sim, c=cut_max)
+
+#plot des données
+plot_clusters2 <- ggplot(data=data, aes(x = x, y = y)) +
+geom_point(aes(color=as.factor(c))) +
+coord_equal() +
+scale_color_manual(name = "clusters",values=c("blue","orange","green", "yellow")) +
+xlab("x") +  ylab("y") + ggtitle("Clusters")
+plot(CAH_max,hang=-1)
+plot_clusters2
+
+
+#-----------Lien moyen
+CAH_mean=hclust(dist_eucl,method="average") #saut moyen
+cut_mean <- cutree(CAH_mean, k = k)
+data=data.frame(data_sim, c=cut_mean)
+
+#plot des données
+plot_clusters3 <- ggplot(data=data, aes(x = x, y = y)) +
+geom_point(aes(color=as.factor(c))) +
+coord_equal() +
+scale_color_manual(name = "clusters",values=c("blue","orange","green")) +
+xlab("x") +  ylab("y") + ggtitle("Clusters")
+plot(CAH_mean,hang=-1)
+plot_clusters3
+
+
+#-----------Lien centroïdal
+CAH_centroid=hclust(dist_eucl,method="centroid") #saut centroïdal
+cut_centroid <- cutree(CAH_centroid, k = k)
+data=data.frame(data_sim, c=cut_centroid)
+
+#plot des données
+plot_clusters4 <- ggplot(data=data, aes(x = x, y = y)) +
+geom_point(aes(color=as.factor(c))) +
+coord_equal() +
+scale_color_manual(name = "clusters",values=c("blue","orange","green")) +
+xlab("x") +  ylab("y") + ggtitle("Clusters")
+plot(CAH_centroid,hang=-1)
+plot_clusters4
+
+
+#-----------Distance de Ward
+CAH_ward=hclust(dist_eucl,method="ward.D") #distance de Ward
+cut_ward <- cutree(CAH_ward, k = k)
+data=data.frame(data_sim, c=cut_ward)
+
+#plot des données
+plot_clusters5 <- ggplot(data=data, aes(x = x, y = y)) +
+geom_point(aes(color=as.factor(c))) +
+coord_equal() +
+scale_color_manual(name = "clusters",values=c("blue","orange","green")) +
+xlab("x") +  ylab("y") + ggtitle("Clusters")
+plot(CAH_ward,hang=-1)
+plot_clusters5
+
+```
+
+**1.** Certaines branches se forment au même niveau pour chaque clustering : pourquoi ? 
+
+**2.** Quelle valeur changeriez-vous dans la simulation des données pour que le clustering obtenu avec le lien complet, moyen ou le lien centroïdale corresponde à ce qu'on obtient avec le lien simple ? 
+
+
+
+### Simulation des données
+
+À partir d'un jeu de données d'entraînement séparable simulé dans $\mathbb{R}^2$, nous allons proposer une partition des données en utilisant un algorithme de classification ascendante hiérarchique et un algorithme des $K$-moyennes.
+
+
+```{r}
+set.seed(0)#on fixe la graine aléatoire
+
+n=400 #nombre observations
+p=2 #nombre de variables explicatives
+
+#génération données explicatives -------
+
+#choix des variances
+sd1=1/2 
+sd2=1/3
+
+#choix des rayons
+r1=abs(1.5+rnorm(n/2,0,sd1))
+r2=abs(5+rnorm(n/2,0,sd2))
+
+#choix de l'angle
+theta1=runif(n/2,0,2*pi)
+theta2=runif(n/2,0,2*pi)
+
+#simulation en cordonnées sphériques par groupe
+x1=cbind(r1*cos(theta1),r1*sin(theta1))
+x2=cbind(r2*cos(theta2),r2*sin(theta2))
+x=rbind(x1,x2)
+
+#données
+data_sim=data.frame(x=x[,1],y=x[,2])
+
+#plot des données
+plot_sep <- ggplot(data=data_sim, aes(x = x, y = y)) +
+geom_point() +
+coord_equal() +
+xlab("x") +  ylab("y") + ggtitle("Données simulés")
+plot_sep
+```
+
+**1)** Visuellement, quelle partition des données proposeriez-vous ?
+
+### Clustering hiérarchique
+
+**2)** Proposer trois clustering hiérarchique en utilisant les fonctions de liens simple, complet et moyen et en considérant la distance euclidienne comme distance entre deux observations.
+ Vous pourrez utiliser les fonctions *dist* et *hclust*. 
+
+```{r}
+dist_eucl=dist(data_sim,method="euclidian") #calcul des distances
+
+CAH_min=hclust(dist_eucl,method="single") #saut minimum
+CAH_max=hclust(dist_eucl,method="complete")  #saut maximum
+CAH_mean=hclust(dist_eucl,method="average") #saut moyen
+```
+
+
+**3)** Pour chacun des clustering hiérarchique, visualiser le dendogramme correspondant avec la fonction *plot* (vous pouvez utiliser l'option *hang=-1*)
+
+```{r}
+plot(CAH_min,hang=-1)
+plot(CAH_max,hang=-1)
+plot(CAH_mean,hang=-1)
+```
+
+**Remarque** : ici, lorsque deux branches se rejoignent à une distance $h$, ça signifie que la distance entre les deux clusters qui viennent d'être fusionnés est égale à $h$ (dans ces exemples nous avons utilisés la distance de Ward). Les distances entre tous les clusters fusionnés par cet algorithme sont accessibles via l'attribut *height*. On remarque ici que cet ensemble de distances forme une "fonction" croissante monotone. Cela signifie en particulier que tout noeud de l'arbre est formé à une hauteur supérieure à celui de ses descendants. Cela vient du fait que la distance de Ward, tout comme le lien simple, complet et moyen, est une mesure qui satisfait *l'axiome de la médiane*. En principe, on souhaite utiliser des mesures qui vérifient cet axiome; en plus de garantir une certaine cohérence/interprétabilité des résultats, cela permet de calculer plus rapidement des distances entre clusters.
+
+```{r}
+CAH_min$height
+plot(CAH_min$height,type='l')
+```
+
+Cependant, parfois on utilise des mesures qui ne satisfont par l'axiome de la médiane. C'est le cas de la méthode *centroid* (c'est-à-dire que la distance entre deux clusters considérée est la distance entre leurs centroïdes) ou de la méthode *median*. Si on relance un algorithme de classification ascendante hiérarchique avec la méthode *centroid* on remarque que l'arbre a un aspect bizarre : parfois, deux branches se rejoignent à une hauteur plus petite que la hauteur d'une des deux branches ou des deux branches (on appelle cela des inversions), i.e. un noeud de l'arbre peut être formé à une hauteur plus petite que celle de ses descendants. Aussi, la distance séparant les clusters rassemblés deux à deux n'est pas une fonction croissante monotone, on peut le voir avec la commande `plot(hcent$height,type="l")`.
+
+```{r}
+hcent=hclust(dist_eucl,method="centroid")
+plot(hcent,hang=-1)
+plot(hcent$height,type="l")
+```
+
+
+**3)** D'après les différents dendogrammes, combien de clusters choisiriez-vous ? Utilisez la fonction `rect.hclsut` pour identifier les clusters sur un des dendogrammes
+
+```{r}
+plot(CAH_min,hang=-1)
+k=2
+rect.hclust(CAH_min , k = k, border = 2:6)
+
+plot(CAH_max,hang=-1)
+k=4
+rect.hclust(CAH_max , k = k, border = 2:6)
+
+plot(CAH_mean,hang=-1)
+k=6
+rect.hclust(CAH_mean, k = k, border = 2:6)
+```
+
+**4)** Pour chacun des clustering hiérarchique, attribuer un cluster à chaque observation en fonction du nombre de clusters choisi avec la fonction `cutree` et afficher les données en donnant des couleurs pour chaque cluster.
+
+```{r}
+
+k=2
+cut_min <- cutree(CAH_min, k = k)
+data=data.frame(data_sim, c=cut_min)
+
+#plot des données
+plot_clusters1 <- ggplot(data=data, aes(x = x, y = y)) +
+geom_point(aes(color=as.factor(c))) +
+coord_equal() +
+scale_color_manual(name = "clusters",values=c("blue","orange")) +
+xlab("x") +  ylab("y") + ggtitle("Clusters")
+plot_clusters1
+
+k=4
+cut_max <- cutree(CAH_max, k = k)
+data=data.frame(data_sim, c=cut_max)
+
+#plot des données
+plot_clusters2 <- ggplot(data=data, aes(x = x, y = y)) +
+geom_point(aes(color=as.factor(c))) +
+coord_equal() +
+scale_color_manual(name = "clusters",values=c("blue","orange","green", "yellow")) +
+xlab("x") +  ylab("y") + ggtitle("Clusters")
+plot_clusters2
+
+k=3
+cut_mean <- cutree(CAH_mean, k = k)
+data=data.frame(data_sim, c=cut_mean)
+
+#plot des données
+plot_clusters3 <- ggplot(data=data, aes(x = x, y = y)) +
+geom_point(aes(color=as.factor(c))) +
+coord_equal() +
+scale_color_manual(name = "clusters",values=c("blue","orange","green")) +
+xlab("x") +  ylab("y") + ggtitle("Clusters")
+plot_clusters3
+```
+
+
+**Remarque** : on stoppant à deux clusters pour la CAH avec lien complet et lien moyen, on ne retrouve pas la partition obtenue avec le lien simple
+
+```{r}
+
+
+k=2
+cut_max <- cutree(CAH_max, k = k)
+data=data.frame(data_sim, c=cut_max)
+
+#plot des données
+plot_clusters2 <- ggplot(data=data, aes(x = x, y = y)) +
+geom_point(aes(color=as.factor(c))) +
+coord_equal() +
+scale_color_manual(name = "clusters",values=c("blue","orange","green", "yellow")) +
+xlab("x") +  ylab("y") + ggtitle("Clusters")
+plot_clusters2
+
+k=2
+cut_mean <- cutree(CAH_mean, k = k)
+data=data.frame(data_sim, c=cut_mean)
+
+#plot des données
+plot_clusters3 <- ggplot(data=data, aes(x = x, y = y)) +
+geom_point(aes(color=as.factor(c))) +
+coord_equal() +
+scale_color_manual(name = "clusters",values=c("blue","orange","green")) +
+xlab("x") +  ylab("y") + ggtitle("Clusters")
+plot_clusters3
+```
+
+
+### K-moyennes
+
+**5)** Utilisez la fonction `kmeans` pour $K=2$ afin de proposer un paritionnement des données simulées
+
+```{r}
+k=2
+kmean=kmeans(data_sim, centers=k, algorithm="Lloyd")
+
+
+
+classes <- kmean$cluster
+data=data.frame(data_sim, c=classes)
+
+#plot des données
+plotcuster4 <- ggplot(data=data, aes(x = x, y = y)) +
+geom_point(aes(color=as.factor(c))) +
+coord_equal() +
+scale_color_manual(name = "clusters",values=c("blue","orange")) +
+xlab("x") +  ylab("y") + ggtitle("Clusters")
+plotcuster4
+
+#ou 
+# usepackages("kernlab")
+# library(kernlab)
+# kk=kkmeans(as.matrix(data_sim),centers=k,kernel = "rbfdot", kpar = "automatic",)
+# classesb<-kk[][1:nrow(data_sim)]
+# data=data.frame(data_sim, c=classesb)
+
+# #plot des données
+# plotcuster4b <- ggplot(data=data, aes(x = x, y = y)) +
+# geom_point(aes(color=as.factor(c))) +
+# coord_equal() +
+# scale_color_manual(name = "clusters",values=c("blue","orange")) +
+# xlab("x") +  ylab("y") + ggtitle("Clusters")
+# plotcuster4b
+
+```
+
+**6)** L'algorithme a-t-il bien séparé les données ? Sinon, faut-il relancer beaucoup de fois l'algorithme pour avoir une bonne séparation des données ?
+
+
+
+**7)** Pour réussir à séparer ces données, on va tenter de projeter les données dont un autre espace ? Proposez une transformation $\phi$ et appliquer l'algorithme des $K$-moyennes avec $K=2$. 
+
+On essaie la transformation $\phi:(x,y)\mapsto (x,y,x^2,y^2)$ : on relance plusieurs fois le code jusqu'à ce que les données soient bien séparées.
+
+```{r}
+
+#on rajoute x^2 et y^2 comme variables
+data_transform=data.frame(x=(data_sim[,1]),y=(data_sim[,2]),x2=(data_sim[,1])^2,y2=(data_sim[,2])^2)
+
+
+#on relance l'algorithme
+k=2
+kmean=kmeans(data_transform, centers=k, algorithm="Lloyd",iter.max = 100)
+
+
+classes <- kmean$cluster
+data=data.frame(data_transform, c=classes)
+
+#plot des données tranformées
+plotcuster5 <- ggplot(data=data, aes(x = x2, y = y2)) +
+geom_point(aes(color=as.factor(c))) +
+coord_equal() +
+scale_color_manual(name = "clusters",values=c("blue","orange")) +
+xlab("x2") +  ylab("y2") + ggtitle("Clusters")
+plotcuster5
+
+#plot des données non transformées
+data=data.frame(data_sim, c=classes)
+
+plotcuster5 <- ggplot(data=data, aes(x = x, y = y)) +
+geom_point(aes(color=as.factor(c))) +
+coord_equal() +
+scale_color_manual(name = "clusters",values=c("blue","orange")) +
+xlab("x") +  ylab("y") + ggtitle("Clusters")
+plotcuster5
+```
+
+
+
+<br>
+
+**8)** Relancer l'algorithme en utilisant l'option `nstart=20`. Que fait cette option ?
+```{r}
+
+#on rajoute x^2 et y^2 comme variables
+data_transform=data.frame(x=(data_sim[,1]),y=(data_sim[,2]),x2=(data_sim[,1])^2,y2=(data_sim[,2])^2)
+
+#on relance l'algorithme
+k=2
+kmean=kmeans(data_transform, centers=k, algorithm="Lloyd",iter.max = 100, nstar=20)
+
+classes <- kmean$cluster
+data=data.frame(data_transform, c=classes)
+
+#plot des données non transformées
+data=data.frame(data_sim, c=classes)
+
+plotcuster5 <- ggplot(data=data, aes(x = x, y = y)) +
+geom_point(aes(color=as.factor(c))) +
+coord_equal() +
+scale_color_manual(name = "clusters",values=c("blue","orange")) +
+xlab("x") +  ylab("y") + ggtitle("Clusters")
+plotcuster5
+```
+
+
+
+<br><br>
+Remarque : pour bien séparer les données, on peut considérer la transformation $\phi:(x,y)\mapsto (x,y,x^2+y^2)$
+```{r}
+
+#on rajoute x^2 et y^2 comme variables
+data_transform=data.frame(x=(data_sim[,1]),y=(data_sim[,2]),x2y2=((data_sim[,1])^2+(data_sim[,2])^2))
+
+#on relance l'algorithme
+k=2
+kmean=kmeans(data_transform, centers=k, algorithm="Lloyd",iter.max = 100,nstart = 20)
+
+classes <- kmean$cluster
+data=data.frame(data_transform, c=classes)
+
+#plot des données tranformées
+plotcuster5 <- ggplot(data=data, aes(x = x, y = x2y2)) +
+geom_point(aes(color=as.factor(c))) +
+coord_equal() +
+scale_color_manual(name = "clusters",values=c("blue","orange")) +
+xlab("x") +  ylab("x2+y2") + ggtitle("Clusters")
+plotcuster5
+
+#plot des données non transformées
+data=data.frame(data_sim, c=classes)
+
+plotcuster5 <- ggplot(data=data, aes(x = x, y = y)) +
+geom_point(aes(color=as.factor(c))) +
+coord_equal() +
+scale_color_manual(name = "clusters",values=c("blue","orange")) +
+xlab("x") +  ylab("y") + ggtitle("Clusters")
+plotcuster5
+
+#pour faire du clustering avec noyau
+# library(kernlab)
+# kk=kkmeans(as.matrix(data_sim),centers=k,kernel = "rbfdot", kpar = "automatic",)
+# classes<-kk[][1:nrow(data_sim)]
+# data=data.frame(data_sim, c=classes)
+
+# #plot des données tranformées
+# plotcuster5 <- ggplot(data=data, aes(x = x2, y = y2)) +
+# geom_point(aes(color=as.factor(c))) +
+# coord_equal() +
+# scale_color_manual(name = "clusters",values=c("blue","orange")) +
+# xlab("x2") +  ylab("y2") + ggtitle("Clusters")
+# plotcuster5
+# 
+# #plot des données non transformées
+# data=data.frame(data_sim, c=classes)
+# 
+# plotcuster5 <- ggplot(data=data, aes(x = x, y = y)) +
+# geom_point(aes(color=as.factor(c))) +
+# coord_equal() +
+# scale_color_manual(name = "clusters",values=c("blue","orange")) +
+# xlab("x") +  ylab("y") + ggtitle("Clusters")
+# plotcuster5
+
+```
+
+
+## C -- Données Iris
+
+```{r,echo=FALSE}
+data(iris)
+
+pairs(iris[1:4], main = "Données Iris -- 3 espèces", pch = 21, bg = c("blue","orange", "green3")[iris$Species], lower.panel=NULL, labels=c("Sepal.Length","Sepal.Width","Petal.Length","Petal.Width"), font.labels=0.5, cex.labels=2) 
+legend(0.08, 0.43, as.vector(unique(iris$Species)),  fill=c("blue","orange", "green3"))
+```
+
+* Normalisez les données  (les variables explicatives) à l'aide de la fonction `scale` (pas besoin de fonctions comme `apply` car automatiquement scale normalise les colonnes d'une matrice).
+
+
+```{r}
+
+```
+
+### K-moyennes
+
+* Faites-touner un alogirhtme des $K$-moyennes pour $K=3$, donner l'inertie intra-classes de la partition obtenue et comparer les clusters obtenus avec les espèces à l'aide la fonction *table*. Que remarquez-vous ?
+
+```{r}
+
+```
+
+
+* Relancer l'algorithme pour plusieurs valeurs de $K$ et tracer les inerties intra-classes obtenues en fonction de $K$. Quelle valeur choisiriez-vous avec la méthode du coude ?
+
+```{r}
+
+```
+
+
+### Clustering hiérarchique
+
+* Faites un clustering hiérarchique en utilisant la distance de Ward et afficher le dendogramme. D'après le dendogramme, combien de clusters choisiriez-vous ?
+
+```{r}
+
+
+```
+
+* Sélectionner le nombre de cluster optimal en calculant, pour chaque valeur de $K$, le coefficient de silhouette avec la fonction *silhouette* du package *cluster* 
+
+```{r}
+
+```
+
+
+
+* comparer les clusters obtenus avec la partition de taille $K$ trouvée précédemment avec les espèces à l'aide la fonction `table`. 
+
+
+```{r}
+
+```
+
+
+## D -- Compression d'image
+
+Sélectionner une photo/une image et compresser cette image à l'aide de l'algorithme des K-means. Vous pourrez choisir plusieurs valeurs de $K$ (2,4, 8 par exemple) et voir les différentes images produites. Vous pouvez vous aider de ChatGPT pour construire ce code-là.
+
+
