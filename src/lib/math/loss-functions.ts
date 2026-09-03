@@ -14,16 +14,16 @@ export function mseLossGrad(w: number[], x: number[], y: number): number[] {
 	return w.map((_, j) => -residual * x[j]);
 }
 
-/** Log-loss for binary classification: log(1 + exp(-y·wᵀx)), y ∈ {-1,+1} */
-export function logLoss(w: number[], x: number[], yLabel: number): number {
-	const margin = dot(w, x) * yLabel; // yLabel should be -1 or +1
+/** Log-loss for binary classification: log(1 + exp(-y·(wᵀx + b))), y ∈ {-1,+1}. The optional bias b defaults to 0. */
+export function logLoss(w: number[], x: number[], yLabel: number, b = 0): number {
+	const margin = (dot(w, x) + b) * yLabel; // yLabel should be -1 or +1
 	return Math.log(1 + Math.exp(-margin));
 }
 
-/** Gradient of log-loss w.r.t. w */
-export function logLossGrad(w: number[], x: number[], yLabel: number): number[] {
-	const margin = dot(w, x) * yLabel;
-	const sigmoidNegMargin = 1 / (1 + Math.exp(margin)); // σ(-y·wᵀx)
+/** Gradient of log-loss w.r.t. w (bias b defaults to 0) */
+export function logLossGrad(w: number[], x: number[], yLabel: number, b = 0): number[] {
+	const margin = (dot(w, x) + b) * yLabel;
+	const sigmoidNegMargin = 1 / (1 + Math.exp(margin)); // σ(-y·(wᵀx + b))
 	return w.map((_, j) => -sigmoidNegMargin * yLabel * x[j]);
 }
 

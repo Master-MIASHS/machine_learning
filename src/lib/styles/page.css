@@ -111,6 +111,76 @@
 	margin: 0 0 1rem;
 }
 
+/* ── Contenu pédagogique partagé ─────────────────────────────── */
+/* Tailwind Preflight retire les marqueurs par défaut des listes. */
+.page-theory ul:not(.bib-list):not(.toc-list) {
+	list-style-type: disc;
+}
+
+.page-theory ol {
+	list-style-type: decimal;
+}
+
+.page-theory .figure-grid {
+	display: grid;
+	gap: 1rem;
+	margin: 1rem 0;
+}
+
+.page-theory .figure-grid.two-col {
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.page-theory .figure-grid.three-col {
+	grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.page-theory .lesson-figure {
+	margin: 0;
+	min-width: 0;
+}
+
+.page-theory .lesson-figure img,
+.page-theory .triple-img img {
+	width: 100%;
+	height: auto;
+	display: block;
+	border: 1px solid var(--color-border);
+	border-radius: var(--radius-md);
+}
+
+.page-theory .lesson-figure figcaption {
+	margin-top: 0.5rem;
+	color: var(--color-text-muted);
+	font-size: 0.8125rem;
+	line-height: 1.5;
+}
+
+.page-theory .triple-img {
+	display: grid;
+	grid-template-columns: repeat(3, minmax(0, 1fr));
+	gap: 0.75rem;
+}
+
+.page-theory .triple-img.two-up {
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.page-theory .attribution {
+	margin: -0.5rem 0 1rem;
+	color: var(--color-text-muted);
+	font-size: 0.75rem;
+}
+
+@media (max-width: 700px) {
+	.page-theory .figure-grid.two-col,
+	.page-theory .figure-grid.three-col,
+	.page-theory .triple-img,
+	.page-theory .triple-img.two-up {
+		grid-template-columns: 1fr;
+	}
+}
+
 /* ── Widget ──────────────────────────────────────── */
 section.page-interactive p {
 	font-size: 0.9375rem;

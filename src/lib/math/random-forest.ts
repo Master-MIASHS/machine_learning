@@ -115,11 +115,41 @@ export function buildDecisionStump(
 
 // ─── Impurity Measures ────────────────────────────────
 
+/** The three impurity criteria of Part 2, lesson 3 ("Critères d'impureté"). */
+export type ImpurityCriterion = 'gini' | 'entropy' | 'misclassification';
+
 /** Gini impurity for binary classification labels (0 or 1) */
 export function giniImpurity(labels: number[]): number {
 	if (labels.length === 0) return 0;
 	const p = labels.reduce((s, l) => s + l, 0) / labels.length; // proportion of class 1
 	return 2 * p * (1 - p);
+}
+
+/**
+ * Misclassification impurity for binary classification labels (0 or 1):
+ * {@code 1 - max(p, 1-p)} = {@code \mathcal I_{EC}(R)} of Part 2, lesson 3.
+ * Same binary 0/1 convention and empty-input convention as `giniImpurity`.
+ */
+export function misclassificationImpurity(labels: number[]): number {
+	if (labels.length === 0) return 0;
+	const p = labels.reduce((s, l) => s + l, 0) / labels.length; // proportion of class 1
+	return 1 - Math.max(p, 1 - p);
+}
+
+/**
+ * Dispatcher over the three impurity criteria. `labels` are binary 0/1.
+ * Used by `tree-utils.buildCartTree` / `findBestSplit1D` and by the
+ * impurity-explorer demos.
+ */
+export function impurityOf(labels: number[], criterion: ImpurityCriterion): number {
+	switch (criterion) {
+		case 'gini':
+			return giniImpurity(labels);
+		case 'entropy':
+			return entropyImpurity(labels);
+		case 'misclassification':
+			return misclassificationImpurity(labels);
+	}
 }
 
 /** Information gain from splitting */
@@ -131,10 +161,11 @@ export function informationGain(
 	const n = parentLabels.length;
 	if (n === 0) return 0;
 
-	const parentEntropy = entropy(parentLabels);
+	const parentEntropy = entropyImpurity(parentLabels);
 	const leftWeight = leftLabels.length / n;
 	const rightWeight = rightLabels.length / n;
-	const childEntropy = leftWeight * entropy(leftLabels) + rightWeight * entropy(rightLabels);
+	const childEntropy =
+		leftWeight * entropyImpurity(leftLabels) + rightWeight * entropyImpurity(rightLabels);
 
 	return Math.max(0, parentEntropy - childEntropy);
 }
@@ -184,7 +215,13 @@ export function permutationImportance(
 
 // ─── Helpers ────────────────────────────────────────
 
-function entropy(labels: number[]): number {
+/**
+ * Entropy impurity for binary classification labels (0 or 1):
+ * {@code -∑_k p_k · log₂(p_k)} — the {@code \mathcal I_\mathcal E(R)}
+ * criterion of Part 2, lesson 3 ("Critères d'impureté"). Consistent with
+ * `giniImpurity` (binary 0/1 convention).
+ */
+export function entropyImpurity(labels: number[]): number {
 	if (labels.length === 0) return 0;
 	const counts = new Map<number, number>();
 	for (const l of labels) counts.set(l, (counts.get(l) ?? 0) + 1);

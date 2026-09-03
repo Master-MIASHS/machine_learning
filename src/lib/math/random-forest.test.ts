@@ -1,8 +1,11 @@
 import { describe, it, expect } from 'vitest';
 import {
 	buildDecisionStump,
+	entropyImpurity,
 	giniImpurity,
 	informationGain,
+	impurityOf,
+	misclassificationImpurity,
 	permutationImportance
 } from '../math/random-forest.js';
 import { mulberry32 } from './util.js';
@@ -41,6 +44,92 @@ describe('giniImpurity', () => {
 
 	it('returns 0 for the empty node (documented convention)', () => {
 		expect(giniImpurity([])).toBe(0);
+	});
+});
+
+describe('entropyImpurity', () => {
+	it('is zero for a pure node', () => {
+		expect(entropyImpurity([1, 1, 1])).toBeCloseTo(0, 12);
+		expect(entropyImpurity([0, 0])).toBeCloseTo(0, 12);
+	});
+
+	it('equals log₂ 2 = 1 on a 50/50 mixture (closed form)', () => {
+		// -½·log₂(½) - ½·log₂(½) = 1.
+		expect(entropyImpurity([0, 1])).toBeCloseTo(1, 12);
+		expect(entropyImpurity([0, 0, 1, 1])).toBeCloseTo(1, 12);
+	});
+
+	it('is zero at the extremes and peaks at the midpoint (shape)', () => {
+		expect(entropyImpurity([1])).toBeCloseTo(0, 12);
+		// p = ¾ → -¾·log₂(¾) - ¼·log₂(¼) ≈ 0.8113.
+		expect(entropyImpurity([1, 1, 1, 0])).toBeCloseTo(0.8112781244591328, 10);
+	});
+
+	it('never exceeds log₂ of the number of classes (≤ 1 for binary)', () => {
+		for (const labels of [
+			[0, 1, 1, 0],
+			[1, 0, 1, 1, 0, 0, 1]
+		]) {
+			expect(entropyImpurity(labels)).toBeLessThanOrEqual(1 + 1e-12);
+		}
+	});
+
+	it('drives informationGain consistently (non-regression after rename)', () => {
+		// H([0,1]) = 1, children pure → IG = 1 (uses entropyImpurity internally).
+		expect(informationGain([0, 1], [0], [1])).toBeCloseTo(1, 12);
+	});
+
+	it('returns 0 for the empty node (documented convention)', () => {
+		expect(entropyImpurity([])).toBe(0);
+	});
+});
+
+describe('misclassificationImpurity', () => {
+	it('is zero for a pure node', () => {
+		expect(misclassificationImpurity([1, 1, 1])).toBeCloseTo(0, 12);
+		expect(misclassificationImpurity([0, 0])).toBeCloseTo(0, 12);
+	});
+
+	it('equals 1 - max(p, 1-p) on known mixtures (closed form)', () => {
+		// p = ¾ → 1 - ¾ = ¼.
+		expect(misclassificationImpurity([1, 1, 1, 0])).toBeCloseTo(1 / 4, 12);
+		// p = ½ → ½.
+		expect(misclassificationImpurity([0, 1])).toBeCloseTo(0.5, 12);
+	});
+
+	it('is always ≤ the Gini impurity on the same node (Gini overestimates EC by ≤ 2×)', () => {
+		for (const labels of [
+			[1, 1, 1, 0],
+			[0, 1],
+			[1, 0, 1, 1, 0, 0, 0, 1],
+			[1, 1, 0]
+		]) {
+			expect(misclassificationImpurity(labels)).toBeLessThanOrEqual(
+				giniImpurity(labels) + 1e-12
+			);
+		}
+	});
+
+	it('returns 0 for the empty node (documented convention)', () => {
+		expect(misclassificationImpurity([])).toBe(0);
+	});
+});
+
+describe('impurityOf', () => {
+	it('delegates to the matching criterion function for every value', () => {
+		const labels = [1, 1, 1, 0, 0, 1];
+		expect(impurityOf(labels, 'gini')).toBeCloseTo(giniImpurity(labels), 12);
+		expect(impurityOf(labels, 'entropy')).toBeCloseTo(entropyImpurity(labels), 12);
+		expect(impurityOf(labels, 'misclassification')).toBeCloseTo(
+			misclassificationImpurity(labels),
+			12
+		);
+	});
+
+	it('agrees with the three criteria on a pure node (all zero)', () => {
+		expect(impurityOf([0, 0, 0], 'gini')).toBeCloseTo(0, 12);
+		expect(impurityOf([0, 0, 0], 'entropy')).toBeCloseTo(0, 12);
+		expect(impurityOf([0, 0, 0], 'misclassification')).toBeCloseTo(0, 12);
 	});
 });
 

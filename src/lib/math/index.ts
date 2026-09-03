@@ -23,6 +23,9 @@ export * from './coordinate-descent.js';
 export * from './newton.js';
 export * from './adam.js';
 
+// ── Part II — Classification (CM1) ──
+export * from './metrics.js';
+
 // ── Part IV — Ensembles & Regularization ──
 export * from './synthetic-data.js';
 export * from './regression.js';
@@ -46,6 +49,9 @@ export * from './bayes-learning.js';
 
 // --- Part VII – Consistance
 export * from './consistency.js';
+export * from './knn.js';
+export * from './cross-validation.js';
+export * from './dimension.js';
 
 // --- Part VIII – Généralisation
 export * from './concentration.js';
