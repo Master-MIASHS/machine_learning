@@ -15,9 +15,77 @@
 	import { settings } from '$lib/stores/index.js';
 	import { createPageTracker } from '$lib/stores/progress.svelte';
 	import type { PageMeta } from '$lib/navigation.js';
+	import Quiz, { type QuizItem } from '$lib/components/demos/Quiz.svelte';
 
 	const meta = getPageByPath('/part8/lesson1');
 	const tracker = createPageTracker(meta as PageMeta);
+
+	const quiz: QuizItem[] = [
+		{
+			question: "Que dit l'inégalité de Markov, selon la leçon ?",
+			options: [
+				'Pour toute variable aléatoire Z de variance finie : P(|Z - E[Z]| ≥ ε) ≤ Var(Z)/ε².',
+				'Pour toute variable aléatoire Z : P(Z ≥ t) ≤ e^{-t} E[Z].',
+				'Pour des variables i.i.d. Z_i dans [0, 1] : P(|(1/n) Σ Z_i - E[Z_1]| ≥ ε) ≤ 2 e^{-2nε²}.',
+				'Pour une variable aléatoire Z ≥ 0 presque sûrement et t > 0 : P(Z ≥ t) ≤ E[Z]/t.'
+			],
+			answerIndex: 3,
+			explanation:
+				"Markov : pour Z ≥ 0 presque sûrement et t > 0, P(Z ≥ t) ≤ E[Z]/t ; la démonstration minore Z par t·1_{Z ≥ t} presque sûrement, puis prend l'espérance, qui préserve l'inégalité."
+		},
+		{
+			question:
+				"Comment l'inégalité de Bienaymé-Tchebychev se déduit-elle de celle de Markov, selon la démonstration de la leçon ?",
+			options: [
+				'En appliquant Markov à la variable positive (Z - E[Z])² avec le seuil ε², et en notant que les événements {(Z - E[Z])² ≥ ε²} et {|Z - E[Z]| ≥ ε} coïncident.',
+				'En appliquant Markov à Z elle-même avec le seuil ε, puis en élevant la borne obtenue au carré.',
+				"Par l'inégalité triangulaire des espérances, appliquée à |Z - E[Z]|.",
+				'En supposant que Z est gaussienne, cas où les deux inégalités deviennent équivalentes.'
+			],
+			answerIndex: 0,
+			explanation:
+				"Le cartouche « Tchebychev, c'est Markov appliqué intelligemment » résume : le choix est d'appliquer Markov au carré de l'écart à la moyenne plutôt qu'à la variable elle-même — ce qui transforme une borne portant sur Z en une borne portant sur la variance, bien plus informative pour la dispersion autour d'une moyenne."
+		},
+		{
+			question:
+				"Pour la moyenne empirique (1/n) Σ Z_i de n variables i.i.d. de moyenne μ et de variance σ², que donne l'inégalité de Tchebychev ?",
+			options: [
+				'P(|(1/n) Σ Z_i - μ| ≥ ε) ≤ σ²/ε², une borne indépendante de n.',
+				"P(|(1/n) Σ Z_i - μ| ≥ ε) ≤ σ²/(n ε²) → 0, soit un écart typique d'ordre 1/√n.",
+				'P(|(1/n) Σ Z_i - μ| ≥ ε) ≤ 2 e^{-nε}, une décroissance exponentielle en n.',
+				'La moyenne empirique converge presque sûrement vers μ mais pas en probabilité.'
+			],
+			answerIndex: 1,
+			explanation:
+				"Avec E[(1/n) Σ Z_i] = μ et Var((1/n) Σ Z_i) = σ²/n, Tchebychev donne la borne σ²/(n ε²) qui s'annule quand n → +∞ : c'est la loi des grands nombres sous forme quantitative — on sait que la convergence a lieu, et à quelle vitesse (1/√n sur l'écart typique, la probabilité de dépassement décroissant en 1/n)."
+		},
+		{
+			question:
+				"Pour un classifieur h fixé à l'avance, quelle borne explicite la leçon déduit-elle pour P(|R_n(h) - R(h)| ≥ ε) ?",
+			options: [
+				'1/(n ε²), puisque les indicateurs Z_i sont de Bernoulli.',
+				'R(h)/n, par Markov appliqué directement au risque empirique.',
+				'1/(4 n ε²), puisque Var(Z_i) = R(h)(1 - R(h)) est majoré par 1/4, atteint en R(h) = 1/2.',
+				'2 e^{-2nε²}, par Hoeffding, sans hypothèse supplémentaire.'
+			],
+			answerIndex: 2,
+			explanation:
+				'Les indicateurs Z_i = 1_{h(X_i) ≠ Y_i} sont de Bernoulli avec variance exacte R(h)(1 - R(h)) ; cette quantité est maximisée en 1/4 pour R(h) = 1/2, ce qui donne la borne explicite 1/(4n ε²) (section « Les limites du contrôle pour un classifieur fixé »).'
+		},
+		{
+			question:
+				'Pourquoi cette borne ne suffit-elle pas à contrôler le classifieur ĥ effectivement choisi par minimisation du risque empirique R_n sur une classe H ?',
+			options: [
+				'Parce que la borne exige que n soit supérieur à 1000 pour être non triviale.',
+				"Parce qu'elle n'est valable que pour h fixé à l'avance, indépendamment des données : elle ne contrôle pas le sup de l'écart sur toute la classe, et ĥ dépend de l'échantillon.",
+				"Parce que R_n(h) est toujours supérieur à R(h), si bien que l'écart est toujours positif.",
+				'Parce que la perte 0-1 est NP-difficile à minimiser.'
+			],
+			answerIndex: 1,
+			explanation:
+				"Le cartouche d'avertissement « Cette borne ne suffit pas encore » est explicite : en apprentissage, on ne choisit jamais un h arbitraire à l'avance — on sélectionne ĥ après avoir vu les données, en minimisant R_n sur H — et un contrôle valable pour chaque h pris isolément ne dit rien sur celui, potentiellement trompeur, que l'algorithme finit par choisir."
+		}
+	];
 	const { prev: prevMeta, next: nextMeta } = $derived(
 		getAdjacentPages(meta?.path ?? '', $settings.expertMode)
 	);
@@ -279,6 +347,14 @@
 				formula={'\\mathcal H'}
 			/> entière, d'abord finie, via l'union bound.
 		</Callout>
+
+		<InteractiveSection
+			number="1.3"
+			title="Quiz — Concentration : Markov, Tchebychev, Hoeffding"
+			onInteract={tracker.trackInteraction}
+		>
+			<Quiz items={quiz} />
+		</InteractiveSection>
 	</TheorySection>
 
 	<Bibliography>

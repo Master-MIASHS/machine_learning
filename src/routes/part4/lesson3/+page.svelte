@@ -23,9 +23,78 @@
 	import { getPageByPath, getAdjacentPages, type PageMeta } from '$lib/navigation.js';
 	import { settings } from '$lib/stores/index.js';
 	import { createPageTracker } from '$lib/stores/progress.svelte';
+	import Quiz, { type QuizItem } from '$lib/components/demos/Quiz.svelte';
 
 	const meta = getPageByPath('/part4/lesson3');
 	const tracker = createPageTracker(meta as PageMeta);
+
+	const quiz: QuizItem[] = [
+		{
+			question:
+				"Dans AdaBoost, que devient le poids α_t d'un classifieur faible lorsque son erreur pondérée ε_t tend vers 0 ?",
+			options: [
+				'α_t tend vers 0',
+				'α_t devient négatif',
+				'α_t est fixé à 1',
+				'α_t tend vers +∞ : le classifieur reçoit tout le poids'
+			],
+			answerIndex: 3,
+			explanation:
+				"α_t = (1/2) ln((1−ε_t)/ε_t) encode la fiabilité du classifieur : si ε_t → 0 alors α_t → +∞ (très fiable) ; si ε_t = 0,5 alors α_t = 0 (le modèle n'apporte rien, c'est le hasard) ; l'algorithme s'arrête dès que ε_t ≥ 1/2."
+		},
+		{
+			question:
+				"Dans la mise à jour des poids d'AdaBoost, un exemple correctement classé par h_t voit son poids multiplié par le facteur exp(−α_t) < 1. Que signifie cela ?",
+			options: [
+				'son poids diminue, si bien que les classifieurs faibles suivants se concentrent davantage sur les exemples mal classés',
+				"l'exemple est ignoré par la suite par tous les classifieurs",
+				'son étiquette est inversée',
+				"l'algorithme s'arrête"
+			],
+			answerIndex: 0,
+			explanation:
+				"Section « Mise à jour adaptative des poids » : si la prédiction est correcte, le facteur est exp(−α_t) < 1 (le poids diminue) ; si elle est incorrecte, il est exp(+α_t) > 1 (le poids augmente). C'est ce mécanisme de rétroaction qui rend l'algorithme adaptatif : à chaque itération, il se concentre sur les exemples « difficiles »."
+		},
+		{
+			question:
+				"Selon le théorème 7.1, pourquoi l'erreur d'entraînement d'AdaBoost décroît-elle exponentiellement tant que chaque classifieur faible vérifie ε_t < 1/2 ?",
+			options: [
+				'parce que la perte exponentielle est bornée par 1',
+				"parce que le nombre d'exemples n augmente",
+				"parce que Z_t < 1 et que l'erreur d'entraînement est bornée par le produit des facteurs Z_t",
+				'parce que la marge géométrique devient infinie'
+			],
+			answerIndex: 2,
+			explanation:
+				"Théorème 7.1 : l'erreur d'entraînement du classifieur final est bornée par Π Z_t ; aussi longtemps que ε_t < 1/2, on a Z_t < 1, et le produit décroît exponentiellement avec le nombre d'itérations. C'est ce qui justifie qu'il suffit d'apprenants faibles, légèrement meilleurs que le hasard (erreur < 50 %), pour construire un apprenant fort."
+		},
+		{
+			question:
+				'Quelle affirmation distingue correctement AdaBoost du gradient boosting, selon la section « Points de divergence » ?',
+			options: [
+				'AdaBoost entraîne ses modèles en parallèle, le GBM en séquentiel',
+				"AdaBoost repère les exemples tandis que le GBM ajuste des pseudo-résidus ; AdaBoost minimise une perte exponentielle fixe, le GBM accepte n'importe quelle perte différentiable",
+				'AdaBoost est plus robuste au bruit, car sa pénalité exponentielle est douce',
+				"Le GBM ne fonctionne qu'avec la perte quadratique"
+			],
+			answerIndex: 1,
+			explanation:
+				"AdaBoost change la distribution de données (poids w_i), le GBM change l'objectif à prédire (résidus). AdaBoost minimise une perte exponentielle fixe — très sévère face aux outliers, un point bruité voit son poids exploser — tandis que le GBM accepte n'importe quelle perte différentiable et est plus robuste avec un taux d'apprentissage η faible."
+		},
+		{
+			question:
+				'Quelle est la différence entre la marge fonctionnelle (définition 7.2) et la marge géométrique (définition 7.3) ?',
+			options: [
+				'aucune : les deux grandeurs sont identiques',
+				'la marge fonctionnelle est toujours négative',
+				"la marge géométrique n'est utilisée que pour la régression",
+				"la marge géométrique normalise la marge fonctionnelle par la somme Σ|α_t|, la rendant indépendante de l'échelle des poids, comme pour les SVM"
+			],
+			answerIndex: 3,
+			explanation:
+				"Définition 7.3 : la marge géométrique m̄_i = Y_i F(X_i) / Σ|α_t| divise la marge fonctionnelle par le poids total des classifieurs ; dans ce cadre, Σ|α_t| joue le rôle de la norme du vecteur de paramètres. Elle mesure la distance réelle d'un point à la frontière de décision, indépendamment de l'échelle des α_t — par analogie avec les SVM."
+		}
+	];
 	const { prev: prevMeta, next: nextMeta } = $derived(
 		getAdjacentPages(meta?.path ?? '', $settings.expertMode)
 	);
@@ -943,6 +1012,14 @@
 			</ol>
 			<p>Analysez les trade-offs performance/complexité/interprétabilité.</p>
 		</ExercisePanel>
+
+		<InteractiveSection
+			number="7.6"
+			title="Quiz — Boosting : AdaBoost et gradient boosting"
+			onInteract={tracker.trackInteraction}
+		>
+			<Quiz items={quiz} />
+		</InteractiveSection>
 	</TheorySection>
 
 	<!-- BIBLIOGRAPHY -->
@@ -951,22 +1028,22 @@
 			authors={['Freund, Y.', 'Schapire, R. E.']}
 			year={1997}
 			title="A Decision-Theoretic Generalization of On-Line Learning and an Application to Boosting"
-			journal="Journal of Computer and System Sciences, 55(1), 119–139."
+			journal="Journal of Computer and System Sciences, Vol. 55, No. 1, pp. 119-139."
 			link="https://doi.org/10.1006/jcss.1997.1504"
 		/>
 		<BibElement
 			authors={['Friedman, J. H.']}
 			year={2001}
 			title="Greedy Function Approximation: A Gradient Boosting Machine"
-			journal="Annals of Statistics, 29(5), 1189–1232."
-			link="https://doi.org/10.1214/aos/1013203451"
+			journal="The Annals of Statistics, Vol. 29, No. 5, pp. 1189-1232."
+			link="https://www.jstor.org/stable/2699986"
 		/>
 		<BibElement
 			authors={['Hastie, T.', 'Tibshirani, R.', 'Friedman, J.']}
 			year={2009}
 			title="The Elements of Statistical Learning: Data Mining, Inference, and Prediction"
-			journal="Springer, 2nd Edition, Chapter 10."
-			link="https://hastie.su.domains/Papers/ESLII.pdf"
+			journal="Springer Science & Business Media, Second Edition."
+			link="https://hastie.su.domains/ElemStatLearn/"
 		/>
 	</Bibliography>
 </PageTemplate>

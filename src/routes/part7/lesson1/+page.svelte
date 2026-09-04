@@ -15,9 +15,78 @@
 	import type { PageMeta } from '$lib/navigation.js';
 	import Bibliography from '$lib/components/narrative/bib/Bibliography.svelte';
 	import BibElement from '$lib/components/narrative/bib/BibElement.svelte';
+	import Quiz, { type QuizItem } from '$lib/components/demos/Quiz.svelte';
 
 	const meta = getPageByPath('/part7/lesson1');
 	const tracker = createPageTracker(meta as PageMeta);
+
+	const quiz: QuizItem[] = [
+		{
+			question:
+				'Selon la Définition 1.2, que signifie dire que (h_n) est fortement consistant (consistant presque sûrement) ?',
+			options: [
+				'Que P(R(h_n) - R* > ε) → 0 pour tout ε > 0.',
+				'Que E[(R(h_n) - R*)²] → 0.',
+				'Que P(lim R(h_n) = R*) = 1 : avec probabilité 1, la trajectoire des risques converge vers le risque de Bayes.',
+				'Que R(h_n) = R* pour tout n supérieur à un certain n_0.'
+			],
+			answerIndex: 2,
+			explanation:
+				"La Définition 1.2 distingue trois notions : en probabilité (les grands écarts deviennent rares), en moyenne quadratique (l'amplitude des écarts est contrôlée) et presque sûrement — une affirmation sur une seule trajectoire infinie qui, avec probabilité 1, finit par entrer dans tout voisinage de R* et n'en ressort plus jamais."
+		},
+		{
+			question:
+				'Quelle implication entre les trois notions de consistance est garantie par la leçon ?',
+			options: [
+				'La consistance en probabilité implique la consistance en moyenne quadratique.',
+				'La consistance presque sûre implique la consistance en probabilité.',
+				'La consistance en probabilité implique la consistance presque sûre.',
+				'La consistance en moyenne quadratique implique la consistance presque sûre.'
+			],
+			answerIndex: 1,
+			explanation:
+				"La leçon établit que la consistance presque sûre et la consistance en moyenne quadratique impliquent toutes deux la consistance en probabilité : celle-ci est la notion la plus faible des trois, et n'implique en général ni l'une ni l'autre ; presque sûre et moyenne quadratique ne se comparent pas directement entre elles."
+		},
+		{
+			question:
+				'Un algorithme peut très bien mémoriser ses données sans jamais généraliser. Pourquoi, dans le langage de la décomposition approximation / estimation ?',
+			options: [
+				"Parce que si le terme d'approximation — propriété structurelle de la classe H, indépendante des données — ne tend pas vers zéro, la somme des deux termes ne peut tendre vers zéro, quel que soit n.",
+				'Parce que R(h_n) est toujours une fonction croissante de n.',
+				"Parce que le risque de Bayes R* est toujours strictement positif, si bien que l'écart ne peut s'annuler.",
+				"Parce que le terme d'estimation est toujours minoré par 1/n, quelle que soit la classe H."
+			],
+			answerIndex: 0,
+			explanation:
+				"La décomposition R(h_n) - R* = terme d'estimation + terme d'approximation montre que la consistance exige que la somme des deux termes tende vers 0 : une classe trop pauvre a un terme d'approximation qui ne bougera jamais, quel que soit n, et aucun volume de données ne le supprimera."
+		},
+		{
+			question:
+				"Dans la décomposition R(h_n) - R* = terme d'estimation + terme d'approximation, que mesure le terme d'approximation ?",
+			options: [
+				"L'écart entre le meilleur classifieur théorique de la classe et celui effectivement appris sur l'échantillon ; il s'annule quand n → ∞.",
+				'La variance de R(h_n) autour de son espérance.',
+				"La même quantité que le terme d'estimation, calculée sur un ensemble de validation.",
+				'inf_{h∈H} R(h) - R* : il vaut 0 si h* ∈ H, ne dépend pas des données et mesure la capacité de la classe à approcher le classifieur de Bayes.'
+			],
+			answerIndex: 3,
+			explanation:
+				"La leçon définit le terme d'approximation (ou biais) comme inf_{h∈H} R(h) - R* : il vaut 0 si h* ∈ H et est une propriété purement structurelle du choix de H, indépendante des données ; c'est le terme d'estimation qui tend vers 0 quand n → ∞, sous des conditions de régularité sur H."
+		},
+		{
+			question:
+				"Une suite de classifieurs telle que P(R(h_n) - R* > ε) → 0 pour tout ε > 0, mais dont la trajectoire continue à s'écarter occasionnellement de R* à chaque rang, sans jamais se stabiliser : que peut-on en dire ?",
+			options: [
+				'Elle est consistante presque sûrement.',
+				"Elle est consistante en moyenne quadratique, puisque l'amplitude des écarts est bornée.",
+				"Elle est consistante en probabilité mais pas presque sûrement : la réciproque de l'implication « presque sûre ⇒ en probabilité » est fausse.",
+				'Cette situation ne peut pas se produire pour une suite de risques.'
+			],
+			answerIndex: 2,
+			explanation:
+				"La leçon le souligne dans le cartouche d'insight : la probabilité d'excès peut tendre vers 0 tout en continuant, avec probabilité non nulle à chaque rang, à s'écarter occasionnellement — sans jamais se stabiliser complètement, d'où la fausseté de la réciproque."
+		}
+	];
 	const { prev: prevMeta, next: nextMeta } = $derived(
 		getAdjacentPages(meta?.path ?? '', $settings.expertMode)
 	);
@@ -260,14 +329,22 @@
 				formula={String.raw`k(n)`}
 			/>.
 		</Callout>
+
+		<InteractiveSection
+			number="1.3"
+			title="Quiz — Consistance"
+			onInteract={tracker.trackInteraction}
+		>
+			<Quiz items={quiz} />
+		</InteractiveSection>
 	</TheorySection>
 	<Bibliography>
 		<BibElement
 			authors={['Devroye, L.', 'Györfi, L.', 'Lugosi, G.']}
 			year={1996}
 			title="A Probabilistic Theory of Pattern Recognition"
-			journal="Springer Series in Statistics."
-			link="https://link.springer.com/book/10.1007/978-1-4612-0221-5"
+			journal="Springer-Verlag."
+			link="https://doi.org/10.1007/978-1-4612-0711-5"
 		/>
 		<BibElement
 			authors={['Vapnik, V. N.']}

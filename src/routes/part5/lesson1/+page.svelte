@@ -16,9 +16,71 @@
 	import { getPageByPath, getAdjacentPages, type PageMeta } from '$lib/navigation.js';
 	import { settings } from '$lib/stores/index.js';
 	import { createPageTracker } from '$lib/stores/progress.svelte';
+	import Quiz, { type QuizItem } from '$lib/components/demos/Quiz.svelte';
 
 	const meta = getPageByPath('/part5/lesson1');
 	const tracker = createPageTracker(meta as PageMeta);
+
+	const quiz: QuizItem[] = [
+		{
+			question: "D'après la leçon, de quoi est constitué le prédicteur Top-K bayésien S*(x) ?",
+			options: [
+				'Les K classes ayant les plus grands scores estimés p_c(x) produits par le modèle.',
+				'Les K classes ayant les plus grandes probabilités conditionnelles vraies η_c(x).',
+				'Les K classes ayant les plus grandes probabilités a priori P(Y = c).',
+				'Les K classes ayant la plus grande incertitude a posteriori au point x.'
+			],
+			answerIndex: 1,
+			explanation:
+				"Le meilleur ensemble de taille K fixe maximise la masse de probabilité captée Σ_{c∈S} η_c(x) : c'est exactement les K classes les plus probables au sens de la vérité η(x) — et non de son estimation p(x) (section « Le risque Top-K bayésien »)."
+		},
+		{
+			question:
+				'Exemple numérique de la leçon : avec 5 classes et η(x) = (0.50, 0.25, 0.15, 0.07, 0.03), quel est le risque bayésien Top-3 en ce point x ?',
+			options: ['0.05', '0.15', '0.10', '0.25'],
+			answerIndex: 2,
+			explanation:
+				'Le risque ponctuel vaut 1 - (0.50 + 0.25 + 0.15) = 0.10. La masse restante 0.07 + 0.03 est irréductiblement hors du Top-3 en ce point, quel que soit le modèle utilisé.'
+		},
+		{
+			question: "D'après la leçon, que fait le Temperature Scaling avec T > 1 ?",
+			options: [
+				'Il aplatit la distribution des scores, rendant le modèle moins confiant, sans modifier le classement des classes.',
+				'Il resserre la distribution et rend le modèle plus confiant.',
+				"Il modifie le classement des classes et donc l'ensemble Top-K.",
+				"Il garantit la diminution de l'ECE pour tout modèle initial."
+			],
+			answerIndex: 0,
+			explanation:
+				"Avec T > 1 la distribution softmax s'aplatit (moins de confiance), avec T < 1 elle se resserre ; comme le rééchelonnage est une fonction strictement croissante des logits, le classement — et donc le prédicteur Top-K — est inchangé, seul le choix de K par seuillage est affecté (section « Calibration de la confiance »)."
+		},
+		{
+			question:
+				'La règle K* = plus petit K tel que Acc@K ≥ tau (seuil de précision cible) a quel statut, selon la leçon ?',
+			options: [
+				'Elle est décision-théoriquement optimale, car elle adapte K à chaque point x.',
+				'Elle garantit la couverture tau en chaque point x, individuellement.',
+				'Elle nécessite de connaître les probabilités vraies η(x) pour être calculée.',
+				"Elle fixe un K global pour tout l'espace, approximation grossière de la règle pointwise optimale K(x)."
+			],
+			answerIndex: 3,
+			explanation:
+				"Le cartouche d'avertissement « Un K global n'est pas optimal point par point » précise qu'un K unique est une approximation commode mais sous-optimale de la règle locale K(x) — plus petite valeur telle que la masse cumulative de η soit ≥ tau — idée que la prédiction conformelle formalisera sans connaître η."
+		},
+		{
+			question:
+				"Pourquoi choisir K par seuillage de la masse cumulative exige un modèle calibré, alors qu'un K fixé ne l'exige pas ?",
+			options: [
+				'Parce que le risque Top-K bayésien dépend des valeurs exactes de η.',
+				'Parce que le K fixé ne dépend que du classement des classes, tandis que le seuillage dépend des valeurs des scores.',
+				"Parce que l'ECE doit être strictement nulle pour utiliser un seuil quelconque.",
+				"Parce que le classement estimé p(x) n'est jamais celui de la vérité η(x)."
+			],
+			answerIndex: 1,
+			explanation:
+				'La leçon opère la séparation nette : S*(x) = Top_K(η(x)) ne dépend que du classement des η_c(x), pas de leurs valeurs ; mais dès que K est choisi par seuil de masse, les valeurs de p(x) comptent et doivent approcher η_c(x) elles-mêmes, pas seulement leur rang.'
+		}
+	];
 	const { prev: prevMeta, next: nextMeta } = $derived(
 		getAdjacentPages(meta?.path ?? '', $settings.expertMode)
 	);
@@ -450,6 +512,14 @@
 			<KatexInline formula={String.raw`\eta(x)`} /> — est la <em>prédiction conformelle</em>,
 			abordée dans la leçon suivante.
 		</p>
+
+		<InteractiveSection
+			number="9.4"
+			title="Quiz — Classification Top-K"
+			onInteract={tracker.trackInteraction}
+		>
+			<Quiz items={quiz} />
+		</InteractiveSection>
 	</TheorySection>
 
 	<Bibliography>
@@ -457,7 +527,7 @@
 			authors={['Guo, C.', 'Pleiss, G.', 'Sun, Y.', 'Weinberger, K. Q.']}
 			year={2017}
 			title="On Calibration of Modern Neural Networks"
-			journal="Proceedings of the 34th International Conference on Machine Learning (ICML)."
+			journal="International Conference on Machine Learning (ICML), PMLR, pp. 1321-1330."
 			link="https://arxiv.org/abs/1706.04599"
 		/>
 		<BibElement

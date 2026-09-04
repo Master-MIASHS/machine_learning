@@ -759,14 +759,14 @@
 			authors={['Shalev-Shwartz, S.', 'Ben-David, S.']}
 			year={2014}
 			title="Understanding Machine Learning: From Theory to Algorithms"
-			journal="Cambridge University Press. DOI : 10.1017/CBO9781107298019."
+			journal="Cambridge University Press."
 			link="https://www.cs.huji.ac.il/~shais/UnderstandingMachineLearning/"
 		/>
 		<BibElement
 			authors={['Hastie, T.', 'Tibshirani, R.', 'Friedman, J.']}
 			year={2009}
-			title="The Elements of Statistical Learning"
-			journal="Springer New York. DOI : 10.1007/978-0-387-84858-7."
+			title="The Elements of Statistical Learning: Data Mining, Inference, and Prediction"
+			journal="Springer Science & Business Media, Second Edition."
 			link="https://hastie.su.domains/ElemStatLearn/"
 		/>
 	</Bibliography>

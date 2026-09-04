@@ -17,9 +17,74 @@
 	import ExpertPanel from '$lib/components/narrative/ExpertPanel.svelte';
 	import Bibliography from '$lib/components/narrative/bib/Bibliography.svelte';
 	import BibElement from '$lib/components/narrative/bib/BibElement.svelte';
+	import Quiz, { type QuizItem } from '$lib/components/demos/Quiz.svelte';
 
 	const meta = getPageByPath('/part6/lesson1');
 	const tracker = createPageTracker(meta as PageMeta);
+
+	const quiz: QuizItem[] = [
+		{
+			question: "D'après le Théorème 1.1, quel est le classifieur de Bayes pour la perte 0-1 ?",
+			options: [
+				'h*(x) = 1 si η(x) > 1/2, h*(x) = 0 si η(x) < 1/2, et tout choix si η(x) = 1/2.',
+				'h*(x) = 1 si η(x) ≥ 1/2, et h*(x) = 0 sinon.',
+				'h*(x) = 1 si η(x) ≥ 1/3, et h*(x) = 0 sinon.',
+				'h*(x) = la classe de plus grande probabilité a priori, indépendamment de x.'
+			],
+			answerIndex: 1,
+			explanation:
+				"Théorème 1.1 : la décision optimale en x minimise le risque conditionnel — on choisit l'action 1 si et seulement si r(1, x) = 1 - η(x) ≤ r(0, x) = η(x), c'est-à-dire si et seulement si η(x) ≥ 1/2 : on prédit la classe majoritaire au point x."
+		},
+		{
+			question: "Quelle est l'expression du risque de Bayes R*, le risque minimal atteint par h* ?",
+			options: [
+				"L'espérance de η(X) sur X.",
+				"L'espérance de η(X)(1 - η(X)) sur X.",
+				"L'espérance de min(η(X), 1 - η(X)) sur X.",
+				'Le minimum du risque 0-1 restreint aux classifieurs linéaires.'
+			],
+			answerIndex: 2,
+			explanation:
+				"La leçon définit R* = R(h*) = E[min(η(X), 1 - η(X))] : c'est une borne irréductible due au chevauchement intrinsèque des classes — aucun algorithme, même avec une infinité de données, ne peut faire mieux."
+		},
+		{
+			question: 'Quand le risque de Bayes R* est-il égal à zéro ?',
+			options: [
+				"Quand les classes sont linéairement séparables dans l'espace d'entrée.",
+				"Quand η(x) = 1/2 presque sûrement, c'est-à-dire quand le problème est maximalement bruité.",
+				"Quand la taille d'échantillon n est suffisamment grande.",
+				'Quand η(x) ∈ {0, 1} presque sûrement : le problème est alors séparable.'
+			],
+			answerIndex: 3,
+			explanation:
+				"Le cartouche « Séparabilité » vérifie que R* = 0 si et seulement si η(x) ∈ {0, 1} presque sûrement, c'est-à-dire quand à chaque point une seule classe est possible avec certitude ; dès que η s'éloigne de {0, 1} vers 1/2, le problème devient bruité et le classifieur optimal se trompe avec une probabilité non nulle."
+		},
+		{
+			question:
+				"Dans la démonstration du Théorème 1.1, pourquoi l'optimalité pointwise de h* suffit-elle à son optimalité globale ?",
+			options: [
+				"Parce que R(h) - R(h*) = E[r(h(X), X) - r(h*(X), X)] est l'espérance d'un terme non négatif.",
+				"Parce que la perte 0-1 est une perte convexe sur l'espace des classifieurs.",
+				'Parce que η(x) est différentiable en tout point x.',
+				"Parce que l'échantillon est i.i.d., ce qui garantit la convergence uniforme."
+			],
+			answerIndex: 0,
+			explanation:
+				"La loi des espérances totales donne R(h) = E_X[r(h(X), X)]; comme h* minimise r(., x) pour presque tout x, l'écart entre R(h) et R(h*) est l'espérance d'un terme non négatif, donc non négatif — sans aucune hypothèse de régularité sur P (panneau expert « Pourquoi le conditionnement suffit »)."
+		},
+		{
+			question: 'En un point x où η(x) = 0.3, que fait le classifieur de Bayes ?',
+			options: [
+				'Il prédit 1, puisque 0.3 > 0.',
+				'Il prédit 0, et se trompe avec une probabilité conditionnelle 0.3.',
+				'Il prédit 0, et se trompe avec une probabilité conditionnelle 0.7.',
+				"Sa décision dépend de la taille de l'échantillon disponible."
+			],
+			answerIndex: 1,
+			explanation:
+				'Comme η(x) = 0.3 < 1/2, on a h*(x) = 0 ; le risque conditionnel de cette décision vaut r(0, x) = η(x) = 0.3, le plus petit des deux (prédire 1 donnerait r(1, x) = 1 - η(x) = 0.7).'
+		}
+	];
 	const { prev: prevMeta, next: nextMeta } = $derived(
 		getAdjacentPages(meta?.path ?? '', $settings.expertMode)
 	);
@@ -298,6 +363,14 @@
 			la <strong>moyenne</strong> conditionnelle, la perte absolue la
 			<strong>médiane</strong> conditionnelle.
 		</Callout>
+
+		<InteractiveSection
+			number="1.3"
+			title="Quiz — Classifieur de Bayes"
+			onInteract={tracker.trackInteraction}
+		>
+			<Quiz items={quiz} />
+		</InteractiveSection>
 	</TheorySection>
 
 	<ExpertPanel title="Pourquoi le conditionnement suffit">
@@ -336,7 +409,7 @@
 			authors={['Devroye, L.', 'Györfi, L.', 'Lugosi, G.']}
 			year={1996}
 			title="A Probabilistic Theory of Pattern Recognition"
-			journal="Springer Series in Statistics. New York: Springer."
+			journal="Springer-Verlag."
 			link="https://doi.org/10.1007/978-1-4612-0711-5"
 		/>
 		<BibElement

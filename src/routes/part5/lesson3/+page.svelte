@@ -16,9 +16,78 @@
 	import { settings } from '$lib/stores/index.js';
 	import { createPageTracker } from '$lib/stores/progress.svelte';
 	import TableOfContents from '$lib/components/narrative/TableOfContents.svelte';
+	import Quiz, { type QuizItem } from '$lib/components/demos/Quiz.svelte';
 
 	const meta = getPageByPath('/part5/lesson3');
 	const tracker = createPageTracker(meta as PageMeta);
+
+	const quiz: QuizItem[] = [
+		{
+			question:
+				"Pour les intervalles de largeur constante, quel est le score de non-conformité et quelle est la forme de l'ensemble de prédiction ?",
+			options: [
+				'Score |y - f(x)| / (sigma(x) + epsilon) : intervalle de largeur variable selon x.',
+				'Score |y - f(x)| : intervalle [f(x) - q, f(x) + q] de largeur identique en tout point de prédiction.',
+				'Score f(x) - y : intervalle asymétrique centré en zéro.',
+				'Score 1 - p_y(x) : ensemble de cardinalité variable.'
+			],
+			answerIndex: 1,
+			explanation:
+				"Le score est la valeur absolue du résidu ; le quantile q des résidus absolus sur l'ensemble de calibration donne un intervalle symétrique centré sur la prédiction du modèle, avec la même « marge d'erreur » pour tous les points, indépendamment de x (section « Intervalles de largeur constante »)."
+		},
+		{
+			question:
+				"Selon la leçon, quand l'intervalle constant est-il une bonne approximation de l'ensemble oracle (région de densité maximale) ?",
+			options: [
+				'Quand le modèle est suffisamment complexe, quelle que soit la structure des erreurs.',
+				'Quand la densité de Y sachant X est multimodale.',
+				"Quand l'ensemble de calibration est petit, car le quantile q est alors plus robuste.",
+				"Quand la largeur oracle ne dépend pas de x, c'est-à-dire sous homoscédasticité."
+			],
+			answerIndex: 3,
+			explanation:
+				"Le cartouche d'avertissement « Ce que l'oracle révèle sur l'intervalle constant » est explicite : dès que la largeur de la région de densité maximale varie avec x, l'intervalle constant est nécessairement trop large à certains endroits et trop étroit à d'autres — il n'approxime l'oracle que si la largeur ne dépend pas de x, précisément la condition d'homoscédasticité."
+		},
+		{
+			question:
+				'En régression quantile conforme (CQR), pourquoi corrige-t-on la paire de quantiles appris par une calibration conforme ?',
+			options: [
+				"Parce que rien ne garantit, en échantillon fini, que les quantiles appris couvrent exactement 1 - alpha ; l'étape conforme mesure cette erreur de calibration et la corrige par un décalage uniforme Q.",
+				"Parce que la régression quantile n'est pas un problème convexe et ne peut pas être optimisée.",
+				"Parce que l'étape conforme augmente la largeur moyenne afin de rendre la méthode robuste.",
+				'Parce que les quantiles appris sont biaisés vers la moyenne conditionnelle.'
+			],
+			answerIndex: 0,
+			explanation:
+				"Le cartouche « Pourquoi corriger une régression quantile déjà entraînée ? » explique que les quantiles estimés sont eux-mêmes des approximations : l'étape de calibration mesure l'écart sur des données indépendantes et le corrige par un décalage uniforme Q, combinant la forme adaptative de la régression quantile et la garantie exacte de la prédiction conforme, quelle que soit la qualité des quantiles."
+		},
+		{
+			question:
+				'En CQR, le score s(x, y) = max(q_lo(x) - y, y - q_hi(x)) est de quel signe, et que mesure-t-il ?',
+			options: [
+				"Toujours positif, il mesure la distance au bord le plus proche de l'intervalle.",
+				"Positif quand y est hors de l'intervalle estimé (dépassement), négatif quand y est à l'intérieur (marge restante).",
+				"Négatif quand y est hors de l'intervalle estimé, positif quand y est à l'intérieur.",
+				"Il mesure l'incertitude locale sigma(x) du modèle."
+			],
+			answerIndex: 1,
+			explanation:
+				"La leçon définit un score signé de dépassement : positif et mesurant le dépassement si y tombe hors de l'intervalle [q_lo(x), q_hi(x)], négatif et mesurant la marge restante s'il tombe à l'intérieur (section « Régression quantile conforme (CQR) »)."
+		},
+		{
+			question:
+				"Une méthode respecte la couverture empirique 1 - alpha sur l'ensemble de test, mais la couverture échoue systématiquement dans une région de l'espace d'entrée. Quel indicateur d'évaluation détecte ce problème ?",
+			options: [
+				'La largeur moyenne des intervalles.',
+				'Le taux de couverture empirique.',
+				"L'efficacité conditionnelle, qui vérifie l'homogénéité de la couverture à travers les régions de l'espace d'entrée.",
+				"Le quantile conforme Q calculé sur l'ensemble de calibration."
+			],
+			answerIndex: 2,
+			explanation:
+				"La section « Évaluation des intervalles de prédiction » définit l'efficacité conditionnelle comme la vérification que la couverture ne dépend pas excessivement des valeurs de X : c'est l'indicateur subtil qui détecte les échecs locaux que la couverture marginale — celle garantie par le théorème — ne peut pas voir."
+		}
+	];
 	const { prev: prevMeta, next: nextMeta } = $derived(
 		getAdjacentPages(meta?.path ?? '', $settings.expertMode)
 	);
@@ -549,6 +618,14 @@
 			> sous l'hypothèse d'échangeabilité, indépendamment du modèle sous-jacent — que ce modèle soit un
 			simple régresseur ponctuel ou une paire de régressions quantiles comme en CQR.
 		</p>
+
+		<InteractiveSection
+			number="11.5"
+			title="Quiz — Intervalles de prédiction et régression conformelle"
+			onInteract={tracker.trackInteraction}
+		>
+			<Quiz items={quiz} />
+		</InteractiveSection>
 	</TheorySection>
 
 	<Bibliography>
@@ -560,10 +637,10 @@
 			link="https://doi.org/10.1007/b106715"
 		/>
 		<BibElement
-			authors={['Romano, Y.', 'Patterson, E.', 'Candès, E.']}
+			authors={['Romano, Y.', 'Patterson, E.', 'Candès, E. J.']}
 			year={2019}
 			title="Conformalized Quantile Regression"
-			journal="Advances in Neural Information Processing Systems (NeurIPS), pp. 3538–3548."
+			journal="Advances in Neural Information Processing Systems (NeurIPS), Vol. 32."
 			link="https://arxiv.org/abs/1905.03222"
 		/>
 		<BibElement

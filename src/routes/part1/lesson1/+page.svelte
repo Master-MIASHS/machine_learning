@@ -21,9 +21,77 @@
 	import type { PageMeta } from '$lib/navigation.js';
 	import Bibliography from '$lib/components/narrative/bib/Bibliography.svelte';
 	import BibElement from '$lib/components/narrative/bib/BibElement.svelte';
+	import Quiz, { type QuizItem } from '$lib/components/demos/Quiz.svelte';
 
 	const meta = getPageByPath('/part1/lesson1');
 	const tracker = createPageTracker(meta as PageMeta);
+
+	const quiz: QuizItem[] = [
+		{
+			question:
+				"D'après le théorème 1.3 (CNO), si f est différentiable sur un ouvert Ω et que x* est un minimum local, que peut-on conclure ?",
+			options: [
+				'∇f(x*) = 0',
+				'le Hessien en x* est semi-défini positif',
+				'x* est nécessairement un minimum global',
+				'x* est un minimum local strict'
+			],
+			answerIndex: 0,
+			explanation:
+				"La condition nécessaire du premier ordre ne garantit que l'annulation du gradient : un point stationnaire peut encore être un maximum ou un point-selle (callout « Attention ! »). Le signe du Hessien relève de la condition du second ordre (théorème 1.4), et le minimum local ne devient global qu'en contexte convexe (théorème 1.7)."
+		},
+		{
+			question:
+				"En un point x*, le gradient s'annule et le Hessien est semi-défini positif. Que peut-on conclure à partir de la leçon ?",
+			options: [
+				'x* est forcément un minimum local',
+				'la condition nécessaire du second ordre est satisfaite, mais x* peut encore être un point-selle',
+				'x* est un minimum local strict, par la CSSO',
+				'x* est un minimum global'
+			],
+			answerIndex: 1,
+			explanation:
+				"Exemple 1.10 (f(x,y) = x² − x⁴ − y⁴) : à l'origine le Hessien a pour valeurs propres 2 et 0, il est donc semi-défini positif et la CNSO est vérifiée, pourtant l'origine est un point-selle. La CSSO (théorème 1.5) exige un Hessien défini positif pour conclure."
+		},
+		{
+			question: 'Soit f convexe et différentiable sur un ouvert convexe Ω. Que dit le théorème 1.7 ?',
+			options: [
+				'∇f(x*) = 0 implique que x* est un minimum local',
+				'tout minimum de f est unique',
+				'f est nécessairement coercive',
+				'∇f(x*) = 0 si et seulement si x* est un minimum global de f'
+			],
+			answerIndex: 3,
+			explanation:
+				"Théorème 1.7 : en contexte convexe, la condition du premier ordre devient à la fois nécessaire et suffisante et certifie un minimum global — le résultat fondamental de l'optimisation convexe. L'unicité suppose la convexité stricte, qui n'est pas une hypothèse du théorème (callout « Convexité stricte »)."
+		},
+		{
+			question:
+				'La fonction f(x) = x⁴ − x² possède deux minima globaux en ±1/√2 et un maximum local en 0. Que montre cet exemple (1.8) ?',
+			options: [
+				"la convexité est nécessaire pour qu'une fonction ait un minimum global",
+				"la CNO n'est pas vérifiée aux minima globaux",
+				'une fonction peut posséder des minima globaux sans être convexe',
+				'le Hessien est toujours défini positif aux minima globaux'
+			],
+			answerIndex: 2,
+			explanation:
+				"Exemple 1.8 : la courbure en 0 est strictement négative (f''(0) = −2), donc f n'est pas convexe, mais les minima globaux existent — on les trouve en énumérant les points critiques. La convexité est donc une condition suffisante, mais non nécessaire, pour l'existence d'un minimum."
+		},
+		{
+			question:
+				"Selon le théorème 1.12 (Weierstrass généralisé), quelle combinaison d'hypothèses garantit qu'une fonction f définie sur Ω possède au moins un minimum global ?",
+			options: [
+				'f continue, Ω fermé et non vide, et f coercive ou Ω compact',
+				'f continue et coercive, Ω quel que soit le sous-ensemble',
+				'f différentiable avec ∇f = 0 en un point',
+				'f convexe, Ω ouvert'
+			],
+			answerIndex: 0,
+			explanation:
+				'Le théorème 1.12 exige la continuité, un domaine fermé non vide et la coercivité (ou la compacité) : les deux hypothèses sont indépendantes, comme le montre le callout (f(x) = e^(−x) sur [0, +∞) : fermé mais non coercif, sans minimum ; f(x) = x² sur (0,1) : domaine non fermé, minimum exclu).'
+		}
+	];
 	const { prev: prevMeta, next: nextMeta } = $derived(
 		getAdjacentPages(meta?.path ?? '', $settings.expertMode)
 	);
@@ -879,6 +947,14 @@
 			l'ordre est souvent inversé : on vérifie d'abord (3) et (4) sur la fonction de perte
 			<em>avant</em> de lancer un algorithme, précisément pour savoir à quoi s'attendre de sa convergence.
 		</Callout>
+
+		<InteractiveSection
+			number="1.6"
+			title="Quiz — Conditions d'existence d'un minimum"
+			onInteract={tracker.trackInteraction}
+		>
+			<Quiz items={quiz} />
+		</InteractiveSection>
 	</TheorySection>
 	<Bibliography>
 		<BibElement

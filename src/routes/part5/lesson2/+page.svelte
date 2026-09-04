@@ -16,9 +16,78 @@
 	import { getPageByPath, getAdjacentPages, type PageMeta } from '$lib/navigation.js';
 	import { settings } from '$lib/stores/index.js';
 	import { createPageTracker } from '$lib/stores/progress.svelte';
+	import Quiz, { type QuizItem } from '$lib/components/demos/Quiz.svelte';
 
 	const meta = getPageByPath('/part5/lesson2');
 	const tracker = createPageTracker(meta as PageMeta);
+
+	const quiz: QuizItem[] = [
+		{
+			question:
+				'Sur quoi repose, selon la leçon, la garantie de couverture marginale P(Y ∈ C(X)) ≥ 1 - alpha de la prédiction conformelle scindée ?',
+			options: [
+				'Sur le fait que le modèle p(x) soit bien calibré en valeur.',
+				'Sur le fait que les scores de non-conformité soient presque sûrement distincts.',
+				"Sur le fait que l'ensemble de calibration soit strictement plus grand que l'ensemble d'entraînement.",
+				"Sur l'échangeabilité des données (X_1, Y_1), ..., (X_n, Y_n), (X, Y), hypothèse plus faible que i.i.d."
+			],
+			answerIndex: 3,
+			explanation:
+				"La garantie est exacte en échantillon fini et model-free : elle ne repose sur aucune hypothèse sur la forme du classificateur, seulement sur l'échangeabilité des données — les données i.i.d. étant toujours échangeables (section « Garantie de couverture »)."
+		},
+		{
+			question:
+				'La garantie de couverture est marginale, et non conditionnelle. Quelle est la conséquence directe soulignée par la leçon ?',
+			options: [
+				"L'ensemble de prédiction sous- couvre en chaque point x de l'espace d'entrée.",
+				'La garantie est automatiquement violée dès que le modèle est mal calibré.',
+				"Un ensemble peut respecter la couverture moyenne 1 - alpha tout en sous-couvrant fortement dans certaines régions de l'espace.",
+				'La couverture est exactement égale à 1 - alpha en chaque point x.'
+			],
+			answerIndex: 2,
+			explanation:
+				"La probabilité est prise sur le tirage conjoint de (X, Y) : c'est une garantie moyenne sur toute la population de x. La garantie conditionnelle P(Y ∈ C(X) | X = x) ≥ 1 - alpha n'est pas fournie et ne peut en général pas être obtenue de façon distribution-free (la leçon cite Barber et al., 2021, dans la Définition 10.1)."
+		},
+		{
+			question:
+				"Selon la section « Le prédicteur oracle et le dual du Top-K », quelle est la dualité entre le Top-K et l'ensemble conforme oracle ?",
+			options: [
+				'Le Top-K fixe la couverture et maximise la taille ; le conforme fixe la taille et minimise la masse capturée.',
+				"Le Top-K fixe la taille K et maximise la masse capturée ; l'ensemble conforme oracle fixe la masse cible 1 - alpha et minimise la taille.",
+				'Les deux problèmes fixent la taille K et ne diffèrent que par le score utilisé.',
+				"Le Top-K fixe la masse cible et minimise la taille ; l'ensemble conforme oracle fixe la taille et maximise la masse."
+			],
+			answerIndex: 1,
+			explanation:
+				'Les deux problèmes sont duaux : on fixe soit la taille K (Top-K), soit la couverture 1 - alpha (conforme oracle) ; dans les deux cas la solution est un ensemble de niveau de η(x) — seule la contrainte active change.'
+		},
+		{
+			question:
+				'Pourquoi la garantie de couverture tient-elle quel que soit le modèle p(x), même médiocre ou aléatoire ?',
+			options: [
+				'Parce que le quantile empirique converge toujours vers le quantile vrai de η.',
+				'Parce que le score de rang est invariant à la miscalibration près.',
+				'Parce que la garantie est conditionnelle à X, qui ne dépend pas du modèle.',
+				"Parce que la qualité de p(x) n'affecte que la taille des ensembles (l'efficacité), pas la validité de la garantie."
+			],
+			answerIndex: 3,
+			explanation:
+				"Le cartouche « Validité contre efficacité » est explicite : la garantie ne dépend que de l'échangeabilité des scores, pas de la qualité de p(x) ; un modèle mal calibré reste valide sous conformalisation mais produit des ensembles inutilement larges."
+		},
+		{
+			question:
+				'Que se passe-t-il si on choisit alpha = 0.01 au lieu de alpha = 0.1, selon la section « Le seuil quantile » ?',
+			options: [
+				"La garantie est plus forte (99 %) mais au prix d'ensembles souvent triviaux.",
+				'La garantie est la même mais les ensembles sont toujours plus petits.',
+				'La garantie est de 99 % et les ensembles sont garantis réduits à une seule classe.',
+				"La garantie n'est plus valable qu'asymptotiquement, quand n est grand."
+			],
+			answerIndex: 0,
+			explanation:
+				"Le niveau alpha contrôle le compromis : alpha = 0.1 garantit une couverture d'au moins 90 % avec des ensembles plus larges ; un alpha plus petit (0.01) fournit une garantie plus forte (99 %) mais au prix d'ensembles souvent triviaux."
+		}
+	];
 	const { prev: prevMeta, next: nextMeta } = $derived(
 		getAdjacentPages(meta?.path ?? '', $settings.expertMode)
 	);
@@ -483,6 +552,14 @@
 			que l'échangeabilité tienne. La méthode s'étend naturellement à la régression, où elle produit des
 			<strong>intervalles de prédiction</strong> — comme nous le verrons dans la prochaine leçon.
 		</p>
+
+		<InteractiveSection
+			number="10.5"
+			title="Quiz — Prédiction conformelle"
+			onInteract={tracker.trackInteraction}
+		>
+			<Quiz items={quiz} />
+		</InteractiveSection>
 	</TheorySection>
 
 	<Bibliography>

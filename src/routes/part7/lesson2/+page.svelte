@@ -16,9 +16,77 @@
 	import type { PageMeta } from '$lib/navigation.js';
 	import Bibliography from '$lib/components/narrative/bib/Bibliography.svelte';
 	import BibElement from '$lib/components/narrative/bib/BibElement.svelte';
+	import Quiz, { type QuizItem } from '$lib/components/demos/Quiz.svelte';
 
 	const meta = getPageByPath('/part7/lesson2');
 	const tracker = createPageTracker(meta as PageMeta);
+
+	const quiz: QuizItem[] = [
+		{
+			question: "Selon la Définition 1.3, qu'est-ce qu'un algorithme universellement consistant ?",
+			options: [
+				"Un algorithme consistant sur une distribution P fixée, choisie à l'avance.",
+				'Un algorithme qui converge vers le risque de Bayes en moyenne quadratique seulement.',
+				"Un algorithme pour lequel (h_n) est consistant pour toute distribution P sur l'espace d'entrée-sortie, sans hypothèse sur η.",
+				'Un algorithme qui exige une hypothèse de régularité sur η pour converger.'
+			],
+			answerIndex: 2,
+			explanation:
+				'Définition 1.3 : la consistance universelle doit tenir pour toute distribution P_{X,Y}, quelle que soit la structure du problème — séparable, très bruité, en haute dimension, avec des frontières de décision arbitrairement complexes — et sans aucune hypothèse de régularité sur η.'
+		},
+		{
+			question:
+				'Selon le théorème de Stone (Théorème 2.1), quelles conditions la suite k(n) doit-elle vérifier pour que le classifieur k-NN soit universellement consistant ?',
+			options: [
+				'k(n) → +∞ et k(n)/n → 0.',
+				"k(n) fixé, plus grand que la dimension d de l'espace.",
+				"k(n)/n → 1, afin que le voisinage recouvre l'espace.",
+				'k(n) → 0 et k(n)/n → +∞.'
+			],
+			answerIndex: 0,
+			explanation:
+				'Théorème 2.1 (Stone, 1977) : deux conditions purement quantitatives sur une seule suite k(n), sans aucune hypothèse sur la distribution elle-même, suffisent à garantir la convergence vers le risque de Bayes en classification binaire sur ℝ^d.'
+		},
+		{
+			question:
+				'Dans la lecture biais-variance des deux conditions, quel rôle joue la condition k(n)/n → 0 ?',
+			options: [
+				'Elle applique la loi des grands nombres aux étiquettes du voisinage.',
+				"Elle réduit la variance de l'estimation locale de η(x).",
+				"Elle garantit que l'échantillon reste i.i.d. quand n grandit.",
+				"Elle garantit que les k(n) voisins utilisés restent de plus en plus proches de x, si bien que la moyenne locale ne dilue pas η sur un voisinage trop large : c'est le contrôle du biais."
+			],
+			answerIndex: 3,
+			explanation:
+				"Le cartouche « Lecture biais-variance des deux conditions » attribue à k(n) → +∞ le contrôle de la variance (moyenner sur davantage de voisins lisse le bruit d'échantillonnage) et à k(n)/n → 0 le contrôle du biais : si k croît trop vite relativement à n, les voisins sont trop éloignés et la moyenne locale ne capture plus la valeur de η en x."
+		},
+		{
+			question:
+				'La borne de Cover-Hart (donnée en complément, au-delà du cours) fournit, pour le 1-NN, limsup E[R(h_n)] ≤ 2R*(1 - R*/2). Pour R* = 0.1, que donne-t-elle ?',
+			options: [
+				'Un risque asymptotique égal à 0.1, puisque k = 1 est le cas le plus simple.',
+				'Une borne supérieure de 2 × 0.1 × 0.95 = 0.19, strictement supérieure à R* : un k fixé peut laisser un écart résiduel, quel que soit n.',
+				'Une borne supérieure de 0.05, la moitié du risque de Bayes.',
+				"Rien : la borne ne s'applique que lorsque k(n) → ∞."
+			],
+			answerIndex: 1,
+			explanation:
+				"L'Exercice 2.1 de la leçon calcule la borne : pour R* = 0.1, on obtient 0.19, « près du double du risque de Bayes » ; la borne est strictement au-dessus de R* pour tout R* ∈ (0, 1), ce qui montre que la condition k(n) → +∞ du Théorème 2.1 est nécessaire et pas seulement une commodité technique de la démonstration."
+		},
+		{
+			question:
+				'Selon la leçon, pourquoi un algorithme qui suppose une frontière de décision linéaire (modèle paramétrique) ne peut-il jamais être universellement consistant ?',
+			options: [
+				"Parce que la taille de l'échantillon est toujours finie en pratique.",
+				'Parce que la perte 0-1 est non convexe et NP-difficile.',
+				"Parce que dès que la vraie frontière est non linéaire, le terme d'approximation de la classe reste strictement positif, quel que soit n : aucune quantité de données ne le supprime.",
+				'Parce que le classifieur de Bayes est toujours linéaire pour des données i.i.d.'
+			],
+			answerIndex: 2,
+			explanation:
+				"Le cartouche « Pourquoi ce n'est pas évident » le souligne : un modèle qui impose une classe restrictive a un terme d'approximation non nul sur les problèmes hors de sa classe, alors que la consistance universelle exige la convergence pour toute distribution — d'où le besoin d'une classe dont la richesse s'adapte elle-même à n, comme le k-NN avec k = k(n)."
+		}
+	];
 	const { prev: prevMeta, next: nextMeta } = $derived(
 		getAdjacentPages(meta?.path ?? '', $settings.expertMode)
 	);
@@ -290,6 +358,14 @@
 			un algorithme converge vers <KatexInline formula={String.raw`R^*`} />, mais
 			<em>à quelle vitesse</em>, via les bornes de généralisation.
 		</Callout>
+
+		<InteractiveSection
+			number="2.2"
+			title="Quiz — Consistance universelle et k-NN"
+			onInteract={tracker.trackInteraction}
+		>
+			<Quiz items={quiz} />
+		</InteractiveSection>
 	</TheorySection>
 	<Bibliography>
 		<BibElement
@@ -310,8 +386,8 @@
 			authors={['Devroye, L.', 'Györfi, L.', 'Lugosi, G.']}
 			year={1996}
 			title="A Probabilistic Theory of Pattern Recognition"
-			journal="Springer."
-			link="https://link.springer.com/book/10.1007/978-1-4612-0221-5"
+			journal="Springer-Verlag."
+			link="https://doi.org/10.1007/978-1-4612-0711-5"
 		/>
 	</Bibliography>
 </PageTemplate>

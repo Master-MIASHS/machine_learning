@@ -14,9 +14,77 @@
 	import type { PageMeta } from '$lib/navigation.js';
 	import Bibliography from '$lib/components/narrative/bib/Bibliography.svelte';
 	import BibElement from '$lib/components/narrative/bib/BibElement.svelte';
+	import Quiz, { type QuizItem } from '$lib/components/demos/Quiz.svelte';
 
 	const meta = getPageByPath('/part6/lesson2');
 	const tracker = createPageTracker(meta as PageMeta);
+
+	const quiz: QuizItem[] = [
+		{
+			question:
+				'Selon le Théorème 1.2, pour la perte quadratique L2, quel est le prédicteur optimal en x ?',
+			options: [
+				'La médiane conditionnelle de Y sachant X = x.',
+				'Le mode conditionnel de Y sachant X = x.',
+				"La moyenne empirique de l'échantillon d'entraînement.",
+				'La moyenne conditionnelle m(x) = E[Y | X = x].'
+			],
+			answerIndex: 3,
+			explanation:
+				"Théorème 1.2 : la perte quadratique sélectionne la moyenne conditionnelle. La décomposition E[(Y - c)² | X = x] = E[(Y - m(x))² | X = x] + (m(x) - c)² montre que seul le second terme est pilotable, et qu'il est minimal (nul) uniquement pour c = m(x)."
+		},
+		{
+			question:
+				"Dans la preuve du cas L2, pourquoi le terme croisé s'annule-t-il quand on développe (Y - c)² avec Y - c = (Y - m(x)) + (m(x) - c) ?",
+			options: [
+				'Parce que E[Y - m(x) | X = x] = E[Y | X = x] - m(x) = 0, par la définition même de m(x).',
+				'Parce que Y est gaussienne conditionnellement à X.',
+				"Parce que l'échantillon est i.i.d.",
+				'Parce que la perte quadratique est strictement convexe.'
+			],
+			answerIndex: 0,
+			explanation:
+				"m(x) est défini comme E[Y | X = x], donc l'espérance conditionnelle de Y - m(x) s'annule : aucune hypothèse sur la loi de Y n'est nécessaire, en particulier pas de gaussien (preuve du Théorème 1.2, section « Perte quadratique : la moyenne conditionnelle »)."
+		},
+		{
+			question:
+				"Dans la preuve du cas L1, la fonction g(c) = E[|Y - c| | X = x] admet la dérivée g'(c) = 2F(c) - 1. Que cela implique-t-il ?",
+			options: [
+				"L'optimum est atteint là où F(c) = 1, c'est-à-dire au maximum du support.",
+				"L'optimum est atteint là où la densité f(c) est maximale, c'est-à-dire au mode conditionnel.",
+				"L'optimum est atteint là où F(c) = 1/2, c'est-à-dire à la médiane conditionnelle, et g est convexe car g''(c) = 2f(c) ≥ 0.",
+				"Il n'existe pas d'optimum sauf si Y | X = x est continue."
+			],
+			answerIndex: 2,
+			explanation:
+				"La condition g'(c) = 0 donne F(c) = 1/2, définition de la médiane conditionnelle ; la convexité g''(c) = 2f(c) ≥ 0 garantit qu'il s'agit bien d'un minimum global (preuve du Théorème 1.2, section « Perte absolue : la médiane conditionnelle »)."
+		},
+		{
+			question: 'Selon la leçon, quand la médiane conditionnelle peut-elle ne pas être unique ?',
+			options: [
+				'Jamais : la médiane est toujours unique pour toute distribution.',
+				'Quand Y | X = x suit une loi discrète : tout un intervalle de valeurs peut vérifier F(c) = 1/2, et toutes atteignent le même risque L1 minimal.',
+				"Uniquement quand la taille d'échantillon est impaire.",
+				'Quand Y | X = x est gaussienne, en raison de la symétrie de la cloche.'
+			],
+			answerIndex: 1,
+			explanation:
+				"Le cartouche d'avertissement « La médiane n'est pas toujours unique » le signale pour les lois discrètes : la non-uniqueté ne remet pas en cause l'optimalité, toutes ces valeurs atteignant le même risque minimal (la leçon note au passage que la médiane empirique est souvent non unique quand la taille de l'échantillon est paire)."
+		},
+		{
+			question:
+				'Sur une distribution conditionnelle à longue queue, que dit la leçon des deux prédicteurs optimaux ?',
+			options: [
+				'La moyenne et la médiane coïncident, en vertu de la loi des grands nombres.',
+				"La moyenne est sensible aux valeurs extrêmes, tandis que la médiane y est robuste : c'est le prix et le bénéfice du passage de L2 à L1.",
+				'Le prédicteur à perte quadratique est robuste à une observation très éloignée.',
+				'La médiane minimise le risque quadratique, et la moyenne minimise le risque absolu.'
+			],
+			answerIndex: 1,
+			explanation:
+				"La section « Comparer les deux prédicteurs » souligne qu'une seule observation très éloignée peut déplacer la moyenne arbitrairement loin, alors que la médiane y est robuste — différence qui n'est pas anecdotique, mais qui a des conséquences directes sur la robustesse du prédicteur."
+		}
+	];
 	const { prev: prevMeta, next: nextMeta } = $derived(
 		getAdjacentPages(meta?.path ?? '', $settings.expertMode)
 	);
@@ -264,13 +332,21 @@
 			(robuste). Cette logique — décomposer le risque par conditionnement, puis minimiser point par point
 			— est le fil conducteur qui reliera aussi les leçons sur la consistance et la généralisation.
 		</Callout>
+
+		<InteractiveSection
+			number="1.2"
+			title="Quiz — Régression : moyenne et médiane conditionnelles"
+			onInteract={tracker.trackInteraction}
+		>
+			<Quiz items={quiz} />
+		</InteractiveSection>
 	</TheorySection>
 	<Bibliography>
 		<BibElement
 			authors={['Hastie, T.', 'Tibshirani, R.', 'Friedman, J.']}
 			year={2009}
 			title="The Elements of Statistical Learning: Data Mining, Inference, and Prediction"
-			journal="Springer Science & Business Media."
+			journal="Springer Science & Business Media, Second Edition."
 			link="https://hastie.su.domains/ElemStatLearn/"
 		/>
 		<BibElement

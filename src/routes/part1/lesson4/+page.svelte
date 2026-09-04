@@ -28,9 +28,78 @@
 	import { settings } from '$lib/stores/index.js';
 	import { createPageTracker } from '$lib/stores/progress.svelte';
 	import type { PageMeta } from '$lib/navigation.js';
+	import Quiz, { type QuizItem } from '$lib/components/demos/Quiz.svelte';
 
 	const meta = getPageByPath('/part1/lesson4');
 	const tracker = createPageTracker(meta as PageMeta);
+
+	const quiz: QuizItem[] = [
+		{
+			question:
+				"Pourquoi le gradient stochastique suit-il globalement la bonne direction alors qu'il n'utilise que le gradient d'un seul exemple (théorème 4.2) ?",
+			options: [
+				"parce que E[∇f_{i_k}(x)] = ∇f(x) : l'estimateur est sans biais",
+				"parce qu'un seul exemple donne toujours le gradient exact",
+				'parce que le pas est choisi par recherche linéaire',
+				"parce que la variance de l'estimateur est nulle"
+			],
+			answerIndex: 0,
+			explanation:
+				"Théorème 4.2 : si l'indice i_k est tiré uniformément dans {1, …, n}, l'espérance du gradient stochastique coïncide avec le gradient exact — chaque pas est bruité, mais le bruit s'annule en moyenne sans biaiser la trajectoire. Le coût d'une itération passe de O(n) (GD) à O(1) (SGD)."
+		},
+		{
+			question:
+				'Dans le théorème 4.4 (conditions de Robbins–Monro), quel est le rôle de la seconde condition, Σ α_k² < +∞ ?',
+			options: [
+				"garantir que la somme des pas est assez grande pour parcourir n'importe quelle distance finie",
+				'garantir que le bruit accumulé au fil des itérations reste borné',
+				'garantir que le pas tend vers une limite strictement positive',
+				'garantir la convexité de la fonction objectif'
+			],
+			answerIndex: 1,
+			explanation:
+				"La leçon dissocie les deux rôles : Σ α_k = +∞ permet à l'algorithme de parcourir n'importe quelle distance finie depuis son point de départ ; Σ α_k² < +∞ garantit que le bruit stochastique accumulé reste borné et s'amortit. Le pas constant ne satisfait pas la seconde condition (la somme des carrés diverge) et converge seulement vers un voisinage de l'optimum (exemple 4.5)."
+		},
+		{
+			question:
+				'La descente coordonnée cyclique converge en O(d/k) (théorème 4.7). Pourquoi le taux dépend-il de la dimension d ?',
+			options: [
+				'parce que le gradient complet est calculé d fois à chaque itération',
+				"parce que la pénalité L1 n'est pas différentiable en 0",
+				'parce que la fonction doit être séparable pour appliquer la CD',
+				"parce qu'une seule coordonnée est mise à jour exactement à la fois : il faut environ d itérations pour que chaque coordonnée soit mise à jour un nombre comparable de fois"
+			],
+			answerIndex: 3,
+			explanation:
+				"Théorème 4.7 : la dépendance linéaire en d est le prix à payer pour n'optimiser qu'une coordonnée à la fois. La CD est particulièrement naturelle quand la fonction se décompose en somme séparable ou quand la régularisation a une forme explicite par coordonnée — pour le Lasso, la mise à jour est le seuillage doux, de coût minime (exemple 4.7.1)."
+		},
+		{
+			question:
+				'Que fait la méthode de Newton sur une fonction quadratique pure f(x) = (1/2) x^T Q x − b^T x ?',
+			options: [
+				"elle converge en un seul pas, quel que soit le conditionnement, car le modèle de Taylor d'ordre 2 est exact",
+				'elle converge en O(1/k) comme la descente de gradient',
+				"elle a besoin de l'amortissement d'Armijo pour être garantie",
+				'elle est inapplicable, car la Hessienne est singulière'
+			],
+			answerIndex: 0,
+			explanation:
+				"Callout « Newton sur un quadratique pur » : pour cette fonction, le modèle de Taylor d'ordre 2 est une égalité valable sur tout l'espace (q(y) ≡ f(y)) et la Hessienne est constante — Newton converge donc en un seul pas, quelle que soit l'inclinaison ou le conditionnement. Sur une fonction non quadratique, plusieurs itérations sont nécessaires, mais le nombre de chiffres corrects double localement (théorème 4.9)."
+		},
+		{
+			question:
+				'Pourquoi la méthode de Newton exacte est-elle inapplicable à un réseau de neurones avec d ≈ 10⁶ paramètres ?',
+			options: [
+				'parce que la perte est généralement non convexe',
+				"parce que le gradient n'est pas disponible",
+				"parce que l'inversion de la Hessienne coûte O(d³) et que sa seule stockage demande d² nombres",
+				"parce que la méthode de ne s'applique qu'aux fonctions quadratiques"
+			],
+			answerIndex: 2,
+			explanation:
+				"Callout « Limites de Newton en grande dimension » : la Hessienne est une matrice d × d (d² nombres) et son inversion coûte O(d³), contre le coût linéaire O(d) d'un pas de gradient ou de CD. Pour d = 10⁶ elle est tout simplement inapplicable : on utilise alors du Quasi-Newton (BFGS, L-BFGS), le gradient conjugué non linéaire ou des approximations diagonales de la Hessienne (comme dans Adam)."
+		}
+	];
 	const { prev: prevMeta, next: nextMeta } = $derived(
 		getAdjacentPages(meta?.path ?? '', $settings.expertMode)
 	);
@@ -843,6 +912,14 @@
 				</li>
 			</ul>
 		</Callout>
+
+		<InteractiveSection
+			number="4.6"
+			title="Quiz — SGD, descente coordonnée et Newton"
+			onInteract={tracker.trackInteraction}
+		>
+			<Quiz items={quiz} />
+		</InteractiveSection>
 	</TheorySection>
 
 	<!-- ═══════════════════════════════════════ -->
@@ -854,7 +931,7 @@
 			authors={['Bottou, L.']}
 			year={2010}
 			title="Large-scale machine learning with stochastic gradient descent"
-			journal="Proceedings of COMPSTAT'2010."
+			journal="Proceedings of COMPSTAT'2010, 177–186."
 			link="https://hal.inria.fr/inria-00577394/document"
 		/>
 

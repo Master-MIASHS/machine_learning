@@ -18,9 +18,67 @@
 	import { createPageTracker } from '$lib/stores/progress.svelte';
 	import type { TocEntry } from '$lib/components/narrative/TableOfContents.svelte';
 	import TableOfContents from '$lib/components/narrative/TableOfContents.svelte';
+	import Quiz, { type QuizItem } from '$lib/components/demos/Quiz.svelte';
 
 	const meta = getPageByPath('/part4/lesson2');
 	const tracker = createPageTracker(meta as PageMeta);
+
+	const quiz: QuizItem[] = [
+		{
+			question:
+				"D'après le théorème 6.1, quelle est la variance asymptotique (M → ∞) de l'agrégat de M arbres dont la corrélation moyenne par paires est ρ̄ et la variance individuelle σ² ?",
+			options: ['ρ̄σ²', '0', 'σ²', '(1−ρ̄)σ²/M'],
+			answerIndex: 0,
+			explanation:
+				"Théorème 6.1 : Var(agrégé) = ρ̄σ² + (1−ρ̄)σ²/M ; quand M → ∞, le second terme s'annule et la variance reste bornée inférieurement par ρ̄σ², quel que soit le nombre d'arbres. C'est donc la corrélation, et non M, qui borne le gain — d'où l'intérêt de réduire ρ̄ directement."
+		},
+		{
+			question: 'Par rapport au bagging pur, que fait le Random Forest pour décorreler les arbres ?',
+			options: [
+				'il diminue la taille des échantillons bootstrap',
+				'à chaque nœud, la division est choisie parmi un sous-ensemble aléatoire de m features plutôt que parmi toutes les d',
+				'il remplace le vote majoritaire par un vote pondéré',
+				"il augmente le nombre d'arbres"
+			],
+			answerIndex: 1,
+			explanation:
+				"Définition 6.3 (division optimale restreinte) : à chaque nœud, on tire un sous-ensemble aléatoire F_t de m features et on maximise le gain d'impureté uniquement sur ce sous-ensemble. Cette contrainte structurelle force les arbres à explorer des partitions différentes et réduit directement la corrélation ρ̄ ; le bagging pur (m = d) ne réduit que le terme (1−ρ̄)σ²/M."
+		},
+		{
+			question:
+				'Selon les règles empiriques de la définition 6.4, quelle est la valeur typique de m (nombre de features par division) pour la classification ?',
+			options: ['m ≈ d/3', 'm = d', 'm = 1', 'm = √d'],
+			answerIndex: 3,
+			explanation:
+				'Définition 6.4 : m = √d pour la classification et m ≈ d/3 pour la régression. Ces valeurs offrent un compromis entre la qualité individuelle des divisions (m grand → biais faible) et la diversité entre arbres (m petit → corrélation ρ̄ faible).'
+		},
+		{
+			question:
+				'Parmi d = 100 features, une seule (x_1) est fortement prédictive (exemple 6.4.1). Avec m = 10 (≈ √d), que se passe-t-il à chaque nœud ?',
+			options: [
+				'x_1 est choisie à chaque division, comme en bagging pur',
+				'x_1 est exclue de tous les arbres',
+				"x_1 est candidate avec une probabilité d'environ 10 % ; dans les autres nœuds, les arbres sont forcés de diviser sur des features bruitées, ce qui les décorrèle fortement",
+				'la forêt converge vers un arbre unique'
+			],
+			answerIndex: 2,
+			explanation:
+				"Exemple 6.4.1 : avec m = √100 = 10, x_1 est vue par un nœud avec une probabilité de 10/100 ; dans les 90 % de nœuds restants, l'arbre divise sur les 99 features bruitées. Chaque arbre est individuellement plus faible, mais ρ̄ chute fortement : dans ce cas, le compromis biais/décorrélation du théorème 6.1 penche très en faveur d'un petit m."
+		},
+		{
+			question:
+				"Pourquoi la leçon recommande-t-elle l'importance par permutation plutôt que la diminution moyenne de l'impureté (MDI) pour une sélection de features critique ?",
+			options: [
+				"parce qu'elle est beaucoup moins coûteuse à calculer",
+				'parce que la MDI est biaisée en faveur des features à nombreuses modalités et des nœuds hauts, un artefact du critère de Gini',
+				'parce que la permutation ne nécessite aucun ensemble de validation',
+				"parce que la MDI utilise des informations non disponibles à l'entraînement"
+			],
+			answerIndex: 1,
+			explanation:
+				"Callout « Attention au biais » : l'importance par impureté surévalue systématiquement les features continues et celles avec de nombreuses modalités — un artefact du critère de Gini lui-même, pas une propriété des données. L'importance par permutation mesure la dégradation réelle de la performance quand la feature est détruite : plus honnête, mais coûteuse (P réévaluations par feature)."
+		}
+	];
 	const { prev: prevMeta, next: nextMeta } = $derived(
 		getAdjacentPages(meta?.path ?? '', $settings.expertMode)
 	);
@@ -637,6 +695,14 @@
 				</li>
 			</ul>
 		</Callout>
+
+		<InteractiveSection
+			number="6.4"
+			title="Quiz — Random Forest et sélection de features"
+			onInteract={tracker.trackInteraction}
+		>
+			<Quiz items={quiz} />
+		</InteractiveSection>
 	</TheorySection>
 
 	<!-- ═══════════════════════════════════════════════ -->
@@ -647,7 +713,7 @@
 			authors={['Breiman, L.']}
 			year={2001}
 			title="Random Forests"
-			journal="Machine Learning, 45(1), 5–32."
+			journal="Machine Learning, Vol. 45, No. 1, pp. 5-32."
 			link="https://doi.org/10.1023/A:1010933404324"
 		/>
 		<BibElement

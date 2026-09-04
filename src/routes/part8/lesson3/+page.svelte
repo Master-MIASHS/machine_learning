@@ -18,9 +18,70 @@
 	import { settings } from '$lib/stores/index.js';
 	import { createPageTracker } from '$lib/stores/progress.svelte';
 	import type { PageMeta } from '$lib/navigation.js';
+	import Quiz, { type QuizItem } from '$lib/components/demos/Quiz.svelte';
 
 	const meta = getPageByPath('/part8/lesson3');
 	const tracker = createPageTracker(meta as PageMeta);
+
+	const quiz: QuizItem[] = [
+		{
+			question: "Selon la leçon, que signifie dire qu'une classe H brise un ensemble C de m points ?",
+			options: [
+				'Que H contient au moins m classifieurs.',
+				'Que tout étiquetage de C est réalisable : pour tout (y_1, ..., y_m) dans {0,1}^m, il existe h ∈ H avec h(x_i) = y_i pour tout i — autrement dit, H réalise les 2^m dichotomies.',
+				'Que H sépare les points de C avec une marge strictement positive.',
+				"Que C est nécessairement contenu dans l'échantillon d'entraînement."
+			],
+			answerIndex: 1,
+			explanation:
+				"Définition de la brisure : H réalise toutes les dichotomies de C, c'est-à-dire que le nombre d'étiquetages réalisables sur C est exactement 2^m ; la dimension VC est la plus grande taille m d'un ensemble brisé, avec la convention VCdim = +∞ si H brise des ensembles de taille arbitraire."
+		},
+		{
+			question: "D'après les exemples de la leçon, quelle est la dimension VC des hyperplans de ℝ^d ?",
+			options: ['d', '2d', 'd + 1', 'd²'],
+			answerIndex: 2,
+			explanation:
+				"La leçon donne une série d'exemples à dimension VC croissante : seuils sur ℝ (VCdim = 1, l'étiquetage (1, 0) étant impossible sur une paire ordonnée), intervalles sur ℝ (VCdim = 2, l'étiquetage (1, 0, 1) impossible sur un triplet ordonné), hyperplans de ℝ^d (VCdim = d + 1)."
+		},
+		{
+			question:
+				'Quel est le rôle essentiel du lemme de Sauer-Shelah dans la démonstration de la borne de généralisation VC ?',
+			options: [
+				"Il borne le nombre de dichotomies réalisables sur m points de façon polynomiale en m — (em/d)^d dès que VCdim = d < +∞ — au lieu de 2^m : c'est ce qui permet d'appliquer l'union bound aux dichotomies réalisables plutôt qu'à H, même quand H est infini.",
+				"Il montre que |H| est fini pour toute classe d'hyperplans.",
+				'Il donne une borne inférieure sur la dimension VC en fonction de n.',
+				"Il montre que l'union bound est inutile dès que H est fini."
+			],
+			answerIndex: 0,
+			explanation:
+				"Le cartouche « Le point essentiel » résume : le basculement de la croissance exponentielle (2^m) à la croissance polynomiale en m (de degré d) est ce qui rend une borne de généralisation possible même pour une classe infinie ; la démonstration (omise dans la leçon) raffine l'union bound de la leçon précédente en l'appliquant aux dichotomies effectivement réalisables sur l'échantillon."
+		},
+		{
+			question:
+				'Selon le Théorème 3.4 (Vapnik, 1995), si ||X_i||_2 ≤ R presque sûrement, que peut-on dire de VCdim(H_gamma), la classe des classifieurs linéaires de norme 1 séparant avec marge gamma ?',
+			options: [
+				'Elle est égale à d + 1, comme pour tous les hyperplans de ℝ^d.',
+				"Elle est majorée par n, la taille de l'échantillon.",
+				'Elle est infinie, puisque H_gamma contient une infinité de classifieurs.',
+				'Elle est majorée par floor(R²/gamma²) : elle ne dépend que du rapport entre le rayon des données et la marge, pas de la dimension ambiante d.'
+			],
+			answerIndex: 3,
+			explanation:
+				"Théorème 3.4 : VCdim(H_gamma) ≤ floor(R²/gamma²) ; le cartouche d'insistion souligne que cette dimension VC ne dépend pas de la dimension de l'espace d'entrée — seulement du rapport R²/gamma² — ce qui explique que le SVM peut généraliser correctement même en très grande dimension, à condition d'une marge suffisamment grande relative à l'échelle des données."
+		},
+		{
+			question: 'Dans le Théorème 3.3 (borne VC), que remplace-t-on, par rapport au Théorème 3.2 ?',
+			options: [
+				'log|H| est remplacé par log n, qui croît plus lentement.',
+				'log|H| est remplacé par le terme d log(2en/d), qui reste fini même quand |H| est infini — par exemple pour les hyperplans de ℝ^d.',
+				"log|H| est remplacé par log(2/δ) seul, la complexité de la classe n'entrant plus.",
+				"log|H| est remplacé par n, la taille de l'échantillon."
+			],
+			answerIndex: 1,
+			explanation:
+				"La leçon l'énonce explicitement : la structure de la borne est la même qu'au Théorème 3.2 (racine d'un terme de complexité sur n), à ceci près que log|H| a été remplacé par d log(2en/d) — un terme qui, lui, reste fini même quand |H| ne l'est pas."
+		}
+	];
 	const { prev: prevMeta, next: nextMeta } = $derived(
 		getAdjacentPages(meta?.path ?? '', $settings.expertMode)
 	);
@@ -321,6 +382,14 @@
 			indépendamment de la dimension ambiante — un résultat qui ne tiendra plus, comme le montrera
 			la leçon suivante, face aux réseaux de neurones modernes.
 		</Callout>
+
+		<InteractiveSection
+			number="3.4"
+			title="Quiz — Dimension VC, Sauer-Shelah et SVM"
+			onInteract={tracker.trackInteraction}
+		>
+			<Quiz items={quiz} />
+		</InteractiveSection>
 	</TheorySection>
 
 	<Bibliography>

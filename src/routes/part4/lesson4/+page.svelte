@@ -23,9 +23,48 @@
 	import { getPageByPath, getAdjacentPages, type PageMeta } from '$lib/navigation.js';
 	import { settings } from '$lib/stores/index.js';
 	import { createPageTracker } from '$lib/stores/progress.svelte';
+	import Quiz, { type QuizItem } from '$lib/components/demos/Quiz.svelte';
 
 	const meta = getPageByPath('/part4/lesson4');
 	const tracker = createPageTracker(meta as PageMeta);
+
+	const quiz: QuizItem[] = [
+		{
+			question:
+				'Pourquoi la solution Ridge reste-t-elle définie même si X transpose X est singulière ?',
+			options: [
+				'Parce que la norme L1 crée des zéros exacts',
+				'Parce que lambda I rend la matrice régularisée inversible',
+				'Parce que la validation croisée élimine les colonnes redondantes',
+				'Parce que Ridge standardise automatiquement les variables'
+			],
+			answerIndex: 1,
+			explanation:
+				'La leçon précise que le terme lambda I garantit que la matrice à inverser est définie positive. La formule fermée reste donc valable même quand p dépasse n.'
+		},
+		{
+			question:
+				'Dans le cas de colonnes orthonormales, si le coefficient OLS vaut 0.8 et lambda vaut 1.0, la solution Lasso vaut :',
+			options: ['1.8', '0.8', '0', '-0.2'],
+			answerIndex: 2,
+			explanation:
+				'Le soft-thresholding calcule max(0.8 − 1.0, 0), donc 0. Le coefficient passe exactement à zéro, ce qui réalise une sélection de variables.'
+		},
+		{
+			question: "Dans l'objectif Elastic Net, alpha = 0 correspond à :",
+			options: ['Lasso pur', 'Sans régularisation', 'Une perte 0-1', 'Ridge pur'],
+			answerIndex: 3,
+			explanation: 'La leçon indique que alpha = 1 donne le Lasso pur et alpha = 0 donne le Ridge pur.'
+		},
+		{
+			question:
+				'Sous une descente de gradient simple, le weight decay L2 multiplie le poids courant par :',
+			options: ['(1 - eta lambda)', '(1 + eta lambda)', 'eta lambda', 'lambda / 2'],
+			answerIndex: 0,
+			explanation:
+				"La définition 8.6 décrit une érosion multiplicative par (1 - eta lambda) avant l'application du gradient de la tâche."
+		}
+	];
 	const { prev: prevMeta, next: nextMeta } = $derived(
 		getAdjacentPages(meta?.path ?? '', $settings.expertMode)
 	);
@@ -1143,6 +1182,14 @@
 				</li>
 			</ul>
 		</Callout>
+
+		<InteractiveSection
+			number="8.6"
+			title="Quiz — Régularisation L1/L2, Elastic Net et weight decay"
+			onInteract={tracker.trackInteraction}
+		>
+			<Quiz items={quiz} />
+		</InteractiveSection>
 	</TheorySection>
 
 	<Bibliography>
@@ -1156,15 +1203,15 @@
 		<BibElement
 			authors={['Zou, H.', 'Hastie, T.']}
 			year={2005}
-			title="Regularization and Variable Selection via the Elastic Net"
+			title="Regularization and variable selection via the elastic net"
 			journal="Journal of the Royal Statistical Society, Series B, 67(2), 301–320."
 			link="https://doi.org/10.1111/j.1467-9868.2005.00503.x"
 		/>
 		<BibElement
-			authors={['Hoerl, A.E.', 'Kennard, R.W.']}
+			authors={['Hoerl, A. E.', 'Kennard, R. W.']}
 			year={1970}
-			title="Ridge Regression: Biased Estimation for Nonorthogonal Problems"
-			journal="Technometrics, 12(1), 55–67."
+			title="Ridge regression: Biased estimation for nonorthogonal problems"
+			journal="Technometrics, 12(1), 55-67."
 			link="https://doi.org/10.1080/00401706.1970.10488634"
 		/>
 		<BibElement
@@ -1185,8 +1232,8 @@
 			authors={['Hastie, T.', 'Tibshirani, R.', 'Friedman, J.']}
 			year={2009}
 			title="The Elements of Statistical Learning: Data Mining, Inference, and Prediction"
-			journal="Springer. 2ᵉ édition."
-			link="https://web.stanford.edu/~hastie/ElemStatLearn/"
+			journal="Springer Science & Business Media, Second Edition."
+			link="https://hastie.su.domains/ElemStatLearn/"
 		/>
 	</Bibliography>
 </PageTemplate>

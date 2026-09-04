@@ -17,9 +17,59 @@
 	import { settings } from '$lib/stores/index.js';
 	import { createPageTracker } from '$lib/stores/progress.svelte';
 	import type { PageMeta } from '$lib/navigation.js';
+	import Quiz, { type QuizItem } from '$lib/components/demos/Quiz.svelte';
 
 	const meta = getPageByPath('/part8/lesson4');
 	const tracker = createPageTracker(meta as PageMeta);
+
+	const quiz: QuizItem[] = [
+		{
+			question:
+				"Pour un réseau de neurones à L couches et W paramètres, la dimension VC donnée par Bartlett (1998) est de l'ordre de :",
+			options: ['O(W + L)', 'O(W L log W)', 'O(log W / L)', 'O(n)'],
+			answerIndex: 1,
+			explanation:
+				"La leçon cite VCdim = O(W L log W) pour les réseaux à fonctions d'activation seuil."
+		},
+		{
+			question:
+				"Pour que la borne VC soit non triviale pour un réseau moderne, la leçon indique qu'il faudrait :",
+			options: [
+				'un n très grand devant W L log W, soit environ 10^10',
+				"un n de l'ordre de 10^6",
+				'W plus petit que n',
+				'une interpolation exacte des données'
+			],
+			answerIndex: 0,
+			explanation:
+				"Les jeux de données habituels sont plutôt de l'ordre de 10^6 à 10^7, donc la borne VC devient triviale."
+		},
+		{
+			question: "Dans le phénomène de double descente, le seuil d'interpolation correspond à :",
+			options: [
+				'W très petit devant n',
+				'W très grand devant n',
+				'W environ égal à n',
+				'n égal à 0'
+			],
+			answerIndex: 2,
+			explanation:
+				'Au seuil W ≈ n, le modèle commence à interpoler et le risque explose avant de redescendre en régime sur-paramétré.'
+		},
+		{
+			question:
+				'Selon la leçon, pour la régression logistique sur des données linéairement séparables, la descente de gradient converge vers :',
+			options: [
+				'la solution de norme maximale',
+				'le classifieur de marge maximale avec une pénalité explicite',
+				'la solution des moindres carrés exacte',
+				'le classifieur de marge maximale, même sans régularisation explicite'
+			],
+			answerIndex: 3,
+			explanation:
+				"C'est le biais implicite de l'optimiseur décrit par Zhang et al. (2017) et Soudry et al. (2018)."
+		}
+	];
 	const { prev: prevMeta, next: nextMeta } = $derived(
 		getAdjacentPages(meta?.path ?? '', $settings.expertMode)
 	);
@@ -362,6 +412,14 @@
 			solution l'optimisation sélectionne-t-elle, et combien est-elle régulière ? ». Aucune n'est
 			complète : la généralisation des réseaux profonds reste un sujet de recherche actif.
 		</Callout>
+
+		<InteractiveSection
+			number="4.3"
+			title="Quiz — Limites de VC et double descente"
+			onInteract={tracker.trackInteraction}
+		>
+			<Quiz items={quiz} />
+		</InteractiveSection>
 	</TheorySection>
 	<Bibliography>
 		<BibElement

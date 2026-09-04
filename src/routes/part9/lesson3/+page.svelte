@@ -14,9 +14,55 @@
 	import { settings } from '$lib/stores/index.js';
 	import { createPageTracker } from '$lib/stores/progress.svelte';
 	import type { PageMeta } from '$lib/navigation.js';
+	import Quiz, { type QuizItem } from '$lib/components/demos/Quiz.svelte';
 
 	const meta = getPageByPath('/part9/lesson3');
 	const tracker = createPageTracker(meta as PageMeta);
+
+	const quiz: QuizItem[] = [
+		{
+			question: 'Dans la décomposition A + B + C du Théorème 4.2, le terme A correspond à :',
+			options: [
+				"l'écart d'approximation entre le minimiseur global et le classifieur de Bayes",
+				"l'écart d'estimation dû à l'utilisation d'un échantillon fini",
+				'le coût de la restriction à la classe F',
+				'la variance du gradient stochastique'
+			],
+			answerIndex: 1,
+			explanation:
+				"A mesure l'écart entre le modèle appris sur l'échantillon et le meilleur modèle de la classe pour le phi-risque."
+		},
+		{
+			question: "Le terme B s'annule dès que :",
+			options: [
+				'f** ∈ F',
+				"phi'(0) > 0",
+				"la taille de l'échantillon est petite",
+				'le terme A est négatif'
+			],
+			answerIndex: 0,
+			explanation:
+				"B mesure le coût de la restriction à F ; la leçon indique qu'il est nul si le minimiseur global f** appartient à F."
+		},
+		{
+			question: "Le terme C s'annule lorsque :",
+			options: [
+				'f** ∈ F',
+				"la taille de l'échantillon est grande",
+				'F est une classe finie',
+				'la perte phi est calibrée'
+			],
+			answerIndex: 3,
+			explanation:
+				"C mesure l'écart entre le minimiseur global du phi-risque et le classifieur de Bayes ; une perte calibrée rend ce terme nul."
+		},
+		{
+			question: "Si phi est calibrée et si f** ∈ F, l'excès de risque 0-1 se réduit à :",
+			options: ['A + B', 'B + C', 'A seul', 'A + C'],
+			answerIndex: 2,
+			explanation: "Dans ce cas favorable, B et C sont nuls, il ne reste que le terme d'estimation A."
+		}
+	];
 	const { prev: prevMeta, next: nextMeta } = $derived(
 		getAdjacentPages(meta?.path ?? '', $settings.expertMode)
 	);
@@ -275,6 +321,14 @@
 			/>
 			est calibrée ; dans ce cas favorable, seul le terme d'estimation demeure.
 		</Callout>
+
+		<InteractiveSection
+			number="3.2"
+			title="Quiz — Décomposition de l'erreur"
+			onInteract={tracker.trackInteraction}
+		>
+			<Quiz items={quiz} />
+		</InteractiveSection>
 	</TheorySection>
 
 	<Bibliography>

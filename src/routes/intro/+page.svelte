@@ -227,6 +227,7 @@
 			year={2010}
 			title="Large-scale machine learning with stochastic gradient descent"
 			journal="Proceedings of COMPSTAT'2010, 177–186."
+			link="https://hal.inria.fr/inria-00577394/document"
 		/>
 		<BibElement
 			authors={['Bottou, L.', 'Curtis, F. E.', 'Nocedal, J.']}
@@ -290,6 +291,27 @@
 			title="Understanding Machine Learning: From Theory to Algorithms"
 			journal="Cambridge University Press."
 			link="https://www.cs.huji.ac.il/~shais/UnderstandingMachineLearning/"
+		/>
+		<BibElement
+			authors={['Azencott, C. A.']}
+			year={2011}
+			title="Introduction au Machine Learning"
+			journal="Dunod. ISBN : 978-2-10-084143-1."
+			link="http://cazencott.info/dotclear/public/lectures/IntroML_Azencott.pdf"
+		/>
+		<BibElement
+			authors={['Novembre, J.', 'Johnson, T.', 'Bryc, K.', 'et al.']}
+			year={2008}
+			title="Genes mirror geography within Europe"
+			journal="Nature, 456, 98–101. DOI : 10.1038/nature07331."
+			link="https://www.nature.com/articles/nature07331"
+		/>
+		<BibElement
+			authors={['Benureau, F. C.']}
+			year={2015}
+			title="L’auto-exploration des espaces sensorimoteurs chez les robots"
+			journal="Thèse de doctorat."
+			link="https://fabien.benureau.com/docs/phd_benureau.pdf"
 		/>
 
 		<!-- Régularisation et Méthodes d'Ensemble -->
@@ -487,11 +509,29 @@
 			link="https://www.wiley.com/en-us/Statistical+Learning+Theory-p-9780471152125"
 		/>
 		<BibElement
+			authors={['Bach, F.']}
+			year={2024}
+			title="Learning Theory from First Principles"
+			journal="MIT Press."
+		/>
+		<BibElement
 			authors={['Stone, C. J.']}
 			year={1977}
 			title="Consistent Nonparametric Regression"
 			journal="The Annals of Statistics, Vol. 5, No. 4, pp. 595-620."
 			link="https://projecteuclid.org/journals/annals-of-statistics/volume-5/issue-4/Consistent-Nonparametric-Regression/10.1214/aos/1176343886.full"
+		/>
+		<BibElement
+			authors={['Sauer, N.']}
+			year={1972}
+			title="On the density of families of sets"
+			journal="Journal of Combinatorial Theory, Series A, 13(1), 145-147."
+		/>
+		<BibElement
+			authors={['Shelah, S.']}
+			year={1972}
+			title="A combinatorial problem; stability and order for models and theories in infinitary languages"
+			journal="Pacific Journal of Mathematics, 41(1), 247-261."
 		/>
 		<BibElement
 			authors={['Cover, T. M.', 'Hart, P. E.']}
@@ -506,6 +546,12 @@
 			title="Concentration Inequalities: A Nonasymptotic Theory of Independence"
 			journal="Oxford University Press."
 			link="https://global.oup.com/academic/product/concentration-inequalities-9780199535255"
+		/>
+		<BibElement
+			authors={['Hoeffding, W.']}
+			year={1963}
+			title="Probability inequalities for sums of bounded random variables"
+			journal="Journal of the American Statistical Association, 58(301), 13-30."
 		/>
 		<BibElement
 			authors={[

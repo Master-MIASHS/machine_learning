@@ -22,9 +22,78 @@
 	import TaylorStepVisualizer from '$lib/components/demos/TaylorStepVisualizer.svelte';
 	import { createPageTracker } from '$lib/stores/progress.svelte';
 	import type { PageMeta } from '$lib/navigation.js';
+	import Quiz, { type QuizItem } from '$lib/components/demos/Quiz.svelte';
 
 	const meta = getPageByPath('/part1/lesson3');
 	const tracker = createPageTracker(meta as PageMeta);
+
+	const quiz: QuizItem[] = [
+		{
+			question:
+				"D'après le théorème 3.2, pourquoi la direction −∇f(x) est-elle une bonne direction de déplacement ?",
+			options: [
+				"parce qu'elle maximise f à chaque étape",
+				"parce qu'elle est toujours parallèle au Hessien",
+				"parce qu'elle minimise la dérivée directionnelle parmi toutes les directions de norme 1",
+				"parce qu'elle est la direction de plus forte croissance"
+			],
+			answerIndex: 2,
+			explanation:
+				'Théorème 3.2 : pour une direction unitaire d, la dérivée directionnelle vaut ∇f(x)^T d = ||∇f(x)|| cos θ, minimisée pour cos θ = −1, soit d* = −∇f(x)/||∇f(x)|| : la direction de plus forte descente.'
+		},
+		{
+			question:
+				"Dans le théorème 3.3, le développement de Taylor de f(x − α∇f(x)) à l'ordre 1 contient le terme −α||∇f(x)||². Pourquoi garantit-il une décroissance locale pour α assez petit ?",
+			options: [
+				'parce que le Hessien est toujours positif',
+				'parce que ce terme négatif domine le reste o(α) lorsque α est petit',
+				'parce que le pas α est choisi par recherche linéaire',
+				'parce que le terme o(α) est le terme dominant'
+			],
+			answerIndex: 1,
+			explanation:
+				"Taylor : f(x − α∇f(x)) = f(x) − α||∇f(x)||² + o(α) ; pour α suffisamment petit, le terme quadratique −α||∇f(x)||² domine, d'où la décroissance. Le callout « Remarque cruciale » rappelle que cette décroissance n'est garantie que localement et n'est pas une preuve de convergence globale."
+		},
+		{
+			question:
+				'Selon le théorème 3.4, quel taux de convergence la descente de gradient avec pas constant α = 1/L garantit-elle pour une fonction convexe L-lisse admettant un minimum x* ?',
+			options: [
+				'O(1/k) : f(x_k) − f(x*) ≤ L||x_0 − x*||² / (2k)',
+				'O(1/k²), comme la méthode de Nesterov',
+				'exponentiel O(e^(−μk/L)), quelle que soit la fonction',
+				"convergence en un nombre fini d'étapes"
+			],
+			answerIndex: 0,
+			explanation:
+				"Théorème 3.4 : avec α = 1/L, l'écart à l'optimum décroît comme 1/k. Le taux exponentiel e^(−μk/L) est réservé aux fonctions fortement convexes (μ paramètre de forte convexité, L constante de Lipschitz du gradient), et O(1/k²) est le taux accéléré de Nesterov (définition 3.8)."
+		},
+		{
+			question:
+				'Par rapport au momentum classique, que modifie la méthode de Nesterov, et quel est le gain théorique ?',
+			options: [
+				'elle utilise un pas constant 1/L doublé',
+				'elle supprime le besoin de convexité',
+				'elle remplace le gradient par le Hessien',
+				'elle évalue le gradient en un point anticipé x̃_k, ce qui donne un taux O(1/k²) au lieu de O(1/k) pour les fonctions convexes'
+			],
+			answerIndex: 3,
+			explanation:
+				"Définition 3.8 (NAG) : on pose x̃_k = x_k + β(x_k − x_{k−1}) puis on évalue le gradient en ce point « anticipé » plutôt qu'en x_k. Le tableau de synthèse indique O(1/k²) pour Nesterov contre O(1/k) pour le GD et le momentum en théorie : un gain quadratique dans le taux."
+		},
+		{
+			question:
+				"Parmi les trois stratégies de pas décrites dans la section « Choix du pas d'apprentissage », laquelle garantit la convergence sous les conditions de Robbins–Monro ?",
+			options: [
+				'le pas constant α_k = α',
+				'le pas décroissant, par exemple α_k = α_0/k ou α_0/√k',
+				'la recherche linéaire (minimisation de f le long de la direction)',
+				'le pas α_k = 2L'
+			],
+			answerIndex: 1,
+			explanation:
+				'Le pas décroissant garantit la convergence sous certaines conditions (théorèmes de Robbins–Monro) et est utilisé avec des variantes adaptatives (Adam, RMSprop). Le pas constant est simple mais délicat (trop grand → divergence, trop petit → convergence lente) ; la recherche linéaire est optimale à chaque itération mais coûteuse en calcul.'
+		}
+	];
 	const { prev: prevMeta, next: nextMeta } = $derived(
 		getAdjacentPages(meta?.path ?? '', $settings.expertMode)
 	);
@@ -513,6 +582,14 @@
 			Une leçon experte optionnelle sur l'optimiseur Adam suit cette leçon ; la leçon 4 de la partie
 			aborde ensuite le SGD, la coordinate descent et la méthode de Newton-Raphson.
 		</Callout>
+
+		<InteractiveSection
+			number="3.6"
+			title="Quiz — Descente de gradient et accélération"
+			onInteract={tracker.trackInteraction}
+		>
+			<Quiz items={quiz} />
+		</InteractiveSection>
 	</TheorySection>
 
 	<!-- ════════════════════════════════════════════════ -->
@@ -538,9 +615,9 @@
 		<BibElement
 			authors={['Robbins, H.', 'Monro, S.']}
 			year={1951}
-			title="A stochastic approximation method"
-			journal="Annals of Mathematical Statistics, 22(3), 400–407."
-			link="https://doi.org/10.1214/aoms/1177729684"
+			title="A Stochastic Approximation Method"
+			journal="The Annals of Mathematical Statistics, Vol. 22, No. 3, pp. 400-407."
+			link="https://www.jstor.org/stable/2236626"
 		/>
 
 		<BibElement
@@ -548,6 +625,7 @@
 			year={2010}
 			title="Large-scale machine learning with stochastic gradient descent"
 			journal="Proceedings of COMPSTAT'2010, 177–186."
+			link="https://hal.inria.fr/inria-00577394/document"
 		/>
 
 		<BibElement

@@ -16,9 +16,78 @@
 	import { settings } from '$lib/stores/index.js';
 	import { createPageTracker } from '$lib/stores/progress.svelte';
 	import type { PageMeta } from '$lib/navigation.js';
+	import Quiz, { type QuizItem } from '$lib/components/demos/Quiz.svelte';
 
 	const meta = getPageByPath('/part8/lesson2');
 	const tracker = createPageTracker(meta as PageMeta);
+
+	const quiz: QuizItem[] = [
+		{
+			question:
+				'Selon le Théorème 3.1 (cas séparable, |H| < +∞), sous réalisabilité, quelle borne obtient-on pour le minimiseur du risque empirique ?',
+			options: [
+				'P(R(ĥ) > ε) ≤ 2|H| e^{-2nε²}, pour tout ε > 0.',
+				'R(ĥ) ≤ log(|H|/δ)/n, de façon déterministe, sans aucune probabilité.',
+				'P(R(ĥ) > ε) ≤ |H| e^{-nε}, pour tout ε > 0 ; en particulier n ≥ log(|H|/δ)/ε suffit pour avoir confiance 1 - δ.',
+				'P(R(ĥ) > ε) ≤ e^{-nε}/|H|, pour tout ε > 0.'
+			],
+			answerIndex: 2,
+			explanation:
+				"Théorème 3.1 : sous réalisabilité, le minimiseur du risque empirique a un risque empirique nul ; l'événement d'échec est inclus dans l'union sur les hypothèses mauvaises de l'événement où elles sont trompées par l'échantillon, et l'union bound donne |H| e^{-nε} (démonstration en quatre étapes : réduction aux échantillons trompeurs, union bound, borne par hypothèse, conclusion)."
+		},
+		{
+			question:
+				"Selon le Théorème 3.2 (cas non séparable, |H| < +∞), qu'a-t-on avec probabilité 1 - δ ?",
+			options: [
+				'R(ĥ) ≤ R_Sn(ĥ) + sqrt((log|H| + log(2/δ)) / (2n)), la borne étant uniforme sur la classe.',
+				'R(ĥ) ≤ log(|H|/δ)/n, avec la même vitesse que dans le cas séparable.',
+				'R(ĥ) ≤ 2 R_Sn(ĥ), sans aucune dépendance à |H|.',
+				'sup_{h∈H} |R(h) - R_Sn(h)| ≤ log(1/δ)/n, sans le terme log|H|.'
+			],
+			answerIndex: 0,
+			explanation:
+				"Théorème 3.2 : Hoeffding appliqué à un h fixé donne P(|R_Sn(h) - R(h)| ≥ t) ≤ 2 e^{-2nt²} ; l'union bound sur H (P(∃ h, |écart| ≥ t) ≤ 2|H| e^{-2nt²}) et la calibration δ = 2|H| e^{-2nt²} donnent l'écart uniforme sqrt((log|H| + log(2/δ))/(2n)), qui s'applique à ĥ bien qu'il soit une fonction aléatoire de l'échantillon."
+		},
+		{
+			question:
+				'Pourquoi le cas séparable converge-t-il plus vite (en 1/n) que le cas non séparable (en 1/√n), selon la leçon ?',
+			options: [
+				"Parce que l'union bound est plus efficace quand |H| est petit.",
+				"Parce que la réalisabilité permet un argument purement combinatoire sur les échantillons trompeurs — une hypothèse mauvaise est trompée ou non, c'est binaire — et sans elle on doit se rabattre sur une concentration probabiliste plus générale mais plus lente.",
+				"Parce que l'inégalité de Hoeffding ne s'applique pas aux variables de Bernoulli.",
+				'Parce que dans le cas non séparable, le risque empirique est toujours nul.'
+			],
+			answerIndex: 1,
+			explanation:
+				"La section « Comparer les deux régimes » explique : sans classifieur parfait dans H, il n'y a plus le critère du « risque empirique nul », et on perd l'argument combinatoire des échantillons trompeurs (binaire : trompé ou non) au profit d'une concentration probabiliste plus générale mais plus lente à converger."
+		},
+		{
+			question:
+				"Dans le cas séparable, qu'est-ce qui garantit que le minimiseur du risque empirique ĥ a un risque empirique nul ?",
+			options: [
+				"Le fait que l'échantillon soit suffisamment grand.",
+				'Le fait que la perte 0-1 soit continue.',
+				'Le fait que toutes les hypothèses de H ne fassent aucune erreur sur les données.',
+				'La réalisabilité : h* ∈ H vérifie R_Sn(h*) = 0, et ĥ, qui minimise R_Sn sur H, a donc R_Sn(ĥ) = 0.'
+			],
+			answerIndex: 3,
+			explanation:
+				"Étape 1 de la démonstration du Théorème 3.1 : par réalisabilité, R_Sn(h*) = 0 toujours, donc aussi R_Sn(ĥ) = 0 puisque c'est le minimiseur — c'est ce qui rend possible la réduction aux « échantillons trompeurs »."
+		},
+		{
+			question:
+				'Que représente le terme log|H| dans les bornes, et quelle mise en garde la leçon y attache-t-elle ?',
+			options: [
+				"Le biais de la classe H, qui s'annule quand n grandit.",
+				"Le nombre d'échantillons trompeurs effectivement observés dans l'échantillon.",
+				"Le prix de la recherche dans H : doubler |H| ne coûte qu'une observation supplémentaire — mais en pratique, la sélection de paramètres fait croître |H| de façon exponentielle, ce que le coût logarithmique masque.",
+				'La variance du risque empirique, qui ne dépend que de δ.'
+			],
+			answerIndex: 2,
+			explanation:
+				"Le cartouche « Un coût seulement logarithmique — mais attention » l'énonce : log|H| est le prix de la recherche dans la classe (doubler |H| ne coûte qu'une observation supplémentaire à ε et δ fixés), mais cette économie est trompeuse en pratique, car une grille d'hyperparamètres fait croître |H| de façon exponentielle en amont."
+		}
+	];
 	const { prev: prevMeta, next: nextMeta } = $derived(
 		getAdjacentPages(meta?.path ?? '', $settings.expertMode)
 	);
@@ -375,6 +444,14 @@
 			paramétrique continue. La leçon suivante introduit l'outil qui prend le relais dans ce cas : la
 			dimension de Vapnik-Chervonenkis.
 		</Callout>
+
+		<InteractiveSection
+			number="2.3"
+			title="Quiz — Généralisation pour une classe finie"
+			onInteract={tracker.trackInteraction}
+		>
+			<Quiz items={quiz} />
+		</InteractiveSection>
 	</TheorySection>
 
 	<Bibliography>

@@ -17,9 +17,55 @@
 	import { settings } from '$lib/stores/index.js';
 	import { createPageTracker } from '$lib/stores/progress.svelte';
 	import type { PageMeta } from '$lib/navigation.js';
+	import Quiz, { type QuizItem } from '$lib/components/demos/Quiz.svelte';
 
 	const meta = getPageByPath('/part9/lesson2');
 	const tracker = createPageTracker(meta as PageMeta);
+
+	const quiz: QuizItem[] = [
+		{
+			question:
+				"Pour une perte convexe positive, le Théorème 4.1 affirme qu'elle est calibrée si et seulement si :",
+			options: [
+				"phi'(0) > 0",
+				'phi(0) = 0',
+				"elle est différentiable en 0 et phi'(0) < 0",
+				'C_phi(0, eta) est toujours linéaire'
+			],
+			answerIndex: 2,
+			explanation: "C'est le critère local de calibration de Bartlett, Jordan et McAuliffe (2006)."
+		},
+		{
+			question: "Dans la preuve, la dérivée du risque conditionnel C_phi en 0 s'écrit :",
+			options: [
+				"(2 eta - 1) phi'(0)",
+				"eta phi'(0)",
+				"phi'(0) / (2 eta - 1)",
+				"(1 - 2 eta) phi'(0)"
+			],
+			answerIndex: 0,
+			explanation:
+				"Ce signe dépend de (2 eta - 1) et de phi'(0), ce qui place le minimiseur du bon côté de 0."
+		},
+		{
+			question: 'Pour la perte logistique, la pente en 0 vaut :',
+			options: ['-1', '-2', '0', '-1/2'],
+			answerIndex: 3,
+			explanation: "La leçon calcule phi'(t) = -exp(-t)/(1 + exp(-t)), donc phi'(0) = -1/2."
+		},
+		{
+			question: "La perte charnière est calibrée malgré son point d'angle parce que :",
+			options: [
+				"son point d'angle est en 0",
+				"son point d'angle est en 1, donc elle est différentiable en 0 avec une pente négative",
+				'sa pente en 0 est positive',
+				'elle vaut 0 pour toutes les marges'
+			],
+			answerIndex: 1,
+			explanation:
+				"La leçon souligne que la charnière a son point d'angle en t = 1, pas en 0, et que sa pente en 0 est -1."
+		}
+	];
 	const { prev: prevMeta, next: nextMeta } = $derived(
 		getAdjacentPages(meta?.path ?? '', $settings.expertMode)
 	);
@@ -477,6 +523,14 @@
 			(<KatexInline formula={'-1'} />) et Brier (<KatexInline formula={'-2'} />) sont toutes
 			calibrées — la charnière malgré son point d'angle, qui est en 1 et non en 0.
 		</Callout>
+
+		<InteractiveSection
+			number="2.4"
+			title="Quiz — Calibration des pertes convexes"
+			onInteract={tracker.trackInteraction}
+		>
+			<Quiz items={quiz} />
+		</InteractiveSection>
 	</TheorySection>
 	<Bibliography>
 		<BibElement

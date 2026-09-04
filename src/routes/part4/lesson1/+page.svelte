@@ -20,9 +20,77 @@
 	import { getPageByPath, getAdjacentPages, type PageMeta } from '$lib/navigation.js';
 	import { settings } from '$lib/stores/index.js';
 	import { createPageTracker } from '$lib/stores/progress.svelte';
+	import Quiz, { type QuizItem } from '$lib/components/demos/Quiz.svelte';
 
 	const meta = getPageByPath('/part4/lesson1');
 	const tracker = createPageTracker(meta as PageMeta);
+
+	const quiz: QuizItem[] = [
+		{
+			question:
+				"D'après le théorème 5.1, que devient la variance de l'agrégation (moyenne de m prédicteurs à erreurs centrées et indépendantes) ?",
+			options: [
+				'elle est multipliée par m',
+				'elle reste inchangée',
+				'elle est divisée par m²',
+				'elle est divisée par m'
+			],
+			answerIndex: 3,
+			explanation:
+				"Théorème 5.1 : sous l'indépendance, les termes croisés E[ε_j ε_k] (j ≠ k) s'annulent et il reste (1/m) E[ε²] : la variance est réduite d'un facteur m. Le callout « Remarque cruciale » rappelle que cela ne fonctionne que si les modèles font des erreurs complémentaires."
+		},
+		{
+			question:
+				"L'exemple 5.1.1 considère m prédicteurs dont les erreurs ont une corrélation constante ρ : la variance agrégée vaut ρσ² + (1−ρ)σ²/m. Que se passe-t-il quand m tend vers l'infini ?",
+			options: [
+				'la variance tend vers 0',
+				'la variance tend vers ρσ², quel que soit le nombre de modèles ajoutés',
+				'la variance diverge',
+				'la variance tend vers σ²'
+			],
+			answerIndex: 1,
+			explanation:
+				"Seul le second terme décroît en 1/m ; le premier terme ρσ² ne dépend pas de m : au-delà d'un certain point, ajouter des modèles n'apporte plus qu'un gain marginal. C'est donc la corrélation entre modèles, et non leur nombre, qui borne le gain possible — la motivation du bagging et des forêts aléatoires, qui cherchent à réduire activement ρ."
+		},
+		{
+			question:
+				"Dans un échantillon bootstrap de taille n tiré avec remise dans les n points du jeu d'entraînement, quelle proportion des points originaux est en moyenne absente de l'échantillon ?",
+			options: [
+				'environ 1/e ≈ 36,8 %',
+				'environ 1/2 = 50 %',
+				'exactement 1/n',
+				'aucune : avec n tirages, tous les points sont forcément présents'
+			],
+			answerIndex: 0,
+			explanation:
+				"Définition 5.5 et callout « Pourquoi 63.2 % ? » : la probabilité qu'un point ne soit pas sélectionné lors d'un tirage est 1 − 1/n ; après n tirages indépendants, (1 − 1/n)ⁿ → e^(−1) ≈ 0,368. Environ 36,8 % des points sont donc out-of-bag et environ 63,2 % sont présents au moins une fois."
+		},
+		{
+			question:
+				"Selon le théorème 5.6 et le callout d'intuition qui l'accompagne, sur quel type de modèle de base le bagging est-il le plus utile ?",
+			options: [
+				'sur les modèles stables, déjà à faible variance (comme la régression linéaire)',
+				'uniquement sur les modèles probabilistes qui sortent des distributions',
+				'sur les modèles instables, dont les prédictions changent beaucoup avec de petites variations des données (arbres non élagués, réseaux de neurones)',
+				'uniquement lorsque le modèle de base est convexe'
+			],
+			answerIndex: 2,
+			explanation:
+				"Le théorème 5.6 (variance baggée = σ²/M si les modèles sont décorrélés) est le plus utile pour les modèles instables : le bootstrap rend l'hypothèse d'indépendance approximativement vraie en entraînant chaque modèle sur un sous-échantillon différent. Un modèle déjà stable (régression linéaire), à variance faible, a en revanche essentiellement rien à gagner de l'agrégation."
+		},
+		{
+			question: "Quel est l'intérêt principal de l'erreur out-of-bag (OOB) (définition 5.7) ?",
+			options: [
+				'elle réentraîne chaque modèle sur les points manquants de son bootstrap',
+				"elle fournit une estimation de l'erreur de généralisation sans ensemble de validation séparé",
+				'elle remplace le bootstrap par un sous-échantillonnage aléatoire sans remise',
+				"elle garantit que le biais de l'agrégat est nul"
+			],
+			answerIndex: 1,
+			explanation:
+				"Chaque exemple (x_i, y_i) est évalué uniquement par les modèles dont l'échantillon bootstrap ne contenait pas cet exemple (l'ensemble C_i), exactement comme s'il s'agissait d'un ensemble de test indépendant : une estimation non biaisée de la généralisation, sans avoir mis de côté la moindre donnée au départ."
+		}
+	];
 	const { prev: prevMeta, next: nextMeta } = $derived(
 		getAdjacentPages(meta?.path ?? '', $settings.expertMode)
 	);
@@ -677,6 +745,14 @@
 				</li>
 			</ul>
 		</Callout>
+
+		<InteractiveSection
+			number="5.6"
+			title="Quiz — Méthodes ensemblistes et bagging"
+			onInteract={tracker.trackInteraction}
+		>
+			<Quiz items={quiz} />
+		</InteractiveSection>
 	</TheorySection>
 
 	<!-- BIBLIOGRAPHY -->
@@ -692,7 +768,7 @@
 			authors={['Breiman, L.']}
 			year={2001}
 			title="Random Forests"
-			journal="Machine Learning."
+			journal="Machine Learning, Vol. 45, No. 1, pp. 5-32."
 			link="https://doi.org/10.1023/A:1010933404324"
 		/>
 		<BibElement
