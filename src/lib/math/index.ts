@@ -25,6 +25,7 @@ export * from './adam.js';
 
 // ── Part II — Classification (CM1) ──
 export * from './metrics.js';
+export * from './svm.js';
 
 // ── Part IV — Ensembles & Regularization ──
 export * from './synthetic-data.js';

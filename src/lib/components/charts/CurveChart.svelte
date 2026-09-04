@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { scaleLinear, scaleLog, line, curveBasis, curveLinear } from 'd3';
+	import { scaleLinear, scaleLog, line, curveBasis, curveLinear, format } from 'd3';
 	import type { Snippet } from 'svelte';
 
 	// ─── Curve layer ──────────────────────────────────────────────────────────────
@@ -210,6 +210,8 @@
 		return scale.domain(computedYDomain).range([baseline, pad.top]);
 	});
 
+	const formatTick = (t: number): string => format('.3~g')(t);
+
 	const yTicks = $derived.by(() => {
 		if (!useLog) return yScale.ticks(nYTicks);
 		// A fixed small count would leave the upper decades unlabeled on a log
@@ -223,7 +225,7 @@
 	// (Mono digit ≈ 6.5px at the 10.5px tick font.)
 	const padLeft = $derived.by(() => {
 		if (!yAxis) return 20;
-		const widest = Math.max(0, ...yTicks.map((t) => String(t).length));
+		const widest = Math.max(0, ...yTicks.map((t) => formatTick(t).length));
 		return Math.max(20, Math.ceil(16 + (widest * 6.5) / 2 + 3));
 	});
 
@@ -390,7 +392,7 @@
 					text-anchor="middle"
 					fill="var(--color-text-muted)"
 					font-size="10.5"
-					font-family="var(--font-mono)">{tick}</text
+					font-family="var(--font-mono)">{formatTick(tick)}</text
 				>
 			{/each}
 			{#if yAxis}
@@ -409,7 +411,7 @@
 						text-anchor="middle"
 						fill="var(--color-text-muted)"
 						font-size="10.5"
-						font-family="var(--font-mono)">{tick}</text
+						font-family="var(--font-mono)">{formatTick(tick)}</text
 					>
 				{/each}
 			{/if}
