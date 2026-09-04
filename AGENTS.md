@@ -22,15 +22,23 @@ right, and getting the Svelte/TypeScript right. Neither excuses the other.
 **machine_learning** ("Théorie de l'Apprentissage Statistique", still branded
 "Régularisation et Optimisation" in some site chrome) is an interactive
 master's-level course built with SvelteKit. The course content is in
-**French**. The mathematical ground truth is `typst/theorie.typ` — a Typst
-document containing every definition, theorem, and proof the site teaches.
+**French**. The mathematical ground truth lives in **`course_sources/`** —
+a directory at the project root, and everything under its subdirectories,
+containing the source documents the course teaches. Files in this tree can
+be of any format (`.typ`, `.tex`, or others) — treat all of them as
+ground-truth material regardless of extension.
 
 Site structure:
 
-- `typst/theorie.typ` — the ground-truth theory text. **Read the relevant
-  section of this before writing any lesson content or math code.** If a
-  result, a numbered theorem, or a proof step isn't in this document, it
-  doesn't get taught as course content — see "Content fidelity" below.
+- `course_sources/` — the ground-truth theory sources: every definition,
+  theorem, and proof the site teaches, spread across one or more files of
+  any format (Typst `.typ`, LaTeX `.tex`, etc.) in this directory and its
+  subdirectories. **Read the relevant file(s) in this tree before writing
+  any lesson content or math code.** If a result, a numbered theorem, or a
+  proof step isn't in one of these files, it doesn't get taught as course
+  content — see "Content fidelity" below. If more than one source file
+  could plausibly cover a topic, check all candidates in the relevant
+  subdirectory rather than assuming the first one you find is authoritative.
 - `src/lib/math/*.ts` + matching `*.test.ts` — every formula, simulator, and
   numeric generator used anywhere on the site. No formulas live inline in
   `.svelte` files; if a component needs a number, it imports the function
@@ -66,26 +74,29 @@ first is always cheaper than the fix.
 
 The same principle applies to the mathematics: don't derive or restate a
 theorem from general knowledge of the field. Pull the exact statement,
-numbering, and proof structure from `theorie.typ`. A plausible-sounding
-convention (e.g. a tie-breaking rule at a decision threshold) can be
-mathematically arbitrary in general but _fixed_ by the specific theorem
-statement in the text — check it rather than assuming the "natural" choice
-matches.
+numbering, and proof structure from the relevant file(s) under
+`course_sources/`. A plausible-sounding convention (e.g. a tie-breaking rule
+at a decision threshold) can be mathematically arbitrary in general but
+_fixed_ by the specific theorem statement in the source — check it rather
+than assuming the "natural" choice matches. When a topic could be covered in
+more than one file in the tree, confirm which one actually states the result
+before citing it.
 
-## Content fidelity to `theorie.typ`
+## Content fidelity to `course_sources/`
 
-- Lesson pages teach what's in `theorie.typ` — same theorem numbers, same
-  proof structure (paraphrased in your own words, not copied verbatim, but
-  mathematically faithful step-for-step).
+- Lesson pages teach what's in `course_sources/` — same theorem numbers,
+  same proof structure (paraphrased in your own words, not copied verbatim,
+  but mathematically faithful step-for-step), taken from whichever source
+  file in the tree actually contains that content.
 - Do not invent new theorems or propositions and present them as course
-  content. Extensions beyond the text (a generalized cost-sensitive Bayes
+  content. Extensions beyond the sources (a generalized cost-sensitive Bayes
   rule, a speculative preview of a later part, a simplified/illustrative
-  toy model standing in for a formula the text doesn't give code for) are
+  toy model standing in for a formula the sources don't give code for) are
   allowed, but must be **visibly marked as such** — "exercice optionnel, au
   delà du cours", "illustratif, pas une simulation exacte", a code comment
   explaining the simplification — never presented as if it came from the
-  text.
-- When a demo needs a concrete numeric model that `theorie.typ` only
+  sources.
+- When a demo needs a concrete numeric model that `course_sources/` only
   describes qualitatively (e.g. the double-descent figure, the neural-net
   norm bound), build the simplest faithful version of the _shape_ of the
   real result, document every simplifying assumption in both the code
@@ -94,11 +105,13 @@ matches.
 
 ## Math modules (`src/lib/math/`)
 
-- One module per theoretical topic, matching the corresponding
-  `theorie.typ` section (`bayes-learning.ts`, `consistency.ts`,
+- One module per theoretical topic, matching the corresponding section in
+  the relevant `course_sources/` file (`bayes-learning.ts`, `consistency.ts`,
   `concentration.ts`, `generalization.ts`, `vc.ts`, `calibration.ts`, ...).
-- Every exported function gets a docstring citing the `theorie.typ`
-  section/theorem number it implements.
+- Every exported function gets a docstring citing the specific
+  `course_sources/` file and the section/theorem number it implements —
+  name the file explicitly when the tree contains more than one source
+  document, so the citation is unambiguous.
 - Every module gets a matching `*.test.ts`. Tests should do more than check
   a formula against itself — check against:
   - a known closed-form value computed independently,
@@ -177,3 +190,5 @@ alongside the general case.
 - Every new/changed math function has a test.
 - Every new demo's captions/comments are honest about simplifications.
 - Every new component's imports point at files you've actually read.
+- Every citation of a theorem/section names the specific `course_sources/`
+  file it came from, not just "the sources" in general.
