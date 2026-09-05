@@ -74,7 +74,7 @@
 		const r1 = mulberry32(combineSeed(seed, 1));
 		const r2 = mulberry32(combineSeed(seed, 2));
 		const pts: [number, number][] = [];
-		for (let i = 0; i < N; i++) pts.push([2 * r1() - 2, 2 * r2() - 2]);
+		for (let i = 0; i < N; i++) pts.push([4 * r1() - 2, 4 * r2() - 2]);
 		return pts;
 	});
 

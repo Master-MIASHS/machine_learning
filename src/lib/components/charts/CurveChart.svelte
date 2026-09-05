@@ -214,9 +214,18 @@
 
 	const yTicks = $derived.by(() => {
 		if (!useLog) return yScale.ticks(nYTicks);
-		// A fixed small count would leave the upper decades unlabeled on a log
-		// axis: aim for ~one tick per decade instead.
 		const decades = Math.log10(computedYDomain[1] / computedYDomain[0]);
+		if (decades > 2) {
+			// d3 ignore le count demandé dès que les décades sont peu nombreuses
+			// devant lui, et retombe sur la subdivision fine 1..9 par décade — on
+			// filtre après coup pour ne garder qu'une graduation par décade.
+			const raw = yScale.ticks(Math.max(20, Math.round(decades) * 9));
+			const powersOfTen = raw.filter((t) => {
+				const lg = Math.log10(t);
+				return Math.abs(lg - Math.round(lg)) < 1e-9;
+			});
+			return powersOfTen.length > 0 ? powersOfTen : raw;
+		}
 		return yScale.ticks(Math.min(14, Math.max(nYTicks, Math.round(decades))));
 	});
 
