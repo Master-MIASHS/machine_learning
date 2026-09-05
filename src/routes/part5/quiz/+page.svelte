@@ -1,0 +1,295 @@
+<script lang="ts">
+	import PageTemplate from '$lib/components/layout/PageTemplate.svelte';
+	import Quiz, { type QuizItem } from '$lib/components/narrative/Quiz.svelte';
+	import { getPageByPath, getAdjacentPages } from '$lib/navigation.js';
+	import { settings } from '$lib/stores/index.js';
+	import { createPageTracker } from '$lib/stores/progress.svelte';
+	import type { PageMeta } from '$lib/navigation.js';
+
+	const meta = getPageByPath('/part5/quiz');
+	createPageTracker(meta as PageMeta);
+
+	const quiz: QuizItem[] = [
+		{
+			question: 'Quel est le prédicteur Top-K bayésien S*(x) pour un point x ?',
+			options: [
+				"L'ensemble des K classes ayant les plus grands scores estimés p(x)",
+				"L'ensemble des K classes ayant les plus grandes probabilités conditionnelles vraies η(x)",
+				"L'ensemble des K classes ayant les probabilités a priori les plus élevées",
+				"L'ensemble des classes dont la probabilité dépasse un seuil fixe"
+			],
+			answerIndex: 1,
+			explanation:
+				'Le prédicteur Top-K bayésien maximise la masse de probabilité captée en choisissant les K classes les plus probables au sens de la vérité η(x).'
+		},
+		{
+			question: 'Quelle est la propriété de la courbe K ↦ Acc@K ?',
+			options: [
+				'Elle est monotone décroissante',
+				'Elle est constante',
+				'Elle est monotone croissante',
+				'Elle suit une courbe en U'
+			],
+			answerIndex: 2,
+			explanation:
+				"Comme les ensembles Top-K sont emboîtés (Top-K ⊆ Top-K+1), l'exactitude ne peut que croître ou rester stable lorsque K augmente."
+		},
+		{
+			question: "Quel est l'effet du Temperature Scaling sur le prédicteur Top-K pour un K fixé ?",
+			options: [
+				"Il modifie le classement des classes et donc l'ensemble Top-K",
+				"Il ne modifie pas le classement des classes, donc l'ensemble Top-K reste inchangé",
+				'Il rend le modèle systématiquement plus confiant',
+				"Il annule l'exactitude Top-1"
+			],
+			answerIndex: 1,
+			explanation:
+				'Le Temperature Scaling est une fonction strictement croissante des logits ; il modifie les valeurs des probabilités (calibration) mais préserve rigoureusement leur ordre.'
+		},
+		{
+			question:
+				'Pourquoi le choix de K par seuillage de la masse cumulative exige-t-il un modèle calibré ?',
+			options: [
+				'Parce que le classement des classes ne suffit plus, les valeurs exactes des scores comptent',
+				'Parce que le risque bayésien dépend uniquement des rangs',
+				"Parce que l'ECE doit être nulle pour tout seuil",
+				'Parce que le modèle doit être linéaire'
+			],
+			answerIndex: 0,
+			explanation:
+				'Pour un K fixé, seul le classement compte. Mais pour choisir K tel que Σ p_c ≥ τ, on a besoin que p_c soit une bonne approximation de η_c.'
+		},
+		{
+			question:
+				"Quel est le gain marginal de risque lorsque l'on passe d'un ensemble Top-(K-1) à un ensemble Top-K ?",
+			options: [
+				"L'espérance de la probabilité de la K-ième classe la plus probable, E[η_(K)(X)]",
+				"L'exactitude Top-1",
+				'La variance du modèle',
+				"Il n'y a pas de gain systématique"
+			],
+			answerIndex: 0,
+			explanation:
+				'Le gain marginal est précisément la probabilité moyenne de la K-ième classe la plus vraisemblable : R_{K-1}* - R_K* = E[η_{(K)}(X)].'
+		},
+		{
+			question:
+				'Sur quelle hypothèse fondamentale repose la garantie de couverture de la prédiction conformelle ?',
+			options: [
+				"L'indépendance et l'identité de distribution (i.i.d.) stricte",
+				"L'échangeabilité des données",
+				'La normalité des résidus',
+				'La convexité de la fonction de perte'
+			],
+			answerIndex: 1,
+			explanation:
+				"La garantie repose sur l'échangeabilité, une hypothèse plus faible que i.i.d. (les données i.i.d. sont toujours échangeables)."
+		},
+		{
+			question:
+				'Quelle est la différence entre couverture marginale et couverture conditionnelle ?',
+			options: [
+				'La couverture marginale est plus forte que la conditionnelle',
+				'La couverture conditionnelle est garantie par le théorème de base du Split Conformal',
+				'La couverture marginale est une moyenne globale, tandis que la conditionnelle doit tenir pour chaque x',
+				"Il n'y a aucune différence mathématique"
+			],
+			answerIndex: 2,
+			explanation:
+				'La garantie conformelle est marginale : elle assure que la moyenne de la couverture sur toute la population est ≥ 1-α, mais ne garantit pas la couverture point par point.'
+		},
+		{
+			question:
+				'Sous quelle condition la borne supérieure de couverture (1 - α + 1/(n+1)) est-elle exacte ?',
+			options: [
+				'Quand le modèle est parfaitement calibré',
+				"Quand les scores de non-conformité sont presque sûrement distincts (pas d'égalités)",
+				"Quand l'ensemble de calibration est infini",
+				'Quand on utilise le score de rang'
+			],
+			answerIndex: 1,
+			explanation:
+				'Si les scores sont distincts, les rangs sont uniformément distribués sur {1, ..., n+1}, et la probabilité de couverture devient exactement (ceil((n+1)(1-α)))/(n+1).'
+		},
+		{
+			question: "Quel est le lien de dualité entre le Top-K et l'ensemble conforme oracle ?",
+			options: [
+				"Le Top-K fixe la couverture et maximise la taille ; l'oracle fixe la taille et minimise la masse",
+				"Le Top-K fixe la taille K et maximise la masse ; l'oracle fixe la couverture 1-α et minimise la taille",
+				'Ils sont identiques pour tout modèle calibré',
+				"L'un traite la classification, l'autre la régression"
+			],
+			answerIndex: 1,
+			explanation:
+				"Les deux sont des ensembles de niveau de η(x). Le Top-K maximise la masse pour une taille fixée, l'oracle minimise la taille pour une masse fixée."
+		},
+		{
+			question:
+				"Dans la prédiction conformelle, quel est l'impact d'un modèle p(x) très médiocre sur la garantie de couverture ?",
+			options: [
+				'La garantie de couverture est violée',
+				'La garantie reste valide, mais les ensembles de prédiction deviennent inutilement larges',
+				'Le modèle devient automatiquement calibré',
+				'La couverture devient conditionnelle'
+			],
+			answerIndex: 1,
+			explanation:
+				"La validité est model-free. La qualité du modèle n'affecte que l'efficacité (la taille des ensembles), pas la validité de la garantie."
+		},
+		{
+			question:
+				"Comment le score APS (Adaptive Prediction Sets) s'adapte-t-il différemment du score de rang ?",
+			options: [
+				'Il ignore les probabilités pour ne garder que le rang',
+				"Il utilise la masse cumulative des probabilités pour ajuster la taille de l'ensemble à la distribution",
+				"Il fixe la taille de l'ensemble indépendamment des données",
+				'Il ne fonctionne que pour le Top-1'
+			],
+			answerIndex: 1,
+			explanation:
+				'Le score APS utilise le complément de la somme des probabilités des classes au moins aussi probables que la vraie classe, permettant une adaptation fine à la forme de la distribution.'
+		},
+		{
+			question: "Que se passe-t-il si l'ensemble de calibration est trop petit (n < 1/α - 1) ?",
+			options: [
+				'La garantie de couverture est annulée',
+				"L'ensemble de prédiction devient systématiquement vide",
+				"L'ensemble de prédiction devient systématiquement l'ensemble de toutes les classes",
+				'Le quantile q devient nul'
+			],
+			answerIndex: 2,
+			explanation:
+				"Si n est trop petit, le rang requis k = ceil((n+1)(1-α)) dépasse n, forçant la prise du score maximum et l'inclusion de toutes les classes."
+		},
+		{
+			question:
+				"En régression, quel est l'ensemble de prédiction optimal (oracle) pour une couverture fixée 1-α ?",
+			options: [
+				'Un intervalle centré sur la moyenne',
+				"L'ensemble des points dont la densité conditionnelle f(y|x) est supérieure à un seuil (HDR)",
+				'Un intervalle de largeur constante',
+				"La valeur unique qui minimise l'erreur quadratique"
+			],
+			answerIndex: 1,
+			explanation:
+				"L'oracle en régression est une région de densité maximale (Highest Density Region), qui minimise la largeur moyenne pour une masse de probabilité donnée."
+		},
+		{
+			question:
+				"Quand un intervalle de largeur constante est-il une approximation optimale de l'oracle en régression ?",
+			options: [
+				'Quand les données sont fortement hétéroscédastiques',
+				'Sous homoscédasticité (la variance des erreurs ne dépend pas de x)',
+				"Quand l'ensemble de calibration est très petit",
+				'Uniquement pour les modèles linéaires'
+			],
+			answerIndex: 1,
+			explanation:
+				"L'intervalle constant suppose que la marge d'erreur est la même partout. C'est optimal si la largeur de la région de densité maximale est constante (homoscédasticité)."
+		},
+		{
+			question: 'Quelle est la formule du score de conformité pour les intervalles adaptatifs ?',
+			options: [
+				's(x, y) = |y - f(x)|',
+				's(x, y) = (y - f(x))^2',
+				's(x, y) = |y - f(x)| / (σ(x) + ε)',
+				's(x, y) = 1 - p_y(x)'
+			],
+			answerIndex: 2,
+			explanation:
+				"Le score adaptatif normalise l'erreur absolue par une estimation de l'incertitude locale σ(x), permettant des intervalles plus étroits là où le modèle est confiant."
+		},
+		{
+			question:
+				'Que signifie un score positif dans le cadre de la Régression Quantile Conforme (CQR) ?',
+			options: [
+				"L'observation y est à l'intérieur de l'intervalle estimé",
+				"L'observation y a dépassé les bornes de l'intervalle estimé",
+				'Le modèle est parfaitement calibré',
+				"L'incertitude locale est nulle"
+			],
+			answerIndex: 1,
+			explanation:
+				"En CQR, le score s(x, y) = max(q_lo(x) - y, y - q_hi(x)) est positif si y est hors de l'intervalle et négatif s'il est à l'intérieur."
+		},
+		{
+			question: "Quel est l'objectif principal de la Régression Quantile Conforme (CQR) ?",
+			options: [
+				'Remplacer la prédiction ponctuelle par une moyenne',
+				'Combiner la forme adaptative des quantiles appris avec une garantie de couverture exacte via calibration',
+				"Supprimer le besoin d'un ensemble de calibration",
+				'Réduire la variance du modèle en utilisant le bootstrap'
+			],
+			answerIndex: 1,
+			explanation:
+				"CQR utilise des régressions quantiles pour suivre l'hétéroscédasticité, puis applique un décalage uniforme Q calculé sur calibration pour garantir la couverture."
+		},
+		{
+			question:
+				"Quelle métrique permet de détecter si un système d'intervalles échoue dans certaines régions de l'espace d'entrée ?",
+			options: [
+				'Le taux de couverture empirique global',
+				'La largeur moyenne des intervalles',
+				"L'efficacité conditionnelle",
+				"L'erreur quadratique moyenne"
+			],
+			answerIndex: 2,
+			explanation:
+				"L'efficacité conditionnelle vérifie l'homogénéité de la couverture. Une bonne couverture marginale peut cacher des échecs locaux graves."
+		},
+		{
+			question:
+				"L'estimation de l'incertitude locale σ(x) peut être réalisée par laquelle de ces méthodes ?",
+			options: [
+				'Bootstrap et Bagging',
+				'Régression quantile',
+				'Réseaux bayésiens',
+				'Toutes les réponses précédentes'
+			],
+			answerIndex: 3,
+			explanation:
+				"Toutes ces méthodes permettent d'estimer la variabilité locale des prédictions pour construire des intervalles adaptatifs."
+		},
+		{
+			question:
+				"Quel est l'impact d'une augmentation de la taille de l'ensemble de calibration sur la précision des intervalles ?",
+			options: [
+				'Elle diminue la garantie de couverture',
+				'Elle rend les intervalles systématiquement plus larges',
+				'Elle stabilise le quantile q et rapproche la couverture empirique de la garantie théorique',
+				"Elle n'a aucun effet sur la largeur des intervalles"
+			],
+			answerIndex: 2,
+			explanation:
+				"Un ensemble de calibration plus grand réduit la variance de l'estimation du quantile q, rendant les intervalles plus stables et plus proches de l'optimalité théorique."
+		}
+	];
+
+	const { prev: prevMeta, next: nextMeta } = $derived(
+		getAdjacentPages(meta?.path ?? '', $settings.expertMode)
+	);
+</script>
+
+<svelte:head>
+	<title
+		>{meta?.title ?? 'Quiz de synthèse — Partie V'} — Fondations de l'Apprentissage Statistique</title
+	>
+</svelte:head>
+
+<PageTemplate
+	title={meta?.title ?? 'Quiz de synthèse — Partie V'}
+	subtitle="Vérifiez vos acquis sur la classification Top-K, la prédiction conforme et les intervalles de régression"
+	prev={prevMeta}
+	next={nextMeta}
+>
+	<div class="quiz-container">
+		<Quiz items={quiz} maxQuestions={10} />
+	</div>
+</PageTemplate>
+
+<style>
+	.quiz-container {
+		max-width: 800px;
+		margin: 0 auto;
+	}
+</style>

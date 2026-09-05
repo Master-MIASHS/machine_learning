@@ -66,6 +66,7 @@ const RAW_PAGES = [
 	{ path: '/part5/lesson1', title: 'Classification Top-K', part: 5 },
 	{ path: '/part5/lesson2', title: 'Prédiction conformelle', part: 5 },
 	{ path: '/part5/lesson3', title: 'Intervalles de prédiction', part: 5 },
+	{ path: '/part5/quiz', title: 'Quiz de synthèse', part: 5 },
 	{ path: '/part5/exercices', title: 'Exercices', part: 5 },
 
 	// Partie VI – Bayes optimum

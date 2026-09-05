@@ -50,7 +50,9 @@
 	);
 
 	function selectAnswer(questionIndex: number, answerIndex: number) {
-		selectedAnswers = { ...selectedAnswers, [questionIndex]: answerIndex };
+		if (selectedAnswers[questionIndex] === undefined) {
+			selectedAnswers = { ...selectedAnswers, [questionIndex]: answerIndex };
+		}
 	}
 
 	function reset() {
