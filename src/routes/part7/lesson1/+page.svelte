@@ -15,7 +15,7 @@
 	import type { PageMeta } from '$lib/navigation.js';
 	import Bibliography from '$lib/components/narrative/bib/Bibliography.svelte';
 	import BibElement from '$lib/components/narrative/bib/BibElement.svelte';
-	import Quiz, { type QuizItem } from '$lib/components/demos/Quiz.svelte';
+	import Quiz, { type QuizItem } from '$lib/components/narrative/Quiz.svelte';
 
 	const meta = getPageByPath('/part7/lesson1');
 	const tracker = createPageTracker(meta as PageMeta);

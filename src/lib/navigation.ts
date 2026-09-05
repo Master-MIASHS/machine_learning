@@ -27,6 +27,7 @@ const RAW_PAGES = [
 		expert: true
 	},
 	{ path: '/part1/lesson4', title: 'SGD, CD & Newton', part: 1 },
+	{ path: '/part1/quiz', title: 'Quiz de synthèse', part: 1 },
 	{ path: '/part1/exercices', title: 'Exercices', part: 1 },
 	{ path: '/part1/practice/travaux-pratiques', title: 'Travaux pratiques', part: 1 },
 
@@ -57,6 +58,7 @@ const RAW_PAGES = [
 	{ path: '/part4/lesson2', title: 'Random Forest & sélection de features', part: 4 },
 	{ path: '/part4/lesson3', title: 'Boosting (AdaBoost, Gradient Boosting)', part: 4 },
 	{ path: '/part4/lesson4', title: 'Régularisation L1/L2/Elastic Net', part: 4 },
+	{ path: '/part4/quiz', title: 'Quiz de synthèse', part: 4 },
 	{ path: '/part4/exercices', title: 'Exercices', part: 4 },
 	{ path: '/part4/practice/travaux-pratiques', title: 'Travaux pratiques', part: 4 },
 
@@ -108,15 +110,15 @@ export const PAGES: PageMeta[] = RAW_PAGES.map((page, idx) => ({
 }));
 
 export const PART_NAMES: Record<number, string> = {
-	1: 'Partie I — Optimisation',
-	2: 'Partie II — Classification supervisée',
-	3: 'Partie III — Clustering',
-	4: 'Partie IV — Régularisation',
-	5: 'Partie V — Set-valued',
-	6: 'Partie VI — Optimum de Bayes',
-	7: 'Partie VII — Consistance',
-	8: 'Partie VIII — Généralisation',
-	9: 'Partie IX — Fonctions de perte'
+	1: 'I — Optimisation',
+	2: 'II — Classification supervisée',
+	3: 'III — Clustering',
+	4: 'IV — Régularisation',
+	5: 'V — Set-valued',
+	6: 'VI — Optimum de Bayes',
+	7: 'VII — Consistance',
+	8: 'VIII — Généralisation',
+	9: 'IX — Fonctions de perte'
 };
 
 export function getPageByPath(path: string): PageMeta | undefined {

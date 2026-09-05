@@ -8,15 +8,44 @@
 
 	interface Props {
 		items: QuizItem[];
+		maxQuestions?: number;
 	}
 
-	let { items }: Props = $props();
+	let { items, maxQuestions }: Props = $props();
 	let selectedAnswers = $state<Record<number, number>>({});
+	let visibleIndices = $state<number[]>([]);
 
-	const answeredCount = $derived(Object.keys(selectedAnswers).length);
+	function getRandomSubset(n: number, k: number): number[] {
+		const indices = Array.from({ length: n }, (_, i) => i);
+		for (let i = n - 1; i > 0; i--) {
+			const j = Math.floor(Math.random() * (i + 1));
+			[indices[i], indices[j]] = [indices[j], indices[i]];
+		}
+		return indices.slice(0, k);
+	}
+
+	function updateVisibleIndices() {
+		if (maxQuestions === undefined || maxQuestions >= items.length) {
+			visibleIndices = Array.from({ length: items.length }, (_, i) => i);
+		} else {
+			visibleIndices = getRandomSubset(items.length, maxQuestions);
+		}
+	}
+
+	$effect(() => {
+		updateVisibleIndices();
+	});
+
+	const answeredCount = $derived(
+		Object.entries(selectedAnswers).filter(([idx]) => 
+			visibleIndices.includes(Number(idx))
+		).length
+	);
+
 	const correctCount = $derived(
 		Object.entries(selectedAnswers).filter(([questionIndex, answerIndex]) => {
-			return items[Number(questionIndex)]?.answerIndex === answerIndex;
+			const idx = Number(questionIndex);
+			return visibleIndices.includes(idx) && items[idx]?.answerIndex === answerIndex;
 		}).length
 	);
 
@@ -26,6 +55,13 @@
 
 	function reset() {
 		selectedAnswers = {};
+	}
+
+	function shuffle() {
+		if (maxQuestions !== undefined && maxQuestions < items.length) {
+			visibleIndices = getRandomSubset(items.length, maxQuestions);
+			selectedAnswers = {};
+		}
 	}
 
 	function isAnswered(questionIndex: number): boolean {
@@ -43,25 +79,33 @@
 	{:else}
 		<div class="quiz-header">
 			<p class="progress" aria-live="polite">
-				{correctCount} / {items.length} réponse{items.length > 1 ? 's' : ''} correcte{items.length >
+				{correctCount} / {visibleIndices.length} réponse{visibleIndices.length > 1 ? 's' : ''} correcte{visibleIndices.length >
 				1
 					? 's'
 					: ''}
 			</p>
-			<button type="button" class="reset-button" onclick={reset} disabled={answeredCount === 0}>
-				Réinitialiser
-			</button>
+			<div class="header-actions">
+				{#if maxQuestions !== undefined && maxQuestions < items.length}
+					<button type="button" class="reset-button" onclick={shuffle}>
+						Mélanger
+					</button>
+				{/if}
+				<button type="button" class="reset-button" onclick={reset} disabled={answeredCount === 0}>
+					Réinitialiser
+				</button>
+			</div>
 		</div>
 
 		<div class="questions">
-			{#each items as item, questionIndex (questionIndex)}
+			{#each visibleIndices as questionIndex (questionIndex)}
+				{@const item = items[questionIndex]}
 				{@const answered = isAnswered(questionIndex)}
 				{@const correct = answered && isCorrect(questionIndex)}
 				{@const feedbackId = `quiz-feedback-${questionIndex}`}
 
 				<fieldset class="question-card">
 					<legend>
-						<span class="question-number">Question {questionIndex + 1}</span>
+						<span class="question-number">Question {visibleIndices.indexOf(questionIndex) + 1}</span>
 						<span class="question-text">{item.question}</span>
 					</legend>
 
@@ -122,6 +166,11 @@
 		gap: 1rem;
 		padding-bottom: 0.75rem;
 		border-bottom: 1px solid var(--color-border);
+	}
+
+	.header-actions {
+		display: flex;
+		gap: 0.5rem;
 	}
 
 	.progress {

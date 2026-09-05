@@ -17,7 +17,7 @@
 	import ExpertPanel from '$lib/components/narrative/ExpertPanel.svelte';
 	import Bibliography from '$lib/components/narrative/bib/Bibliography.svelte';
 	import BibElement from '$lib/components/narrative/bib/BibElement.svelte';
-	import Quiz, { type QuizItem } from '$lib/components/demos/Quiz.svelte';
+	import Quiz, { type QuizItem } from '$lib/components/narrative/Quiz.svelte';
 
 	const meta = getPageByPath('/part6/lesson1');
 	const tracker = createPageTracker(meta as PageMeta);

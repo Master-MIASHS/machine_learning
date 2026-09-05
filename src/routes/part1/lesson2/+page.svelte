@@ -24,7 +24,7 @@
 	import RidgePathExplorer from '$lib/components/demos/RidgePathExplorer.svelte';
 	import HessianConditionNumber from '$lib/components/demos/HessianConditionNumber.svelte';
 	import LassoPathExplorer from '$lib/components/demos/LassoPathExplorer.svelte';
-	import Quiz, { type QuizItem } from '$lib/components/demos/Quiz.svelte';
+	import Quiz, { type QuizItem } from '$lib/components/narrative/Quiz.svelte';
 
 	// ── Page metadata ──
 	const meta = getPageByPath('/part1/lesson2');

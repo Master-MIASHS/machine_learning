@@ -24,7 +24,7 @@
 	import Beta2NonStationarityExplorer from '$lib/components/demos/Beta2NonStationarityExplorer.svelte';
 	import AdamVsAdamWDecayExplorer from '$lib/components/demos/AdamVsAdamWDecayExplorer.svelte';
 	import AdamFailureModesLab from '$lib/components/demos/AdamFailureModesLab.svelte';
-	import Quiz, { type QuizItem } from '$lib/components/demos/Quiz.svelte';
+	import Quiz, { type QuizItem } from '$lib/components/narrative/Quiz.svelte';
 
 	const meta = getPageByPath('/part1/lesson3-adam');
 	const tracker = createPageTracker(meta as PageMeta);

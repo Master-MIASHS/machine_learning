@@ -22,7 +22,7 @@
 	import TaylorStepVisualizer from '$lib/components/demos/TaylorStepVisualizer.svelte';
 	import { createPageTracker } from '$lib/stores/progress.svelte';
 	import type { PageMeta } from '$lib/navigation.js';
-	import Quiz, { type QuizItem } from '$lib/components/demos/Quiz.svelte';
+	import Quiz, { type QuizItem } from '$lib/components/narrative/Quiz.svelte';
 
 	const meta = getPageByPath('/part1/lesson3');
 	const tracker = createPageTracker(meta as PageMeta);

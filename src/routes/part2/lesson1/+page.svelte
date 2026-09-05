@@ -12,7 +12,7 @@
 	import KatexBlock from '$lib/components/narrative/KatexBlock.svelte';
 	import Bibliography from '$lib/components/narrative/bib/Bibliography.svelte';
 	import BibElement from '$lib/components/narrative/bib/BibElement.svelte';
-	import Quiz, { type QuizItem } from '$lib/components/demos/Quiz.svelte';
+	import Quiz, { type QuizItem } from '$lib/components/narrative/Quiz.svelte';
 	import KNNClassifierExplorer from '$lib/components/demos/KNNClassifierExplorer.svelte';
 	import CurseOfDimensionalityDemo from '$lib/components/demos/CurseOfDimensionalityDemo.svelte';
 	import ConditionalRegressionExplorer from '$lib/components/demos/ConditionalRegressionExplorer.svelte';

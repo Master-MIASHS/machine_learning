@@ -18,7 +18,7 @@
 	import { createPageTracker } from '$lib/stores/progress.svelte';
 	import type { TocEntry } from '$lib/components/narrative/TableOfContents.svelte';
 	import TableOfContents from '$lib/components/narrative/TableOfContents.svelte';
-	import Quiz, { type QuizItem } from '$lib/components/demos/Quiz.svelte';
+	import Quiz, { type QuizItem } from '$lib/components/narrative/Quiz.svelte';
 
 	const meta = getPageByPath('/part4/lesson2');
 	const tracker = createPageTracker(meta as PageMeta);

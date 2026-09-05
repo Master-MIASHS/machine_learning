@@ -13,9 +13,9 @@
 
 	// Derivé de PAGES pour que la barre latérale ne puisse plus
 	// dériver du registre de navigation (ajout/suppression de parties).
-	const parts = [
-		...new Set(PAGES.map((p) => p.part).filter((p): p is number => p !== null))
-	].sort((a, b) => a - b);
+	const parts = [...new Set(PAGES.map((p) => p.part).filter((p): p is number => p !== null))].sort(
+		(a, b) => a - b
+	);
 </script>
 
 {#if collapsed}
@@ -309,11 +309,11 @@
 	}
 
 	.part-label {
-		font-size: 0.6875rem;
+		font-size: 0.8rem;
 		font-weight: 600;
 		text-transform: uppercase;
 		letter-spacing: 0.08em;
-		color: var(--color-text-muted);
+		color: var(--color-evidence);
 		padding: 0.75rem 0.25rem 0.25rem;
 		margin: 0;
 	}
