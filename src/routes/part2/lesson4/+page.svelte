@@ -286,7 +286,7 @@
 			Un hyperplan séparateur ne fait <strong>aucune erreur de classification</strong>
 			sur les données d'apprentissage :
 			<KatexInline formula={'(w, b)'} /> minimise le risque empirique pour le coût 0/1 (<a
-				href="/part2/lesson1">leçon 1</a
+				href={resolve('/part2/lesson1')}>leçon 1</a
 			>) — c'est donc un candidat naturel pour <KatexInline
 				formula={'(\\widehat{w}, \\widehat{b})'}
 			/>.
@@ -435,7 +435,7 @@
 			<KatexBlock formula={proofCollinear} />
 			<p>
 				(voir la partie sur la régression logistique,
-				<a href="/part2/lesson2">leçon 2</a>). Ainsi,
+				<a href={resolve('/part2/lesson2')}>leçon 2</a>). Ainsi,
 			</p>
 			<KatexBlock formula={proofNorm} />
 		</ExpertPanel>
@@ -817,7 +817,7 @@
 			>
 			Ce choix peut être guidé en comparant, pour différentes valeurs de <KatexInline
 				formula="C"
-			/>, les performances des modèles sur les données de validation (<a href="/part2/lesson1"
+			/>, les performances des modèles sur les données de validation (<a href={resolve('/part2/lesson1')}
 				>leçon 1</a
 			>).
 		</p>
@@ -851,10 +851,10 @@
 		<p>
 			La perte <KatexInline formula={'\\ell^{\\mathrm{hinge}}'} /> et la régularisation L2 ont déjà été
 			rencontrées dans ce cours : fonctions de coût (
-			<a href="/part1/lesson2">Partie I, leçon 2</a>), régularisation L2 (
-			<a href="/part4/lesson4">Partie IV, leçon 4</a>), perte de substitution de la perte 0-1 (
-			<a href="/part9/lesson1">Partie IX, leçon 1</a>) et calibration (
-			<a href="/part9/lesson2">Partie IX, leçon 2</a>).
+			<a href={resolve('/part1/lesson2')}>Partie I, leçon 2</a>), régularisation L2 (
+			<a href={resolve('/part4/lesson4')}>Partie IV, leçon 4</a>), perte de substitution de la perte 0-1 (
+			<a href={resolve('/part9/lesson1')}>Partie IX, leçon 1</a>) et calibration (
+			<a href={resolve('/part9/lesson2')}>Partie IX, leçon 2</a>).
 		</p>
 
 		<InteractiveSection
@@ -1487,9 +1487,9 @@
 			<p>
 				L'astuce du noyau s'applique aussi à d'autres algorithmes d'apprentissage linéaires, comme
 				la régression ridge (
-				<a href="/part4/lesson4">Partie IV, leçon 4</a>). Quant à l'évaluation théorique de la SVM,
+				<a href={resolve('/part4/lesson4')}>Partie IV, leçon 4</a>). Quant à l'évaluation théorique de la SVM,
 				la borne de généralisation via la dimension VC est développée dans la
-				<a href="/part8/lesson3">Partie VIII, leçon 3</a>.
+				<a href={resolve('/part8/lesson3')}>Partie VIII, leçon 3</a>.
 			</p>
 			<p>
 				Ce contenu est <strong>au-delà du cours</strong> : il n'est pas développé dans les diapositives.
@@ -1498,7 +1498,7 @@
 
 		<p>
 			Pour mettre en pratique ces résultats sur de vraies données, les{' '}
-			<a href="/part2/practice/travaux-pratiques">travaux pratiques de la partie 2</a>{' '}
+			<a href={resolve('/part2/practice/travaux-pratiques')}>travaux pratiques de la partie 2</a>{' '}
 			(TP5 — SVM) appliquent la SVM à un problème de classification réel.
 		</p>
 	</TheorySection>

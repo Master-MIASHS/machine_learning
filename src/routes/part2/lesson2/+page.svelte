@@ -13,7 +13,7 @@
 	import BibElement from '$lib/components/narrative/bib/BibElement.svelte';
 	import LinearClassifierExplorer from '$lib/components/demos/LinearClassifierExplorer.svelte';
 	import RocCurveExplorer from '$lib/components/demos/RocCurveExplorer.svelte';
-	import { asset } from '$app/paths';
+	import { asset, resolve } from '$app/paths';
 	import { getPageByPath, getAdjacentPages } from '$lib/navigation.js';
 	import { settings } from '$lib/stores/index.js';
 	import { createPageTracker } from '$lib/stores/progress.svelte';
@@ -169,7 +169,7 @@
 		<p class="forward-ref">
 			Rappel : le cadre de l'apprentissage supervisé, la minimisation du risque
 			empirique (paradigme ERM) et la sélection de modèles par validation croisée sont
-			établis dans la <a href="/part2/lesson1">leçon 1</a>. On s'y réfère ici sans les
+			établis dans la <a href={resolve('/part2/lesson1')}>leçon 1</a>. On s'y réfère ici sans les
 			représenter.
 		</p>
 
@@ -390,7 +390,7 @@
 						<ul>
 							<li>la régression logistique (cette leçon)</li>
 							<li>
-								les SVM (<a href="/part2/lesson4">leçon 4</a>)
+								les SVM (<a href={resolve('/part2/lesson4')}>leçon 4</a>)
 							</li>
 						</ul>
 					</td>
@@ -398,18 +398,18 @@
 						<ul>
 							<li>
 								l'algorithme des KNN — régression et classification (
-								<a href="/part2/lesson1">leçon 1</a>)
+								<a href={resolve('/part2/lesson1')}>leçon 1</a>)
 							</li>
 						</ul>
 						<ul>
 							<li>
 								les arbres de décision — CART, régression et classification (
-								<a href="/part2/lesson3">leçon 3</a>)
+								<a href={resolve('/part2/lesson3')}>leçon 3</a>)
 							</li>
 						</ul>
 						<ul>
 							<li>
-								les SVM à noyaux (<a href="/part2/lesson4">leçon 4</a>)
+								les SVM à noyaux (<a href={resolve('/part2/lesson4')}>leçon 4</a>)
 							</li>
 						</ul>
 					</td>
@@ -479,7 +479,7 @@
 				partout, et la descente de gradient ne peut pas être utilisée. La
 				caractérisation complète de ce problème (NP-difficulté, formulation par la
 				marge) est donnée dans la
-				<a href="/part9/lesson1">Partie IX, leçon 1</a>.
+				<a href={resolve('/part9/lesson1')}>Partie IX, leçon 1</a>.
 			</p>
 			<p>
 				C'est précisément la <strong>motivation</strong> de la régression logistique
@@ -644,7 +644,7 @@
 				<KatexInline formula={'y = -1'} />, allure de la perte), à compléter au
 				tableau. La rédaction ci-dessous est une reconstruction fidèle du
 				déroulé, en réutilisant les identités de la sigmoïde déjà démontrées dans
-				la <a href="/part9/lesson1">Partie IX</a>.
+				la <a href={resolve('/part9/lesson1')}>Partie IX</a>.
 			</p>
 		</Callout>
 
@@ -692,7 +692,7 @@
 		<p>
 			où la dernière égalité utilise l'identité
 			<KatexInline formula={sigmoidSymmetry} />
-			(démontrée dans la <a href="/part9/lesson1">Partie IX, leçon 1</a> — section
+			(démontrée dans la <a href={resolve('/part9/lesson1')}>Partie IX, leçon 1</a> — section
 			« Logistique et cross-entropy »).
 		</p>
 
@@ -754,11 +754,11 @@
 
 		<p>
 			La perte obtenue est exactement la perte logistique de la
-			<a href="/part9/lesson1">Partie IX</a>, où elle est reliée rigoureusement à
+			<a href={resolve('/part9/lesson1')}>Partie IX</a>, où elle est reliée rigoureusement à
 			la cross-entropy et étudiée comme perte de substitution (marge
 			<KatexInline formula={'y f(x)'} />). La question « minimiser cette perte
 			mène-t-elle bien au classifieur de Bayes ? » (calibration) y est traitée dans
-			la <a href="/part9/lesson2">leçon 2 de la Partie IX</a>.
+			la <a href={resolve('/part9/lesson2')}>leçon 2 de la Partie IX</a>.
 		</p>
 
 		<Callout type="insight" title="Demi-espaces, régression linéaire seuillée, régression logistique">
@@ -783,7 +783,7 @@
 					<strong>régression linéaire seuillée</strong> :
 					<KatexInline formula={'\\phi = \\mathrm{id}'} /> (sortie réelle) avec
 					coût quadratique (perte « Carrée (Brier) » du tableau de la
-					<a href="/part9/lesson1">Partie IX</a>), puis seuillage de la sortie à
+					<a href={resolve('/part9/lesson1')}>Partie IX</a>), puis seuillage de la sortie à
 					0.5 — risque convexe, mais la sortie n'a pas d'interprétation en
 					probabilité ;
 				</li>

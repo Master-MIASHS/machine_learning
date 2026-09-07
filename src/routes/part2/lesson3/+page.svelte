@@ -13,7 +13,7 @@
 	import BibElement from '$lib/components/narrative/bib/BibElement.svelte';
 	import ImpurityCriteriaExplorer from '$lib/components/demos/ImpurityCriteriaExplorer.svelte';
 	import CartDepthExplorer from '$lib/components/demos/CartDepthExplorer.svelte';
-	import { asset } from '$app/paths';
+	import { asset, resolve } from '$app/paths';
 	import { getPageByPath, getAdjacentPages } from '$lib/navigation.js';
 	import { settings } from '$lib/stores/index.js';
 	import { createPageTracker } from '$lib/stores/progress.svelte';
@@ -141,9 +141,9 @@
 
 		<p class="forward-ref">
 			Rappel : le paradigme ERM, la sélection de modèles par validation croisée et les
-			métriques d'évaluation sont établis dans la <a href="/part2/lesson1">leçon 1</a> ;
+			métriques d'évaluation sont établis dans la <a href={resolve('/part2/lesson1')}>leçon 1</a> ;
 			les classifieurs linéaires (dont la régression logistique) et le multiclasse
-			One-Versus-All dans la <a href="/part2/lesson2">leçon 2</a>. On s'y réfère sans les
+			One-Versus-All dans la <a href={resolve('/part2/lesson2')}>leçon 2</a>. On s'y réfère sans les
 			représenter.
 		</p>
 
@@ -706,8 +706,8 @@
 				Heureusement, il est possible d'y remédier grâce aux
 				<strong>méthodes ensemblistes</strong> — bagging, forêts aléatoires,
 				boosting — étudiées dans la
-				<a href="/part4/lesson1">Partie 4, leçon 1</a> (bagging) et la
-				<a href="/part4/lesson2">leçon 2</a> (forêts aléatoires).
+				<a href={resolve('/part4/lesson1')}>Partie 4, leçon 1</a> (bagging) et la
+				<a href={resolve('/part4/lesson2')}>leçon 2</a> (forêts aléatoires).
 			</p>
 		</Callout>
 

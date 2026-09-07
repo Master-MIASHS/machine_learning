@@ -27,6 +27,9 @@ export * from './adam.js';
 export * from './metrics.js';
 export * from './svm.js';
 
+// ── Part III — Clustering ──
+export * from './clustering.js';
+
 // ── Part IV — Ensembles & Regularization ──
 export * from './synthetic-data.js';
 export * from './regression.js';
