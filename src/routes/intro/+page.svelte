@@ -57,6 +57,12 @@
 				</a>
 			</li>
 		</ul>
+		<p>
+			Les Parties II (classification) et III (clustering), qui ne disposent pas de notes
+			dédiées, s'appuient sur l'ouvrage d'Azencott (<em>Introduction au Machine Learning</em>,
+			Dunod) et sur les diapositives du cours de clustering (Demangeot) — voir la
+			bibliographie en fin de page.
+		</p>
 
 		<h2>Plan du cours</h2>
 
@@ -70,14 +76,14 @@
 			</li>
 			<li>
 				<a href={resolve('/part2/lesson1')}>
-					<strong>Partie II — Classification supervisée (contenu à venir) :</strong>
+					<strong>Partie II — Classification supervisée :</strong>
 					cadre de l'apprentissage supervisé et k-NN, classifieurs linéaires et
 					régression logistique, arbres de décision, SVM.
 				</a>
 			</li>
 			<li>
 				<a href={resolve('/part3/lesson1')}>
-					<strong>Partie III — Clustering (contenu à venir) :</strong> clustering
+					<strong>Partie III — Clustering :</strong> clustering
 					hiérarchique, k-moyennes et évaluation d'un clustering.
 				</a>
 			</li>
@@ -135,6 +141,19 @@
 				<strong>Concevoir et optimiser :</strong> Sélectionner l'algorithme de descente de gradient le
 				plus adapté à la structure de vos données et à la dimension du problème (descente de gradient
 				classique, accélérée, stochastique, par coordonnées ou méthode de Newton).
+			</li>
+			<li>
+				<strong>Classer des données supervisées :</strong> Mettre en œuvre et comparer les
+				classifieurs de référence — k plus proches voisins, classifieurs linéaires et régression
+				logistique, arbres de décision (CART) et machines à vecteurs de support (SVM) — et évaluer
+				leur performance à l'aide de métriques adaptées (précision, rappel, F1, AUC) et de la
+				validation croisée.
+			</li>
+			<li>
+				<strong>Segmenter des données non étiquetées :</strong> Appliquer les méthodes de
+				clustering hiérarchique (CAH) et de k-moyennes (algorithme de Lloyd) pour identifier des
+				groupes dans des données, et juger la qualité d'une partition ainsi que le choix de
+				<em>K</em> à l'aide de critères internes (inertie, critère du coude, silhouette).
 			</li>
 			<li>
 				<strong>Maîtriser la complexité :</strong> Appliquer et comparer les méthodes de régularisation
@@ -294,10 +313,16 @@
 		/>
 		<BibElement
 			authors={['Azencott, C. A.']}
-			year={2011}
+			year={2022}
 			title="Introduction au Machine Learning"
-			journal="Dunod. ISBN : 978-2-10-084143-1."
-			link="http://cazencott.info/dotclear/public/lectures/IntroML_Azencott.pdf"
+			journal="Dunod, 2ᵉ édition."
+			link="https://www.dunod.com/sciences-techniques/introduction-au-machine-learning-2"
+		/>
+		<BibElement
+			authors={['Demangeot, M.']}
+			year={2022}
+			title="Clustering — diapositives du cours M1 MIASHS « Régularisation et Optimisation »"
+			journal="Université de Provence."
 		/>
 		<BibElement
 			authors={['Novembre, J.', 'Johnson, T.', 'Bryc, K.', 'et al.']}

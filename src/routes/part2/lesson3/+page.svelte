@@ -750,10 +750,10 @@
 	<Bibliography>
 		<BibElement
 			authors={['Azencott, C. A.']}
-			year={2011}
+			year={2022}
 			title="Introduction au Machine Learning"
-			journal="Dunod. ISBN : 978-2-10-084143-1."
-			link="http://cazencott.info/dotclear/public/lectures/IntroML_Azencott.pdf"
+			journal="Dunod, 2ᵉ édition."
+			link="https://www.dunod.com/sciences-techniques/introduction-au-machine-learning-2"
 		/>
 		<BibElement
 			authors={['Shalev-Shwartz, S.', 'Ben-David, S.']}

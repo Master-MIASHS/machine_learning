@@ -31,7 +31,7 @@ const RAW_PAGES = [
 	{ path: '/part1/exercices', title: 'Exercices', part: 1 },
 	{ path: '/part1/practice/travaux-pratiques', title: 'Travaux pratiques', part: 1 },
 
-	// Partie II — Classification supervisée (contenu à venir)
+	// Partie II — Classification supervisée
 	{
 		path: '/part2/lesson1',
 		title: 'Cadre de l’apprentissage supervisé & k-NN',
@@ -47,7 +47,7 @@ const RAW_PAGES = [
 	{ path: '/part2/exercices', title: 'Exercices', part: 2 },
 	{ path: '/part2/practice/travaux-pratiques', title: 'Travaux pratiques', part: 2 },
 
-	// Partie III — Clustering (contenu à venir)
+	// Partie III — Clustering
 	{ path: '/part3/lesson1', title: 'Clustering hiérarchique', part: 3 },
 	{ path: '/part3/lesson2', title: 'K-moyennes & évaluation', part: 3 },
 	{ path: '/part3/exercices', title: 'Exercices', part: 3 },
