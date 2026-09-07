@@ -19,7 +19,7 @@
 	import BayesDecisionExplorer from '$lib/components/demos/BayesDecisionExplorer.svelte';
 	import ConfusionMatrixMetricsDemo from '$lib/components/demos/ConfusionMatrixMetricsDemo.svelte';
 	import KnnCrossValidationSelector from '$lib/components/demos/KnnCrossValidationSelector.svelte';
-	import { asset } from '$app/paths';
+	import { asset, resolve } from '$app/paths';
 	import { getPageByPath, getAdjacentPages } from '$lib/navigation.js';
 	import { settings } from '$lib/stores/index.js';
 	import { createPageTracker } from '$lib/stores/progress.svelte';
@@ -494,7 +494,7 @@
 				<strong>le clustering ou partitionnement</strong> (= classification non supervisée) :
 				identifier des groupes dans les données, afin d'extraire de l'information sur leurs
 				caractéristiques générales. Ce sera l'objet de la Partie III —
-				<a href="/part3/lesson1">aperçu ici</a> ;
+				<a href={resolve('/part3/lesson1')}>aperçu ici</a> ;
 			</li>
 			<li>
 				<strong>la réduction de dimension</strong> : trouver une représentation des données dans un espace
@@ -538,19 +538,19 @@
 		<ul>
 			<li>
 				leçon 2 — classifieurs linéaires et régression logistique :
-				<a href="/part2/lesson2">lien</a> ;
+				<a href={resolve('/part2/lesson2')}>lien</a> ;
 			</li>
 			<li>
 				leçon 3 — arbres de décision :
-				<a href="/part2/lesson3">lien</a> ;
+				<a href={resolve('/part2/lesson3')}>lien</a> ;
 			</li>
 			<li>
 				leçon 4 — Support Vector Machines (SVM) :
-				<a href="/part2/lesson4">lien</a> ;
+				<a href={resolve('/part2/lesson4')}>lien</a> ;
 			</li>
 			<li>
 				Partie III — clustering (non supervisé) :
-				<a href="/part3/lesson1">lien</a>.
+				<a href={resolve('/part3/lesson1')}>lien</a>.
 			</li>
 		</ul>
 
@@ -795,7 +795,7 @@
 		<p>
 			L'algorithme des k plus proches voisins sera ensuite étudié rigoureusement — conditions de
 			consistance du prédicteur k-NN (règle de Stone) — dans la
-			<a href="/part7/lesson2">Partie VII</a>.
+			<a href={resolve('/part7/lesson2')}>Partie VII</a>.
 		</p>
 
 		<h2 id="formulation-probabiliste">Formulation formelle</h2>
@@ -962,7 +962,7 @@
 		</InteractiveSection>
 		<p class="forward-ref">
 			L'exploration ci-dessus, issue de la Partie VI, sera étudiée rigoureusement (théorème et
-			preuve générale) dans la <a href="/part6/lesson2">leçon 2 de la Partie VI</a>.
+			preuve générale) dans la <a href={resolve('/part6/lesson2')}>leçon 2 de la Partie VI</a>.
 		</p>
 
 		<h3>Coût absolu et coût 0/1</h3>
@@ -998,7 +998,7 @@
 			<p>
 				Elle est connue sous le nom de <strong>classifieur de Bayes</strong>. Sa démonstration
 				rigoureuse (décomposition du risque conditionnel) est donnée dans la
-				<a href="/part6/lesson1">leçon 1 de la Partie VI</a>.
+				<a href={resolve('/part6/lesson1')}>leçon 1 de la Partie VI</a>.
 			</p>
 		</Callout>
 
@@ -1010,7 +1010,7 @@
 			<BayesDecisionExplorer />
 		</InteractiveSection>
 		<p class="forward-ref">
-			Widget repris de la <a href="/part6/lesson1">Partie VI</a> : le risque conditionnel des deux actions
+			Widget repris de la <a href={resolve('/part6/lesson1')}>Partie VI</a> : le risque conditionnel des deux actions
 			et le seuil η(x) = 1/2 qui définit le classifieur de Bayes.
 		</p>
 
@@ -1092,7 +1092,7 @@
 		<p>
 			Les propriétés de <KatexInline formula="R_n(h)" /> — en particulier le fait qu'elle converge vers
 			<KatexInline formula="R(h)" /> et que la minimisation empirique produise un bon prédicteur — font
-			l'objet de la <a href="/part8/lesson1">Partie VIII</a> (concentration et risque empirique).
+			l'objet de la <a href={resolve('/part8/lesson1')}>Partie VIII</a> (concentration et risque empirique).
 		</p>
 
 		<h2 id="metriques">Évaluer un modèle</h2>
@@ -1212,7 +1212,7 @@
 			<strong>AUC</strong> — l'aire sous la courbe ROC : elle mesure la capacité du modèle à séparer
 			correctement les classes. La courbe ROC et l'AUC seront présentées dans la partie sur la
 			régression logistique —
-			<a href="/part2/lesson2">leçon 2 de cette partie</a>.
+			<a href={resolve('/part2/lesson2')}>leçon 2 de cette partie</a>.
 		</p>
 
 		<InteractiveSection
@@ -1564,8 +1564,8 @@
 
 		<p>
 			La décomposition formelle de l'erreur en biais et variance est donnée dans la
-			<a href="/part9/lesson1">Partie IX</a>, et les conditions sous lesquelles le prédicteur k-NN
-			est consistant (règle de Stone) dans la <a href="/part7/lesson2">Partie VII</a>.
+			<a href={resolve('/part9/lesson1')}>Partie IX</a>, et les conditions sous lesquelles le prédicteur k-NN
+			est consistant (règle de Stone) dans la <a href={resolve('/part7/lesson2')}>Partie VII</a>.
 		</p>
 
 		<h2 id="selection-modele">Sélectionner un modèle</h2>
