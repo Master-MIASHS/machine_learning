@@ -72,11 +72,13 @@ const RAW_PAGES = [
 	// Partie VI – Bayes optimum
 	{ path: '/part6/lesson1', title: 'Classifieur optimal', part: 6 },
 	{ path: '/part6/lesson2', title: 'Régression optimale', part: 6 },
+	{ path: '/part6/quiz', title: 'Quiz de synthèse', part: 6 },
 	{ path: '/part6/exercices', title: 'Exercices', part: 6 },
 
 	// Partie VII – Convergence
 	{ path: '/part7/lesson1', title: 'Convergence', part: 7 },
 	{ path: '/part7/lesson2', title: 'Consistance k-NN', part: 7 },
+	{ path: '/part7/quiz', title: 'Quiz de synthèse', part: 7 },
 	{ path: '/part7/exercices', title: 'Exercices', part: 7 },
 
 	// Part VIII – Généralisation
@@ -92,12 +94,14 @@ const RAW_PAGES = [
 		title: 'Limites de VC et double descente',
 		part: 8
 	},
+	{ path: '/part8/quiz', title: 'Quiz de synthèse', part: 8 },
 	{ path: '/part8/exercices', title: 'Exercices', part: 8 },
 
 	// Partie IX – Fonctions de perte
 	{ path: '/part9/lesson1', title: 'De la perte 0-1 aux pertes proxy', part: 9 },
 	{ path: '/part9/lesson2', title: 'Calibration des pertes convexes', part: 9 },
 	{ path: '/part9/lesson3', title: 'Décomposition de l’erreur', part: 9 },
+	{ path: '/part9/quiz', title: 'Quiz de synthèse', part: 9 },
 	{ path: '/part9/exercices', title: 'Exercices', part: 9 }
 ] as const;
 
