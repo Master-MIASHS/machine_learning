@@ -10,7 +10,8 @@
 	import KatexBlock from '$lib/components/narrative/KatexBlock.svelte';
 	import Bibliography from '$lib/components/narrative/bib/Bibliography.svelte';
 	import BibElement from '$lib/components/narrative/bib/BibElement.svelte';
-	import Quiz, { type QuizItem } from '$lib/components/narrative/Quiz.svelte';
+	import Quiz from '$lib/components/narrative/Quiz.svelte';
+	import { getQuizQuestions } from '$lib/quiz';
 	import DistanceLandscape from '$lib/components/demos/DistanceLandscape.svelte';
 	import PartitionCriteriaExplorer from '$lib/components/demos/PartitionCriteriaExplorer.svelte';
 	import BellNumberGrowth from '$lib/components/demos/BellNumberGrowth.svelte';
@@ -157,125 +158,7 @@
 	const seuilAlpha = String.raw`r = \alpha \cdot \max_{(x, y) \in \{x_1, \dots, x_n\}} d(x, y)`;
 
 	// ── Quiz ──
-	const quiz: QuizItem[] = [
-		{
-			question: 'Une fonction d : 𝓧 × 𝓧 → ℝ₊ est une distance si elle vérifie…',
-			options: [
-				'la symétrie, la séparation (d(x,y)=0 ⇔ x=y) et l’inégalité triangulaire',
-				'la symétrie et l’inégalité triangulaire seulement',
-				'la positivité et la bornitude par 1',
-				'la symétrie et la séparation seulement'
-			],
-			answerIndex: 0,
-			explanation: 'Les trois propriétés de la définition (frame « Choix d’une distance »).'
-		},
-		{
-			question: 'L’homogénéité globale T = (1/K) Σ T_k d’un clustering de taille K mesure…',
-			options: [
-				'la distance moyenne des observations au centroïde de leur cluster — on la veut la plus petite possible',
-				'la distance entre les centroïdes — on la veut la plus grande possible',
-				'le nombre total de points — on le veut grand',
-				'la variance totale du jeu de données'
-			],
-			answerIndex: 0
-		},
-		{
-			question:
-				'La séparabilité globale S = 2/(K(K−1)) Σ_{k<ℓ} d(μ_k, μ_ℓ) est la moyenne des distances entre centroïdes. On souhaite S…',
-			options: ['le plus petit possible', 'le plus élevé possible', 'égal à l’homogénéité T', 'nul'],
-			answerIndex: 1
-		},
-		{
-			question:
-				'L’indice de Davies-Bouldin D_k = max_{ℓ≠k} (T_k+T_ℓ)/S_{kℓ} correspond à…',
-			options: [
-				'le meilleur cas du cluster 𝒞_k en termes d’homogénéité/séparabilité',
-				'le « pire des cas » du cluster 𝒞_k en termes d’homogénéité/séparabilité',
-				'la moyenne des T_k sur tous les clusters',
-				'la distance entre 𝒞_k et le centroïde global'
-			],
-			answerIndex: 1
-		},
-		{
-			question:
-				'Le coefficient de silhouette s(x) = (b(x)−a(x))/max(a(x),b(x)) est proche de 1 lorsque…',
-			options: [
-				'x est très éloigné de son propre cluster',
-				'l’assignation de x à son cluster est satisfaisante : a(x) ≪ b(x)',
-				'le clustering comporte exactement deux clusters',
-				'x est le centroïde de son cluster'
-			],
-			answerIndex: 1,
-			explanation:
-				'a(x) : distance moyenne aux autres points de son cluster ; b(x) : plus petite distance moyenne vers un autre cluster.'
-		},
-		{
-			question:
-				'L’inertie totale I = Σ ‖x_i − μ‖² se décompose en I = I_W + I_B. Minimiser I_W revient à…',
-			options: [
-				'minimiser I',
-				'maximiser I_B (I est fixée, indépendante de la partition)',
-				'augmenter K',
-				'maximiser le coefficient de silhouette'
-			],
-			answerIndex: 1
-		},
-		{
-			question:
-				'En CAH à lien simple, d(𝒞_k,𝒞_ℓ) = min d(x,y) : les deux clusters sont agglomérés si…',
-			options: [
-				'tous les éléments de 𝒞_k sont proches de tous les éléments de 𝒞_ℓ',
-				'la distance moyenne entre les deux clusters est faible',
-				'deux de leurs éléments sont proches',
-				'leurs centroïdes sont proches'
-			],
-			answerIndex: 2
-		},
-		{
-			question:
-				'La distance de Ward d(𝒞_k,𝒞_ℓ) = |𝒞_k||𝒞_ℓ|/(|𝒞_k|+|𝒞_ℓ|) ‖μ_k−μ_ℓ‖² correspond, par la Proposition, à…',
-			options: [
-				'le gain de variance intra-classe lors de la fusion de 𝒞_k et 𝒞_ℓ (passage de K à K−1 classes)',
-				'la perte de variance inter-classe lors de la séparation des deux clusters',
-				'la distance entre les deux centroïdes',
-				'la distance minimale entre deux éléments des clusters'
-			],
-			answerIndex: 0
-		},
-		{
-			question:
-				'Pour le lien complet, d(𝒞_k,𝒞_k) ≠ 0 dès que |𝒞_k| > 1. Que montre-t-on ?',
-			options: [
-				'que le lien complet est une distance au sens mathématique',
-				'que les distances entre clusters ne sont pas forcément des distances au sens mathématique',
-				'que la CAH est incorrecte',
-				"que l'inégalité triangulaire est toujours satisfaite"
-			],
-			answerIndex: 1
-		},
-		{
-			question:
-				'Dans le dendrogramme d’un clustering hiérarchique, la longueur d’une branche est égale à…',
-			options: [
-				'au nombre de points du cluster associé',
-				'à la distance entre les deux clusters qu’elle connecte',
-				'à la hauteur de l’arbre',
-				'à l’indice de la fusion correspondante'
-			],
-			answerIndex: 1
-		},
-		{
-			question:
-				'Le nombre de Bell B₅₀ ≈ 1,86·10⁴⁷ compte les partitions possibles d’un ensemble de 50 éléments. Conséquence :',
-			options: [
-				'l’exploration exhaustive de toutes les partitions est envisageable',
-				'l’exploration exhaustive est impossible : on utilise des algorithmes itératifs',
-				'seul K = 2 est raisonnable',
-				'la CAH explore toutes les partitions'
-			],
-			answerIndex: 1
-		}
-	];
+	const quiz = getQuizQuestions('p3/l1');
 </script>
 
 <svelte:head>

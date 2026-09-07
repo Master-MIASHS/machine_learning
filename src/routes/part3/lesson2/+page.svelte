@@ -9,7 +9,8 @@
 	import KatexBlock from '$lib/components/narrative/KatexBlock.svelte';
 	import Bibliography from '$lib/components/narrative/bib/Bibliography.svelte';
 	import BibElement from '$lib/components/narrative/bib/BibElement.svelte';
-	import Quiz, { type QuizItem } from '$lib/components/narrative/Quiz.svelte';
+	import Quiz from '$lib/components/narrative/Quiz.svelte';
+	import { getQuizQuestions } from '$lib/quiz';
 	import KMeansLloydAnimator from '$lib/components/demos/KMeansLloydAnimator.svelte';
 	import KMeansRestartsDemo from '$lib/components/demos/KMeansRestartsDemo.svelte';
 	import ElbowCriterionDemo from '$lib/components/demos/ElbowCriterionDemo.svelte';
@@ -113,151 +114,7 @@
 	// « Répétition de la procédure », « Choix de K », « Complexité
 	// algorithmique », « Données aberrantes », « Remarques » et
 	// « Évaluation d'un clustering » des diapositives.
-	const quiz: QuizItem[] = [
-		{
-			question:
-				'À l’étape 2 de Lloyd, on affecte chaque x_i au centroïde le plus proche. Cela revient à…',
-			options: [
-				'regarder dans quelle cellule du diagramme de Voronoï induit par les centroïdes se trouve x_i',
-				'calculer la distance entre toutes les paires de points',
-				'construire un arbre de décision',
-				'calculer le centroïde global des données'
-			],
-			answerIndex: 0,
-			explanation:
-				'L’affectation au centroïde le plus proche est exactement l’appartenance à une cellule du diagramme de Voronoï induit par μ_1, …, μ_K.'
-		},
-		{
-			question: 'À l’étape 3 de Lloyd, le centroïde μ_k du cluster 𝒞_k est recalculé comme…',
-			options: [
-				'la moyenne des points de 𝒞_k',
-				'le point de 𝒞_k le plus éloigné du centroïde global',
-				'un point choisi aléatoirement',
-				"le point de 𝒞_k le plus proche de l'observation courante"
-			],
-			answerIndex: 0,
-			explanation: 'μ_k devient la moyenne arithmétique des observations du cluster 𝒞_k.'
-		},
-		{
-			question:
-				'Proposition (preuve : lemme 22.1, UML) : pendant l’algorithme de Lloyd, l’inertie intra-classes…',
-			options: [
-				'augmente à chaque itération',
-				'diminue à chaque itération',
-				'reste constante',
-				'augmente d’abord puis diminue'
-			],
-			answerIndex: 1,
-			explanation:
-				"Chaque itération (affectation puis recalcul) diminue ou laisse inchangée l'inertie : elle est donc non croissante."
-		},
-		{
-			question:
-				'Comme l’inertie diminue à chaque itération, l’algorithme peut s’arrêter dans un minimum local. La recommandation usuelle est de…',
-			options: [
-				"s'arrêter à la première itération",
-				'repéter la procédure avec différentes initialisations aléatoires et garder la meilleure partition',
-				'augmenter la dimension d des données',
-				'choisir les centroïdes initiaux en les triant'
-			],
-			answerIndex: 1,
-			explanation:
-				'On redémarre la procédure plusieurs fois avec des initialisations aléatoires différentes et on garde la meilleure partition.'
-		},
-		{
-			question: 'L’inertie intra-classe diminue forcément plus K augmente. Pour choisir K, on…',
-			options: [
-				'choisit K = n (inertie nulle)',
-				'minimise l’inertie sans contrainte',
-				'utilise le critère du coude : on choisit K au niveau du changement de pente',
-				'choisit K au hasard'
-			],
-			answerIndex: 2,
-			explanation:
-				"Minimiser l'inertie sans contrainte donnerait K = n ; on choisit K au niveau du coude, là où la décroissance s'atténue."
-		},
-		{
-			question:
-				'Pour t itérations, la complexité de l’algorithme de Lloyd est O(ndKt). K et t étant négligeables devant n, cet algorithme est…',
-			options: [
-				'quadratique en n, comme le clustering hiérarchique',
-				'linéaire en n : les distances aux n−1 autres points sont remplacées par les distances à K centroïdes',
-				'exponentielle en n',
-				'indépendante de n'
-			],
-			answerIndex: 1,
-			explanation:
-				"Chaque observation n'est comparée qu'à K centroïdes, pas aux n−1 autres points : coût linéaire en n."
-		},
-		{
-			question: 'Une observation très éloignée des autres, dans K-moyennes…',
-			options: [
-				'est ignorée par l’algorithme',
-				'se retrouve seule dans un cluster, tandis que le reste des données est partitionné en K−1 clusters',
-				'est affectée au plus gros cluster',
-				'empêche la convergence de l’algorithme'
-			],
-			answerIndex: 1,
-			explanation:
-				'L’algorithme des K-moyennes est sensible aux données aberrantes : une observation très éloignée finit seule dans un cluster.'
-		},
-		{
-			question: 'Cette sensibilité aux données aberrantes peut être exploitée pour…',
-			options: [
-				'détecter les observations aberrantes (celles qui sont seules dans un cluster)',
-				'réduire la dimension des données',
-				'choisir les centroïdes initiaux',
-				'calculer le coude'
-			],
-			answerIndex: 0,
-			explanation:
-				'Les observations aberrantes sont précisément celles qui sont seules dans un cluster : on peut donc les détecter avec K-moyennes.'
-		},
-		{
-			question: 'Les clusters trouvés par K-moyennes sont…',
-			options: [
-				'nécessairement non convexes',
-				'convexes (les centroïdes forment un diagramme de Voronoï)',
-				'nécessairement circulaires',
-				'indépendants du choix de la distance'
-			],
-			answerIndex: 1,
-			explanation:
-				'Les centroïdes forment un diagramme de Voronoï, dont les cellules sont convexes.'
-		},
-		{
-			question: 'Comme les clusters sont convexes, deux anneaux concentriques en 2D…',
-			options: [
-				'sont parfaitement retrouvés par K-moyennes',
-				"ne peuvent pas être retrouvés par K-moyennes en 2D (l'astuce du noyau permet d'obtenir des clusters non convexes, Azencott §12.4.3)",
-				'exigent K = 2',
-				'sont retrouvés par le lien complet'
-			],
-			answerIndex: 1,
-			explanation:
-				"Des cellules convexes ne peuvent pas couper des anneaux ; l'astuce du noyau (Azencott, section 12.4.3) permet d'obtenir des clusters non convexes."
-		},
-		{
-			question: 'Le clustering n’étant pas supervisé, l’évaluation interne utilise…',
-			options: [
-				"l'indice de Rand calculé avec les étiquettes",
-				'des critères qui ne dépendent pas d’une vérité terrain, comme le coefficient de silhouette global ou l’indice de Davies-Bouldin global',
-				'la matrice de confusion',
-				"l'opinion a priori d'un expert"
-			],
-			answerIndex: 1,
-			explanation:
-				'L’évaluation interne (silhouette, Davies-Bouldin) ne dépend d’aucune étiquette ; l’indice de Rand relève de l’évaluation externe a priori.'
-		},
-		{
-			question:
-				'Si l’on dispose d’un jeu de données (partiellement) étiqueté, l’évaluation externe peut vérifier a priori que le clustering retrouve les classes (par exemple avec l’indice de…)',
-			options: ['Rand', 'silhouette', 'Bell', 'coude'],
-			answerIndex: 0,
-			explanation:
-				"L'indice de Rand compare le partitionnement aux classes connues (évaluation externe a priori)."
-		}
-	];
+	const quiz = getQuizQuestions('p3/l2');
 </script>
 
 <svelte:head>

@@ -24,77 +24,14 @@
 	import RidgePathExplorer from '$lib/components/demos/RidgePathExplorer.svelte';
 	import HessianConditionNumber from '$lib/components/demos/HessianConditionNumber.svelte';
 	import LassoPathExplorer from '$lib/components/demos/LassoPathExplorer.svelte';
-	import Quiz, { type QuizItem } from '$lib/components/narrative/Quiz.svelte';
+	import Quiz from '$lib/components/narrative/Quiz.svelte';
+	import { getQuizQuestions } from '$lib/quiz';
 
 	// ── Page metadata ──
 	const meta = getPageByPath('/part1/lesson2');
 	const tracker = createPageTracker(meta as PageMeta);
 
-	const quiz: QuizItem[] = [
-		{
-			question: "D'après le théorème 2.1, la moyenne f(x) = (1/n) Σ f_i(x) est garantie convexe si :",
-			options: [
-				'les f_i sont différentiables',
-				'les f_i sont toutes convexes',
-				'les f_i sont coercives',
-				'les f_i sont fortement convexes'
-			],
-			answerIndex: 1,
-			explanation:
-				'Théorème 2.1 : toute combinaison linéaire à coefficients positifs de fonctions convexes — en particulier la moyenne, avec coefficients 1/n — est convexe. La différentiabilité, la coercivité ou la forte convexité ne sont pas requises.'
-		},
-		{
-			question:
-				"Soit f = (1/n) Σ f_i. D'après le théorème 2.4, quelles hypothèses suffisent pour que f soit coercive ?",
-			options: [
-				'au moins un terme f_i coercif et tous les autres minorés',
-				'toutes les f_i convexes',
-				'chaque f_i différentiable',
-				'au moins un f_i coercif, quels que soient les autres termes'
-			],
-			answerIndex: 0,
-			explanation:
-				"Théorème 2.4 : un terme coercif force la moyenne vers +∞, à condition que les autres termes ne s'échappent pas vers −∞ (minorés). C'est précisément pourquoi on ajoute un terme de régularisation coercif (comme le Ridge) pour garantir l'existence d'un minimum global via Weierstrass."
-		},
-		{
-			question:
-				"Pour λ > 0, pourquoi l'objectif Ridge admet-il toujours une solution unique, même si X^T X est singulière (théorème 2.6.2) ?",
-			options: [
-				'parce que la perte est séparable par exemple',
-				"parce que la pénalité L2 n'est pas différentiable",
-				'parce que X^T X + λI_d est toujours inversible : la Hessienne 2X^T X + 2λI_d est définie positive pour tout v non nul',
-				'parce que les données sont nécessairement bien conditionnées'
-			],
-			answerIndex: 2,
-			explanation:
-				"Théorème 2.6.2 : pour tout v ≠ 0, v^T H v = 2||Xv||² + 2λ||v||² ≥ 2λ||v||² > 0, la Hessienne est donc définie positive et inversible quel que soit le rang de X. L'objectif est strictement convexe et la solution (X^T X + λI_d)^(−1) X^T y est unique."
-		},
-		{
-			question: "Par rapport au Ridge, qu'apporte le Lasso (pénalité L1) que le Ridge n'apporte pas ?",
-			options: [
-				'des coefficients exactement nuls dès que λ ≥ |w_j^OLS|, donc une sélection automatique de variables',
-				'une solution en forme fermée même lorsque les features ne sont pas orthonormées',
-				"la différentiabilité de l'objectif en tous les points",
-				"une garantie de forte convexité de l'objectif"
-			],
-			answerIndex: 0,
-			explanation:
-				"Dans le cas orthonormé, la solution Lasso suit l'opérateur de seuillage doux : dès que λ ≥ |w_j^OLS|, le coefficient w_j* est exactement nul, produisant des modèles sparses et une sélection automatique de variables. Le Ridge rétrécit les poids sans jamais les annuler ; la pénalité L1 est convexe mais non différentiable en 0 (exemple 2.8)."
-		},
-		{
-			question:
-				"Pourquoi la perte d'un réseau de neurones est-elle généralement non convexe, même si la perte élémentaire ℓ (MSE, log-perte) est convexe ?",
-			options: [
-				'parce que le nombre de paramètres est très grand',
-				'parce que la moyenne sur les exemples détruit la convexité',
-				"parce que le MSE n'est pas une fonction convexe",
-				"parce que la fonction du réseau h_θ n'est pas affine en θ, donc le théorème 2.5 (composition affine) ne s'applique plus"
-			],
-			answerIndex: 3,
-			explanation:
-				"Callout « Perte de convexité » : le théorème 2.5 ne préserve la convexité que pour la composition avec une application affine du vecteur de paramètres. Dans un réseau, les poids des différentes couches sont multipliés entre eux, donc h_θ n'est pas affine : seuls des minima locaux sont garantis, l'initialisation compte, et des points-selle apparaissent."
-		}
-	];
+	const quiz = getQuizQuestions('p1/l2');
 
 	const { prev: prevMeta, next: nextMeta } = $derived(
 		getAdjacentPages(meta?.path ?? '', $settings.expertMode)

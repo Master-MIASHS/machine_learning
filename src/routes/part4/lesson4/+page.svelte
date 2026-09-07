@@ -23,48 +23,13 @@
 	import { getPageByPath, getAdjacentPages, type PageMeta } from '$lib/navigation.js';
 	import { settings } from '$lib/stores/index.js';
 	import { createPageTracker } from '$lib/stores/progress.svelte';
-	import Quiz, { type QuizItem } from '$lib/components/narrative/Quiz.svelte';
+	import Quiz from '$lib/components/narrative/Quiz.svelte';
+	import { getQuizQuestions } from '$lib/quiz';
 
 	const meta = getPageByPath('/part4/lesson4');
 	const tracker = createPageTracker(meta as PageMeta);
 
-	const quiz: QuizItem[] = [
-		{
-			question:
-				'Pourquoi la solution Ridge reste-t-elle définie même si X transpose X est singulière ?',
-			options: [
-				'Parce que la norme L1 crée des zéros exacts',
-				'Parce que lambda I rend la matrice régularisée inversible',
-				'Parce que la validation croisée élimine les colonnes redondantes',
-				'Parce que Ridge standardise automatiquement les variables'
-			],
-			answerIndex: 1,
-			explanation:
-				'La leçon précise que le terme lambda I garantit que la matrice à inverser est définie positive. La formule fermée reste donc valable même quand p dépasse n.'
-		},
-		{
-			question:
-				'Dans le cas de colonnes orthonormales, si le coefficient OLS vaut 0.8 et lambda vaut 1.0, la solution Lasso vaut :',
-			options: ['1.8', '0.8', '0', '-0.2'],
-			answerIndex: 2,
-			explanation:
-				'Le soft-thresholding calcule max(0.8 − 1.0, 0), donc 0. Le coefficient passe exactement à zéro, ce qui réalise une sélection de variables.'
-		},
-		{
-			question: "Dans l'objectif Elastic Net, alpha = 0 correspond à :",
-			options: ['Lasso pur', 'Sans régularisation', 'Une perte 0-1', 'Ridge pur'],
-			answerIndex: 3,
-			explanation: 'La leçon indique que alpha = 1 donne le Lasso pur et alpha = 0 donne le Ridge pur.'
-		},
-		{
-			question:
-				'Sous une descente de gradient simple, le weight decay L2 multiplie le poids courant par :',
-			options: ['(1 - eta lambda)', '(1 + eta lambda)', 'eta lambda', 'lambda / 2'],
-			answerIndex: 0,
-			explanation:
-				"La définition 8.6 décrit une érosion multiplicative par (1 - eta lambda) avant l'application du gradient de la tâche."
-		}
-	];
+	const quiz = getQuizQuestions('p4/l4');
 	const { prev: prevMeta, next: nextMeta } = $derived(
 		getAdjacentPages(meta?.path ?? '', $settings.expertMode)
 	);

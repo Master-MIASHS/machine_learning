@@ -12,7 +12,8 @@
 	import KatexBlock from '$lib/components/narrative/KatexBlock.svelte';
 	import Bibliography from '$lib/components/narrative/bib/Bibliography.svelte';
 	import BibElement from '$lib/components/narrative/bib/BibElement.svelte';
-	import Quiz, { type QuizItem } from '$lib/components/narrative/Quiz.svelte';
+	import Quiz from '$lib/components/narrative/Quiz.svelte';
+	import { getQuizQuestions } from '$lib/quiz';
 	import KNNClassifierExplorer from '$lib/components/demos/KNNClassifierExplorer.svelte';
 	import CurseOfDimensionalityDemo from '$lib/components/demos/CurseOfDimensionalityDemo.svelte';
 	import ConditionalRegressionExplorer from '$lib/components/demos/ConditionalRegressionExplorer.svelte';
@@ -97,92 +98,12 @@
 
 	// ── Quiz A — « Est-ce de l'apprentissage supervisé ou non supervisé ? » ──
 	// Frame « Quizz » des diapositives (6 exemples de la frame « Quelques exemples »).
-	const quizA: QuizItem[] = [
-		{
-			question: '« Chat ou non ? » — décider si une photo est une photo de chat',
-			options: ['Apprentissage supervisé', 'Apprentissage non supervisé'],
-			answerIndex: 0,
-			explanation:
-				'Les photos sont associées à des étiquettes (CHAT / NON-CHAT) : le modèle apprend à prédire l’étiquette à partir des données.'
-		},
-		{
-			question: 'Reconnaissance de chiffres manuscrits',
-			options: ['Apprentissage supervisé', 'Apprentissage non supervisé'],
-			answerIndex: 0,
-			explanation:
-				'Chaque chiffre manuscrit est fourni avec son étiquette (le chiffre) : données étiquetées, donc apprentissage supervisé.'
-		},
-		{
-			question: 'Segmentation de marché',
-			options: ['Apprentissage supervisé', 'Apprentissage non supervisé'],
-			answerIndex: 1,
-			explanation:
-				"On cherche à identifier des groupes d'usagers au comportement similaire, sans étiquettes fournies : c'est du clustering, un problème non supervisé (Partie III)."
-		},
-		{
-			question: 'Prédiction de clics',
-			options: ['Apprentissage supervisé', 'Apprentissage non supervisé'],
-			answerIndex: 0,
-			explanation:
-				"On prédit un clic (ou non) à partir des données d'exposition : les étiquettes binaires sont observées, donc apprentissage supervisé."
-		},
-		{
-			question: "Segmentation d'image",
-			options: ['Apprentissage supervisé', 'Apprentissage non supervisé'],
-			answerIndex: 1,
-			explanation:
-				'Illustration d’une segmentation non supervisée : les pixels sont regroupés sans étiquettes fournies. Une segmentation supervisée est aussi possible.'
-		},
-		{
-			question: "Compression d'image",
-			options: ['Apprentissage supervisé', 'Apprentissage non supervisé'],
-			answerIndex: 1,
-			explanation:
-				'Illustration d’une compression par clustering (k-moyennes), donc non supervisée ; d’autres méthodes de compression existent.'
-		}
-	];
+	const quizA = getQuizQuestions('p2/l1/a');
 
 	// ── Quiz B — « Régression ou classification ? » ──
 	// Frame « Types d'apprentissage supervisé -- Quizz » : les 6 questions et
 	// leurs réponses exactes telles que révélées dans les diapositives.
-	const quizB: QuizItem[] = [
-		{
-			question: 'Identifier en quelle langue un texte est écrit',
-			options: ['Régression', 'Classification'],
-			answerIndex: 1,
-			explanation: 'Classification multi-classe : le label est la langue du texte.'
-		},
-		{
-			question: 'Identifier si une transaction financière est frauduleuse ou non',
-			options: ['Régression', 'Classification'],
-			answerIndex: 1,
-			explanation: 'Classification binaire : fraude / non-fraude.'
-		},
-		{
-			question: 'Prédire la probabilité de développer une maladie',
-			options: ['Régression', 'Classification'],
-			answerIndex: 0,
-			explanation: 'Régression : la sortie est une quantité réelle (une probabilité dans [0, 1]).'
-		},
-		{
-			question: "Prédire l'espèce d'une plante donnée",
-			options: ['Régression', 'Classification'],
-			answerIndex: 1,
-			explanation: 'Classification multi-classe : le label est l’espèce.'
-		},
-		{
-			question: "Prédire le prix d'une action en bourse",
-			options: ['Régression', 'Classification'],
-			answerIndex: 0,
-			explanation: 'Régression : la sortie est un prix, une quantité réelle.'
-		},
-		{
-			question: 'Prédire le nombre de clics sur un lien',
-			options: ['Régression', 'Classification'],
-			answerIndex: 0,
-			explanation: 'Régression : le nombre de clics est une quantité réelle (non finie en général).'
-		}
-	];
+	const quizB = getQuizQuestions('p2/l1/b');
 
 	// ── Formula variables (kept in script so Svelte never parses backslashes) ──
 

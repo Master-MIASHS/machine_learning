@@ -15,50 +15,13 @@
 	import { settings } from '$lib/stores/index.js';
 	import { createPageTracker } from '$lib/stores/progress.svelte';
 	import type { PageMeta } from '$lib/navigation.js';
-	import Quiz, { type QuizItem } from '$lib/components/narrative/Quiz.svelte';
+	import Quiz from '$lib/components/narrative/Quiz.svelte';
+	import { getQuizQuestions } from '$lib/quiz';
 
 	const meta = getPageByPath('/part9/lesson1');
 	const tracker = createPageTracker(meta as PageMeta);
 
-	const quiz: QuizItem[] = [
-		{
-			question:
-				"Pourquoi la leçon dit-elle que la perte 0-1 n'est pas directement optimisable par descente de gradient ?",
-			options: [
-				"Parce qu'elle n'est pas bornée",
-				"Parce qu'elle est non convexe, discontinue et que son gradient est nul presque partout",
-				"Parce qu'elle dépend de la dimension VC",
-				"Parce qu'elle est trop facile à calculer"
-			],
-			answerIndex: 1,
-			explanation: 'Ces propriétés empêchent un gradient de fournir une direction de descente utile.'
-		},
-		{
-			question: 'Si y = +1 et f(x) = -3, la marge t = y f(x) vaut :',
-			options: ['-3', '3', '0', '+1'],
-			answerIndex: 0,
-			explanation:
-				'La marge est négative, ce qui signifie que le signe de f(x) est opposé à y et que le classifieur se trompe.'
-		},
-		{
-			question: "La perte charnière utilisée par le SVM s'écrit :",
-			options: ['log(1 + exp(-t))', 'exp(-t)', 'max(0, 1 - y f(x))', '(1 - y f(x))²'],
-			answerIndex: 2,
-			explanation: 'La leçon associe la charnière max(0, 1 - y f(x)) au SVM.'
-		},
-		{
-			question: 'La perte logistique et la cross-entropy sont :',
-			options: [
-				'deux pertes sans rapport avec la marge',
-				'identiques uniquement pour les réseaux très profonds',
-				'deux approximations différentes de la perte 0-1',
-				'identiques à un changement de convention près entre étiquettes -1/+1 et 0/1'
-			],
-			answerIndex: 3,
-			explanation:
-				'La leçon montre que la cross-entropy redonne la perte logistique sous ce changement de convention.'
-		}
-	];
+	const quiz = getQuizQuestions('p9/l1');
 	const { prev: prevMeta, next: nextMeta } = $derived(
 		getAdjacentPages(meta?.path ?? '', $settings.expertMode)
 	);

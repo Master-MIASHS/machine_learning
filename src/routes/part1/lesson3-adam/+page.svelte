@@ -24,78 +24,13 @@
 	import Beta2NonStationarityExplorer from '$lib/components/demos/Beta2NonStationarityExplorer.svelte';
 	import AdamVsAdamWDecayExplorer from '$lib/components/demos/AdamVsAdamWDecayExplorer.svelte';
 	import AdamFailureModesLab from '$lib/components/demos/AdamFailureModesLab.svelte';
-	import Quiz, { type QuizItem } from '$lib/components/narrative/Quiz.svelte';
+	import Quiz from '$lib/components/narrative/Quiz.svelte';
+	import { getQuizQuestions } from '$lib/quiz';
 
 	const meta = getPageByPath('/part1/lesson3-adam');
 	const tracker = createPageTracker(meta as PageMeta);
 
-	const quiz: QuizItem[] = [
-		{
-			question:
-				'Dans Adam, que mesure le second moment v_t (moyenne exponentielle du carré élément par élément du gradient) ?',
-			options: [
-				'la direction courante du gradient',
-				"l'échelle récente (magnitude) du gradient, coordonnée par coordonnée",
-				'la variance des paramètres',
-				'la valeur exacte de la Hessienne'
-			],
-			answerIndex: 1,
-			explanation:
-				"v_t = β₂ v_{t−1} + (1−β₂) g_t⊙² : le carré élément par élément empêche les changements de signe de s'annuler (exemple 4.1 : une suite +10, −10, … a une moyenne ≈ 0 mais une moyenne de carrés ≈ 100). Chaque composante de v_t est un second moment brut, et non une variance centrée."
-		},
-		{
-			question:
-				'Pourquoi Adam divise-t-il ses deux mémoires m_t et v_t par les facteurs (1−β₁^t) et (1−β₂^t) ?',
-			options: [
-				'pour accélérer la convergence aux itérations finales',
-				'pour garantir que les gradients sont centrés',
-				'pour normaliser le learning rate α',
-				'parce que les mémoires sont initialisées à zéro et ces facteurs corrigent ce biais, surtout aux premiers pas'
-			],
-			answerIndex: 3,
-			explanation:
-				"L'initialisation à zéro fait démarrer les mémoires artificiellement basses : avec un gradient constant, m_1 = (1−β₁)g, soit seulement 10 % de la valeur vers laquelle elles devraient tendre si β₁ = 0,9 (exemple 7.1, théorème 7.1). Pour t grand, 1−β^t ≈ 1 et la correction s'estompe : c'est au début qu'elle compte."
-		},
-		{
-			question:
-				"La section « Adam comme préconditionneur » écrit la mise à jour d'une coordonnée i comme le produit d'un taux effectif α_eff(t,i) = α / (√v_{t,i} + ε) et d'une direction lissée. Qu'adapte réellement Adam ?",
-			options: [
-				'le learning rate global α, choisi automatiquement',
-				'la Hessienne, approximée coordonnée par coordonnée',
-				"les taux relatifs entre coordonnées, tandis que α fixe toujours l'échelle globale",
-				"le nombre d'itérations de l'algorithme"
-			],
-			answerIndex: 2,
-			explanation:
-				"« Adam adapte automatiquement le learning rate » est l'une des idées fausses les plus fréquentes : Adam adapte les pas relativement entre coordonnées, mais le facteur global α reste fixé par l'utilisateur ou par un scheduler. Et ce préconditionneur est essentiellement diagonal, construit à partir des gradients passés : Adam n'est pas une approximation de la Hessienne (callout « Ce n'est pas Newton »)."
-		},
-		{
-			question:
-				'Après 10 000 itérations à gradients grands, le problème entre dans une région où les gradients deviennent très petits. Si β₂ est très proche de 1, que peut-il se passer ?',
-			options: [
-				"Adam s'adapte immédiatement, car un β₂ proche de 1 raccourcit la mémoire",
-				"la mémoire de v_t conserve longtemps l'échelle grande, et le pas effectif reste trop petit",
-				'la correction du biais devient infinie',
-				'le terme ε devient dominant et fait exploser les mises à jour'
-			],
-			answerIndex: 1,
-			explanation:
-				"La longueur de mémoire est approximativement N ≈ 1/(1−β₂) : un β₂ proche de 1 donne une mémoire longue (exercice 3 : « la mémoire de v_t ne disparaît pas immédiatement »). L'échelle mémorisée sous l'ancien régime persiste et retarde l'adaptation — c'est le compromis stabilité contre adaptabilité de la section β₁, β₂ et ε."
-		},
-		{
-			question:
-				"Par rapport à l'ajout d'une pénalité L2 directement dans la fonction objectif, que change AdamW ?",
-			options: [
-				'rien : les deux formulations sont identiques',
-				'il supprime la correction du biais',
-				'il découple le weight decay : les paramètres sont contractés par le facteur (1−αλ), indépendamment de la normalisation adaptative',
-				'il remplace le premier moment m_t par le second moment v_t'
-			],
-			answerIndex: 2,
-			explanation:
-				"Avec Adam + L2, le terme λθ entre dans le gradient puis passe dans les mécanismes adaptatifs d'Adam : la renormalisation par le second moment atténue la pénalité des poids qui reçoivent de grands gradients de tâche. AdamW applique la contraction (1−αλ)θ_{t−1} en dehors de cette normalisation, ce qui restaure une décroissance uniforme (section « Adam vs AdamW »)."
-		}
-	];
+	const quiz = getQuizQuestions('p1/l3-adam');
 	const { prev: prevMeta, next: nextMeta } = $derived(
 		getAdjacentPages(meta?.path ?? '', $settings.expertMode)
 	);

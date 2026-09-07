@@ -1,10 +1,5 @@
 <script lang="ts">
-	export interface QuizItem {
-		question: string;
-		options: string[];
-		answerIndex: number;
-		explanation?: string;
-	}
+	import type { QuizItem } from '$lib/quiz';
 
 	interface Props {
 		items: QuizItem[];
@@ -37,9 +32,7 @@
 	});
 
 	const answeredCount = $derived(
-		Object.entries(selectedAnswers).filter(([idx]) => 
-			visibleIndices.includes(Number(idx))
-		).length
+		Object.entries(selectedAnswers).filter(([idx]) => visibleIndices.includes(Number(idx))).length
 	);
 
 	const correctCount = $derived(
@@ -88,9 +81,7 @@
 			</p>
 			<div class="header-actions">
 				{#if maxQuestions !== undefined && maxQuestions < items.length}
-					<button type="button" class="reset-button" onclick={shuffle}>
-						Mélanger
-					</button>
+					<button type="button" class="reset-button" onclick={shuffle}> Mélanger </button>
 				{/if}
 				<button type="button" class="reset-button" onclick={reset} disabled={answeredCount === 0}>
 					Réinitialiser
@@ -107,7 +98,8 @@
 
 				<fieldset class="question-card">
 					<legend>
-						<span class="question-number">Question {visibleIndices.indexOf(questionIndex) + 1}</span>
+						<span class="question-number">Question {visibleIndices.indexOf(questionIndex) + 1}</span
+						>
 						<span class="question-text">{item.question}</span>
 					</legend>
 
