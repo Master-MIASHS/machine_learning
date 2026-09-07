@@ -1,0 +1,223 @@
+%---------------------------------------------------------------------------%
+%                                                                           %
+%                                 MPT THEME                                 %
+%                                                                           %
+%---------------------------------------------------------------------------%
+
+\ProvidesPackage{beamerthemeMPTM}[2017/09/14 Mines ParisTech beamer theme] 
+
+\mode<presentation>
+
+
+%---------------------------------------------------------------------------%
+% REQUIRED PACKAGES                                                         %
+%---------------------------------------------------------------------------%
+
+\@ifpackageloaded{tikz}{}{
+\RequirePackage{tikz}
+\usetikzlibrary{decorations.pathmorphing, fadings, decorations.text, backgrounds, decorations.pathreplacing, patterns, shadows.blur, shadows, calc}
+}
+\@ifpackageloaded{pgfplots}{}{
+\RequirePackage{pgfplots}
+\usepgfplotslibrary{external} \tikzexternalize[optimize = false, prefix = tikz/] \tikzexternaldisable
+}
+\@ifpackageloaded{pifont}{}{\RequirePackage{pifont}}
+\@ifpackageloaded{etoolbox}{}{\RequirePackage{etoolbox}}
+\@ifpackageloaded{geometry}{}{\RequirePackage{geometry}}
+
+%---------------------------------------------------------------------------%
+% THEME OPTIONS                                                             %
+%---------------------------------------------------------------------------%
+
+%----- FRANCAIS
+\newcommand\@francais{false}
+\DeclareOption{francais}{\renewcommand\@francais{true}}
+
+%----- NO TOC IN FOOTER
+\newcommand\@notocfoot{false}
+\DeclareOption{notocfoot}{\renewcommand\@notocfoot{true}}
+
+%----- ARIAL FONT
+\newcommand\@arial{false}
+\DeclareOption{arial}{\renewcommand\@arial{true}}
+
+%----- ALERTED MODE IN RED
+\newcommand\@alertred{false}
+\DeclareOption{alertred}{\renewcommand\@alertred{true}}
+
+%----- EULER FONT FOR MATHS
+\newcommand\@euler{false}
+\DeclareOption{euler}{\renewcommand\@euler{true}}
+
+%----- SOBER
+\newcommand\@sober{false}
+\DeclareOption{sober}{\renewcommand\@sober{true}}
+
+\ProcessOptions
+
+\ifbool{\@francais}{\RequirePackage[french, english]{babel}}{\RequirePackage[english]{babel}}
+
+%----- PREVENT CLASHES BETWEEN FRENCH BABEL AND TIKZ
+\@ifpackageloaded{babel}{ %
+\AtBeginEnvironment{tikzpicture}{\shorthandoff{;}\shorthandoff{!}} %
+\AtEndEnvironment{tikzpicture}{\shorthandon{;}\shorthandon{!}} %
+\def\babeltikz{1}}{\def\babeltikz{1}}
+
+%---------------------------------------------------------------------------%
+% THEME SETTINGS                                                            %
+%---------------------------------------------------------------------------%
+
+%----- SUBTHEMES
+\usefonttheme{professionalfonts}
+\usefonttheme{MPTM}
+\useinnertheme{MPTM}
+\useoutertheme{MPTM}
+\usecolortheme{MPTM}
+
+%---------------------------------------------------------------------------%
+% USEFUL NEW COMMANDS (SHORTCUTS)                                           %
+%---------------------------------------------------------------------------%
+
+%---------------------- MACRO FOR LIST OF NEWCOMMANDS ----------------------%
+\makeatletter
+\newcommand{\generate}[4]{%
+	\def\@tempa{#1}
+	\count@=`#3
+	\loop
+	\begingroup\lccode`?=\count@
+	\lowercase{\endgroup\@namedef{\@tempa ?}{#2{?}}}%
+	\ifnum\count@<`#4
+	\advance\count@\@ne
+	\repeat
+}
+%-- USAGE : \generate{<prefix>}{<macro>}{<starting point>}{<end point>}
+
+%-------------------------------- MATH FONTS -------------------------------%
+
+%----- MATHCAL
+\generate{}{\mathcal}{A}{Z} % \A ... \Z
+
+%----- MATHBB
+\generate{bb}{\mathbb}{A}{Z} % \bbA ... \bbZ
+
+%----- MATHBF
+\generate{bf}{\pmb}{A}{Z} % \bfA ... \bfZ
+\generate{bf}{\pmb}{a}{z} % \bfa ... \bfz
+
+%----- MATSCR
+\generate{scr}{\mathscr}{A}{Z} % \bfA ... \bfZ
+
+
+%---------------------------- LATIN ABBREVIATIONS --------------------------%
+\newcommand{\ie}{\textit{i.e.}\hspace{4pt}}
+\newcommand{\eg}{\textit{e.g.}\hspace{4pt}}
+\newcommand{\cf}{\textit{cf.}\hspace{4pt}}
+\newcommand{\etc}{\textit{etc.}\hspace{4pt}}
+
+%---------- MINIPAGES TO ORGANIZE THE PAGE
+\newenvironment{minipt}[2][1]{\begin{minipage}[t][#2\textheight]{#1\textwidth}}{\end{minipage}}
+\newenvironment{minipc}[2][1]{\begin{minipage}[c][#2\textheight]{#1\textwidth}}{\end{minipage}}
+\newenvironment{minipb}[2][1]{\begin{minipage}[b][#2\textheight]{#1\textwidth}}{\end{minipage}}
+
+%---------- FIGURES
+\newcommand{\figpdf}[2][1]{\includegraphics[width = #1\textwidth]{#2.pdf}}
+\newcommand{\figeps}[2][1]{\includegraphics[width = #1\textwidth]{#2.eps}}
+\newcommand{\figjpg}[2][1]{\includegraphics[width = #1\textwidth]{#2.jpg}}
+\newcommand{\figpng}[2][1]{\includegraphics[width = #1\textwidth]{#2.png}}
+\newcommand{\figtex}[2][1]{\def\svgwidth{#1\textwidth} \input{#2.pdf_tex}}
+
+%---------- COLORED TEXT
+\newcommand{\clr}[1]{\usebeamercolor{structure}{\color{structure.fg}#1}}
+\newcommand{\clrcite}[1]{{\usebeamercolor{normal text}{\color{normal text.fg!75}\slshape#1}}}
+\newcommand{\bfred}[1]{{\bfseries\color{MPTred}{#1}}}
+\newcommand{\bfblue}[1]{{\bfseries\color{MPTblue}{#1}}}
+\newcommand{\red}[1]{{\color{MPTred}{#1}}}
+\newcommand{\blue}[1]{{\color{MPTblue}{#1}}}
+
+%---------- TITLES IN FRAME
+\newcommand{\bftitle}[1]{{\large\bfseries\clr{#1}}}
+\newcommand{\bfalert}[1]{{\large\bfseries\red{#1}}}
+
+
+%---------- REMARKS
+\newcommand{\rmq}{\includegraphics[width = 4.5mm]{Star.pdf}\xspace}
+%\newcommand{\rmq}{\raisebox{-.8mm}{\includegraphics[width = 5mm]{Star.pdf}}\xspace}
+
+%---------- BOLD ARROW SYMBOL
+\newcommand{\fleche}{{\usebeamercolor{normal text}\usebeamercolor{section in toc}\color{section in toc.fg!85!normal text.fg}\raisebox{-1pt}{\ding{232}}}\hspace*{3pt}}
+
+%---------- Q° SYMBOLS
+\newcommand{\Qn}{\hspace*{-3pt}\usebeamercolor{alerted text}\zignb[alerted text.bg]{0.18}{?}\hspace*{3pt}}
+\newcommand{\qnb}{\raisebox{-1.5mm}{\includegraphics[width = 5mm]{Qnb.pdf}}\xspace}
+\newcommand{\qnc}{\raisebox{-1.5mm}{\includegraphics[width = 5mm]{Qnc.pdf}}\xspace}
+\newcommand{\qnr}{\raisebox{-1.5mm}{\includegraphics[width = 5mm]{Qnr.pdf}}\xspace}
+\newcommand{\qng}{\raisebox{-1.5mm}{\includegraphics[width = 5mm]{Qng.pdf}}\xspace}
+
+%---------- WARNING SYMBOLS
+\newcommand{\warning}{\raisebox{-.8mm}{\includegraphics[width = 5mm]{warning.pdf}}\xspace}
+\newcommand{\warningsmall}{\raisebox{-.6mm}{\includegraphics[width = 4mm]{warning.pdf}}\xspace}
+\newcommand{\warnb}{\raisebox{-.8mm}{\includegraphics[width = 5mm]{Warningb.pdf}}\xspace}
+\newcommand{\warnc}{\raisebox{-.8mm}{\includegraphics[width = 5mm]{Warningc.pdf}}\xspace}
+\newcommand{\warnr}{\raisebox{-.8mm}{\includegraphics[width = 5mm]{Warningr.pdf}}\xspace}
+\newcommand{\warng}{\raisebox{-.8mm}{\includegraphics[width = 5mm]{Warningg.pdf}}\xspace}
+
+%---------- TARGET SYMBOLS
+\newcommand{\butb}{\raisebox{-1.5mm}{\includegraphics[width = 5mm]{Targetb.pdf}}\xspace}
+\newcommand{\butc}{\raisebox{-1.5mm}{\includegraphics[width = 5mm]{Targetc.pdf}}\xspace}
+\newcommand{\butr}{\raisebox{-1.5mm}{\includegraphics[width = 5mm]{Targetr.pdf}}\xspace}
+\newcommand{\butg}{\raisebox{-1.5mm}{\includegraphics[width = 5mm]{Targetg.pdf}}\xspace}
+
+%---------- NEW SYMBOLS
+\newcommand{\newb}{\raisebox{0mm}{\includegraphics[width = 7mm]{New.pdf}}\xspace}
+\newcommand{\snewb}{\raisebox{0mm}{\includegraphics[width = 5mm]{New.pdf}}\xspace}
+\newcommand{\newc}{\raisebox{0mm}{\includegraphics[width = 4mm]{Newc.pdf}}\xspace}
+
+%---------- FRAMED TEXT
+\newcommand{\ssbox}[1]{
+  \begin{tikzpicture}[baseline = (O.base), text depth = 0]%
+  \node[inner sep = 5pt, fill = MPTlightgrey!50!white, minimum height = 1ex, text centered] (O) at (0,0) {#1};
+  \end{tikzpicture}
+}
+
+%---------- MPT TYPE TITLE
+\newcommand{\mtitle}[1]{
+		%----- LENGTHS
+		\setlength{\bsq}{\titleftwd}
+		\setlength{\ssq}{.66\bsq}
+		\setlength{\sepssq}{.5\insep}
+		\setlength{\shadowsq}{1pt}
+		%----- COLORS
+		\usebeamercolor{normal text}
+		\usebeamercolor{title}
+   	\begin{tikzpicture} [overlay, remember picture, inner sep = 0pt, outer sep = 0pt]
+	   	%
+	   	%----- TITLE
+		\node [text width = \paperwidth - 4\Ztwo - \bsq - \insep - 2\ssq - \sepssq - \insep - \shadowsq] (title) at (current page.center) {\color{title.fg}\usebeamerfont{title}#1\hspace{5pt}{\color{author.bg}}};
+		
+		%----- BIG SQUARE
+		\fill [drop shadow = {shadow xshift = \shadowsq, shadow yshift = - \shadowsq}, fill = MPTblue] ([xshift = - \insep]title.north west) rectangle ([xshift = - \insep - \bsq, yshift = -\bsq]title.north west);
+		%
+		%----- SMALL SQUARES
+		\fill [drop shadow = {shadow xshift = \shadowsq, shadow yshift = - \shadowsq}, fill = MPTgrey] ([xshift = \insep]title.south east) rectangle ([xshift = \insep + \ssq, yshift = \ssq]title.south east);
+		%
+		\fill [drop shadow = {shadow xshift = \shadowsq, shadow yshift = - \shadowsq}, fill = black] ([xshift = \insep + \ssq + \sepssq]title.south east) rectangle ([xshift = \insep + 2\ssq + \sepssq, yshift = \ssq]title.south east);	
+	\end{tikzpicture}
+}
+	
+%---------- APPENDIX NUMBERING
+\newcommand{\backupbegin}{
+	\newcounter{framenumberappendix}
+	\setcounter{framenumberappendix}{\value{framenumber}}
+}
+\newcommand{\backupend}{
+	\addtocounter{framenumberappendix}{-\value{framenumber}}
+	\addtocounter{framenumber}{\value{framenumberappendix}} 
+}
+
+%---------- SECTION FRAMES
+\makeatletter
+\newcommand*{\currentname}{\@currentlabelname}
+\makeatother
+
+\mode
+<all>

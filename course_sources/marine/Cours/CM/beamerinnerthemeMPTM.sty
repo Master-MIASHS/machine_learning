@@ -1,0 +1,437 @@
+%---------------------------------------------------------------------------%
+%                                                                           %
+%                              MPT INNER THEME                              %
+%                                                                           %
+%---------------------------------------------------------------------------%
+
+\ProvidesPackage{beamerinnerthemeMPTM}[2017/09/14 Mines ParisTech beamer inner theme] 
+
+\DeclareOptionBeamer{shadow}[true]{\def\beamer@themerounded@shadow{#1}}
+\ExecuteOptionsBeamer{shadow=false}
+\ProcessOptionsBeamer
+
+\mode<presentation>
+
+%---------------------------------------------------------------------------%
+% REQUIRED PACKAGES                                                         %
+%---------------------------------------------------------------------------%
+
+\@ifpackageloaded{tikz}{}{
+\RequirePackage{tikz}
+\usetikzlibrary{decorations.pathmorphing, fadings, decorations.text, backgrounds, decorations.pathreplacing, patterns, shadows.blur, shadows, calc}
+}
+\@ifpackageloaded{textcase}{}{\RequirePackage{textcase}}
+\@ifpackageloaded{setspace}{}{\RequirePackage{setspace}}
+\@ifpackageloaded{etoolbox}{}{\RequirePackage{etoolbox}}
+
+%----- PREVENT CLASHES BETWEEN FRENCH BABEL AND TIKZ
+\ifdef{\babeltikz}{}{ %
+\@ifpackageloaded{babel}{ %
+\AtBeginEnvironment{tikzpicture}{\shorthandoff{:}\shorthandoff{;}\shorthandoff{!}} %
+\AtEndEnvironment{tikzpicture}{\shorthandon{:}\shorthandon{;}\shorthandon{!}} %
+\def\babeltikz{1}}{\def\babeltikz{1}}}
+
+%---------------------------------------------------------------------------%
+% DOCUMENT INFORMATIONS                                                     %
+%---------------------------------------------------------------------------%
+
+%----- COAUTHORS
+\newcommand\@coone{}
+\newcommand\@cotwo{}
+\newcommand*\coauthor[2][1]{%
+	\ifnumequal{#1}{1}{\renewcommand{\@coone}{#2}}{
+		\ifnumequal{#1}{2}{\renewcommand{\@cotwo}{#2}}{}}}
+
+%----- AFFILIATIONS OF COAUTHORS (ex. Centre de Géosciences, Equipe Géostatistique)
+\newcommand\@coinsuone{} \newcommand\@coinscone{} \newcommand\@coinstone{}
+\newcommand\@coinsutwo{} \newcommand\@coinsctwo{} \newcommand\@coinsttwo{}
+\newcommand*\coinstitute[4][1]{%
+	\ifnumequal{#1}{1}{\renewcommand{\@coinsuone}{#2}\renewcommand{\@coinscone}{#3} \renewcommand{\@coinstone}{#4}}{
+		\ifnumequal{#1}{2}{\renewcommand{\@coinsutwo}{#2}\renewcommand{\@coinsctwo}{#3} \renewcommand{\@coinsttwo}{#4}}{}}}
+
+%----- INSTITUTE
+\newcommand\@instituteu{}
+\newcommand\@institutec{}
+\newcommand\@institutet{}
+%\renewcommand\institute[2]{\renewcommand\@institutec{#1}\renewcommand\@institutet{#2}}
+\renewcommand\institute[3]{\renewcommand\@instituteu{#1}\renewcommand\@institutec{#2} \renewcommand\@institutet{#3}}
+
+
+
+%----- EVENT
+\newcommand\@event{}
+\newcommand\event[1]{\renewcommand\@event{#1}}
+
+%----- DATE 
+\renewcommand\date[1]{\renewcommand\@date{#1}}
+
+%----- TITLE
+\renewcommand\title[1]{\renewcommand\@title{#1}}
+
+%----- SUBTITLE (ex. An introduction)
+\newcommand\@subtitle{}
+\renewcommand\subtitle[1]{\renewcommand\@subtitle{#1}}
+
+%----- ILLUSTRATION
+\newcommand{\theillustration}{}
+\newcommand{\illustration}[1]{\renewcommand{\theillustration}{#1}}
+
+%----- RESEARCH CENTER LOGOS 
+\newcommand*{\@rclogo}{}
+\newcommand*\rclogo[1]{\forcsvlist{\listadd\@rclogo}{#1}}
+
+%----- NETWORK LOGOS 
+\newcommand*{\@netlogo}{}
+\newcommand*\netlogo[1]{\forcsvlist{\listadd\@netlogo}{#1}}
+
+%---------------------------------------------------------------------------%
+% LIST ENVIRONMENTS                                                         %
+%---------------------------------------------------------------------------%
+
+\usebeamercolor{normal text}
+
+%----- ITEM BULLET ---------------------------------------------------------%
+
+\newcommand{\zig}[2][normal text.fg]{
+\begin{tikzpicture}[scale = #2]
+\fill[fill = #1, drop shadow = {shadow xshift = 0pt, shadow yshift = -0pt}] (0,1) rectangle (2,-1);
+\end{tikzpicture}
+}
+%\begin{tikzpicture}[scale = #2]
+%\fill[fill = #1, drop shadow = {shadow xshift = 0pt, shadow yshift = -0pt}] (1,0) circle (1);
+%\end{tikzpicture}
+%}
+
+%----- ENUMERATE BULLET ----------------------------------------------------%
+
+\newcommand{\zignb}[3][normal text.fg]{
+%\raisebox{-1.25pt}{
+\begin{tikzpicture}[baseline = (O.base), text depth = 0, scale = #2]
+\node[text centered, fill = #1, inner sep = 1.25pt, outer sep = 0pt, drop shadow = {shadow xshift = 0pt, shadow yshift = -0pt}] (O) at (0,0) {\usebeamercolor[fg]{enumerate item.fg} \bfseries #3};
+\end{tikzpicture}
+}%}
+ 
+%----- ITEMIZE ITEMS -------------------------------------------------------%
+
+\defbeamertemplate{itemize item}{MPT theme}{\usebeamercolor{itemize item} \zig[itemize item.bg]{0.1}}
+\defbeamertemplate{itemize subitem}{MPT theme}{\usebeamercolor{itemize subitem} \zig[itemize subitem.bg]{0.09}}
+\defbeamertemplate{itemize subsubitem}{MPT theme}{\usebeamercolor{itemize subsubitem} \zig[itemize subsubitem.bg]{0.08}}
+\setbeamertemplate{itemize item}[MPT theme]
+\setbeamertemplate{itemize subitem}[MPT theme]
+\setbeamertemplate{itemize subsubitem}[MPT theme]
+ 
+%----- ENUMERATE ITEMS -----------------------------------------------------%
+
+\defbeamertemplate{enumerate item}{MPT theme}{\usebeamercolor{enumerate item} \zignb[enumerate item.bg]{0.18}{\insertenumlabel}}
+\defbeamertemplate{enumerate subitem}{MPT theme}{\usebeamercolor{enumerate subitem} \zignb[enumerate subitem.bg]{0.16}{\insertsubenumlabel}}
+\defbeamertemplate{enumerate subsubitem}{MPT theme}{\usebeamercolor{enumerate subsubitem} \zignb[enumerate subsubitem.bg]{0.14}{\insertsubsubenumlabel}}
+\setbeamertemplate{enumerate item}[MPT theme]
+\setbeamertemplate{enumerate subitem}[MPT theme]
+\setbeamertemplate{enumerate subsubitem}[MPT theme]
+
+
+%---------------------------------------------------------------------------%
+% ALERT ENVIRONMENT                                                         %
+%---------------------------------------------------------------------------%
+
+\renewcommand<>{\alert}[2][2]{
+	%----- COLORS
+	\usebeamercolor{alerted text}%
+	\usebeamercolor{normal text}%
+	%
+	%----- TEXT
+	\hspace*{-#1pt}%
+	%\raisebox{-2pt}{%
+	\begin{tikzpicture}[baseline = (O.base), text depth = 0]%
+	\node[text width = , fill = alerted text.bg, inner sep = 2pt, drop shadow = {shadow xshift = 1.25pt, shadow yshift = -1.25pt}] (O) {\color{alerted text.fg}#2};
+	\end{tikzpicture}%
+	%}
+	\hspace*{#1pt}%
+}
+
+%----- IN MATH MODE
+\newcommand<>{\alertm}[1]{\text{\alert{$#1$}}}
+
+%----- IN A POWER (x^2)
+\newcommand<>{\alertp}[1]{\text{\alert[1.5]{$#1$}}}
+
+%---------------------------------------------------------------------------%
+% BLOCK ENVIRONMENT                                                         %
+%---------------------------------------------------------------------------%
+
+%----- BLOCK MASK ----------------------------------------------------------%
+
+\tikzset{block/.style = {very thick, outer ysep = 0.2ex, inner sep = 5pt}}
+
+\newenvironment<>{blockmask}[3][.9675]{
+  %----- COLORS
+  \ifstrempty{#2}{
+  \def\btcol{block title} \def\bbcol{block body}}{
+  \def\btcol{block title #2} \def\bbcol{block body #2}}
+  \usebeamercolor{\btcol}
+  \usebeamercolor{\bbcol}
+  
+  \begin{tikzpicture}
+  %----- ORIGIN
+  \node [inner sep = 0pt, outer sep = 0pt] (O) at (0,0) {};
+  
+  %----- TITLE
+  \ifdefmacro{#3}{\ifdefempty{#3}{}{
+  \node [anchor = south, text width = #1\textwidth, draw = \btcol.bg, block, fill = \btcol.bg, minimum height = 1ex, above = -.5pt, text centered] (title) at (O.north) {\usebeamerfont{\btcol}\color{\btcol.fg}#3};%
+  }}{ %
+  \ifstrempty{#3}{}{
+  \node [anchor = south, text width = #1\textwidth, draw = \btcol.bg, block, fill = \btcol.bg, minimum height = 1ex, above = -.5pt, text centered] (title) at (O.north) {\usebeamerfont{\btcol}\color{\btcol.fg}#3};}}
+  
+  %----- BODY
+  \node [anchor = north, text width = #1\textwidth, draw = \btcol.bg, block, fill = \bbcol.bg] (body) at (O.south) \bgroup\begin{minipage}[t]{\textwidth}%
+  \usebeamerfont{\bbcol}\color{\bbcol.fg}%
+}
+{%
+  \end{minipage}\egroup;
+  \end{tikzpicture}
+}
+
+%----- NORMAL BLOCK --------------------------------------------------------%
+
+\defbeamertemplate*{block begin}{MPT theme}{\begin{blockmask}{}{\insertblocktitle}}
+\defbeamertemplate*{block end}{MPT theme}{\end{blockmask}}
+\setbeamertemplate{block}[MPT theme]
+
+%----- EXAMPLE BLOCK -------------------------------------------------------%
+
+\defbeamertemplate*{block example begin}{MPT theme}{\begin{blockmask}{example}{\insertblocktitle}}
+\defbeamertemplate*{block example end}{MPT theme}{\end{blockmask}}
+\setbeamertemplate{block example}[MPT theme]
+
+%----- ALERTED BLOCK -------------------------------------------------------%
+
+\defbeamertemplate*{block alerted begin}{MPT theme}{\begin{blockmask}{alerted}{\insertblocktitle}}
+\defbeamertemplate*{block alerted end}{MPT theme}{\end{blockmask}}
+\setbeamertemplate{block alerted}[MPT theme]
+
+%----- BLOCKS WITH VARIABLE WIDTH ------------------------------------------%
+\newenvironment<>{vblock}[2][.97]{\begin{blockmask}[#1]{}{#2}}{ %
+\end{blockmask}}
+\newenvironment<>{vblockb}[2][.97]{\begin{blockmask}[#1]{blue}{#2}}{ %
+\end{blockmask}}
+\newenvironment<>{vexblock}[2][.97]{\begin{blockmask}[#1]{example}{#2}}{ %
+\end{blockmask}}
+\newenvironment<>{valblock}[2][.97]{\begin{blockmask}[#1]{alerted}{#2}}{ %
+\end{blockmask}}
+
+%---------------------------------------------------------------------------%
+% TABLE OF CONTENTS                                                         %
+%---------------------------------------------------------------------------%
+
+\ifdef{\secnr}{}{
+	\newif\ifstarred
+	\def\secnr{}
+	\pretocmd\beamer@@ssection{\gdef\secnr{}\global\starredtrue}{}{}
+	\patchcmd\beamer@section{by 1\relax}{by 1\relax\xdef\secnr{\the\beamer@tocsectionnumber}\global\starredfalse}{}{}
+}
+
+%----- SECTION -------------------------------------------------------------%
+
+\defbeamertemplate*{section in toc}{MPT theme}{
+	%----- COLORS
+	\usebeamercolor{section name}
+	\usebeamercolor{section in toc}
+	\usebeamercolor{normal text}
+	
+	%----- TEXT
+	\hspace{8.65ex}
+	\llap{\raisebox{0.1ex}{{\bfseries \large \color{section name.fg} \MakeUppercase{\romannumeral\inserttocsectionnumber}}{\color{section name.fg}\,\scalebox{0.25}{\ding{110}}}}\kern1ex}{{\color{section in toc.fg}\usebeamerfont{section in toc} \inserttocsection}}
+	\vspace{.25em}
+	%{\bfseries \large \color{section name.fg} \MakeUppercase{\romannumeral\inserttocsectionnumber}
+}
+\setbeamertemplate{section in toc}[MPT theme]
+
+\defbeamertemplate*{section in toc shaded}{MPT theme}[1][20]{
+	%----- COLORS
+	\usebeamercolor{section in toc shaded}
+	
+	%----- TEXT
+	\begin{colormixin}{#1!section in toc shaded.bg}
+	\usebeamertemplate{section in toc}
+	\end{colormixin}\unskip
+}
+\setbeamertemplate{section in toc shaded}[MPT theme]
+
+%-------------------------------- SUBECTION --------------------------------%
+
+\defbeamertemplate*{subsection in toc}{MPT theme}{
+	%---------- COLORS
+	\usebeamercolor{subsection name}
+	\usebeamercolor{subsection in toc}
+	\usebeamercolor{normal text}
+	
+	%---------- TEXT
+	\leavevmode\leftskip=12.65ex%
+	\llap{\raisebox{0.2ex}{\zig[subsection name.fg]{0.085}}\kern1ex}%
+	\color{subsection in toc.fg} \usebeamerfont{subsection in toc} \inserttocsubsection\par%
+	\vspace{0.05em}
+}
+\setbeamertemplate{subsection in toc}[MPT theme]
+
+\defbeamertemplate*{subsection in toc shaded}{MPT theme}[1][10]{
+	%---------- COLORS
+	\usebeamercolor{subsection in toc shaded}
+	
+	%---------- TEXT
+	\begin{colormixin}{#1!subsection in toc shaded.bg}
+	\usebeamertemplate{subsection in toc}
+	\end{colormixin}\unskip
+}
+\setbeamertemplate{subsection in toc shaded}[MPT theme]
+
+%---------------------------------------------------------------------------%
+% TITLE PAGE                                                                %
+%---------------------------------------------------------------------------%
+
+%----- DIMENSIONS OF THE MPT LOGO (DEFINES THE GEOMETRY OF THE FRAMES)
+\ifdef{\logowd}{}{
+	\newlength{\logowd}	% Width of the MPT logo
+	\setlength{\logowd}{2cm}
+	\newlength{\logoht}	% Height of the MPT logo
+	\newlength{\Zone}	% Protection zone Z1 around the MPT logo
+	\setlength{\Zone}{.5\logowd}
+	\newlength{\Ztwo}	% Protection zone Z2 around the MPT logo
+	\setlength{\Ztwo}{.4\logowd}
+}
+
+%Celui d'Emilie (original) :
+%\ifdef{\logowd}{}{
+%	\newlength{\logowd}	% Width of the MPT logo
+%	\setlength{\logowd}{2cm}
+%	\newlength{\logoht}	% Height of the MPT logo
+%	\newlength{\Zone}	% Protection zone Z1 around the MPT logo
+%	\setlength{\Zone}{.5\logowd}
+%	\newlength{\Ztwo}	% Protection zone Z2 around the MPT logo
+%	\setlength{\Ztwo}{.25\logowd}
+%}
+
+
+%----- SHORTCUT COMMANDS
+\newcommand{\plotlogo}[2][0pt]{\includegraphics[height = #1]{#2}\hspace*{\fill}}
+\def\vhrulefill#1{\leavevmode\leaders\hrule\@height#1\hfill \kern\z@}
+
+\defbeamertemplate*{title page}{MPT theme}
+{
+	%----- LENGTHS
+	\setlength{\bsq}{0.3cm}%{\titleftwd}
+	\setlength{\ssq}{.66\bsq}
+	\setlength{\sepssq}{.5\insep}
+	\setlength{\shadowsq}{0pt}%{1pt}
+	%
+	%----- COLORS
+   	\usebeamercolor{normal text}
+   	\usebeamercolor{date}
+   	\usebeamercolor{title}
+   	\usebeamercolor{event}
+   	\usebeamercolor{author}
+   	\usebeamercolor{coauthor}
+   	\usebeamercolor{institute}
+   	\usebeamercolor{coinstitute}
+   	   	
+\begin{tikzpicture} [overlay, remember picture, inner sep = 0pt, outer sep = 0pt]
+
+		%----- MASK
+		\node [anchor = north west, minimum width = \paperwidth - \pgflinewidth, minimum height = \paperheight - \pgflinewidth] (pc) at (current page.north west) {};
+		
+		%----- BACKGROUND
+		\shade[top color = event.bg, bottom color = white] (pc.north west) rectangle ([yshift = -15pt]pc.north east);
+		\shade[bottom color = event.bg, top color = white] (pc.south west) rectangle ([yshift = 15pt]pc.south east);
+		
+		%----- LOGO MPT PARISTECH
+		%\node[anchor = north, minimum width = \logowd] (logompt) at ([yshift = -\Ztwo]pc.north) {\includegraphics[width = 1.25\logowd]{Logo-Montpellier}};
+		\node[anchor = north, minimum width = \logowd] (logompt) at ([yshift = -0.4\Ztwo]pc.north) {\includegraphics[width = 1.4\logowd]{logo-Mont3_bis.pdf}};
+		%\node[anchor = north, minimum width = \logowd] (logompt) at ([yshift = -\Ztwo, xshift = 2.1\Ztwo]pc.north) {\includegraphics[width = 2\logowd]{logoMPT-PSL}};
+		%\node[anchor = north, minimum width = \logowd] (logotel) at ([xshift = -\Ztwo]logompt.north west) {\includegraphics[width = 0.48\logowd]{Logo-Telecom}};
+		{\pgfpositionnodelater{\nodeht}
+			\node [anchor = north] at ([yshift = - \Ztwo]current page.north) {\includegraphics[width = 0.3\logowd]{logo-Mont3_bis.pdf}};
+			\setlength{\logoht}{\dimexpr\tnode - \bnode\relax}
+			\global\logoht = \logoht
+		}
+		%----- RESEARCH CENTERS LOGOS
+		\ifdefempty{\@rclogo}{}{
+			\node [anchor = north west, text width = \paperwidth - 2\Ztwo] at ([xshift = \Ztwo, yshift = - \Ztwo -1.34\logoht]current page.north west) {\forlistloop{\plotlogo[.34\logoht]}{\@rclogo}};
+		}
+		
+		%----- NETWORK LOGOS
+		\ifdefempty{\@netlogo}{}{
+			\node [anchor = south west, text width = \paperwidth - 2\Ztwo] at ([xshift = \Ztwo, yshift = \Ztwo]pc.south west) {\forlistloop{\plotlogo[.5\logoht]}{\@netlogo}};
+		}
+
+		%----- SEPARATION LINE
+		\node [fill = author.bg, anchor = north west, minimum width = \paperwidth - 2\Ztwo - \bsq - \insep - \shadowsq, minimum height = 1pt] (sepline) at ([yshift = - 2.9\Ztwo - 1.68\logoht, xshift = \Ztwo + \bsq + \insep]pc.north west) {};
+
+		%----- TITLE
+		\node [anchor = north west, text width = \paperwidth - 2\Ztwo - \bsq - \insep] (title) at ([yshift = - \insep-0.8cm]sepline.south west) {\begin{minipage}[t]{\textwidth}\raggedright\color{title.fg}\usebeamerfont{title}\@title\hspace{5pt}{\color{author.bg}}\end{minipage}};
+
+		%----- BIG SQUARE
+		\fill [drop shadow = {shadow xshift = \shadowsq, shadow yshift = - \shadowsq}, fill = MPTblue] ([xshift = - \insep, yshift = -.25\bsq]title.north west) rectangle ([xshift = - \insep - \bsq, yshift = -1.25\bsq]title.north west);
+		%
+		%----- SMALL SQUARES
+		\fill [drop shadow = {shadow xshift = \shadowsq, shadow yshift = - \shadowsq}, fill = MPTgrey] ([xshift = -\ssq -\sepssq, yshift = .5\insep]sepline.north east) rectangle ([xshift = - 2\ssq - \sepssq, yshift = .5\insep + \ssq]sepline.north east);
+		%
+		\fill [drop shadow = {shadow xshift = \shadowsq, shadow yshift = - \shadowsq}, fill = black] ([yshift = .5\insep]sepline.north east) rectangle ([xshift = -\ssq, yshift = .5\insep + \ssq]sepline.north east);
+
+		%----- SUBTITLE
+%		\node [anchor = north west, text width = \paperwidth - 8\Ztwo - \bsq - \insep - \shadowsq] (subtitle) at ([xshift = 4\Ztwo, yshift = -.75\Ztwo]title.south west) {\ifdefempty{\@subtitle}{}{\begin{minipage}[t]{\textwidth}\raggedleft\color{institute.fg}\usebeamerfont{subtitle}\@subtitle\end{minipage}}};
+				%----- SUBTITLE
+		\node [anchor = north west, text width = \paperwidth - 2\Ztwo - \bsq - \insep] (subtitle) at ([yshift = -.75\Ztwo]title.south west) {\ifdefempty{\@subtitle}{}{\begin{minipage}[t]{\textwidth}\raggedright\color{event.fg}\usebeamerfont{subtitle}\@subtitle\end{minipage}}};
+
+		%--- ORATOR
+		\ifdefempty{\@institutet}{
+			\node[anchor = south west, text width = 0.375\paperwidth - 2\Ztwo, text depth = 0] (affilt) at ([xshift = \Ztwo, yshift = .7\Ztwo + .5\logoht +2\insep]pc.south west) {};}{
+			\node[anchor = south west, text width = 0.375\paperwidth - 2\Ztwo, text depth = 0] (affilt) at ([xshift = \Ztwo, yshift = .7\Ztwo + .5\logoht +2\insep]pc.south west) {\color{coinstitute.fg}\usebeamerfont{coinstitute}\@institutet};}	%	
+		\ifdefempty{\@institutec}{
+			\node[anchor = south west, text width = 0.375\paperwidth - 2\Ztwo, text depth = 0] (affilc) at ([yshift = .5\insep]affilt.north west) {};}{
+			\node[anchor = south west, text width = 0.375\paperwidth - 2\Ztwo, text depth = 0] (affilc) at ([yshift = .5\insep]affilt.north west) {\color{coinstitute.fg}\usebeamerfont{coinstitute}\@institutec};}
+%
+		\ifdefempty{\@instituteu}{
+			\node[anchor = south west, text width = 0.375\paperwidth - 2\Ztwo, text depth = 0] (affilu) at ([yshift = .5\insep]affilc.north west) {};}{
+			\node[anchor = south west, text width = 0.375\paperwidth - 2\Ztwo, text depth = 0] (affilu) at ([yshift = .5\insep]affilc.north west) {\color{institute.fg}\usebeamerfont{institute}\@instituteu};}
+		\node [anchor = south west, text width = .375\paperwidth - 2\Ztwo, text depth = 0] (author) at ([yshift = 1.4\insep]affilu.north west) {\color{author.fg}\usebeamerfont{author}\insertauthor};
+		
+		%--- FIRST COAUTHOR
+		\ifdefempty{\@coone}{
+			\node [anchor = south west, text width = .375\paperwidth - 2\Ztwo, text depth = 0] (coone) at ([xshift = \insep+ 0.8cm]author.south east) {};}{
+			\node [anchor = south west, text width = .375\paperwidth - 2\Ztwo, text depth = 0] (coone) at ([xshift = \insep+ 0.6cm]author.south east) {\color{coauthor.fg}\usebeamerfont{coauthor}\@coone};}
+		\ifdefempty{\@coinsuone}{
+			\node[anchor = north west, text width = .375\paperwidth - 2\Ztwo, text depth = 0] (coinsuone) at ([yshift = -1.4\insep]coone.south west) {};}{
+			\node[anchor = north west, text width = .375\paperwidth - 2\Ztwo, text depth = 0] (coinsuone) at ([yshift = -1.4\insep]coone.south west) {\color{institute.fg}\usebeamerfont{institute}\@coinsuone};}
+%			
+		\ifdefempty{\@coinscone}{
+			\node[anchor = north west, text width = .375\paperwidth - 2\Ztwo, text depth = 0] (coinscone) at ([yshift = -.5\insep]coinsuone.south west) {};}{
+			\node[anchor = north west, text width = .375\paperwidth - 2\Ztwo, text depth = 0] (coinscone) at ([yshift = -.5\insep]coinsuone.south west) {\color{coinstitute.fg}\usebeamerfont{coinstitute}\@coinscone};}
+%
+		\ifdefempty{\@coinstone}{
+			\node[anchor = north west, text width = .375\paperwidth - 2\Ztwo, text depth = 0] (coinstone) at ([yshift = -.5\insep]coinscone.south west) {};}{
+			\node[anchor = north west, text width = .375\paperwidth - 2\Ztwo, text depth = 0] (coinstone) at ([yshift = -.5\insep]coinscone.south west) {\color{coinstitute.fg}\usebeamerfont{coinstitute}\@coinstone};}
+		
+		%--- SECOND COAUTHOR
+		\ifdefempty{\@cotwo}{
+			\node [anchor = south west, text width = .375\paperwidth - 2\Ztwo, text depth = 0] (cotwo) at ([xshift = \insep]coone.south east) {};}{
+			\node [anchor = south west, text width = .375\paperwidth - 2\Ztwo, text depth = 0] (cotwo) at ([xshift = \insep+ 0.2cm]coone.south east) {\color{coauthor.fg}\usebeamerfont{coauthor}\@cotwo};}
+		\ifdefempty{\@coinsutwo}{
+			\node[anchor = north west, text width = .375\paperwidth - 2\Ztwo, text depth = 0] (coinsutwo) at ([yshift = -1.4\insep]cotwo.south west) {};}{
+			\node[anchor = north west, text width = .375\paperwidth - 2\Ztwo, text depth = 0] (coinsutwo) at ([yshift = -1.4\insep]cotwo.south west) {\color{institute.fg}\usebeamerfont{institute}\@coinsutwo};}
+%
+		\ifdefempty{\@coinsctwo}{
+			\node[anchor = north west, text width = .375\paperwidth - 2\Ztwo, text depth = 0] (coinsctwo) at ([yshift = -.5\insep]coinsutwo.south west) {};}{
+			\node[anchor = north west, text width = .375\paperwidth - 2\Ztwo, text depth = 0] (coinsctwo) at ([yshift = -.5\insep]coinsutwo.south west) {\color{coinstitute.fg}\usebeamerfont{coinstitute}\@coinsctwo};}
+%
+		\ifdefempty{\@coinsttwo}{
+			\node[anchor = north west, text width = .375\paperwidth - 2\Ztwo, text depth = 0] (coinsttwo) at ([yshift = -.5\insep]coinsctwo.south west) {};}{
+			\node[anchor = north west, text width = .375\paperwidth - 2\Ztwo, text depth = 0] (coinsttwo) at ([yshift = -.5\insep]coinsctwo.south west) {\color{coinstitute.fg}\usebeamerfont{coinstitute}\@coinsttwo};}		
+				
+		%----- EVENT & DATE
+		\node[anchor = south east, text width =  4\Ztwo + \bsq + \insep + \shadowsq, text depth = 0, align = right] (date) at ([xshift = -\insep -2\ssq - \sepssq, yshift = .5\insep]sepline.north east) {\color{date.fg}\usebeamerfont{date}{\@date}};
+		%\node[anchor = south west, text width =  \paperwidth - 6\Ztwo - 2\bsq - 4\insep - \sepssq - 4\shadowsq - 2\ssq, text depth = 0, align = left] (event) at ([yshift = .5\insep]sepline.north west) {\color{event.fg}\usebeamerfont{event}{\@event}}; 
+		\node[anchor = south east, text width =  \paperwidth - 6\Ztwo - 2\bsq - 4\insep - \sepssq - 4\shadowsq - 2\ssq, text depth = 0, align = right] (event) at ([xshift = -\insep]date.south west) {\color{event.fg}\usebeamerfont{event}{\@event}}; 	
+	\end{tikzpicture}%
+}
+\setbeamertemplate{title page}[MPT theme]
+
+\mode<all>

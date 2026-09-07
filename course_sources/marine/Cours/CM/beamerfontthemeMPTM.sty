@@ -1,0 +1,94 @@
+%---------------------------------------------------------------------------%
+%                                                                           %
+%                               MPT FONT THEME                              %
+%                                                                           %
+%---------------------------------------------------------------------------%
+
+\ProvidesPackage{beamerfontthemeMPTM}[2017/09/14 Mines ParisTech beamer font theme] 
+
+\mode<presentation>
+
+%---------------------------------------------------------------------------%
+%                             REQUIRED PACKAGES                             %
+%---------------------------------------------------------------------------%
+
+\ifbool{\@euler}{
+	\@ifpackageloaded{eulervm}{}{\RequirePackage{eulervm}}
+}{
+	\@ifpackageloaded{stix}{}{\RequirePackage[notextcomp]{stix}}
+}
+\@ifpackageloaded{amsmath}{}{\RequirePackage{amsmath}}
+\ifbool{\@arial}{
+	\@ifpackageloaded{helvet}{}{\RequirePackage{helvet}}
+}{
+	\@ifpackageloaded{libertine}{}{\RequirePackage{libertine}}
+}
+\@ifpackageloaded{fontenc}{}{\RequirePackage[T1]{fontenc}}
+\@ifpackageloaded{inputenc}{}{\RequirePackage[utf8]{inputenc}}
+
+
+%---------------------------------------------------------------------------%
+% BEAMER FONTS                                                              %
+%---------------------------------------------------------------------------%
+
+%----- GENERAL----------------- --------------------------------------------%
+
+\renewcommand*{\familydefault}{\sfdefault}
+\ifbool{\@arial}{\renewcommand{\normalsize}{\small}}{}
+\setbeamerfont{normal text}{size = \small}
+\mathchardef\mhyphen="2D
+\ifbool{\@arial}{}{
+\DeclareRobustCommand\ttfamily{\not@math@alphabet\ttfamily\mathtt\fontfamily\ttdefault\footnotesize\selectfont}
+}
+
+%----- TITLE PAGE (INNER THEME) --------------------------------------------%
+
+%----- TITLE
+\newlength{\titleftwd}
+\setlength{\titleftwd}{14.6pt}
+%\setbeamerfont{title}{size* = {1.5\titleftwd}{1.2\titleftwd}, shape = \scshape}
+\setbeamerfont{title}{size* = {1.15\titleftwd}{1.2\titleftwd}, shape = \scshape}
+%\setbeamerfont{title}{size* = {1.2\titleftwd}{1.2\titleftwd}, shape = \scshape}
+
+%----- EVENT, DATE, ORATOR, ETC.
+\setbeamerfont{event}{size = \small, shape = \normalfont}
+\setbeamerfont{date}{size = \small, shape = \normalfont}
+\setbeamerfont{author}{series = \bfseries, shape = \scshape}
+\setbeamerfont{subtitle}{size = \LARGE, shape = \normalfont,series = \itshape}
+\setbeamerfont{institute}{size = \footnotesize, shape = \scshape, series = \bfseries}
+\setbeamerfont{coauthor}{series = \bfseries, shape = \scshape}
+\setbeamerfont{coinstitute}{size = \scriptsize, shape = \scshape}
+ 
+%----- FRAMES (OUTER THEME) ------------------------------------------------%
+
+%----- HEADER
+\newlength{\frtiftwd}
+\setlength{\frtiftwd}{10pt}
+
+\ifbool{\@arial}{
+\setbeamerfont{frametitle}{size* = {1.5\frtiftwd}{1.2\frtiftwd}, series = \bfseries}
+}{
+\setbeamerfont{frametitle}{size* = {1.5\frtiftwd}{1.2\frtiftwd}, series = \bfseries}
+}
+\setbeamerfont{sectionhead}{size = \scriptsize}
+\setbeamerfont{subsectionhead}{size = \tiny}
+
+%----- FOOTER
+\newlength{\pnumwd}
+\setlength{\pnumwd}{5pt}
+
+\setbeamerfont*{page number in head/foot}{series = \bfseries, size* = {1.5\pnumwd}{1.2\pnumwd}}
+
+%----- BLOCKS (INNER THEME) ------------------------------------------------%
+
+\setbeamerfont{block title}{series = \bfseries, size = \normalsize}
+\setbeamerfont{block title example}{series = \bfseries, size = \normalsize}
+\setbeamerfont{block title alerted}{series = \bfseries, size = \normalsize}
+
+%----- TOC (INNER THEME) ---------------------------------------------------%
+
+\setbeamerfont{section in toc}{size = \normalsize, series = \bfseries}
+\setbeamerfont{subsection in toc}{size = \normalsize}
+ 
+\mode
+<all>

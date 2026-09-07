@@ -1,0 +1,73 @@
+---
+title: "TP 1 - La main à la pâte avec les KNN"
+output: html_document
+date: "2025-2026"
+---
+  
+***  
+
+```{r,echo=FALSE,message=FALSE}
+#install.packages("mlbench")
+#install.packages("caret")
+library(mlbench)
+library(class)  # pour knn
+library(caret)  # pour diviser les données
+library(ggplot2)
+data("PimaIndiansDiabetes", package = "mlbench")
+```
+
+## A -- Le jeu de données Pima Indians Diabetes
+
+On s'intéresse ici à un problème de classification binaire : on cherche à prédire si une personne souffre ou non du diabète sur la base de variables médicales
+
+1) Comprendre comment est construit le jeu de données `PimaIndiansDiabetes`. Vous pourrez notamment utiliser l'aide de `R`.
+
+```{r}
+?PimaIndiansDiabetes
+```
+
+2) Afficher un graphique bivarié avec en abscisse la variable `glucose`et en ordonnée la variable `pressure`. Utiliser un couleur différente pour chaque classe de la variable `diabetes`
+
+```{r}
+
+```
+
+3) On sélectionne une partie du jeu de données et on applique un algorithme des $K$ plus proches voisins avec $K =5$.
+
+Regarder ce que retourne `knn_pred`. Proposer une métrique pour évaluer si l'algorithme a bien fonctionné.
+
+```{r,eval=FALSE}
+set.seed(10)
+Index <- createDataPartition(dataset$diabetes, p = 0.7, list = FALSE)
+data <- dataset[trainIndex,]
+
+x <- data[, -9]
+y <- data$diabetes
+
+knn.pred <- knn(x,x, cl = y, k = 5)
+```
+
+```{r}
+
+```
+
+4) Sur le même jeu de données `data` appliquer un algorithme des KNN pour $K$ allant de 1 à 100 et afficher la valeur de la métrique pour chacune de ces valeurs
+
+```{r}
+
+```
+
+5) On considère maintenant le reste du jeu de données laissé de côté : prédire la variable `diabetes` à l'aide du meilleur modèle identifié à la question précédente et regarder ses performances. Commenter
+
+```{r}
+
+```
+
+6) Faire le même graphique que la question 4 sauf que, pour chaque $K$, la performance du modèle est évaluée sur l'échantillon supplémentaire comme dans la question précédente.
+
+
+```{r}
+
+```
+
+

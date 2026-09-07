@@ -1,0 +1,144 @@
+---
+title: "TP 3 : la régression logistique"
+output: html_document
+date: "2025-2026"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+  
+*** 
+```{r dplyr,message=F}
+#install.packages("dplyr")
+library(dplyr)
+```
+
+# Exercice 1 - Données sur la prostate
+
+Les données concernent 53 patients atteints du cancer de la prostate. Pour ces patients, on veut prédire l’atteinte du système lymphatique (`lymph`, codée 1 si le système lymphatique est atteint, 0 sinon). Cette
+atteinte conditionne le traitement du cancer et sa mesure directe nécessite une intervention chirurgicale. On essaie donc de voir s’il est possible de la prédire à partir de données facilement mesurables. Ces données sont extraites de Collet (1991), voir aussi  [wikistat](https://www.math.univ-toulouse.fr/~besse/Wikistat/pdf/tp_reg_logit.pdf). Les variables explicatives considérées sont les suivantes :
+
+
+* `age` : âge du patient,
+* `acid` : niveau de “serum acid phosphatase”,
+* `radio` : résultat d’une analyse radiographique (0 : négatif, 1 : positif),
+* `taille`: taille de la tumeur (0 : petite, 1 : grande),
+* `gravite` résultat de la biopsie (0 : moins sérieux, 1 : sérieux).
+
+**1)** Charger et explorer les données “prostate” (fichier .csv disponible sous Moodle). 
+
+```{r prostate}
+
+```
+
+
+Nous indiquons à `R` quelles sont les variables explicatives
+
+```{r}
+prostate = mutate(prostate, radio = as.factor(radio))
+prostate = mutate(prostate, taille = as.factor(taille))
+prostate = mutate(prostate, gravite = as.factor(gravite))
+prostate = mutate(prostate, lymph = as.factor(lymph))
+glimpse(prostate)
+```
+
+
+## Graphiques pour variables explicatives quantitatives
+
+**2)** Visualiser le lien entre la **variable cible** `lymph` et les **variables quantitatives** avec des boxplots et, pour chaque graphique, commenter : les deux variables semblent-t-elles liées ou non ?
+
+
+
+**3)** Visualisons la distribution de la variable `acid`
+
+```{r,message=F}
+
+```
+
+La loi est très dissymétrique, on préférera la transformer (passage au log) 
+
+
+```{r,message=F}
+ggplot(prostate, aes(log(acid))) + geom_histogram()
+```
+
+
+Vérifier le lien entre la variable cible et la variable `acid` après sa transformation log et commenter.
+
+```{r,message=F}
+
+```
+
+
+
+## Variables explicatives qualitatives
+
+Pour chaque variable qualitative, 
+
+**3)** Donner le tableau de contingence entre la variable cible et la variable qualitative (revient à regarder la distribution empirique conjointe) à l'aide de la fonction `table`. Puis étudier ce lien à l'aide d'un test du $\chi^2$ d'indépendance (fonction `chisq.test`)
+
+**4) ** Que concluez-vous ?
+
+
+
+## Modèle logistique
+
+**Apprendre un modèle logistique**
+
+**5)** Apprendre un modèle avec la fonction glm() en utilisant l'ensemble des variables disponibles (2 quantitatives et 3 qualitatives).
+
+
+**6)** Analyser le résulat avec la fonction summary().
+
+
+
+N.B. : La fonction summary() donne notamment les p-values des tests de Wald univariés sur les coefficients (H0 : $beta_j$ = 0). 
+
+**7) ** Quel commentaire pouvez-vous faire ?
+
+**8) ** Avez-vous des propositions pour améliorer ce modèle  ?
+
+## Prédictions, matrice de confusion
+
+**Prédictions**
+
+**9) **  Utiliser la fonction predict pour renvoyer, pour tous les individus, la valeur de probabilité prédite avec le modèle 'fit_logistic' appris ci-dessus.
+
+
+
+
+**10) ** Renvoyer ensuite les étiquettes prédites par le classifieur (vous choisirez le seuil $\alpha$)
+
+
+
+**Matrice de confusion**
+
+**11) ** Donner la matrice de confusion
+
+
+
+**12) ** Quel est le taux de faux positifs ? faux négatifs ? 
+Il y a 3/33 faux positifs et 6/20 faux négatifs.
+
+
+
+**13) ** Faire varier le seuil $\alpha$ utilisé pour la prédiction. Expliquer le comportement de la matrice de confusion en fontion de ce seuil. 
+
+
+
+## Courbe ROC et AUC
+
+```{r}
+#install.packages("ROCR")
+library(ROCR)
+```
+
+**14)** Tracer la courbe ROC et calculer l'AUC. Vous pourrez vous aider de l'exemple donné sur [ce site](http://www.duclert.org/r-apprentissage/courbes-ROC-R.php). 
+
+
+
+**Remarque** : ici, l'AUC a été calculé sur le jeu de donnée d'apprentissage. On pourrait calculer l'AUC sur un jeu de données de validation pour tous les modèles possibles (pas trop long car il n'y a pas trop de variables). Voici un code généré par ChatGPT pour faire cela (voir TP3-RegLog_solution.Rmd).
+
+

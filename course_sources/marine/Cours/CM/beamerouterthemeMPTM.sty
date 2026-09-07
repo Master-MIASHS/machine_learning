@@ -1,0 +1,174 @@
+%---------------------------------------------------------------------------%
+%                                                                           %
+%                              MPT OUTER THEME                              %
+%                                                                           %
+%---------------------------------------------------------------------------%
+
+\ProvidesPackage{beamerouterthemeMPTM}[2017/09/14 Mines ParisTech beamer outer theme] 
+
+\mode<presentation>
+
+%---------------------------------------------------------------------------%
+% REQUIRED PACKAGES                                                         %
+%---------------------------------------------------------------------------%
+
+\@ifpackageloaded{tikz}{}{
+\RequirePackage{tikz}
+\usetikzlibrary{decorations.pathmorphing, fadings, decorations.text, backgrounds, decorations.pathreplacing, patterns, shadows.blur, shadows, calc}
+}
+\@ifpackageloaded{textcase}{}{\RequirePackage{textcase}}
+\@ifpackageloaded{etoolbox}{}{\RequirePackage{etoolbox}}
+\@ifpackageloaded{ifthen}{}{\RequirePackage{ifthen}}
+\@ifpackageloaded{apptools}{}{\RequirePackage{apptools}}
+
+%----- PREVENT CLASHES BETWEEN FRENCH BABEL AND TIKZ
+\ifdef{\babeltikz}{}{ %
+\@ifpackageloaded{babel}{ %
+\AtBeginEnvironment{tikzpicture}{\shorthandoff{:}\shorthandoff{;}\shorthandoff{!}} %
+\AtEndEnvironment{tikzpicture}{\shorthandon{:}\shorthandon{;}\shorthandon{!}} %
+\def\babeltikz{1}}{\def\babeltikz{1}}}
+
+%---------------------------------------------------------------------------%
+% DIMENSIONS & BEAMER OPTIONS                                               %
+%---------------------------------------------------------------------------%
+
+%----- GEOMETRY OF THE FRAMES
+\newlength{\insep}
+\setlength{\insep}{5pt}
+\setlength{\marginparsep}{0pt}
+\setlength{\marginparwidth}{0pt}
+\setlength{\marginparpush}{0pt}
+\setbeamersize{text margin left = 2\insep, text margin right = 2\insep, sidebar width left = 0pt, sidebar width right = 0pt}
+\setbeamertemplate{navigation symbols}{}
+
+%----- DIMENSIONS OF TIKZPICTURES 
+\ifdef{\tikzwd}{}{
+	\newlength{\tikzwd}	% Width of a tikz picture
+	\newlength{\tikzht}	% Height of a tikz picture
+}
+\newlength{\frtitleht}	% Height of the title
+\ifdef{\bsq}{}{\newlength{\bsq}}	% Dimension of the big blue square
+\ifdef{\ssq}{}{\newlength{\ssq}}	% Dimension of the small grey and black squares
+\ifdef{\sepssq}{}{\newlength{\sepssq}}	% Dimension of the small grey and black squares
+\ifdef{\shadowsq}{}{\newlength{\shadowsq}}	% Dimension of shadow of the squares
+
+%----- MACRO TO GET THE WIDTH OR HEIGHT OF A NODE IN TIKZ
+
+\newlength{\rnode}
+\newlength{\lnode}
+\newcommand\nodewd{
+	\global\let\lnode = \pgfpositionnodelaterminx
+	\global\let\rnode = \pgfpositionnodelatermaxx
+}
+\newlength{\tnode}
+\newlength{\bnode}
+\newcommand\nodeht{
+	\global\let\bnode = \pgfpositionnodelaterminy
+	\global\let\tnode = \pgfpositionnodelatermaxy
+}
+
+%---------------------------------------------------------------------------%
+% FRAME TITLE                                                               %
+%---------------------------------------------------------------------------%
+
+%----- STARRED SECTIONS ----------------------------------------------------%
+
+\newif\ifstarred
+\def\secnr{}
+\pretocmd\beamer@@ssection{\gdef\secnr{}\global\starredtrue}{}{}
+\patchcmd\beamer@section{by 1\relax}{by 1\relax\xdef\secnr{\the\beamer@tocsectionnumber}\global\starredfalse}{}{}
+
+%----- FRAME TITLE ---------------------------------------------------------%
+
+\defbeamertemplate*{frametitle}{MPT theme}[1][]
+{%
+	%----- LENGTHS
+	\setlength{\bsq}{0.25cm}%{\frtiftwd}
+	\setlength{\ssq}{.66\bsq}
+	\setlength{\sepssq}{.5\insep}
+	\setlength{\shadowsq}{0pt}
+	%
+	%----- COLORS
+	\usebeamercolor{section name}%
+	\usebeamercolor[fg]{section number projected}%
+	\usebeamercolor{frametitle}%
+	\usebeamercolor{author}%
+	\usebeamercolor{event}%
+	%
+	\begin{tikzpicture} [inner sep = 0pt, outer sep = 0pt, overlay, remember picture, text depth = 0]
+		
+		%----- TOP
+		\node [anchor = north west, text width = \textwidth - \bsq - \insep] (topline) at ([xshift = \insep + \bsq, yshift = 1.75\insep]0,0) {};
+		
+		%----- FRAME TITLE
+		\node [anchor = north west, text width = \textwidth - \bsq -2\insep - 2\ssq - \sepssq - \shadowsq] (frtitle) at ([yshift = - \insep]topline.south west) {\usebeamerfont{frametitle}\color{frametitle.fg}\insertframetitle}; 
+		
+		%----- BIG SQUARE
+		\fill [drop shadow = {shadow xshift = \shadowsq, shadow yshift = - \shadowsq}, fill = MPTblue] ([xshift = - \insep, yshift = .5\bsq]frtitle.west) rectangle ([xshift = - \insep - \bsq, yshift = -.5\bsq]frtitle.west);
+		%
+		%----- SMALL SQUARES
+		\fill [drop shadow = {shadow xshift = \shadowsq, shadow yshift = - \shadowsq}, fill = MPTgrey] ([xshift = \insep, yshift = .5\ssq]frtitle.east) rectangle ([xshift = \insep + \ssq, yshift = -.5\ssq]frtitle.east);
+		%
+		\fill [drop shadow = {shadow xshift = \shadowsq, shadow yshift = - \shadowsq}, fill = black] ([xshift = \insep + \ssq + \sepssq, yshift = .5\ssq]frtitle.east) rectangle ([xshift = \insep + 2\ssq + \sepssq, yshift = -.5\ssq]frtitle.east);
+		
+		%----- FRAME TITLE BACKGROUND
+		\ifbool{\@sober}{}{
+			\begin{scope}[on background layer]
+				\fill [fill = event.bg]%MPTlightgrey!50!white] 
+(current page.north west) rectangle ([xshift = 3\insep + 2\ssq + \sepssq, yshift = -1.5\insep]frtitle.south east);
+			\end{scope}
+		}
+	\end{tikzpicture}\vspace*{4\insep}
+}
+\setbeamertemplate{frametitle}[MPT theme]
+
+%---------------------------------------------------------------------------%
+% HEADERS                                                                   %
+%---------------------------------------------------------------------------%
+
+%----- FOOTLINE ------------------------------------------------------------%
+
+\addtocounter{framenumber}{-1}
+\AtAppendix{
+	\newcounter{appx}
+	\preto\frame{\addtocounter{framenumber}{-1}\stepcounter{appx}}
+}
+
+\defbeamertemplate*{footline}{MPT theme}
+{
+	%----- COLORS
+	\usebeamercolor{event}
+	\usebeamercolor{author}
+	\usebeamercolor{title}
+	\ifnum\c@framenumber=0
+	\else
+	%
+	\begin{tikzpicture} [overlay, remember picture, inner sep = 0pt, outer sep = 0pt]
+
+	%----- PAGE NUMBER
+	\node [anchor = south east, text width = 5em, align = right] (page) at ([xshift = -2.5\insep, yshift = .5\insep]current page.south east) {\usebeamerfont{page number in head/foot}\usebeamercolor[fg]{page number in head/foot}\IfAppendix{A\,\theappx}{\insertframenumber}};
+	
+%	%----- PRESENTATION TITLE
+%	\ifbool{\@notocfoot}{}{
+%		\node [anchor = south west, text width = \textwidth - 20pt - 5em, align = left] (shorttitle) at ([xshift = 2.5\insep, yshift = .15\insep]current page.south west) {\usebeamerfont{sectionhead}\usebeamercolor[fg]{coauthor}{\@title}};
+%	}
+%	
+%	%----- FRAME TITLE BACKGROUND
+%	\ifbool{\@sober}{}{
+%		\begin{scope}[on background layer]
+%			\fill [fill = event.bg]%MPTlightgrey!50!white]
+% (current page.south west) rectangle ([xshift = 2.5\insep + \bsq, yshift = .5\insep]page.north east);
+%		\end{scope}
+%	}
+	\end{tikzpicture}
+	\fi
+}
+\setbeamertemplate{footline}[MPT theme]
+
+%----- HEADLINE ------------------------------------------------------------%
+
+\defbeamertemplate*{headline}{MPT theme}{}
+\setbeamertemplate{headline}[MPT theme]
+
+\mode
+<all>
