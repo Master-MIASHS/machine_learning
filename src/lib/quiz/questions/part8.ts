@@ -214,7 +214,7 @@ export const PART8: QuizQuestion[] = [
 		id: 'p8-syn-q5',
 		tags: ['p8/synthese'],
 		question:
-			"Comment la leçon part8/lesson1 interprète-t-elle la consistance presque sûre, P(lim R(h_n) = R*) = 1 ?",
+			'Comment la leçon part8/lesson1 interprète-t-elle la consistance presque sûre, P(lim R(h_n) = R*) = 1 ?',
 		options: [
 			"Comme une affirmation sur une seule trajectoire infinie de (R(h_n)) : avec probabilité 1, cette trajectoire finit par entrer dans n'importe quel voisinage de R* et n'en ressort plus jamais.",
 			"Comme une affirmation sur la fréquence des grands écarts : la probabilité de s'écarter de R* de plus de ε devient rare.",
@@ -248,7 +248,7 @@ export const PART8: QuizQuestion[] = [
 		options: [
 			"R(h_n) - R* = [R(h_n) - inf_{h∈H} R(h)] - [inf_{h∈H} R(h) - R*] : l'écart global est la différence des deux termes.",
 			"R(h_n) - R* = [R(h_n) - R(h*)] + [inf_{h∈H} R(h) - R*] : le terme d'estimation compare directement h_n au classifieur de Bayes.",
-			"R(h_n) - R* = [R(h_n) - inf_{h∈H} R(h)] × [inf_{h∈H} R(h) - R*] : les deux termes se multiplient dans la décomposition.",
+			'R(h_n) - R* = [R(h_n) - inf_{h∈H} R(h)] × [inf_{h∈H} R(h) - R*] : les deux termes se multiplient dans la décomposition.',
 			"R(h_n) - R* = [R(h_n) - inf_{h∈H} R(h)] + [inf_{h∈H} R(h) - R*] : le premier terme est le terme d'estimation, le second le terme d'approximation."
 		],
 		answerIndex: 3,
@@ -260,20 +260,20 @@ export const PART8: QuizQuestion[] = [
 		tags: ['p8/synthese'],
 		question: 'Comment la Définition 1.2 de part8/lesson1 fait-elle le lien avec la Partie VII ?',
 		options: [
-			"Elle redéfinit η(x) comme la moyenne conditionnelle de Y sachant X = x, pour relier la consistance à la régression.",
-			"Elle réécrit explicitement le risque de Bayes comme R* = R(h*) = E_X[min(η(X), 1 - η(X))], le risque caractérisé par le Théorème 1.1 de la Partie VII.",
+			'Elle redéfinit η(x) comme la moyenne conditionnelle de Y sachant X = x, pour relier la consistance à la régression.',
+			'Elle réécrit explicitement le risque de Bayes comme R* = R(h*) = E_X[min(η(X), 1 - η(X))], le risque caractérisé par le Théorème 1.1 de la Partie VII.',
 			"Elle suppose R* = 0 : la consistance n'aurait de sens que pour des problèmes séparables.",
 			"Elle remplace R* par le risque empirique, la moyenne des erreurs sur l'échantillon : la consistance se mesure sur les données."
 		],
 		answerIndex: 1,
 		explanation:
-			"Définition 1.2 (part8/lesson1) se conclut par « où R* = R(h*) = E_X[min(η(X), 1 - η(X))] est le risque de Bayes », renvoyant au Théorème 1.1 de la Partie VII qui caractérise le classifieur de Bayes et son risque minimal."
+			'Définition 1.2 (part8/lesson1) se conclut par « où R* = R(h*) = E_X[min(η(X), 1 - η(X))] est le risque de Bayes », renvoyant au Théorème 1.1 de la Partie VII qui caractérise le classifieur de Bayes et son risque minimal.'
 	},
 	{
 		id: 'p8-syn-q9',
 		tags: ['p8/synthese'],
 		question:
-			"En complément, au-delà du cours (dû à Cover et Hart, 1967) : quelle identité asymptotique la leçon part8/lesson2 attribue-t-elle au risque du 1-NN ?",
+			'En complément, au-delà du cours (dû à Cover et Hart, 1967) : quelle identité asymptotique la leçon part8/lesson2 attribue-t-elle au risque du 1-NN ?',
 		options: [
 			'limsup E[R(h_n^{1-NN})] (quand n → +∞) = 2 E[η(X)(1 - η(X))], en supposant que P_X admet une densité.',
 			'limsup E[R(h_n^{1-NN})] (quand n → +∞) = E[η(X)(1 - η(X))] = R* : le 1-NN est universellement consistant.',
@@ -288,7 +288,7 @@ export const PART8: QuizQuestion[] = [
 		id: 'p8-syn-q10',
 		tags: ['p8/synthese'],
 		question:
-			"En complément, au-delà du cours : pourquoi la borne de Cover-Hart montre-t-elle que le 1-NN peut laisser un écart résiduel strictement positif, quel que soit n ?",
+			'En complément, au-delà du cours : pourquoi la borne de Cover-Hart montre-t-elle que le 1-NN peut laisser un écart résiduel strictement positif, quel que soit n ?',
 		options: [
 			'Parce que la borne supérieure est strictement inférieure à R* pour tout R* ∈ (0,1) : le 1-NN sous-estime systématiquement le risque de Bayes.',
 			"Parce que l'écart 2R*(1 - R*/2) - R* s'annule pour tout R* ∈ (0, 1/2), les problèmes peu bruités étant bien gérés.",
@@ -303,7 +303,7 @@ export const PART8: QuizQuestion[] = [
 		id: 'p8-syn-q11',
 		tags: ['p8/synthese'],
 		question:
-			"En complément, au-delà du cours : quelle distribution la leçon part8/lesson2 donne-t-elle pour montrer que le risque asymptotique du 1-NN peut rester strictement au-dessus du risque de Bayes ?",
+			'En complément, au-delà du cours : quelle distribution la leçon part8/lesson2 donne-t-elle pour montrer que le risque asymptotique du 1-NN peut rester strictement au-dessus du risque de Bayes ?',
 		options: [
 			'η(X) ∈ {c, 1 - c} presque sûrement avec c ∈ (0, 1/2) : alors R* = c, mais le risque asymptotique du 1-NN vaut 2c(1 - c), strictement plus grand que c.',
 			'η(X) ∈ {0, 1} presque sûrement : le problème est séparable (R* = 0), mais le 1-NN conserve un risque asymptotique strictement positif.',
@@ -312,13 +312,13 @@ export const PART8: QuizQuestion[] = [
 		],
 		answerIndex: 0,
 		explanation:
-			"Cartouche « Erreur du 1-NN » (part8/lesson2, complément au-delà du cours) : « si η(X) ∈ {c,1-c} presque sûrement avec c ∈ (0,1/2), alors R* = c mais le risque asymptotique vaut 2c(1-c) > c » — une distribution pour laquelle le 1-NN reste strictement au-dessus du risque de Bayes."
+			'Cartouche « Erreur du 1-NN » (part8/lesson2, complément au-delà du cours) : « si η(X) ∈ {c,1-c} presque sûrement avec c ∈ (0,1/2), alors R* = c mais le risque asymptotique vaut 2c(1-c) > c » — une distribution pour laquelle le 1-NN reste strictement au-dessus du risque de Bayes.'
 	},
 	{
 		id: 'p8-syn-q12',
 		tags: ['p8/synthese'],
 		question:
-			"Pourquoi la leçon part8/lesson2 affirme-t-elle que la condition k(n) → +∞ du Théorème 2.1 est « nécessaire, et pas seulement une commodité technique de la démonstration » ?",
+			'Pourquoi la leçon part8/lesson2 affirme-t-elle que la condition k(n) → +∞ du Théorème 2.1 est « nécessaire, et pas seulement une commodité technique de la démonstration » ?',
 		options: [
 			"Parce que la borne de Cover-Hart (complément, au-delà du cours) montre qu'un k fixé peut laisser un écart résiduel strictement positif, quel que soit n : c'est cette impossibilité générale — pas seulement l'exemple numérique — qui rend la condition nécessaire.",
 			"Parce que le théorème de Stone l'énonce explicitement comme condition nécessaire dans son énoncé.",
@@ -342,12 +342,13 @@ export const PART8: QuizQuestion[] = [
 		],
 		answerIndex: 0,
 		explanation:
-			"Part7/lesson2 présente le Théorème 2.1 comme un résultat de suffisance (« Si le paramètre k = k(n) vérifie ... alors le classifieur k-NN est universellement consistant ») ; la leçon discute la nécessité de la première condition via la borne de Cover-Hart (au-delà du cours), mais ne discute pas la nécessité de la seconde condition k(n)/n → 0."
+			'Part7/lesson2 présente le Théorème 2.1 comme un résultat de suffisance (« Si le paramètre k = k(n) vérifie ... alors le classifieur k-NN est universellement consistant ») ; la leçon discute la nécessité de la première condition via la borne de Cover-Hart (au-delà du cours), mais ne discute pas la nécessité de la seconde condition k(n)/n → 0.'
 	},
 	{
 		id: 'p8-syn-q14',
 		tags: ['p8/synthese'],
-		question: "Sous quelle forme la leçon part8/lesson2 énonce-t-elle la conclusion du Théorème 2.1 de Stone ?",
+		question:
+			'Sous quelle forme la leçon part8/lesson2 énonce-t-elle la conclusion du Théorème 2.1 de Stone ?',
 		options: [
 			'Presque sûrement, pour toute distribution P : P(lim R(h_n^{k-NN}) (quand n → +∞) = R*) = 1.',
 			'En espérance, pour toute distribution P sur ℝ^d × {0,1} : E[R(h_n^{k-NN})] → R* quand n → +∞.',
@@ -356,13 +357,13 @@ export const PART8: QuizQuestion[] = [
 		],
 		answerIndex: 1,
 		explanation:
-			"Énoncé du Théorème 2.1 (part8/lesson2) : la convergence est énoncée en espérance, « E[R(h_n^{k-NN})] → R* », pour toute distribution P sur ℝ^d × {0,1}, sans hypothèse sur la distribution elle-même."
+			'Énoncé du Théorème 2.1 (part8/lesson2) : la convergence est énoncée en espérance, « E[R(h_n^{k-NN})] → R* », pour toute distribution P sur ℝ^d × {0,1}, sans hypothèse sur la distribution elle-même.'
 	},
 	{
 		id: 'p8-syn-q15',
 		tags: ['p8/synthese'],
 		question:
-			"Dans la « Lecture biais-variance des deux conditions » (part8/lesson2), quel rôle joue chacune des deux conditions du Théorème 2.1 ?",
+			'Dans la « Lecture biais-variance des deux conditions » (part8/lesson2), quel rôle joue chacune des deux conditions du Théorème 2.1 ?',
 		options: [
 			"k(n) → +∞ contrôle la variance — moyenner sur davantage de voisins lisse le bruit d'échantillonnage par la loi des grands nombres ; k(n)/n → 0 contrôle le biais — les k(n) voisins restent proches de x, si bien que la moyenne locale capture η en x.",
 			"k(n) → +∞ contrôle le biais — plus il y a de voisins, plus la moyenne locale s'approche de la frontière de décision ; k(n)/n → 0 contrôle la variance.",
