@@ -4,6 +4,7 @@ import {
 	anovaDesign,
 	ancovaDesign,
 	ar1Correlation,
+	ar1Samples,
 	aic,
 	anovaTable,
 	backwardSelection,
@@ -11,6 +12,8 @@ import {
 	bic,
 	cooksDistance,
 	conditionNumber,
+	correlatedPredictors,
+	covarianceBeta,
 	correlationMatrix,
 	deletedResidual,
 	fQuantile,
@@ -23,6 +26,7 @@ import {
 	meanResponseInterval,
 	nestedFTest,
 	olsFit,
+	partialResiduals,
 	polynomialDesign,
 	polynomialFamily,
 	predictionInterval,
@@ -32,11 +36,14 @@ import {
 	rSquared,
 	selectionProblem,
 	simulateResidualScenario,
+	sseSimple,
 	studentizedResiduals,
 	stepwiseBoth,
 	sumsOfSquares,
 	tConfidenceInterval,
+	tDensity,
 	tQuantile,
+	twoFactorData,
 	twoWayAnovaDesign,
 	varBetaJ,
 	vif,
@@ -736,5 +743,155 @@ describe('Seeded simulators (demos)', () => {
 			return cov / Math.sqrt(va * vb);
 		};
 		expect(colCorr(0, 3)).toBeCloseTo(0.9, 1); // x4 ≈ 0.9·x1 + noise
+	});
+});
+
+describe('Demo support functions (Phase C)', () => {
+	it('sseSimple: closed form, minimum at the OLS solution, validates lengths', () => {
+		// x = (1,2,3), y = (1,3,2): β̂1 = Sxy/Sxx = 1/2, β̂0 = ȳ − β̂1x̄ = 5/3,
+		// SSE = 49/36 + 1/9 + 49/36 = 17/6.
+		expect(sseSimple([1, 2, 3], [1, 3, 2], 5 / 3, 0.5)).toBeCloseTo(17 / 6, 12);
+		const x = [1, 2, 3, 4, 5, 6, 7, 8];
+		const y = [2.1, 2.9, 4.2, 3.8, 5.9, 6.2, 7.8, 8.1];
+		const fit = olsFit(withIntercept(x.map((v) => [v])), y);
+		expect(sseSimple(x, y, fit.beta[0], fit.beta[1])).toBeCloseTo(fit.sse, 10);
+		expect(sseSimple(x, y, fit.beta[0] + 0.5, fit.beta[1])).toBeGreaterThan(fit.sse);
+		expect(() => sseSimple([1, 2], [1], 0, 1)).toThrow();
+	});
+
+	it('partialResiduals: remove the estimated effect of the other regressors', () => {
+		// Simple regression: β̂1x + ε̂ = y − β̂0 (the intercept is "the other variable").
+		const x = [1, 2, 3, 4, 5, 6, 7];
+		const y = [2.1, 2.9, 4.2, 3.8, 5.9, 6.2, 7.8];
+		const Xs = withIntercept(x.map((v) => [v]));
+		const fs = olsFit(Xs, y);
+		partialResiduals(Xs, fs, 1).forEach((v, i) => expect(v).toBeCloseTo(y[i] - fs.beta[0], 10));
+
+		// Multiple regression: partial of x1 = y − β̂0 − β̂2x2 (x2 independent of x1).
+		const X = withIntercept(Array.from({ length: 10 }, (_, i) => [i + 1, ((i * 7) % 11) + 1]));
+		const yy = Array.from({ length: 10 }, (_, i) => 1 + 2 * (i + 1) - 1.5 * (((i * 7) % 11) + 1) + 0.3 * i);
+		const fm = olsFit(X, yy);
+		partialResiduals(X, fm, 1).forEach((v, i) => expect(v).toBeCloseTo(yy[i] - fm.beta[0] - fm.beta[2] * X[i][2], 10));
+
+		expect(() => partialResiduals(X, fm, 0)).toThrow(); // the intercept is not a regressor
+		expect(() => partialResiduals(X, fm, 3)).toThrow();
+		expect(() => partialResiduals(X.slice(0, 9), fm, 1)).toThrow(); // fit/design mismatch
+	});
+
+	it('covarianceBeta: σ²(XᵀX)⁻¹ — 1-D closed form, symmetry, scaling, SE cross-check', () => {
+		const x = [1, 2, 3, 4, 5, 6, 7, 8];
+		const X = withIntercept(x.map((v) => [v]));
+		const C1 = covarianceBeta(X, 1);
+		const mean = x.reduce((a, b) => a + b, 0) / x.length;
+		const ss = x.reduce((a, v) => a + (v - mean) * (v - mean), 0);
+		expect(C1[1][1]).toBeCloseTo(1 / ss, 10); // Var(β̂1) = 1/Σ(xi−x̄)²
+		for (let a = 0; a < 2; a++) for (let b = 0; b < 2; b++) expect(C1[a][b]).toBeCloseTo(C1[b][a], 12);
+		const C2 = covarianceBeta(X, 4);
+		for (let a = 0; a < 2; a++) for (let b = 0; b < 2; b++) expect(C2[a][b]).toBeCloseTo(4 * C1[a][b], 10);
+
+		// longley: the diagonal must reproduce the standard errors of olsFit.
+		const fl = olsFit(designMatrix(longley), responseVector(longley));
+		const Cl = covarianceBeta(designMatrix(longley), fl.sigma2);
+		fl.seBeta.forEach((se, j) => expect(Math.sqrt(Cl[j][j])).toBeCloseTo(se, 8));
+
+		expect(() => covarianceBeta(X, 0)).toThrow();
+	});
+
+	it('tDensity: closed forms, symmetry, integrates to 1, consistent with tQuantile', () => {
+		expect(tDensity(0, 1)).toBeCloseTo(1 / Math.PI, 10); // Cauchy at 0
+		expect(tDensity(0, 5)).toBeCloseTo(0.3796068, 5); // Γ(3)/(√(5π)Γ(5/2))
+		expect(tDensity(0, 100000)).toBeCloseTo(1 / Math.sqrt(2 * Math.PI), 3); // ν → ∞ ⇒ N(0,1)
+		expect(tDensity(-1.7, 6)).toBeCloseTo(tDensity(1.7, 6), 12);
+
+		const L = 12;
+		const trap = (nu: number, a: number, b: number, m = 20000) => {
+			const h = (b - a) / m;
+			let s = 0.5 * (tDensity(a, nu) + tDensity(b, nu));
+			for (let i = 1; i < m; i++) s += tDensity(a + i * h, nu);
+			return s * h;
+		};
+		expect(trap(5, -L, L)).toBeCloseTo(1, 3);
+		expect(trap(10, -L, L)).toBeCloseTo(1, 3);
+		expect(trap(5, -L, tQuantile(0.975, 5))).toBeCloseTo(0.975, 3);
+		expect(() => tDensity(1, 0)).toThrow();
+	});
+
+	it('ar1Samples: seeded, lag-1 autocorrelation ≈ ρ, stationary variance ≈ 1/(1−ρ²)', () => {
+		const a = ar1Samples(500, 0.7, 11);
+		expect(ar1Samples(500, 0.7, 11)).toEqual(a);
+		expect(ar1Samples(500, 0.7, 12)).not.toEqual(a);
+		expect(() => ar1Samples(0, 0.7, 1)).toThrow();
+		expect(() => ar1Samples(10, 1, 1)).toThrow();
+		expect(() => ar1Samples(10, -1.2, 1)).toThrow();
+
+		const n = 4000;
+		const e = ar1Samples(n, 0.7, 7);
+		const mean = e.reduce((s, v) => s + v, 0) / n;
+		let num = 0,
+			den = 0;
+		for (let i = 1; i < n; i++) {
+			num += (e[i - 1] - mean) * (e[i] - mean);
+			den += (e[i - 1] - mean) ** 2 + (e[i] - mean) ** 2;
+		}
+		expect(2 * (num / den)).toBeGreaterThan(0.6); // lag-1 autocorrelation ≈ 0.7
+		expect(2 * (num / den)).toBeLessThan(0.8);
+		const varE = e.reduce((s, v) => s + (v - mean) ** 2, 0) / n;
+		expect(varE).toBeGreaterThan(1 / (1 - 0.49) - 0.5);
+		expect(varE).toBeLessThan(1 / (1 - 0.49) + 0.5);
+	});
+
+	it('correlatedPredictors: seeded, sample correlation ≈ ρ, validates', () => {
+		const a = correlatedPredictors(200, 0.8, 3);
+		expect(correlatedPredictors(200, 0.8, 3)).toEqual(a);
+		expect(correlatedPredictors(200, 0.8, 4).x1).not.toEqual(a.x1);
+		expect(a.x1).toHaveLength(200);
+		expect(a.x2).toHaveLength(200);
+		const corr = (u: number[], v: number[]) => {
+			const mu = u.reduce((s, x) => s + x, 0) / u.length;
+			const mv = v.reduce((s, x) => s + x, 0) / v.length;
+			let cov = 0,
+				vu = 0,
+				vv = 0;
+			for (let i = 0; i < u.length; i++) {
+				cov += (u[i] - mu) * (v[i] - mv);
+				vu += (u[i] - mu) ** 2;
+				vv += (v[i] - mv) ** 2;
+			}
+			return cov / Math.sqrt(vu * vv);
+		};
+		expect(corr(a.x1, a.x2)).toBeGreaterThan(0.7);
+		expect(corr(a.x1, a.x2)).toBeLessThan(0.9);
+		expect(() => correlatedPredictors(1, 0.5, 1)).toThrow();
+		expect(() => correlatedPredictors(10, 1, 1)).toThrow();
+	});
+
+	it('twoFactorData: seeded, shape, cell means recover the effects', () => {
+		const d1 = twoFactorData({ nPerCell: 300, iLevels: 3, jLevels: 2, interaction: true, seed: 5 });
+		expect(twoFactorData({ nPerCell: 300, iLevels: 3, jLevels: 2, interaction: true, seed: 5 }).y).toEqual(d1.y);
+		expect(twoFactorData({ nPerCell: 300, iLevels: 3, jLevels: 2, interaction: true, seed: 6 }).y).not.toEqual(d1.y);
+		expect(d1.y).toHaveLength(300 * 3 * 2);
+		expect(d1.iLevels).toHaveLength(300 * 3 * 2);
+		expect(d1.jLevels).toHaveLength(300 * 3 * 2);
+		expect(d1.alpha).toHaveLength(3);
+		expect(d1.beta).toHaveLength(2);
+		expect(d1.gamma).toHaveLength(6);
+		expect(d1.gamma.some((g) => g !== 0)).toBe(true);
+
+		// cell mean ≈ αi + βj + γij, within 3σ/√nPerCell ≈ 0.17
+		const cellMean = (d: ReturnType<typeof twoFactorData>, i: number, j: number) => {
+			const vals = d.y.filter((_, k) => d.iLevels[k] === i && d.jLevels[k] === j);
+			return vals.reduce((a, b) => a + b, 0) / vals.length;
+		};
+		for (let i = 0; i < 3; i++)
+			for (let j = 0; j < 2; j++)
+				expect(Math.abs(cellMean(d1, i, j) - (d1.alpha[i] + d1.beta[j] + d1.gamma[i * 2 + j]))).toBeLessThan(0.2);
+
+		// no interaction ⇒ γ = 0 and the cell means are additive
+		const d0 = twoFactorData({ nPerCell: 300, iLevels: 3, jLevels: 2, interaction: false, seed: 5 });
+		expect(d0.gamma.every((g) => g === 0)).toBe(true);
+		expect(Math.abs(cellMean(d0, 0, 0) + cellMean(d0, 2, 1) - cellMean(d0, 0, 1) - cellMean(d0, 2, 0))).toBeLessThan(0.35);
+
+		expect(() => twoFactorData({ nPerCell: 0, iLevels: 2, jLevels: 2, interaction: false, seed: 1 })).toThrow();
+		expect(() => twoFactorData({ nPerCell: 1, iLevels: 1, jLevels: 2, interaction: false, seed: 1 })).toThrow();
 	});
 });

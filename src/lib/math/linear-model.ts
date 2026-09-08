@@ -261,6 +261,20 @@ export function sumsOfSquares(y: number[], yHat: number[]): { scr: number; sce: 
 	return { scr, sce, sct };
 }
 
+/**
+ * SSE(β0, β1) = Σi (yi − β0 − β1·xi)² — the squared-error landscape whose
+ * unique minimum under (H1) is attained at the OLS solution
+ * (StatM1S1_2025.pdf, §I.4 — derivation of ‖Y − Xβ‖²). Used by the demo W1.1.
+ */
+export function sseSimple(x: number[], y: number[], b0: number, b1: number): number {
+	if (x.length !== y.length) throw new Error(`sseSimple: length mismatch (x = ${x.length}, y = ${y.length})`);
+	if (x.length < 2) throw new Error(`sseSimple: need at least 2 points (got ${x.length})`);
+	return y.reduce((a, yi, i) => {
+		const r = yi - (b0 + b1 * x[i]);
+		return a + r * r;
+	}, 0);
+}
+
 /** R² = SCE/SCT = 1 − SCR/SCT (StatM1S1_2025.pdf, §5). */
 export function rSquared(sct: number, scr: number): number {
 	if (sct <= 0) throw new Error(`rSquared: total sum of squares must be positive (got ${sct})`);
@@ -310,6 +324,19 @@ export function studentizedResiduals(residuals: number[], leveragesArr: number[]
 export function deletedResidual(residual: number, hii: number): number {
 	if (hii >= 1) throw new Error(`deletedResidual: leverage ${hii} must be < 1`);
 	return residual / (1 - hii);
+}
+
+/**
+ * Partial residuals of regressor j: ε̂∆j,i = β̂j·xj,i + ε̂i
+ * (8.validation_du_modele_lineaire_2025.pdf, "Résidus partiels" — they remove
+ * the estimated effect of the OTHER regressors, so plotting them against xj
+ * reveals the true shape of the (xj, Y) relationship). X has the intercept as
+ * column 0; j is a regressor index in [1, p].
+ */
+export function partialResiduals(X: number[][], fit: LinearModelFit, j: number): number[] {
+	if (fit.n !== X.length) throw new Error(`partialResiduals: fit for ${fit.n} observations, design has ${X.length}`);
+	if (!Number.isInteger(j) || j < 1 || j >= X[0].length) throw new Error(`partialResiduals: j must be a regressor index in [1, p] (got ${j})`);
+	return X.map((row, i) => fit.beta[j] * row[j] + fit.residuals[i]);
 }
 
 /**
@@ -396,6 +423,20 @@ export function varBetaJ(sigma2: number, xj: number[], r2j: number): number {
 	const ss = xj.reduce((a, x) => a + (x - mean) * (x - mean), 0);
 	if (ss <= 0) throw new Error('varBetaJ: constant regressor');
 	return sigma2 / (ss * (1 - r2j));
+}
+
+/**
+ * Covariance matrix of β̂: Cov(β̂) = σ²(XᵀX)⁻¹ (StatM1S1_2025.pdf, §I.4 —
+ * "Var(β̂) = σ²(XᵀX)⁻¹" under (H2); the diagonal gives the coefficient
+ * variances behind the standard errors). X has the intercept as column 0.
+ */
+export function covarianceBeta(X: number[][], sigma2: number): number[][] {
+	if (sigma2 <= 0) throw new Error(`covarianceBeta: sigma2 must be positive (got ${sigma2})`);
+	const n = X.length;
+	const d = X[0]?.length ?? 0;
+	if (n === 0 || d === 0) throw new Error('covarianceBeta: X must not be empty');
+	const Xt = transpose(X, n, d);
+	return invert(matMul(Xt, X)).map((row) => row.map((v) => v * sigma2));
 }
 
 // ─── Gaussian-model inference ─────────────────────────────
@@ -490,6 +531,18 @@ export function tQuantile(p: number, df: number): number {
 	}
 	const x = (lo + hi) / 2;
 	return Math.sqrt((df * (1 - x)) / x);
+}
+
+/**
+ * Density of Student's t distribution with `df` degrees of freedom
+ * (StatM1S1_2025.pdf, §I.7 — Tj ~ Student(n−p−1)):
+ *   f(t; ν) = Γ((ν+1)/2) / (√(νπ)·Γ(ν/2)) · (1 + t²/ν)^{−(ν+1)/2}.
+ * Computed in log-space via logGamma for stability.
+ */
+export function tDensity(x: number, df: number): number {
+	if (df <= 0) throw new Error(`tDensity: df must be positive (got ${df})`);
+	const logC = logGamma((df + 1) / 2) - 0.5 * Math.log(df * Math.PI) - logGamma(df / 2);
+	return Math.exp(logC - ((df + 1) / 2) * Math.log1p((x * x) / df));
 }
 
 /**
@@ -874,6 +927,25 @@ export function ar1Correlation(n: number, rho: number): number[][] {
 }
 
 /**
+ * Seeded AR(1) error process: ε0 = z0, εi = ρ·εi−1 + zi with zi ~ N(0,1)
+ * i.i.d. (StatM1S1_2025.pdf, §7 — (H2′) Σε = σ²ℱ with ℱ the AR(1) matrix;
+ * used by the MCG demo W3.4). Stationary variance 1/(1−ρ²).
+ */
+export function ar1Samples(n: number, rho: number, seed: number): number[] {
+	if (n < 1) throw new Error(`ar1Samples: n must be positive (got ${n})`);
+	if (rho <= -1 || rho >= 1) throw new Error(`ar1Samples: rho must be in (−1, 1) (got ${rho})`);
+	const rng = mulberry32(combineSeed(seed, 1));
+	const base: Gaussian = { mu: 0, sigma2: 1 };
+	const out = new Array<number>(n);
+	let eps = 0;
+	for (let i = 0; i < n; i++) {
+		eps = rho * eps + gaussianSample(base, rng);
+		out[i] = eps;
+	}
+	return out;
+}
+
+/**
  * B seeded simple-regression fits on x = linspace(0, spread, n),
  * y = β0 + β1x + N(0, σ²): returns the B estimates of β̂1
  * (StatM1S1_2025.pdf, §6 — β̂ ~ N(β, σ²(XᵀX)⁻¹); the sampling demo W3.1).
@@ -938,4 +1010,67 @@ export function selectionProblem(seed: number): { X: number[][]; y: number[]; tr
 		y.push(1 + 2 * raw[0][i] + 1.5 * raw[1][i] - raw[2][i] + noise);
 	}
 	return { X, y, trueSupport: [0, 1, 2] };
+}
+
+/**
+ * Seeded pair of N(0,1) predictors with target correlation ρ:
+ * x1 ~ N(0,1), x2 = ρ·x1 + √(1−ρ²)·z (demo W1.3 — the effect of the
+ * predictor correlation on Var(β̂j) = σ²(XᵀX)⁻¹, StatM1S1_2025.pdf §I.4.3).
+ */
+export function correlatedPredictors(n: number, rho: number, seed: number): { x1: number[]; x2: number[] } {
+	if (n < 2) throw new Error(`correlatedPredictors: n must be at least 2 (got ${n})`);
+	if (rho <= -1 || rho >= 1) throw new Error(`correlatedPredictors: rho must be in (−1, 1) (got ${rho})`);
+	const rng = mulberry32(combineSeed(seed, 1));
+	const base: Gaussian = { mu: 0, sigma2: 1 };
+	const x1: number[] = [];
+	const x2: number[] = [];
+	for (let i = 0; i < n; i++) {
+		const u = gaussianSample(base, rng);
+		const z = gaussianSample(base, rng);
+		x1.push(u);
+		x2.push(rho * u + Math.sqrt(1 - rho * rho) * z);
+	}
+	return { x1, x2 };
+}
+
+/**
+ * Seeded two-factor response for the interaction demo W2.2
+ * (ModèleLinéaire_ANOVA_ANCOVA.pdf, ANOVA à 2 facteurs):
+ *   Y = αi + βj + γij·1{interaction} + N(0,1),
+ * with `nPerCell` observations per (i, j) cell and effects drawn from N(0, 4).
+ * `gamma` is all zeros when `interaction` is false (additive model).
+ */
+export function twoFactorData(opts: { nPerCell: number; iLevels: number; jLevels: number; interaction: boolean; seed: number }): {
+	iLevels: number[];
+	jLevels: number[];
+	y: number[];
+	alpha: number[];
+	beta: number[];
+	gamma: number[];
+} {
+	const { nPerCell, iLevels: I, jLevels: J, interaction, seed } = opts;
+	if (!Number.isInteger(nPerCell) || nPerCell < 1) throw new Error(`twoFactorData: nPerCell must be a positive integer (got ${nPerCell})`);
+	if (!Number.isInteger(I) || I < 2) throw new Error(`twoFactorData: need at least 2 levels of factor 1 (got ${I})`);
+	if (!Number.isInteger(J) || J < 2) throw new Error(`twoFactorData: need at least 2 levels of factor 2 (got ${J})`);
+
+	const rng = mulberry32(combineSeed(seed, 1));
+	const effect: Gaussian = { mu: 0, sigma2: 4 };
+	const noise: Gaussian = { mu: 0, sigma2: 1 };
+	const alpha = Array.from({ length: I }, () => gaussianSample(effect, rng));
+	const beta = Array.from({ length: J }, () => gaussianSample(effect, rng));
+	const gamma = interaction ? Array.from({ length: I * J }, () => gaussianSample(noise, rng)) : new Array<number>(I * J).fill(0);
+
+	const iLevels: number[] = [];
+	const jLevels: number[] = [];
+	const y: number[] = [];
+	for (let i = 0; i < I; i++) {
+		for (let j = 0; j < J; j++) {
+			for (let k = 0; k < nPerCell; k++) {
+				iLevels.push(i);
+				jLevels.push(j);
+				y.push(alpha[i] + beta[j] + gamma[i * J + j] + gaussianSample(noise, rng));
+			}
+		}
+	}
+	return { iLevels, jLevels, y, alpha, beta, gamma };
 }
