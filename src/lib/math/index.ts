@@ -30,7 +30,10 @@ export * from './svm.js';
 // ── Part III — Clustering ──
 export * from './clustering.js';
 
-// ── Part IV — Ensembles & Regularization ──
+// ── Part IV — Régression linéaire ──
+export * from './linear-model.js';
+
+// ── Part V — Ensembles & Regularization ──
 export * from './synthetic-data.js';
 export * from './regression.js';
 export * from './loss-functions.js';
@@ -42,30 +45,30 @@ export * from './tree-utils.js';
 export * from './boosting.js';
 export * from './margin-analysis.js';
 
-// ── Part V — Set-valued Prediction (Phase 6) ──
+// ── Part VI — Set-valued Prediction ──
 export * from './prediction-sets.js';
 export * from './conformal.js';
 export * from './regression-conformal.js';
 export * from './bootstrap.js';
 
-// --- Part VI – Optimum de Bayes
+// --- Part VII – Optimum de Bayes
 export * from './bayes-learning.js';
 
-// --- Part VII – Consistance
+// --- Part VIII – Consistance
 export * from './consistency.js';
 export * from './knn.js';
 export * from './cross-validation.js';
 export * from './dimension.js';
 
-// --- Part VIII – Généralisation
+// --- Part IX – Généralisation
 export * from './concentration.js';
 export * from './generalization.js';
 export * from './vc.js';
 
-// --- Part IX – Fonctions de perte
+// --- Part X – Fonctions de perte
 export * from './calibration.js';
 
-// ── Part VIII — Généralisation
+// ── Part IX — Généralisation (duplicated barrel exports, pre-existing) ──
 export * from './concentration';
 export * from './generalization';
 export * from './vc';
