@@ -4,547 +4,373 @@ export const PART8: QuizQuestion[] = [
 	{
 		id: 'p8-l1-q1',
 		tags: ['p8/l1'],
-		question: "Que dit l'inégalité de Markov, selon la leçon ?",
+		question:
+			'Selon la Définition 1.2, que signifie dire que (h_n) est fortement consistant (consistant presque sûrement) ?',
 		options: [
-			'Pour toute variable aléatoire Z de variance finie : P(|Z - E[Z]| ≥ ε) ≤ Var(Z)/ε².',
-			'Pour toute variable aléatoire Z : P(Z ≥ t) ≤ e^{-t} E[Z].',
-			'Pour des variables i.i.d. Z_i dans [0, 1] : P(|(1/n) Σ Z_i - E[Z_1]| ≥ ε) ≤ 2 e^{-2nε²}.',
-			'Pour une variable aléatoire Z ≥ 0 presque sûrement et t > 0 : P(Z ≥ t) ≤ E[Z]/t.'
+			'Que P(R(h_n) - R* > ε) → 0 pour tout ε > 0.',
+			'Que E[(R(h_n) - R*)²] → 0.',
+			'Que P(lim R(h_n) = R*) = 1 : avec probabilité 1, la trajectoire des risques converge vers le risque de Bayes.',
+			'Que R(h_n) = R* pour tout n supérieur à un certain n_0.'
 		],
-		answerIndex: 3,
+		answerIndex: 2,
 		explanation:
-			"Markov : pour Z ≥ 0 presque sûrement et t > 0, P(Z ≥ t) ≤ E[Z]/t ; la démonstration minore Z par t·1_{Z ≥ t} presque sûrement, puis prend l'espérance, qui préserve l'inégalité."
+			"La Définition 1.2 distingue trois notions : en probabilité (les grands écarts deviennent rares), en moyenne quadratique (l'amplitude des écarts est contrôlée) et presque sûrement — une affirmation sur une seule trajectoire infinie qui, avec probabilité 1, finit par entrer dans tout voisinage de R* et n'en ressort plus jamais."
 	},
 	{
 		id: 'p8-l1-q2',
 		tags: ['p8/l1'],
 		question:
-			"Comment l'inégalité de Bienaymé-Tchebychev se déduit-elle de celle de Markov, selon la démonstration de la leçon ?",
+			'Quelle implication entre les trois notions de consistance est garantie par la leçon ?',
 		options: [
-			'En appliquant Markov à la variable positive (Z - E[Z])² avec le seuil ε², et en notant que les événements {(Z - E[Z])² ≥ ε²} et {|Z - E[Z]| ≥ ε} coïncident.',
-			'En appliquant Markov à Z elle-même avec le seuil ε, puis en élevant la borne obtenue au carré.',
-			"Par l'inégalité triangulaire des espérances, appliquée à |Z - E[Z]|.",
-			'En supposant que Z est gaussienne, cas où les deux inégalités deviennent équivalentes.'
+			'La consistance en probabilité implique la consistance en moyenne quadratique.',
+			'La consistance presque sûre implique la consistance en probabilité.',
+			'La consistance en probabilité implique la consistance presque sûre.',
+			'La consistance en moyenne quadratique implique la consistance presque sûre.'
 		],
-		answerIndex: 0,
+		answerIndex: 1,
 		explanation:
-			"Le cartouche « Tchebychev, c'est Markov appliqué intelligemment » résume : le choix est d'appliquer Markov au carré de l'écart à la moyenne plutôt qu'à la variable elle-même — ce qui transforme une borne portant sur Z en une borne portant sur la variance, bien plus informative pour la dispersion autour d'une moyenne."
+			"La leçon établit que la consistance presque sûre et la consistance en moyenne quadratique impliquent toutes deux la consistance en probabilité : celle-ci est la notion la plus faible des trois, et n'implique en général ni l'une ni l'autre ; presque sûre et moyenne quadratique ne se comparent pas directement entre elles."
 	},
 	{
 		id: 'p8-l1-q3',
 		tags: ['p8/l1'],
 		question:
-			"Pour la moyenne empirique (1/n) Σ Z_i de n variables i.i.d. de moyenne μ et de variance σ², que donne l'inégalité de Tchebychev ?",
+			'Un algorithme peut très bien mémoriser ses données sans jamais généraliser. Pourquoi, dans le langage de la décomposition approximation / estimation ?',
 		options: [
-			'P(|(1/n) Σ Z_i - μ| ≥ ε) ≤ σ²/ε², une borne indépendante de n.',
-			"P(|(1/n) Σ Z_i - μ| ≥ ε) ≤ σ²/(n ε²) → 0, soit un écart typique d'ordre 1/√n.",
-			'P(|(1/n) Σ Z_i - μ| ≥ ε) ≤ 2 e^{-nε}, une décroissance exponentielle en n.',
-			'La moyenne empirique converge presque sûrement vers μ mais pas en probabilité.'
+			"Parce que si le terme d'approximation — propriété structurelle de la classe H, indépendante des données — ne tend pas vers zéro, la somme des deux termes ne peut tendre vers zéro, quel que soit n.",
+			'Parce que R(h_n) est toujours une fonction croissante de n.',
+			"Parce que le risque de Bayes R* est toujours strictement positif, si bien que l'écart ne peut s'annuler.",
+			"Parce que le terme d'estimation est toujours minoré par 1/n, quelle que soit la classe H."
 		],
-		answerIndex: 1,
+		answerIndex: 0,
 		explanation:
-			"Avec E[(1/n) Σ Z_i] = μ et Var((1/n) Σ Z_i) = σ²/n, Tchebychev donne la borne σ²/(n ε²) qui s'annule quand n → +∞ : c'est la loi des grands nombres sous forme quantitative — on sait que la convergence a lieu, et à quelle vitesse (1/√n sur l'écart typique, la probabilité de dépassement décroissant en 1/n)."
+			"La décomposition R(h_n) - R* = terme d'estimation + terme d'approximation montre que la consistance exige que la somme des deux termes tende vers 0 : une classe trop pauvre a un terme d'approximation qui ne bougera jamais, quel que soit n, et aucun volume de données ne le supprimera."
 	},
 	{
 		id: 'p8-l1-q4',
 		tags: ['p8/l1'],
 		question:
-			"Pour un classifieur h fixé à l'avance, quelle borne explicite la leçon déduit-elle pour P(|R_n(h) - R(h)| ≥ ε) ?",
+			"Dans la décomposition R(h_n) - R* = terme d'estimation + terme d'approximation, que mesure le terme d'approximation ?",
 		options: [
-			'1/(n ε²), puisque les indicateurs Z_i sont de Bernoulli.',
-			'R(h)/n, par Markov appliqué directement au risque empirique.',
-			'1/(4 n ε²), puisque Var(Z_i) = R(h)(1 - R(h)) est majoré par 1/4, atteint en R(h) = 1/2.',
-			'2 e^{-2nε²}, par Hoeffding, sans hypothèse supplémentaire.'
+			"L'écart entre le meilleur classifieur théorique de la classe et celui effectivement appris sur l'échantillon ; il s'annule quand n → ∞.",
+			'La variance de R(h_n) autour de son espérance.',
+			"La même quantité que le terme d'estimation, calculée sur un ensemble de validation.",
+			'inf_{h∈H} R(h) - R* : il vaut 0 si h* ∈ H, ne dépend pas des données et mesure la capacité de la classe à approcher le classifieur de Bayes.'
 		],
-		answerIndex: 2,
+		answerIndex: 3,
 		explanation:
-			'Les indicateurs Z_i = 1_{h(X_i) ≠ Y_i} sont de Bernoulli avec variance exacte R(h)(1 - R(h)) ; cette quantité est maximisée en 1/4 pour R(h) = 1/2, ce qui donne la borne explicite 1/(4n ε²) (section « Les limites du contrôle pour un classifieur fixé »).'
+			"La leçon définit le terme d'approximation (ou biais) comme inf_{h∈H} R(h) - R* : il vaut 0 si h* ∈ H et est une propriété purement structurelle du choix de H, indépendante des données ; c'est le terme d'estimation qui tend vers 0 quand n → ∞, sous des conditions de régularité sur H."
 	},
 	{
 		id: 'p8-l1-q5',
 		tags: ['p8/l1'],
 		question:
-			'Pourquoi cette borne ne suffit-elle pas à contrôler le classifieur ĥ effectivement choisi par minimisation du risque empirique R_n sur une classe H ?',
+			"Une suite de classifieurs telle que P(R(h_n) - R* > ε) → 0 pour tout ε > 0, mais dont la trajectoire continue à s'écarter occasionnellement de R* à chaque rang, sans jamais se stabiliser : que peut-on en dire ?",
 		options: [
-			'Parce que la borne exige que n soit supérieur à 1000 pour être non triviale.',
-			"Parce qu'elle n'est valable que pour h fixé à l'avance, indépendamment des données : elle ne contrôle pas le sup de l'écart sur toute la classe, et ĥ dépend de l'échantillon.",
-			"Parce que R_n(h) est toujours supérieur à R(h), si bien que l'écart est toujours positif.",
-			'Parce que la perte 0-1 est NP-difficile à minimiser.'
+			'Elle est consistante presque sûrement.',
+			"Elle est consistante en moyenne quadratique, puisque l'amplitude des écarts est bornée.",
+			"Elle est consistante en probabilité mais pas presque sûrement : la réciproque de l'implication « presque sûre ⇒ en probabilité » est fausse.",
+			'Cette situation ne peut pas se produire pour une suite de risques.'
 		],
-		answerIndex: 1,
+		answerIndex: 2,
 		explanation:
-			"Le cartouche d'avertissement « Cette borne ne suffit pas encore » est explicite : en apprentissage, on ne choisit jamais un h arbitraire à l'avance — on sélectionne ĥ après avoir vu les données, en minimisant R_n sur H — et un contrôle valable pour chaque h pris isolément ne dit rien sur celui, potentiellement trompeur, que l'algorithme finit par choisir."
+			"La leçon le souligne dans le cartouche d'insight : la probabilité d'excès peut tendre vers 0 tout en continuant, avec probabilité non nulle à chaque rang, à s'écarter occasionnellement — sans jamais se stabiliser complètement, d'où la fausseté de la réciproque."
 	},
 	{
 		id: 'p8-l2-q1',
 		tags: ['p8/l2'],
-		question:
-			'Selon le Théorème 3.1 (cas séparable, |H| < +∞), sous réalisabilité, quelle borne obtient-on pour le minimiseur du risque empirique ?',
+		question: "Selon la Définition 1.3, qu'est-ce qu'un algorithme universellement consistant ?",
 		options: [
-			'P(R(ĥ) > ε) ≤ 2|H| e^{-2nε²}, pour tout ε > 0.',
-			'R(ĥ) ≤ log(|H|/δ)/n, de façon déterministe, sans aucune probabilité.',
-			'P(R(ĥ) > ε) ≤ |H| e^{-nε}, pour tout ε > 0 ; en particulier n ≥ log(|H|/δ)/ε suffit pour avoir confiance 1 - δ.',
-			'P(R(ĥ) > ε) ≤ e^{-nε}/|H|, pour tout ε > 0.'
+			"Un algorithme consistant sur une distribution P fixée, choisie à l'avance.",
+			'Un algorithme qui converge vers le risque de Bayes en moyenne quadratique seulement.',
+			"Un algorithme pour lequel (h_n) est consistant pour toute distribution P sur l'espace d'entrée-sortie, sans hypothèse sur η.",
+			'Un algorithme qui exige une hypothèse de régularité sur η pour converger.'
 		],
 		answerIndex: 2,
 		explanation:
-			"Théorème 3.1 : sous réalisabilité, le minimiseur du risque empirique a un risque empirique nul ; l'événement d'échec est inclus dans l'union sur les hypothèses mauvaises de l'événement où elles sont trompées par l'échantillon, et l'union bound donne |H| e^{-nε} (démonstration en quatre étapes : réduction aux échantillons trompeurs, union bound, borne par hypothèse, conclusion)."
+			'Définition 1.3 : la consistance universelle doit tenir pour toute distribution P_{X,Y}, quelle que soit la structure du problème — séparable, très bruité, en haute dimension, avec des frontières de décision arbitrairement complexes — et sans aucune hypothèse de régularité sur η.'
 	},
 	{
 		id: 'p8-l2-q2',
 		tags: ['p8/l2'],
 		question:
-			"Selon le Théorème 3.2 (cas non séparable, |H| < +∞), qu'a-t-on avec probabilité 1 - δ ?",
+			'Selon le théorème de Stone (Théorème 2.1), quelles conditions la suite k(n) doit-elle vérifier pour que le classifieur k-NN soit universellement consistant ?',
 		options: [
-			'R(ĥ) ≤ R_Sn(ĥ) + sqrt((log|H| + log(2/δ)) / (2n)), la borne étant uniforme sur la classe.',
-			'R(ĥ) ≤ log(|H|/δ)/n, avec la même vitesse que dans le cas séparable.',
-			'R(ĥ) ≤ 2 R_Sn(ĥ), sans aucune dépendance à |H|.',
-			'sup_{h∈H} |R(h) - R_Sn(h)| ≤ log(1/δ)/n, sans le terme log|H|.'
+			'k(n) → +∞ et k(n)/n → 0.',
+			"k(n) fixé, plus grand que la dimension d de l'espace.",
+			"k(n)/n → 1, afin que le voisinage recouvre l'espace.",
+			'k(n) → 0 et k(n)/n → +∞.'
 		],
 		answerIndex: 0,
 		explanation:
-			"Théorème 3.2 : Hoeffding appliqué à un h fixé donne P(|R_Sn(h) - R(h)| ≥ t) ≤ 2 e^{-2nt²} ; l'union bound sur H (P(∃ h, |écart| ≥ t) ≤ 2|H| e^{-2nt²}) et la calibration δ = 2|H| e^{-2nt²} donnent l'écart uniforme sqrt((log|H| + log(2/δ))/(2n)), qui s'applique à ĥ bien qu'il soit une fonction aléatoire de l'échantillon."
+			'Théorème 2.1 (Stone, 1977) : deux conditions purement quantitatives sur une seule suite k(n), sans aucune hypothèse sur la distribution elle-même, suffisent à garantir la convergence vers le risque de Bayes en classification binaire sur ℝ^d.'
 	},
 	{
 		id: 'p8-l2-q3',
 		tags: ['p8/l2'],
 		question:
-			'Pourquoi le cas séparable converge-t-il plus vite (en 1/n) que le cas non séparable (en 1/√n), selon la leçon ?',
+			'Dans la lecture biais-variance des deux conditions, quel rôle joue la condition k(n)/n → 0 ?',
 		options: [
-			"Parce que l'union bound est plus efficace quand |H| est petit.",
-			"Parce que la réalisabilité permet un argument purement combinatoire sur les échantillons trompeurs — une hypothèse mauvaise est trompée ou non, c'est binaire — et sans elle on doit se rabattre sur une concentration probabiliste plus générale mais plus lente.",
-			"Parce que l'inégalité de Hoeffding ne s'applique pas aux variables de Bernoulli.",
-			'Parce que dans le cas non séparable, le risque empirique est toujours nul.'
+			'Elle applique la loi des grands nombres aux étiquettes du voisinage.',
+			"Elle réduit la variance de l'estimation locale de η(x).",
+			"Elle garantit que l'échantillon reste i.i.d. quand n grandit.",
+			"Elle garantit que les k(n) voisins utilisés restent de plus en plus proches de x, si bien que la moyenne locale ne dilue pas η sur un voisinage trop large : c'est le contrôle du biais."
 		],
-		answerIndex: 1,
+		answerIndex: 3,
 		explanation:
-			"La section « Comparer les deux régimes » explique : sans classifieur parfait dans H, il n'y a plus le critère du « risque empirique nul », et on perd l'argument combinatoire des échantillons trompeurs (binaire : trompé ou non) au profit d'une concentration probabiliste plus générale mais plus lente à converger."
+			"Le cartouche « Lecture biais-variance des deux conditions » attribue à k(n) → +∞ le contrôle de la variance (moyenner sur davantage de voisins lisse le bruit d'échantillonnage) et à k(n)/n → 0 le contrôle du biais : si k croît trop vite relativement à n, les voisins sont trop éloignés et la moyenne locale ne capture plus la valeur de η en x."
 	},
 	{
 		id: 'p8-l2-q4',
 		tags: ['p8/l2'],
 		question:
-			"Dans le cas séparable, qu'est-ce qui garantit que le minimiseur du risque empirique ĥ a un risque empirique nul ?",
+			'La borne de Cover-Hart (donnée en complément, au-delà du cours) fournit, pour le 1-NN, limsup E[R(h_n)] ≤ 2R*(1 - R*/2). Pour R* = 0.1, que donne-t-elle ?',
 		options: [
-			"Le fait que l'échantillon soit suffisamment grand.",
-			'Le fait que la perte 0-1 soit continue.',
-			'Le fait que toutes les hypothèses de H ne fassent aucune erreur sur les données.',
-			'La réalisabilité : h* ∈ H vérifie R_Sn(h*) = 0, et ĥ, qui minimise R_Sn sur H, a donc R_Sn(ĥ) = 0.'
+			'Un risque asymptotique égal à 0.1, puisque k = 1 est le cas le plus simple.',
+			'Une borne supérieure de 2 × 0.1 × 0.95 = 0.19, strictement supérieure à R* : un k fixé peut laisser un écart résiduel, quel que soit n.',
+			'Une borne supérieure de 0.05, la moitié du risque de Bayes.',
+			"Rien : la borne ne s'applique que lorsque k(n) → ∞."
 		],
-		answerIndex: 3,
+		answerIndex: 1,
 		explanation:
-			"Étape 1 de la démonstration du Théorème 3.1 : par réalisabilité, R_Sn(h*) = 0 toujours, donc aussi R_Sn(ĥ) = 0 puisque c'est le minimiseur — c'est ce qui rend possible la réduction aux « échantillons trompeurs »."
+			"L'Exercice 2.1 de la leçon calcule la borne : pour R* = 0.1, on obtient 0.19, « près du double du risque de Bayes » ; la borne est strictement au-dessus de R* pour tout R* ∈ (0, 1), ce qui montre que la condition k(n) → +∞ du Théorème 2.1 est nécessaire et pas seulement une commodité technique de la démonstration."
 	},
 	{
 		id: 'p8-l2-q5',
 		tags: ['p8/l2'],
 		question:
-			'Que représente le terme log|H| dans les bornes, et quelle mise en garde la leçon y attache-t-elle ?',
+			'Selon la leçon, pourquoi un algorithme qui suppose une frontière de décision linéaire (modèle paramétrique) ne peut-il jamais être universellement consistant ?',
 		options: [
-			"Le biais de la classe H, qui s'annule quand n grandit.",
-			"Le nombre d'échantillons trompeurs effectivement observés dans l'échantillon.",
-			"Le prix de la recherche dans H : doubler |H| ne coûte qu'une observation supplémentaire — mais en pratique, la sélection de paramètres fait croître |H| de façon exponentielle, ce que le coût logarithmique masque.",
-			'La variance du risque empirique, qui ne dépend que de δ.'
+			"Parce que la taille de l'échantillon est toujours finie en pratique.",
+			'Parce que la perte 0-1 est non convexe et NP-difficile.',
+			"Parce que dès que la vraie frontière est non linéaire, le terme d'approximation de la classe reste strictement positif, quel que soit n : aucune quantité de données ne le supprime.",
+			'Parce que le classifieur de Bayes est toujours linéaire pour des données i.i.d.'
 		],
 		answerIndex: 2,
 		explanation:
-			"Le cartouche « Un coût seulement logarithmique — mais attention » l'énonce : log|H| est le prix de la recherche dans la classe (doubler |H| ne coûte qu'une observation supplémentaire à ε et δ fixés), mais cette économie est trompeuse en pratique, car une grille d'hyperparamètres fait croître |H| de façon exponentielle en amont."
-	},
-	{
-		id: 'p8-l3-q1',
-		tags: ['p8/l3'],
-		question: "Selon la leçon, que signifie dire qu'une classe H brise un ensemble C de m points ?",
-		options: [
-			'Que H contient au moins m classifieurs.',
-			'Que tout étiquetage de C est réalisable : pour tout (y_1, ..., y_m) dans {0,1}^m, il existe h ∈ H avec h(x_i) = y_i pour tout i — autrement dit, H réalise les 2^m dichotomies.',
-			'Que H sépare les points de C avec une marge strictement positive.',
-			"Que C est nécessairement contenu dans l'échantillon d'entraînement."
-		],
-		answerIndex: 1,
-		explanation:
-			"Définition de la brisure : H réalise toutes les dichotomies de C, c'est-à-dire que le nombre d'étiquetages réalisables sur C est exactement 2^m ; la dimension VC est la plus grande taille m d'un ensemble brisé, avec la convention VCdim = +∞ si H brise des ensembles de taille arbitraire."
-	},
-	{
-		id: 'p8-l3-q2',
-		tags: ['p8/l3'],
-		question:
-			"D'après les exemples de la leçon, quelle est la dimension VC des hyperplans de ℝ^d ?",
-		options: ['d', '2d', 'd + 1', 'd²'],
-		answerIndex: 2,
-		explanation:
-			"La leçon donne une série d'exemples à dimension VC croissante : seuils sur ℝ (VCdim = 1, l'étiquetage (1, 0) étant impossible sur une paire ordonnée), intervalles sur ℝ (VCdim = 2, l'étiquetage (1, 0, 1) impossible sur un triplet ordonné), hyperplans de ℝ^d (VCdim = d + 1)."
-	},
-	{
-		id: 'p8-l3-q3',
-		tags: ['p8/l3'],
-		question:
-			'Quel est le rôle essentiel du lemme de Sauer-Shelah dans la démonstration de la borne de généralisation VC ?',
-		options: [
-			"Il borne le nombre de dichotomies réalisables sur m points de façon polynomiale en m — (em/d)^d dès que VCdim = d < +∞ — au lieu de 2^m : c'est ce qui permet d'appliquer l'union bound aux dichotomies réalisables plutôt qu'à H, même quand H est infini.",
-			"Il montre que |H| est fini pour toute classe d'hyperplans.",
-			'Il donne une borne inférieure sur la dimension VC en fonction de n.',
-			"Il montre que l'union bound est inutile dès que H est fini."
-		],
-		answerIndex: 0,
-		explanation:
-			"Le cartouche « Le point essentiel » résume : le basculement de la croissance exponentielle (2^m) à la croissance polynomiale en m (de degré d) est ce qui rend une borne de généralisation possible même pour une classe infinie ; la démonstration (omise dans la leçon) raffine l'union bound de la leçon précédente en l'appliquant aux dichotomies effectivement réalisables sur l'échantillon."
-	},
-	{
-		id: 'p8-l3-q4',
-		tags: ['p8/l3'],
-		question:
-			'Selon le Théorème 3.4 (Vapnik, 1995), si ||X_i||_2 ≤ R presque sûrement, que peut-on dire de VCdim(H_gamma), la classe des classifieurs linéaires de norme 1 séparant avec marge gamma ?',
-		options: [
-			'Elle est égale à d + 1, comme pour tous les hyperplans de ℝ^d.',
-			"Elle est majorée par n, la taille de l'échantillon.",
-			'Elle est infinie, puisque H_gamma contient une infinité de classifieurs.',
-			'Elle est majorée par floor(R²/gamma²) : elle ne dépend que du rapport entre le rayon des données et la marge, pas de la dimension ambiante d.'
-		],
-		answerIndex: 3,
-		explanation:
-			"Théorème 3.4 : VCdim(H_gamma) ≤ floor(R²/gamma²) ; le cartouche d'insistion souligne que cette dimension VC ne dépend pas de la dimension de l'espace d'entrée — seulement du rapport R²/gamma² — ce qui explique que le SVM peut généraliser correctement même en très grande dimension, à condition d'une marge suffisamment grande relative à l'échelle des données."
-	},
-	{
-		id: 'p8-l3-q5',
-		tags: ['p8/l3'],
-		question: 'Dans le Théorème 3.3 (borne VC), que remplace-t-on, par rapport au Théorème 3.2 ?',
-		options: [
-			'log|H| est remplacé par log n, qui croît plus lentement.',
-			'log|H| est remplacé par le terme d log(2en/d), qui reste fini même quand |H| est infini — par exemple pour les hyperplans de ℝ^d.',
-			"log|H| est remplacé par log(2/δ) seul, la complexité de la classe n'entrant plus.",
-			"log|H| est remplacé par n, la taille de l'échantillon."
-		],
-		answerIndex: 1,
-		explanation:
-			"La leçon l'énonce explicitement : la structure de la borne est la même qu'au Théorème 3.2 (racine d'un terme de complexité sur n), à ceci près que log|H| a été remplacé par d log(2en/d) — un terme qui, lui, reste fini même quand |H| ne l'est pas."
-	},
-	{
-		id: 'p8-l4-q1',
-		tags: ['p8/l4'],
-		question:
-			"Pour un réseau de neurones à L couches et W paramètres, la dimension VC donnée par Bartlett (1998) est de l'ordre de :",
-		options: ['O(W + L)', 'O(W L log W)', 'O(log W / L)', 'O(n)'],
-		answerIndex: 1,
-		explanation:
-			"La leçon cite VCdim = O(W L log W) pour les réseaux à fonctions d'activation seuil."
-	},
-	{
-		id: 'p8-l4-q2',
-		tags: ['p8/l4'],
-		question:
-			"Pour que la borne VC soit non triviale pour un réseau moderne, la leçon indique qu'il faudrait :",
-		options: [
-			'un n très grand devant W L log W, soit environ 10^10',
-			"un n de l'ordre de 10^6",
-			'W plus petit que n',
-			'une interpolation exacte des données'
-		],
-		answerIndex: 0,
-		explanation:
-			"Les jeux de données habituels sont plutôt de l'ordre de 10^6 à 10^7, donc la borne VC devient triviale."
-	},
-	{
-		id: 'p8-l4-q3',
-		tags: ['p8/l4'],
-		question: "Dans le phénomène de double descente, le seuil d'interpolation correspond à :",
-		options: ['W très petit devant n', 'W très grand devant n', 'W environ égal à n', 'n égal à 0'],
-		answerIndex: 2,
-		explanation:
-			'Au seuil W ≈ n, le modèle commence à interpoler et le risque explose avant de redescendre en régime sur-paramétré.'
-	},
-	{
-		id: 'p8-l4-q4',
-		tags: ['p8/l4'],
-		question:
-			'Selon la leçon, pour la régression logistique sur des données linéairement séparables, la descente de gradient converge vers :',
-		options: [
-			'la solution de norme maximale',
-			'le classifieur de marge maximale avec une pénalité explicite',
-			'la solution des moindres carrés exacte',
-			'le classifieur de marge maximale, même sans régularisation explicite'
-		],
-		answerIndex: 3,
-		explanation:
-			"C'est le biais implicite de l'optimiseur décrit par Zhang et al. (2017) et Soudry et al. (2018)."
+			"Le cartouche « Pourquoi ce n'est pas évident » le souligne : un modèle qui impose une classe restrictive a un terme d'approximation non nul sur les problèmes hors de sa classe, alors que la consistance universelle exige la convergence pour toute distribution — d'où le besoin d'une classe dont la richesse s'adapte elle-même à n, comme le k-NN avec k = k(n)."
 	},
 	{
 		id: 'p8-syn-q1',
 		tags: ['p8/synthese'],
-		question: "Quelle est la forme exacte de l'inégalité de Hoeffding, selon la leçon ?",
+		question:
+			"Selon la Définition 1.2, quelle est l'expression exacte de la consistance en moyenne quadratique de (h_n) ?",
 		options: [
-			"Pour des variables i.i.d. Z_i dans [0, 1] : P(|(1/n) Σ Z_i - E[Z_1]| ≥ ε) ≤ 2 e^{-2nε²}, et l'exposant devient -2nε²/(b-a)² pour des variables dans [a, b].",
-			"Pour des variables i.i.d. Z_i dans [0, 1] : P(|(1/n) Σ Z_i - E[Z_1]| ≥ ε) ≤ e^{-nε²}, sans facteur 2, et l'exposant devient -nε²/(b-a)².",
-			"Pour des variables i.i.d. Z_i dans [0, 1] : P(|(1/n) Σ Z_i - E[Z_1]| ≥ ε) ≤ 2 e^{-nε}, et l'exposant devient -nε/(b-a)².",
-			'Pour des variables i.i.d. Z_i dans [0, 1] : P(|(1/n) Σ Z_i - E[Z_1]| ≥ ε) ≤ 1/(4nε²), la même borne que celle de Tchebychev.'
+			"E[(R(h_n) - R*)²] → 0 quand n → +∞ : c'est l'amplitude moyenne au carré des écarts du risque appris au risque de Bayes qui tend vers zéro.",
+			'E[|R(h_n) - R*|] → 0 : la convergence en moyenne absolue des écarts.',
+			"(E[R(h_n)] - R*)² → 0 : c'est l'espérance du risque, et non le risque lui-même, qui converge vers R*.",
+			"Var(R(h_n)) → 0 : seule la variance du risque autour de son espérance doit s'annuler."
 		],
 		answerIndex: 0,
 		explanation:
-			"Hoeffding exploite le bornage : décroissance exponentielle 2 e^{-2nε²} à deux queues, sans connaître la variance, au prix d'une hypothèse supplémentaire — connaître une borne uniforme sur les observations ; sur [a, b], l'exposant est -2nε²/(b-a)²."
+			"Définition 1.2 (part8/lesson1) : la consistance en moyenne quadratique est E[(R(h_n) - R*)²] → 0 ; le cartouche « Trois façons de dire « converge » » note qu'elle contrôle l'amplitude des écarts, pas seulement leur fréquence."
 	},
 	{
 		id: 'p8-syn-q2',
 		tags: ['p8/synthese'],
-		question: 'Quand n augmente, comment se comportent les trois bornes pour la moyenne empirique, selon la leçon ?',
+		question:
+			'Quelle implication entre la consistance en moyenne quadratique et la consistance en probabilité est garantie par la leçon part8/lesson1 ?',
 		options: [
-			'La borne de Markov reste constante, celle de Tchebychev décroît comme 1/n et celle de Hoeffding décroît exponentiellement.',
-			'Les trois bornes décroissent comme 1/n, à des constantes près.',
-			'Markov décroît exponentiellement, Tchebychev comme 1/n et Hoeffding reste constante.',
-			'Les trois bornes décroissent exponentiellement, mais à des vitesses différentes.'
+			'La consistance en probabilité implique la consistance en moyenne quadratique, qui est la notion la plus forte des trois.',
+			'La consistance en moyenne quadratique implique la consistance en probabilité ; la réciproque ne tient pas en général.',
+			'Les deux notions sont équivalentes dès que R(h_n) est non négative.',
+			'Aucune implication ne tient entre les deux : ce sont des notions indépendantes.'
 		],
-		answerIndex: 0,
+		answerIndex: 1,
 		explanation:
-			"Markov ne contrôle que l'espérance et ne s'améliore donc pas avec n ; Tchebychev exploite Var(Z̄_n) = σ²/n et décroît en 1/n ; Hoeffding exploite le bornage et décroît comme e^{-2nε²} — souvent plus informative que Tchebychev pour les grands échantillons, mais elle exige de connaître une borne uniforme."
+			"Section « Relations entre les notions » (part8/lesson1) : la leçon établit que la consistance en moyenne quadratique implique la consistance en probabilité, et que celle-ci est la notion la plus faible des trois — elle n'implique en général ni l'une ni l'autre des deux autres."
 	},
 	{
 		id: 'p8-syn-q3',
 		tags: ['p8/synthese'],
-		question: "Quel est le mécanisme de la démonstration de l'inégalité de Markov, selon la leçon ?",
+		question:
+			'Que dit exactement la leçon part8/lesson1 du rapport entre la consistance presque sûre et la consistance en moyenne quadratique ?',
 		options: [
-			"On minore Z par t·1_{Z ≥ t} presque sûrement, puis on prend l'espérance : E[Z] ≥ t·P(Z ≥ t).",
-			"On applique l'inégalité triangulaire à E[|Z|], puis on divise par E[Z].",
-			'On applique la loi des grands nombres à Z/t.',
-			"On décompose Z en partie positive et partie négative, puis on borne chacune par sa variance."
+			"Elles ne se comparent pas directement entre elles : chacune contrôle un aspect différent de la convergence — une trajectoire unique contre l'amplitude moyenne des écarts — et l'une peut tenir sans l'autre.",
+			'La consistance presque sûre implique la consistance en moyenne quadratique, par un argument de type Portmanteau.',
+			"La consistance en moyenne quadratique implique la consistance presque sûre, car contrôler l'amplitude contrôle aussi la trajectoire.",
+			'Elles sont équivalentes pour toute suite de classifieurs appris sur un échantillon i.i.d.'
 		],
 		answerIndex: 0,
 		explanation:
-			"La minoration Z ≥ t·1_{Z ≥ t} est vérifiée sur {Z < t} (membre de droit nul) et sur {Z ≥ t} (où Z ≥ t) ; l'espérance, qui préserve les inégalités, donne E[Z] ≥ E[t·1_{Z ≥ t}] = t·P(Z ≥ t), d'où la borne en divisant par t."
+			"Part7/lesson1, section « Relations entre les notions » : « La consistance presque sûre et la consistance en moyenne quadratique, elles, ne se comparent pas directement entre elles — chacune contrôle un aspect différent de la convergence (trajectoire unique contre amplitude moyenne des écarts), et l'une peut tenir sans l'autre »."
 	},
 	{
 		id: 'p8-syn-q4',
 		tags: ['p8/synthese'],
-		question: "Quel énoncé en forme de risque donne le corollaire du cas séparable (Théorème 3.1) ?",
+		question:
+			"Pourquoi la leçon part8/lesson1 introduit-elle trois notions distinctes de consistance plutôt qu'une seule ?",
 		options: [
-			'Avec probabilité 1 - δ, R(ĥ) ≤ log(|H|/δ)/n.',
-			'Avec probabilité 1 - δ, R(ĥ) ≤ log(|H|·δ)/n.',
-			'Avec probabilité 1 - δ, R(ĥ) ≤ (log|H| + log(2/δ))/(2n), sans racine carrée.',
-			'Avec probabilité 1 - δ, R(ĥ) = 0, par réalisabilité.'
+			"Parce que les mathématiciens n'ont pas réussi à s'accorder sur une définition unique de la convergence.",
+			"Parce que R* dépend de l'échantillon, il faut mesurer la convergence par rapport à chaque réalisation de l'échantillon.",
+			"Parce que h_n dépend de l'échantillon aléatoire S_n, le risque R(h_n) est lui-même une variable aléatoire : « converger vers R* » peut se formaliser de plusieurs façons, plus ou moins exigeantes.",
+			'Parce que la perte 0-1 est non convexe, ce qui rend la notion de convergence ambiguë.'
 		],
-		answerIndex: 0,
+		answerIndex: 2,
 		explanation:
-			'En résolvant δ = |H|e^{-nε} en ε, le corollaire donne ε = log(|H|/δ)/n, soit R(ĥ) ≤ log(|H|/δ)/n avec probabilité 1 - δ : une vitesse en 1/n, nettement plus rapide que la vitesse 1/√n du cas non séparable.'
+			"Section « Trois notions de consistance » (part8/lesson1) : « Puisque h_n dépend de l'échantillon aléatoire S_n, le risque R(h_n) est lui-même une variable aléatoire. « Converger vers R* » peut donc se formaliser de plusieurs façons, plus ou moins exigeantes. »"
 	},
 	{
 		id: 'p8-syn-q5',
 		tags: ['p8/synthese'],
-		question: "Dans la démonstration du Théorème 3.1, quel est le rôle de l'ensemble M des « échantillons trompeurs » ?",
+		question:
+			"Comment la leçon part8/lesson1 interprète-t-elle la consistance presque sûre, P(lim R(h_n) = R*) = 1 ?",
 		options: [
-			"C'est l'ensemble des échantillons sur lesquels au moins une hypothèse mauvaise h (R(h) > ε) a un risque empirique nul ; {R(ĥ) > ε} est inclus dans M, ce qui autorise l'union bound sur H_bad.",
-			"C'est l'ensemble des hypothèses de H qui font exactement ε erreurs sur l'échantillon.",
-			"C'est l'ensemble des échantillons de taille inférieure à log(|H|/δ)/ε.",
-			"C'est l'ensemble des hypothèses h avec R(h) = 0, sur lequel on applique Hoeffding."
+			"Comme une affirmation sur une seule trajectoire infinie de (R(h_n)) : avec probabilité 1, cette trajectoire finit par entrer dans n'importe quel voisinage de R* et n'en ressort plus jamais.",
+			"Comme une affirmation sur la fréquence des grands écarts : la probabilité de s'écarter de R* de plus de ε devient rare.",
+			"Comme une affirmation sur la moyenne : l'écart moyen entre R(h_n) et R* tend vers zéro.",
+			'Comme une affirmation point par point : R(h_n) = R* pour tout n suffisamment grand, avec probabilité 1.'
 		],
 		answerIndex: 0,
 		explanation:
-			"Étapes 1 et 2 de la preuve : par réalisabilité, R_Sn(h*) = 0 donc R_Sn(ĥ) = 0 ; si R(ĥ) > ε, alors ĥ ∈ H_bad et l'échantillon est trompeur, d'où {R(ĥ) > ε} ⊂ M ; l'union bound donne P^n(M) ≤ Σ_{h∈H_bad} P^n(R_Sn(h) = 0) ≤ |H| e^{-nε}."
+			"Cartouche « Trois façons de dire « converge » » (part8/lesson1) : la convergence presque sûre est une affirmation sur une seule trajectoire infinie de (R(h_n)) : avec probabilité 1, elle finit par entrer dans n'importe quel voisinage de R* et n'en ressort plus jamais."
 	},
 	{
 		id: 'p8-syn-q6',
 		tags: ['p8/synthese'],
-		question: "Dans la constante de la borne du Théorème 3.2, d'où vient le facteur 2 présent dans log(2/δ) ?",
+		question:
+			"Dans le compromis approximation / estimation, quel est le problème d'une classe de modèles trop riche, pour un n donné ?",
 		options: [
-			"Il vient des deux queues de l'inégalité de Hoeffding (2 e^{-2nt²}) et de la calibration δ = 2|H|e^{-2nt²}, résolue en t.",
-			"Il vient du fait que l'union bound compte chaque hypothèse deux fois.",
-			"C'est une constante technique sans origine, optimisable en la remplaçant par 1.",
-			'Il vient de la borne 1/4 de la variance des indicateurs de Bernoulli.'
+			"Son terme d'estimation décroît trop lentement pour un n donné : la classe s'adapte trop finement à l'échantillon, et l'écart entre le meilleur classifieur théorique de H et celui effectivement appris reste grand.",
+			"Son terme d'approximation ne atteint jamais 0, car une classe riche ne contient jamais le classifieur de Bayes.",
+			"Le risque R(h_n) devient non mesurable, et le théorème de Stone ne s'applique plus.",
+			"Le risque de Bayes R* devient strictement négatif, si bien que la borne irréductible n'a plus de sens."
 		],
 		answerIndex: 0,
 		explanation:
-			"Hoeffding appliquée à un h fixé donne P(|R_Sn(h) - R(h)| ≥ t) ≤ 2 e^{-2nt²} ; l'union bound sur H donne P(∃ h, |écart| ≥ t) ≤ 2|H| e^{-2nt²} ; la calibration δ = 2|H|e^{-2nt²} résout t = sqrt((log|H| + log(2/δ))/(2n)) : le 2 de log(2/δ) est celui des deux queues."
+			"Part7/lesson1, section « Décomposition approximation / estimation » : « une classe trop pauvre a un terme d'approximation qui ne bougera jamais, quel que soit n ; une classe trop riche a un terme d'estimation qui décroît trop lentement pour un n donné »."
 	},
 	{
 		id: 'p8-syn-q7',
 		tags: ['p8/synthese'],
-		question: "Quel est l'apport central du Théorème 3.2 par rapport à la borne de Hoeffding pour un h fixé ?",
+		question:
+			"Quelle est l'identité exacte de la décomposition du risque d'un classifieur appris, telle que la leçon part8/lesson1 l'énonce ?",
 		options: [
-			"La borne est uniforme : elle vaut simultanément pour tout h ∈ H, ce qui permet de l'appliquer au minimiseur ĥ bien que celui-ci soit une fonction aléatoire de l'échantillon.",
-			"Elle remplace l'hypothèse i.i.d. par la seule échangeabilité.",
-			'Elle supprime le terme log|H| de la borne.',
-			"Elle donne une convergence presque sûre au lieu d'une convergence en probabilité."
+			"R(h_n) - R* = [R(h_n) - inf_{h∈H} R(h)] - [inf_{h∈H} R(h) - R*] : l'écart global est la différence des deux termes.",
+			"R(h_n) - R* = [R(h_n) - R(h*)] + [inf_{h∈H} R(h) - R*] : le terme d'estimation compare directement h_n au classifieur de Bayes.",
+			"R(h_n) - R* = [R(h_n) - inf_{h∈H} R(h)] × [inf_{h∈H} R(h) - R*] : les deux termes se multiplient dans la décomposition.",
+			"R(h_n) - R* = [R(h_n) - inf_{h∈H} R(h)] + [inf_{h∈H} R(h) - R*] : le premier terme est le terme d'estimation, le second le terme d'approximation."
 		],
-		answerIndex: 0,
+		answerIndex: 3,
 		explanation:
-			"Le passage du contrôle h-fixé au contrôle uniforme est l'ingrédient essentiel, au prix de log|H| : puisque |R(h) - R_Sn(h)| ≤ t pour tout h à la fois, la décomposition R(ĥ) = [R(ĥ) - R_Sn(ĥ)] + R_Sn(ĥ) donne R(ĥ) ≤ R_Sn(ĥ) + t pour le ĥ effectivement choisi, même aléatoire."
+			"Part7/lesson1, section « Décomposition approximation / estimation » : R(h_n) - R* = [R(h_n) - inf_{h∈H} R(h)] (terme d'estimation) + [inf_{h∈H} R(h) - R*] (terme d'approximation, ou biais)."
 	},
 	{
 		id: 'p8-syn-q8',
 		tags: ['p8/synthese'],
-		question: "Quel est l'énoncé exact du Théorème 3.3 (borne VC) pour une classe de dimension VC d < +∞ ?",
+		question: 'Comment la Définition 1.2 de part8/lesson1 fait-elle le lien avec la Partie VII ?',
 		options: [
-			'Avec probabilité 1 - δ, |R(h) - R_Sn(h)| ≤ sqrt((8d·log(2en/d) + 8·log(4/δ))/n), simultanément pour tout h.',
-			'Avec probabilité 1 - δ, |R(h) - R_Sn(h)| ≤ sqrt((d·log(2en/d) + log(2/δ))/(2n)), simultanément pour tout h.',
-			'Avec probabilité 1 - δ, |R(h) - R_Sn(h)| ≤ 8d·log(2en/d) + 8·log(4/δ), sans division par n.',
-			'Avec probabilité 1 - δ, |R(h) - R_Sn(h)| ≤ sqrt((8|H|·log(2en/|H|) + 8·log(4/δ))/n), avec |H| fini.'
+			"Elle redéfinit η(x) comme la moyenne conditionnelle de Y sachant X = x, pour relier la consistance à la régression.",
+			"Elle réécrit explicitement le risque de Bayes comme R* = R(h*) = E_X[min(η(X), 1 - η(X))], le risque caractérisé par le Théorème 1.1 de la Partie VII.",
+			"Elle suppose R* = 0 : la consistance n'aurait de sens que pour des problèmes séparables.",
+			"Elle remplace R* par le risque empirique, la moyenne des erreurs sur l'échantillon : la consistance se mesure sur les données."
 		],
-		answerIndex: 0,
+		answerIndex: 1,
 		explanation:
-			"La structure est la même qu'au Théorème 3.2 — racine d'un terme de complexité sur n — mais log|H| est remplacé par 8d·log(2en/d), un terme fini même quand |H| est infini, comme pour les hyperplans de ℝ^d ; le terme 8·log(4/δ) porte la confiance 1 - δ."
+			"Définition 1.2 (part8/lesson1) se conclut par « où R* = R(h*) = E_X[min(η(X), 1 - η(X))] est le risque de Bayes », renvoyant au Théorème 1.1 de la Partie VII qui caractérise le classifieur de Bayes et son risque minimal."
 	},
 	{
 		id: 'p8-syn-q9',
 		tags: ['p8/synthese'],
-		question: "Quel est l'énoncé exact du lemme de Sauer-Shelah (1972) ?",
+		question:
+			"En complément, au-delà du cours (dû à Cover et Hart, 1967) : quelle identité asymptotique la leçon part8/lesson2 attribue-t-elle au risque du 1-NN ?",
 		options: [
-			"Si VCdim(H) = d < +∞, alors le coefficient de brisure Π_H(m) ≤ Σ_{i=0}^{d} C(m, i) pour tout m ; l'enveloppe (em/d)^d n'est valable que pour m ≥ d.",
-			'Si VCdim(H) = d, alors Π_H(m) ≤ (em/d)^d pour tout m, y compris m < d.',
-			"Si VCdim(H) = d, alors Π_H(m) = 2^d exactement, quelle que soit la taille de l'ensemble considéré.",
-			'Si VCdim(H) = d, alors Π_H(m) ≤ d^m pour tout m, sans condition sur m.'
+			'limsup E[R(h_n^{1-NN})] (quand n → +∞) = 2 E[η(X)(1 - η(X))], en supposant que P_X admet une densité.',
+			'limsup E[R(h_n^{1-NN})] (quand n → +∞) = E[η(X)(1 - η(X))] = R* : le 1-NN est universellement consistant.',
+			'lim R(h_n^{1-NN}) (quand n → +∞) = R* presque sûrement : la convergence tient sans hypothèse de densité sur P_X.',
+			"limsup E[R(h_n^{1-NN})] (quand n → +∞) = 2 R*, quel que soit η : l'asymptotique ne dépend que du risque de Bayes."
 		],
 		answerIndex: 0,
 		explanation:
-			"Le lemme borne le nombre de dichotomies réalisables par une somme de coefficients binomiaux ; (em/d)^d n'en est qu'une enveloppe, valide pour m ≥ d. Le basculement de la croissance exponentielle 2^m à la croissance polynomiale de degré d est ce qui rend une borne de généralisation possible même pour une classe infinie."
+			"Cartouche « Erreur du 1-NN » (part8/lesson2), explicitement donné « comme complément, au-delà du cours » et dû à Cover et Hart (1967) : sous l'hypothèse que P_X admet une densité, limsup E[R(h_n^{1-NN})] (quand n → +∞) = 2 E[η(X)(1 - η(X))]."
 	},
 	{
 		id: 'p8-syn-q10',
 		tags: ['p8/synthese'],
-		question: "Selon les exemples de la leçon, pourquoi les seuils ont-ils une dimension VC de 1 et les intervalles une dimension VC de 2 ?",
+		question:
+			"En complément, au-delà du cours : pourquoi la borne de Cover-Hart montre-t-elle que le 1-NN peut laisser un écart résiduel strictement positif, quel que soit n ?",
 		options: [
-			"Tout singleton est brisé, mais sur une paire ordonnée l'étiquetage (1, 0) est impossible pour les seuils, et sur un triplet ordonné l'étiquetage (1, 0, 1) est impossible pour les intervalles.",
-			'Les seuils ne brisent aucun ensemble non vide, et les intervalles ne brisent aucune paire.',
-			"L'étiquetage (1, 0) est impossible sur une paire ordonnée pour les intervalles, et l'étiquetage (1, 0, 1) pour les seuils.",
-			"Les seuils et les intervalles ont tous deux une dimension VC de 1, aucune paire n'étant brisée."
+			'Parce que la borne supérieure est strictement inférieure à R* pour tout R* ∈ (0,1) : le 1-NN sous-estime systématiquement le risque de Bayes.',
+			"Parce que l'écart 2R*(1 - R*/2) - R* s'annule pour tout R* ∈ (0, 1/2), les problèmes peu bruités étant bien gérés.",
+			"Parce que la borne supérieure 2R*(1 - R*/2) est strictement supérieure à R* pour tout R* ∈ (0,1) : l'écart 2R*(1 - R*/2) - R* = R*(1 - R*) est strictement positif et ne s'annule que pour R* ∈ {0, 1}.",
+			'Parce que la borne vaut exactement R* dès que R* ≤ 1/4, ce qui couvre la plupart des problèmes séparables.'
 		],
-		answerIndex: 0,
+		answerIndex: 2,
 		explanation:
-			"Exemples à dimension VC croissante de la leçon : seuils sur ℝ (VCdim = 1), intervalles sur ℝ (VCdim = 2), hyperplans de ℝ^d (VCdim = d + 1) ; l'obstruction est toujours un étiquetage « alterné » impossible sur les points ordonnés."
+			"Cartouche « Erreur du 1-NN » (part8/lesson2, complément au-delà du cours, Cover et Hart 1967) : « La borne supérieure est strictement supérieure à R* pour tout R* ∈ (0,1) : l'écart 2R*(1 - R*/2) - R* = R*(1 - R*) est strictement positif, et ne s'annule que pour R* ∈ {0,1} »."
 	},
 	{
 		id: 'p8-syn-q11',
 		tags: ['p8/synthese'],
-		question: "Comment la leçon définit-elle la classe H_γ des classifieurs à marge γ ?",
+		question:
+			"En complément, au-delà du cours : quelle distribution la leçon part8/lesson2 donne-t-elle pour montrer que le risque asymptotique du 1-NN peut rester strictement au-dessus du risque de Bayes ?",
 		options: [
-			"H_γ = {h_{w,b} : ‖w‖_2 = 1, séparant l'échantillon avec marge γ}, où h_{w,b}(x) = sgn(w^T x - b) et Y_i(w^T X_i - b) ≥ γ pour tout i.",
-			"H_γ = {h_{w,b} : ‖w‖_2 ≤ γ}, séparant exactement l'échantillon, sans normalisation de la norme.",
-			'H_γ = {h_{w,b} : ‖w‖_2 = γ}, sans aucune condition sur les marges des observations.',
-			"H_γ = {h_{w,b} : b = 0, séparant avec marge γ}, les hyperplans passant par l'origine seulement."
+			'η(X) ∈ {c, 1 - c} presque sûrement avec c ∈ (0, 1/2) : alors R* = c, mais le risque asymptotique du 1-NN vaut 2c(1 - c), strictement plus grand que c.',
+			'η(X) ∈ {0, 1} presque sûrement : le problème est séparable (R* = 0), mais le 1-NN conserve un risque asymptotique strictement positif.',
+			"η(X) = 1/2 presque sûrement : le cas le plus bruité, où l'identité de Cover-Hart donne un risque asymptotique strictement supérieur à R* = 1/2.",
+			'Une loi gaussienne centrée de variance 1 : la symétrie de la gaussienne garantit un risque asymptotique strictement supérieur à R*.'
 		],
 		answerIndex: 0,
 		explanation:
-			"La définition fait intervenir la normalisation ‖w‖_2 = 1 — c'est elle qui rend la marge γ comparable d'un classifieur à l'autre — et la condition Y_i(w^T X_i - b) ≥ γ sur toutes les observations de l'échantillon."
+			"Cartouche « Erreur du 1-NN » (part8/lesson2, complément au-delà du cours) : « si η(X) ∈ {c,1-c} presque sûrement avec c ∈ (0,1/2), alors R* = c mais le risque asymptotique vaut 2c(1-c) > c » — une distribution pour laquelle le 1-NN reste strictement au-dessus du risque de Bayes."
 	},
 	{
 		id: 'p8-syn-q12',
 		tags: ['p8/synthese'],
-		question: "Quel est l'énoncé complet du Théorème 3.4 (Vapnik, 1995) quand ‖X_i‖_2 ≤ R presque sûrement ?",
+		question:
+			"Pourquoi la leçon part8/lesson2 affirme-t-elle que la condition k(n) → +∞ du Théorème 2.1 est « nécessaire, et pas seulement une commodité technique de la démonstration » ?",
 		options: [
-			'VCdim(H_γ) ≤ floor(R²/γ²), et avec probabilité 1 - δ : |R(h) - R_Sn(h)| ≤ sqrt((8 floor(R²/γ²)·log(2enγ²/R²) + 8·log(4/δ))/n) ; la borne ne dépend pas de la dimension ambiante d.',
-			'VCdim(H_γ) ≤ R²/γ², et avec probabilité 1 - δ : |R(h) - R_Sn(h)| ≤ sqrt((8d·log(2en/d) + 8·log(4/δ))/n), avec la dimension ambiante d.',
-			'VCdim(H_γ) = d + 1, comme pour tous les hyperplans, et la borne est sqrt((8d·log(2en/d) + 8·log(4/δ))/n).',
-			"VCdim(H_γ) ≤ floor(R²/γ²), mais la borne ne vaut que sous l'hypothèse de réalisabilité."
+			"Parce que la borne de Cover-Hart (complément, au-delà du cours) montre qu'un k fixé peut laisser un écart résiduel strictement positif, quel que soit n : c'est cette impossibilité générale — pas seulement l'exemple numérique — qui rend la condition nécessaire.",
+			"Parce que le théorème de Stone l'énonce explicitement comme condition nécessaire dans son énoncé.",
+			"Parce que sans k(n) → +∞, le classifieur k-NN n'est même plus défini.",
+			"Parce que la borne de Cover-Hart fait partie du support du cours et que l'Exercice 2.1 la démontre."
 		],
 		answerIndex: 0,
 		explanation:
-			"Théorème 3.4 : la dimension VC de la classe des classifieurs à marge ne dépend que du rapport R²/γ², pas de la dimension de l'espace d'entrée — c'est ce qui explique que le SVM puisse généraliser correctement en très grande dimension, à condition d'une marge suffisamment grande relative à l'échelle des données."
+			"Part7/lesson2 : la borne de Cover-Hart (donnée en complément, au-delà du cours) montre que la borne supérieure est strictement au-dessus de R* dès que R* ∈ (0,1) : « il existe des distributions non séparables pour lesquelles un k fixé laisse un écart résiduel strictement positif, quel que soit n. C'est cette impossibilité générale — pas seulement l'exemple numérique — qui rend la condition k(n) → +∞ du Théorème 2.1 nécessaire, et pas seulement une commodité technique de la démonstration. »"
 	},
 	{
 		id: 'p8-syn-q13',
 		tags: ['p8/synthese'],
-		question: 'Quelle extension du SVM la leçon signale-t-elle explicitement comme hors du support du cours ?',
+		question:
+			'Quel est, selon la leçon part8/lesson2, le statut du Théorème 2.1 de Stone au sujet des deux conditions sur k(n) ?',
 		options: [
-			'Le kernel trick, qui transpose les hyperplans dans des espaces de caractéristiques de dimension infinie : il est donné comme complément, au-delà du cours.',
-			"La borne du Théorème 3.4 elle-même, qui n'est qu'un résultat heuristique.",
-			"L'usage de la perte quadratique au lieu de la perte charnière.",
-			"La normalisation ‖w‖_2 = 1, qui simplifierait excessivement la définition de la marge."
+			"C'est un résultat de suffisance : k(n) → +∞ et k(n)/n → 0 suffisent à la consistance universelle ; la nécessité de la seconde condition, k(n)/n → 0, n'est pas discutée dans le cours.",
+			"C'est un résultat de nécessité : sans les deux conditions, la consistance universelle est impossible.",
+			'Le théorème établit que les deux conditions sont nécessaires et suffisantes, la nécessité de k(n)/n → 0 étant démontrée via la borne de Cover-Hart.',
+			"C'est un résultat heuristique : Stone n'affirme aucune convergence, il suggère seulement un compromis biais-variance."
 		],
 		answerIndex: 0,
 		explanation:
-			"Le cartouche « Ce que cette borne dit vraiment » l'énonce explicitement : la version à noyau, qui travaille en dimension infinie, ne fait pas partie du support du cours et est donnée comme complément."
+			"Part7/lesson2 présente le Théorème 2.1 comme un résultat de suffisance (« Si le paramètre k = k(n) vérifie ... alors le classifieur k-NN est universellement consistant ») ; la leçon discute la nécessité de la première condition via la borne de Cover-Hart (au-delà du cours), mais ne discute pas la nécessité de la seconde condition k(n)/n → 0."
 	},
 	{
 		id: 'p8-syn-q14',
 		tags: ['p8/synthese'],
-		question: 'Quels sont les trois régimes du phénomène de double descente, selon la leçon ?',
+		question: "Sous quelle forme la leçon part8/lesson2 énonce-t-elle la conclusion du Théorème 2.1 de Stone ?",
 		options: [
-			"Sous-paramétré (W ≪ n) : courbe en U classique ; seuil d'interpolation (W ≈ n) : le risque explose ; sur-paramétré (W ≫ n) : le risque redescend et peut atteindre des niveaux très bas malgré l'interpolation exacte — un phénomène non expliqué par la théorie VC.",
-			'Sous-paramétré : le risque explose ; seuil : le risque est minimal ; sur-paramétré : le risque repart à la hausse.',
-			'Les trois régimes correspondent à n < d, n = d, n > d, avec le minimum toujours atteint au seuil n = d.',
-			'Le risque est monotone décroissant en W dans tous les régimes.'
+			'Presque sûrement, pour toute distribution P : P(lim R(h_n^{k-NN}) (quand n → +∞) = R*) = 1.',
+			'En espérance, pour toute distribution P sur ℝ^d × {0,1} : E[R(h_n^{k-NN})] → R* quand n → +∞.',
+			'En probabilité, et seulement pour les distributions P à densité sur ℝ^d.',
+			"Pour toute distribution P, le risque empirique, la moyenne des erreurs sur l'échantillon, converge vers R* en espérance."
 		],
-		answerIndex: 0,
+		answerIndex: 1,
 		explanation:
-			"La leçon décrit précisément ces trois régimes en fonction du nombre de paramètres W à n fixé : le minimum n'est pas au seuil d'interpolation, et la redescension du régime sur-paramétré invalide la vision classique du compromis biais-variance, sans être expliquée par la théorie VC."
+			"Énoncé du Théorème 2.1 (part8/lesson2) : la convergence est énoncée en espérance, « E[R(h_n^{k-NN})] → R* », pour toute distribution P sur ℝ^d × {0,1}, sans hypothèse sur la distribution elle-même."
 	},
 	{
 		id: 'p8-syn-q15',
 		tags: ['p8/synthese'],
-		question: "Dans la figure de la leçon (régression linéaire par pseudo-inverse, d = 50), que se passe-t-il dans les trois régimes n < d, n = d, n > d ?",
+		question:
+			"Dans la « Lecture biais-variance des deux conditions » (part8/lesson2), quel rôle joue chacune des deux conditions du Théorème 2.1 ?",
 		options: [
-			"n < d : système sous-déterminé, la pseudo-inverse renvoie la solution de norme minimale ; n = d : interpolation exacte β̂ = X⁻¹y (R_Sn = 0) mais X est mal conditionnée et l'erreur de test explose ; n > d : système sur-déterminé, moindres carrés, et l'erreur de test converge vers l'erreur irréductible σ².",
-			"n < d : moindres carrés ; n = d : solution de norme minimale ; n > d : explosion permanente de l'erreur de test.",
-			'Les trois régimes donnent la même erreur de test, la pseudo-inverse étant indépendante de n.',
-			"n = d est le régime optimal : l'erreur de test y est minimale et l'interpolation parfaite y est sans coût."
+			"k(n) → +∞ contrôle la variance — moyenner sur davantage de voisins lisse le bruit d'échantillonnage par la loi des grands nombres ; k(n)/n → 0 contrôle le biais — les k(n) voisins restent proches de x, si bien que la moyenne locale capture η en x.",
+			"k(n) → +∞ contrôle le biais — plus il y a de voisins, plus la moyenne locale s'approche de la frontière de décision ; k(n)/n → 0 contrôle la variance.",
+			"Les deux conditions contrôlent la même chose : elles sont redondantes et l'une implique l'autre.",
+			"k(n) → +∞ contrôle l'approximation (la classe s'enrichit) ; k(n)/n → 0 contrôle l'estimation (le bruit d'échantillon)."
 		],
 		answerIndex: 0,
 		explanation:
-			"C'est le mécanisme illustré par la figure : au seuil n = d, l'interpolation exacte coïncide avec un mal conditionnement maximal de X, d'où l'explosion de l'erreur de test ; le minimum global n'est pas atteint au seuil mais après, et la convergence est vers σ², l'erreur de Bayes irréductible du modèle."
-	},
-	{
-		id: 'p8-syn-q16',
-		tags: ['p8/synthese'],
-		question: "Selon la remarque de lecture de la leçon, où est le minimum global de l'erreur de test, et comment les deux points de vue se rapportent-ils ?",
-		options: [
-			"Le minimum n'est pas au seuil d'interpolation mais après ; le point de vue du phénomène (W variable à n fixé) et celui de la figure (n variable à d fixé) sont duaux, le seuil étant toujours l'égalité entre nombre de paramètres et nombre d'observations.",
-			"Le minimum est exactement au seuil, où l'interpolation devient possible.",
-			"Les deux points de vue sont contradictoires : l'un prédit une explosion, l'autre une redescension.",
-			"Le minimum n'existe pas : l'erreur de test diverge quand n → +∞."
-		],
-		answerIndex: 0,
-		explanation:
-			'La remarque de lecture souligne la dualité : le phénomène fait varier W à n fixé, la figure fait varier n à d fixé, mais dans les deux cas le seuil critique est l\'égalité entre nombre de paramètres et nombre d\'observations, avec un minimum de l\'erreur de test atteint au-delà du seuil.'
-	},
-	{
-		id: 'p8-syn-q17',
-		tags: ['p8/synthese'],
-		question: 'Que dit la borne par normes de Bartlett, Foster et Telgarsky (2017) ?',
-		options: [
-			"Avec probabilité 1 - δ, R(h) - R_Sn(h) = Õ((Π_l ‖W_l‖_op)·(Σ_l ‖W_l‖_F^{2/3})^{3/2} / √n), où ‖·‖_op est la norme spectrale et ‖·‖_F la norme de Frobenius ; elle est indépendante de la profondeur et de la largeur en tant que telles.",
-			"Elle borne l'excès de risque par O(W·L·log W / n), la dimension VC de Bartlett (1998).",
-			"Elle n'est non triviale que si les poids sont nuls.",
-			'Elle est une borne sur la variance : Var(R_Sn(h)) ≤ (Π_l ‖W_l‖_F)/n.'
-		],
-		answerIndex: 0,
-		explanation:
-			"La borne ne dépend que des normes des poids (spectrales et de Frobenius), pas de la profondeur ou de la largeur en tant que telles : elle peut rester non triviale même pour des réseaux très larges, si les poids restent petits — l'une des pistes modernes, sans qu'aucune ne soit complète."
-	},
-	{
-		id: 'p8-syn-q18',
-		tags: ['p8/synthese'],
-		question: "Que sont la complexité de Rademacher empirique et sa borne de généralisation, selon la leçon ?",
-		options: [
-			"R̂_n(H) = E_σ[sup_{h∈H} (1/n) Σ σ_i h(X_i)], avec σ_i de loi de Rademacher (±1 équiprobables) indépendantes de l'échantillon ; avec probabilité 1 - δ : sup_{h∈H} |R(h) - R_Sn(h)| ≤ 2R̂_n(H) + sqrt(log(2/δ)/(2n)) ; son avantage est d'être data-dependent.",
-			'R̂_n(H) = max_{h∈H} (R(h) - R_Sn(h)), calculée sans variable aléatoire ; la borne est sqrt(log|H|/(2n)).',
-			'R̂_n(H) est la dimension VC de H ; la borne est sqrt(8d·log(2en/d)/n).',
-			'R̂_n(H) ne dépend que de la taille de H, et la borne exige que H soit fini.'
-		],
-		answerIndex: 0,
-		explanation:
-			'Le sup est pris sur la classe mais moyenné sur des bruits de Rademacher σ_i indépendants des données : la complexité est donc data-dependent — elle mesure la complexité de H sur l\'échantillon effectif, et peut être bornée indépendamment du nombre de paramètres pour des réseaux à poids contraints en norme.'
-	},
-	{
-		id: 'p8-syn-q19',
-		tags: ['p8/synthese'],
-		question: "Vers quoi déplacent les explications modernes (biais implicite, borne BFT, Rademacher) la question de la généralisation, selon la leçon ?",
-		options: [
-			"D'« combien de paramètres ? » vers « quelle solution l'optimisation sélectionne-t-elle, et combien est-elle régulière ? » — sans qu'aucune explication ne soit complète : la généralisation des réseaux profonds reste un sujet de recherche actif.",
-			'Vers le calcul exact de la dimension VC des réseaux profonds.',
-			'Vers la preuve que le sur-ajustement est impossible en sur-paramétré.',
-			"Vers l'abandon de la théorie de la généralisation au profit de l'heuristique."
-		],
-		answerIndex: 0,
-		explanation:
-			"Le « Retenir » de la leçon le résume : les pistes modernes déplacent la question du nombre de paramètres vers la régularité de la solution sélectionnée par l'optimisation — « sans qu'aucune ne fournisse une explication complète », la généralisation des réseaux profonds restant un sujet de recherche actif."
-	},
-	{
-		id: 'p8-syn-q20',
-		tags: ['p8/synthese'],
-		question: "Quel lien permet-on de faire, à l'échelle de la partie, entre le biais implicite de la descente de gradient et le Théorème 3.4 ?",
-		options: [
-			"La descente de gradient sur la régression logistique (données linéairement séparables) converge vers le classifieur de marge maximale — exactement le type de classifieur contrôlé par le Théorème 3.4, dont la dimension VC ≤ floor(R²/γ²) est indépendante de la dimension ambiante.",
-			"Le biais implicite prouve que la dimension VC des réseaux de neurones est bornée par la taille de l'échantillon.",
-			'Le Théorème 3.4 montre que la descente de gradient converge toujours vers la solution de plus grande norme.',
-			"Les deux résultats sont sans rapport : l'un porte sur l'optimisation, l'autre sur la complexité."
-		],
-		answerIndex: 0,
-		explanation:
-			"Synthèse de la partie : l'optimiseur sélectionne implicitement des solutions régulières de marge maximale (Zhang et al., 2017 ; Soudry et al., 2018) — la solution SVM — et c'est précisément la classe des classifieurs à marge qui bénéficie de la borne de Vapnik (1995) indépendante de la dimension : la bonne généralisation du régime sur-paramétré s'explique partiellement par la marge, pas par le nombre de paramètres."
+			"Cartouche « Lecture biais-variance des deux conditions » (part8/lesson2) : k(n) → +∞ réduit la variance de l'estimation locale de η(x) — « en moyennant sur davantage de voisins, la loi des grands nombres lisse le bruit d'échantillonnage » — et k(n)/n → 0 réduit le biais, garantissant que les k(n) voisins restent de plus en plus proches de x."
 	}
 ];

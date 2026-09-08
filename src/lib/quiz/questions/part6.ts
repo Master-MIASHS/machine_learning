@@ -4,366 +4,511 @@ export const PART6: QuizQuestion[] = [
 	{
 		id: 'p6-l1-q1',
 		tags: ['p6/l1'],
-		question: "D'après le Théorème 1.1, quel est le classifieur de Bayes pour la perte 0-1 ?",
+		question: "D'après la leçon, de quoi est constitué le prédicteur Top-K bayésien S*(x) ?",
 		options: [
-			'h*(x) = 1 si η(x) > 1/2, h*(x) = 0 si η(x) < 1/2, et tout choix si η(x) = 1/2.',
-			'h*(x) = 1 si η(x) ≥ 1/2, et h*(x) = 0 sinon.',
-			'h*(x) = 1 si η(x) ≥ 1/3, et h*(x) = 0 sinon.',
-			'h*(x) = la classe de plus grande probabilité a priori, indépendamment de x.'
+			'Les K classes ayant les plus grands scores estimés p_c(x) produits par le modèle.',
+			'Les K classes ayant les plus grandes probabilités conditionnelles vraies η_c(x).',
+			'Les K classes ayant les plus grandes probabilités a priori P(Y = c).',
+			'Les K classes ayant la plus grande incertitude a posteriori au point x.'
 		],
 		answerIndex: 1,
 		explanation:
-			"Théorème 1.1 : la décision optimale en x minimise le risque conditionnel — on choisit l'action 1 si et seulement si r(1, x) = 1 - η(x) ≤ r(0, x) = η(x), c'est-à-dire si et seulement si η(x) ≥ 1/2 : on prédit la classe majoritaire au point x."
+			"Le meilleur ensemble de taille K fixe maximise la masse de probabilité captée Σ_{c∈S} η_c(x) : c'est exactement les K classes les plus probables au sens de la vérité η(x) — et non de son estimation p(x) (section « Le risque Top-K bayésien »)."
 	},
 	{
 		id: 'p6-l1-q2',
 		tags: ['p6/l1'],
-		question: "Quelle est l'expression du risque de Bayes R*, le risque minimal atteint par h* ?",
-		options: [
-			"L'espérance de η(X) sur X.",
-			"L'espérance de η(X)(1 - η(X)) sur X.",
-			"L'espérance de min(η(X), 1 - η(X)) sur X.",
-			'Le minimum du risque 0-1 restreint aux classifieurs linéaires.'
-		],
+		question:
+			'Exemple numérique de la leçon : avec 5 classes et η(x) = (0.50, 0.25, 0.15, 0.07, 0.03), quel est le risque bayésien Top-3 en ce point x ?',
+		options: ['0.05', '0.15', '0.10', '0.25'],
 		answerIndex: 2,
 		explanation:
-			"La leçon définit R* = R(h*) = E[min(η(X), 1 - η(X))] : c'est une borne irréductible due au chevauchement intrinsèque des classes — aucun algorithme, même avec une infinité de données, ne peut faire mieux."
+			'Le risque ponctuel vaut 1 - (0.50 + 0.25 + 0.15) = 0.10. La masse restante 0.07 + 0.03 est irréductiblement hors du Top-3 en ce point, quel que soit le modèle utilisé.'
 	},
 	{
 		id: 'p6-l1-q3',
 		tags: ['p6/l1'],
-		question: 'Quand le risque de Bayes R* est-il égal à zéro ?',
+		question: "D'après la leçon, que fait le Temperature Scaling avec T > 1 ?",
 		options: [
-			"Quand les classes sont linéairement séparables dans l'espace d'entrée.",
-			"Quand η(x) = 1/2 presque sûrement, c'est-à-dire quand le problème est maximalement bruité.",
-			"Quand la taille d'échantillon n est suffisamment grande.",
-			'Quand η(x) ∈ {0, 1} presque sûrement : le problème est alors séparable.'
+			'Il aplatit la distribution des scores, rendant le modèle moins confiant, sans modifier le classement des classes.',
+			'Il resserre la distribution et rend le modèle plus confiant.',
+			"Il modifie le classement des classes et donc l'ensemble Top-K.",
+			"Il garantit la diminution de l'ECE pour tout modèle initial."
 		],
-		answerIndex: 3,
+		answerIndex: 0,
 		explanation:
-			"Le cartouche « Séparabilité » vérifie que R* = 0 si et seulement si η(x) ∈ {0, 1} presque sûrement, c'est-à-dire quand à chaque point une seule classe est possible avec certitude ; dès que η s'éloigne de {0, 1} vers 1/2, le problème devient bruité et le classifieur optimal se trompe avec une probabilité non nulle."
+			"Avec T > 1 la distribution softmax s'aplatit (moins de confiance), avec T < 1 elle se resserre ; comme le rééchelonnage est une fonction strictement croissante des logits, le classement — et donc le prédicteur Top-K — est inchangé, seul le choix de K par seuillage est affecté (section « Calibration de la confiance »)."
 	},
 	{
 		id: 'p6-l1-q4',
 		tags: ['p6/l1'],
 		question:
-			"Dans la démonstration du Théorème 1.1, pourquoi l'optimalité pointwise de h* suffit-elle à son optimalité globale ?",
+			'La règle K* = plus petit K tel que Acc@K ≥ tau (seuil de précision cible) a quel statut, selon la leçon ?',
 		options: [
-			"Parce que R(h) - R(h*) = E[r(h(X), X) - r(h*(X), X)] est l'espérance d'un terme non négatif.",
-			"Parce que la perte 0-1 est une perte convexe sur l'espace des classifieurs.",
-			'Parce que η(x) est différentiable en tout point x.',
-			"Parce que l'échantillon est i.i.d., ce qui garantit la convergence uniforme."
+			'Elle est décision-théoriquement optimale, car elle adapte K à chaque point x.',
+			'Elle garantit la couverture tau en chaque point x, individuellement.',
+			'Elle nécessite de connaître les probabilités vraies η(x) pour être calculée.',
+			"Elle fixe un K global pour tout l'espace, approximation grossière de la règle pointwise optimale K(x)."
 		],
-		answerIndex: 0,
+		answerIndex: 3,
 		explanation:
-			"La loi des espérances totales donne R(h) = E_X[r(h(X), X)]; comme h* minimise r(., x) pour presque tout x, l'écart entre R(h) et R(h*) est l'espérance d'un terme non négatif, donc non négatif — sans aucune hypothèse de régularité sur P (panneau expert « Pourquoi le conditionnement suffit »)."
+			"Le cartouche d'avertissement « Un K global n'est pas optimal point par point » précise qu'un K unique est une approximation commode mais sous-optimale de la règle locale K(x) — plus petite valeur telle que la masse cumulative de η soit ≥ tau — idée que la prédiction conformelle formalisera sans connaître η."
 	},
 	{
 		id: 'p6-l1-q5',
 		tags: ['p6/l1'],
-		question: 'En un point x où η(x) = 0.3, que fait le classifieur de Bayes ?',
+		question:
+			"Pourquoi choisir K par seuillage de la masse cumulative exige un modèle calibré, alors qu'un K fixé ne l'exige pas ?",
 		options: [
-			'Il prédit 1, puisque 0.3 > 0.',
-			'Il prédit 0, et se trompe avec une probabilité conditionnelle 0.3.',
-			'Il prédit 0, et se trompe avec une probabilité conditionnelle 0.7.',
-			"Sa décision dépend de la taille de l'échantillon disponible."
+			'Parce que le risque Top-K bayésien dépend des valeurs exactes de η.',
+			'Parce que le K fixé ne dépend que du classement des classes, tandis que le seuillage dépend des valeurs des scores.',
+			"Parce que l'ECE doit être strictement nulle pour utiliser un seuil quelconque.",
+			"Parce que le classement estimé p(x) n'est jamais celui de la vérité η(x)."
 		],
 		answerIndex: 1,
 		explanation:
-			'Comme η(x) = 0.3 < 1/2, on a h*(x) = 0 ; le risque conditionnel de cette décision vaut r(0, x) = η(x) = 0.3, le plus petit des deux (prédire 1 donnerait r(1, x) = 1 - η(x) = 0.7).'
+			'La leçon opère la séparation nette : S*(x) = Top_K(η(x)) ne dépend que du classement des η_c(x), pas de leurs valeurs ; mais dès que K est choisi par seuil de masse, les valeurs de p(x) comptent et doivent approcher η_c(x) elles-mêmes, pas seulement leur rang.'
 	},
 	{
 		id: 'p6-l2-q1',
 		tags: ['p6/l2'],
 		question:
-			'Selon le Théorème 1.2, pour la perte quadratique L2, quel est le prédicteur optimal en x ?',
+			'Sur quoi repose, selon la leçon, la garantie de couverture marginale P(Y ∈ C(X)) ≥ 1 - alpha de la prédiction conformelle scindée ?',
 		options: [
-			'La médiane conditionnelle de Y sachant X = x.',
-			'Le mode conditionnel de Y sachant X = x.',
-			"La moyenne empirique de l'échantillon d'entraînement.",
-			'La moyenne conditionnelle m(x) = E[Y | X = x].'
+			'Sur le fait que le modèle p(x) soit bien calibré en valeur.',
+			'Sur le fait que les scores de non-conformité soient presque sûrement distincts.',
+			"Sur le fait que l'ensemble de calibration soit strictement plus grand que l'ensemble d'entraînement.",
+			"Sur l'échangeabilité des données (X_1, Y_1), ..., (X_n, Y_n), (X, Y), hypothèse plus faible que i.i.d."
 		],
 		answerIndex: 3,
 		explanation:
-			"Théorème 1.2 : la perte quadratique sélectionne la moyenne conditionnelle. La décomposition E[(Y - c)² | X = x] = E[(Y - m(x))² | X = x] + (m(x) - c)² montre que seul le second terme est pilotable, et qu'il est minimal (nul) uniquement pour c = m(x)."
+			"La garantie est exacte en échantillon fini et model-free : elle ne repose sur aucune hypothèse sur la forme du classificateur, seulement sur l'échangeabilité des données — les données i.i.d. étant toujours échangeables (section « Garantie de couverture »)."
 	},
 	{
 		id: 'p6-l2-q2',
 		tags: ['p6/l2'],
 		question:
-			"Dans la preuve du cas L2, pourquoi le terme croisé s'annule-t-il quand on développe (Y - c)² avec Y - c = (Y - m(x)) + (m(x) - c) ?",
+			'La garantie de couverture est marginale, et non conditionnelle. Quelle est la conséquence directe soulignée par la leçon ?',
 		options: [
-			'Parce que E[Y - m(x) | X = x] = E[Y | X = x] - m(x) = 0, par la définition même de m(x).',
-			'Parce que Y est gaussienne conditionnellement à X.',
-			"Parce que l'échantillon est i.i.d.",
-			'Parce que la perte quadratique est strictement convexe.'
+			"L'ensemble de prédiction sous- couvre en chaque point x de l'espace d'entrée.",
+			'La garantie est automatiquement violée dès que le modèle est mal calibré.',
+			"Un ensemble peut respecter la couverture moyenne 1 - alpha tout en sous-couvrant fortement dans certaines régions de l'espace.",
+			'La couverture est exactement égale à 1 - alpha en chaque point x.'
 		],
-		answerIndex: 0,
+		answerIndex: 2,
 		explanation:
-			"m(x) est défini comme E[Y | X = x], donc l'espérance conditionnelle de Y - m(x) s'annule : aucune hypothèse sur la loi de Y n'est nécessaire, en particulier pas de gaussien (preuve du Théorème 1.2, section « Perte quadratique : la moyenne conditionnelle »)."
+			"La probabilité est prise sur le tirage conjoint de (X, Y) : c'est une garantie moyenne sur toute la population de x. La garantie conditionnelle P(Y ∈ C(X) | X = x) ≥ 1 - alpha n'est pas fournie et ne peut en général pas être obtenue de façon distribution-free (la leçon cite Barber et al., 2021, dans la Définition 10.1)."
 	},
 	{
 		id: 'p6-l2-q3',
 		tags: ['p6/l2'],
 		question:
-			"Dans la preuve du cas L1, la fonction g(c) = E[|Y - c| | X = x] admet la dérivée g'(c) = 2F(c) - 1. Que cela implique-t-il ?",
+			"Selon la section « Le prédicteur oracle et le dual du Top-K », quelle est la dualité entre le Top-K et l'ensemble conforme oracle ?",
 		options: [
-			"L'optimum est atteint là où F(c) = 1, c'est-à-dire au maximum du support.",
-			"L'optimum est atteint là où la densité f(c) est maximale, c'est-à-dire au mode conditionnel.",
-			"L'optimum est atteint là où F(c) = 1/2, c'est-à-dire à la médiane conditionnelle, et g est convexe car g''(c) = 2f(c) ≥ 0.",
-			"Il n'existe pas d'optimum sauf si Y | X = x est continue."
+			'Le Top-K fixe la couverture et maximise la taille ; le conforme fixe la taille et minimise la masse capturée.',
+			"Le Top-K fixe la taille K et maximise la masse capturée ; l'ensemble conforme oracle fixe la masse cible 1 - alpha et minimise la taille.",
+			'Les deux problèmes fixent la taille K et ne diffèrent que par le score utilisé.',
+			"Le Top-K fixe la masse cible et minimise la taille ; l'ensemble conforme oracle fixe la taille et maximise la masse."
 		],
-		answerIndex: 2,
+		answerIndex: 1,
 		explanation:
-			"La condition g'(c) = 0 donne F(c) = 1/2, définition de la médiane conditionnelle ; la convexité g''(c) = 2f(c) ≥ 0 garantit qu'il s'agit bien d'un minimum global (preuve du Théorème 1.2, section « Perte absolue : la médiane conditionnelle »)."
+			'Les deux problèmes sont duaux : on fixe soit la taille K (Top-K), soit la couverture 1 - alpha (conforme oracle) ; dans les deux cas la solution est un ensemble de niveau de η(x) — seule la contrainte active change.'
 	},
 	{
 		id: 'p6-l2-q4',
 		tags: ['p6/l2'],
-		question: 'Selon la leçon, quand la médiane conditionnelle peut-elle ne pas être unique ?',
+		question:
+			'Pourquoi la garantie de couverture tient-elle quel que soit le modèle p(x), même médiocre ou aléatoire ?',
 		options: [
-			'Jamais : la médiane est toujours unique pour toute distribution.',
-			'Quand Y | X = x suit une loi discrète : tout un intervalle de valeurs peut vérifier F(c) = 1/2, et toutes atteignent le même risque L1 minimal.',
-			"Uniquement quand la taille d'échantillon est impaire.",
-			'Quand Y | X = x est gaussienne, en raison de la symétrie de la cloche.'
+			'Parce que le quantile empirique converge toujours vers le quantile vrai de η.',
+			'Parce que le score de rang est invariant à la miscalibration près.',
+			'Parce que la garantie est conditionnelle à X, qui ne dépend pas du modèle.',
+			"Parce que la qualité de p(x) n'affecte que la taille des ensembles (l'efficacité), pas la validité de la garantie."
 		],
-		answerIndex: 1,
+		answerIndex: 3,
 		explanation:
-			"Le cartouche d'avertissement « La médiane n'est pas toujours unique » le signale pour les lois discrètes : la non-uniqueté ne remet pas en cause l'optimalité, toutes ces valeurs atteignant le même risque minimal (la leçon note au passage que la médiane empirique est souvent non unique quand la taille de l'échantillon est paire)."
+			"Le cartouche « Validité contre efficacité » est explicite : la garantie ne dépend que de l'échangeabilité des scores, pas de la qualité de p(x) ; un modèle mal calibré reste valide sous conformalisation mais produit des ensembles inutilement larges."
 	},
 	{
 		id: 'p6-l2-q5',
 		tags: ['p6/l2'],
 		question:
-			'Sur une distribution conditionnelle à longue queue, que dit la leçon des deux prédicteurs optimaux ?',
+			'Que se passe-t-il si on choisit alpha = 0.01 au lieu de alpha = 0.1, selon la section « Le seuil quantile » ?',
 		options: [
-			'La moyenne et la médiane coïncident, en vertu de la loi des grands nombres.',
-			"La moyenne est sensible aux valeurs extrêmes, tandis que la médiane y est robuste : c'est le prix et le bénéfice du passage de L2 à L1.",
-			'Le prédicteur à perte quadratique est robuste à une observation très éloignée.',
-			'La médiane minimise le risque quadratique, et la moyenne minimise le risque absolu.'
+			"La garantie est plus forte (99 %) mais au prix d'ensembles souvent triviaux.",
+			'La garantie est la même mais les ensembles sont toujours plus petits.',
+			'La garantie est de 99 % et les ensembles sont garantis réduits à une seule classe.',
+			"La garantie n'est plus valable qu'asymptotiquement, quand n est grand."
+		],
+		answerIndex: 0,
+		explanation:
+			"Le niveau alpha contrôle le compromis : alpha = 0.1 garantit une couverture d'au moins 90 % avec des ensembles plus larges ; un alpha plus petit (0.01) fournit une garantie plus forte (99 %) mais au prix d'ensembles souvent triviaux."
+	},
+	{
+		id: 'p6-l3-q1',
+		tags: ['p6/l3'],
+		question:
+			"Pour les intervalles de largeur constante, quel est le score de non-conformité et quelle est la forme de l'ensemble de prédiction ?",
+		options: [
+			'Score |y - f(x)| / (sigma(x) + epsilon) : intervalle de largeur variable selon x.',
+			'Score |y - f(x)| : intervalle [f(x) - q, f(x) + q] de largeur identique en tout point de prédiction.',
+			'Score f(x) - y : intervalle asymétrique centré en zéro.',
+			'Score 1 - p_y(x) : ensemble de cardinalité variable.'
 		],
 		answerIndex: 1,
 		explanation:
-			"La section « Comparer les deux prédicteurs » souligne qu'une seule observation très éloignée peut déplacer la moyenne arbitrairement loin, alors que la médiane y est robuste — différence qui n'est pas anecdotique, mais qui a des conséquences directes sur la robustesse du prédicteur."
+			"Le score est la valeur absolue du résidu ; le quantile q des résidus absolus sur l'ensemble de calibration donne un intervalle symétrique centré sur la prédiction du modèle, avec la même « marge d'erreur » pour tous les points, indépendamment de x (section « Intervalles de largeur constante »)."
+	},
+	{
+		id: 'p6-l3-q2',
+		tags: ['p6/l3'],
+		question:
+			"Selon la leçon, quand l'intervalle constant est-il une bonne approximation de l'ensemble oracle (région de densité maximale) ?",
+		options: [
+			'Quand le modèle est suffisamment complexe, quelle que soit la structure des erreurs.',
+			'Quand la densité de Y sachant X est multimodale.',
+			"Quand l'ensemble de calibration est petit, car le quantile q est alors plus robuste.",
+			"Quand la largeur oracle ne dépend pas de x, c'est-à-dire sous homoscédasticité."
+		],
+		answerIndex: 3,
+		explanation:
+			"Le cartouche d'avertissement « Ce que l'oracle révèle sur l'intervalle constant » est explicite : dès que la largeur de la région de densité maximale varie avec x, l'intervalle constant est nécessairement trop large à certains endroits et trop étroit à d'autres — il n'approxime l'oracle que si la largeur ne dépend pas de x, précisément la condition d'homoscédasticité."
+	},
+	{
+		id: 'p6-l3-q3',
+		tags: ['p6/l3'],
+		question:
+			'En régression quantile conforme (CQR), pourquoi corrige-t-on la paire de quantiles appris par une calibration conforme ?',
+		options: [
+			"Parce que rien ne garantit, en échantillon fini, que les quantiles appris couvrent exactement 1 - alpha ; l'étape conforme mesure cette erreur de calibration et la corrige par un décalage uniforme Q.",
+			"Parce que la régression quantile n'est pas un problème convexe et ne peut pas être optimisée.",
+			"Parce que l'étape conforme augmente la largeur moyenne afin de rendre la méthode robuste.",
+			'Parce que les quantiles appris sont biaisés vers la moyenne conditionnelle.'
+		],
+		answerIndex: 0,
+		explanation:
+			"Le cartouche « Pourquoi corriger une régression quantile déjà entraînée ? » explique que les quantiles estimés sont eux-mêmes des approximations : l'étape de calibration mesure l'écart sur des données indépendantes et le corrige par un décalage uniforme Q, combinant la forme adaptative de la régression quantile et la garantie exacte de la prédiction conforme, quelle que soit la qualité des quantiles."
+	},
+	{
+		id: 'p6-l3-q4',
+		tags: ['p6/l3'],
+		question:
+			'En CQR, le score s(x, y) = max(q_lo(x) - y, y - q_hi(x)) est de quel signe, et que mesure-t-il ?',
+		options: [
+			"Toujours positif, il mesure la distance au bord le plus proche de l'intervalle.",
+			"Positif quand y est hors de l'intervalle estimé (dépassement), négatif quand y est à l'intérieur (marge restante).",
+			"Négatif quand y est hors de l'intervalle estimé, positif quand y est à l'intérieur.",
+			"Il mesure l'incertitude locale sigma(x) du modèle."
+		],
+		answerIndex: 1,
+		explanation:
+			"La leçon définit un score signé de dépassement : positif et mesurant le dépassement si y tombe hors de l'intervalle [q_lo(x), q_hi(x)], négatif et mesurant la marge restante s'il tombe à l'intérieur (section « Régression quantile conforme (CQR) »)."
+	},
+	{
+		id: 'p6-l3-q5',
+		tags: ['p6/l3'],
+		question:
+			"Une méthode respecte la couverture empirique 1 - alpha sur l'ensemble de test, mais la couverture échoue systématiquement dans une région de l'espace d'entrée. Quel indicateur d'évaluation détecte ce problème ?",
+		options: [
+			'La largeur moyenne des intervalles.',
+			'Le taux de couverture empirique.',
+			"L'efficacité conditionnelle, qui vérifie l'homogénéité de la couverture à travers les régions de l'espace d'entrée.",
+			"Le quantile conforme Q calculé sur l'ensemble de calibration."
+		],
+		answerIndex: 2,
+		explanation:
+			"La section « Évaluation des intervalles de prédiction » définit l'efficacité conditionnelle comme la vérification que la couverture ne dépend pas excessivement des valeurs de X : c'est l'indicateur subtil qui détecte les échecs locaux que la couverture marginale — celle garantie par le théorème — ne peut pas voir."
 	},
 	{
 		id: 'p6-syn-q1',
 		tags: ['p6/synthese'],
-		question:
-			'En classification binaire, pourquoi les risques conditionnels des deux décisions valent-ils respectivement r(1,x) = 1 - η(x) et r(0,x) = η(x) ?',
+		question: 'Quel est le prédicteur Top-K bayésien S*(x) pour un point x ?',
 		options: [
-			"Parce que Y | X = x suit une loi de Bernoulli de paramètre η(x) : prédire 1 se trompe exactement quand Y = 0, avec probabilité 1 - η(x), et prédire 0 se trompe quand Y = 1, avec probabilité η(x).",
-			'Parce que la perte 0-1 est symétrique, les deux risques conditionnels valent η(x) en tout point x.',
-			"Parce que η(x) est la probabilité a priori de la classe 1, qui ne dépend pas de x.",
-			'Parce que le risque conditionnel mesure la probabilité de prédire juste : r(1,x) = η(x) et r(0,x) = 1 - η(x).'
+			"L'ensemble des K classes ayant les plus grands scores estimés p(x)",
+			"L'ensemble des K classes ayant les plus grandes probabilités conditionnelles vraies η(x)",
+			"L'ensemble des K classes ayant les probabilités a priori les plus élevées",
+			"L'ensemble des classes dont la probabilité dépasse un seuil fixe"
 		],
-		answerIndex: 0,
+		answerIndex: 1,
 		explanation:
-			"Le bloc « Probabilité a posteriori » de part6/lesson1 note que Y | X = x suit une loi de Bernoulli de paramètre η(x) ; c'est ce qui donne directement r(1,x) = 1 - η(x) et r(0,x) = η(x) (Théorème 1.1)."
+			'Le prédicteur Top-K bayésien maximise la masse de probabilité captée en choisissant les K classes les plus probables au sens de la vérité η(x).'
 	},
 	{
 		id: 'p6-syn-q2',
 		tags: ['p6/synthese'],
-		question: "Quel enchaînement d'équivalences conduit à la règle de décision du Théorème 1.1 ?",
+		question: 'Quelle est la propriété de la courbe K ↦ Acc@K ?',
 		options: [
-			"r(1,x) ≤ r(0,x) si et seulement si η(x) ≤ 1 - η(x), c'est-à-dire η(x) ≤ 1/2 : on prédit 1 quand la classe 1 est minoritaire au point x.",
-			"r(1,x) ≤ r(0,x) si et seulement si 1 - η(x) ≤ η(x), c'est-à-dire η(x) ≥ 1/2 : on prédit 1 exactement quand la classe 1 est la plus probable au point x.",
-			"r(1,x) ≤ r(0,x) si et seulement si 1 - η(x) ≤ η(x), c'est-à-dire η(x) ≥ 1/3 : le seuil 1/3 découle de la perte 0-1.",
-			"r(1,x) < r(0,x) si et seulement si η(x) > 1/2, c'est-à-dire si la classe 1 a la plus grande probabilité a priori, indépendamment de x."
+			'Elle est monotone décroissante',
+			'Elle est constante',
+			'Elle est monotone croissante',
+			'Elle suit une courbe en U'
 		],
-		answerIndex: 1,
+		answerIndex: 2,
 		explanation:
-			"Théorème 1.1, section « Le classifieur de Bayes » : on choisit 1 si et seulement si r(1,x) ≤ r(0,x), soit 1 - η(x) ≤ η(x), c'est-à-dire η(x) ≥ 1/2 — la règle « prédire la classe majoritaire » du cartouche « Interprétation du seuil »."
+			"Comme les ensembles Top-K sont emboîtés (Top-K ⊆ Top-K+1), l'exactitude ne peut que croître ou rester stable lorsque K augmente."
 	},
 	{
 		id: 'p6-syn-q3',
 		tags: ['p6/synthese'],
-		question: 'Que signifie dire que le risque de Bayes R* est une borne irréductible ?',
+		question: "Quel est l'effet du Temperature Scaling sur le prédicteur Top-K pour un K fixé ?",
 		options: [
-			"Aucun algorithme, aussi sophistiqué soit-il, même avec une infinité de données, ne peut atteindre un risque inférieur à R* : c'est la part du risque due au chevauchement intrinsèque des classes, pas à un manque de données ni à un mauvais choix de modèle.",
-			'Aucun classifieur appris sur un échantillon fini ne peut atteindre R*, mais un algorithme doté de données illimitées peut le dépasser.',
-			"R* ne peut être amélioré que si on change de perte : c'est la perte 0-1 qui rend le risque irréductible.",
-			"Le risque de Bayes est irréductible car il ne dépend que de l'algorithme utilisé et jamais de la distribution P."
+			"Il modifie le classement des classes et donc l'ensemble Top-K",
+			"Il ne modifie pas le classement des classes, donc l'ensemble Top-K reste inchangé",
+			'Il rend le modèle systématiquement plus confiant',
+			"Il annule l'exactitude Top-1"
 		],
-		answerIndex: 0,
+		answerIndex: 1,
 		explanation:
-			"Section « Risque de Bayes et séparabilité » de part6/lesson1 : R* est une borne irréductible, due au chevauchement intrinsèque des deux classes, pas à un manque de données ou un mauvais choix de modèle."
+			'Le Temperature Scaling est une fonction strictement croissante des logits ; il modifie les valeurs des probabilités (calibration) mais préserve rigoureusement leur ordre.'
 	},
 	{
 		id: 'p6-syn-q4',
 		tags: ['p6/synthese'],
-		question: "Pourquoi le classifieur de Bayes h* n'est-il pas défini de manière unique ?",
+		question:
+			'Pourquoi le choix de K par seuillage de la masse cumulative exige-t-il un modèle calibré ?',
 		options: [
-			"Parce que pour η(x) = 1/2, les deux décisions sont optimales, si bien qu'il existe toujours plusieurs classifieurs atteignant R*.",
-			"Parce que η(x) n'est pas identifiable sans hypothèse de régularité sur la loi P.",
-			"Parce que h* n'est défini de manière unique que presque sûrement par rapport à P_X : en un point x tel que P(X=x) = 0, modifier h(x) ne change pas le risque.",
-			"Parce que le classifieur optimal dépend de l'ordre des observations de l'échantillon d'entraînement."
+			'Parce que le classement des classes ne suffit plus, les valeurs exactes des scores comptent',
+			'Parce que le risque bayésien dépend uniquement des rangs',
+			"Parce que l'ECE doit être nulle pour tout seuil",
+			'Parce que le modèle doit être linéaire'
 		],
-		answerIndex: 2,
+		answerIndex: 0,
 		explanation:
-			"Panneau expert « Pourquoi le conditionnement suffit » (part6/lesson1) : la qualification « presque tout » est essentielle — quand P(X=x) = 0, modifier h(x) en ce point ne change rien, et h* n'est donc unique que presque sûrement par rapport à P_X."
+			'Pour un K fixé, seul le classement compte. Mais pour choisir K tel que Σ p_c ≥ τ, on a besoin que p_c soit une bonne approximation de η_c.'
 	},
 	{
 		id: 'p6-syn-q5',
 		tags: ['p6/synthese'],
-		question: 'En un point x où η(x) = 1/2 exactement, que dit la leçon des décisions 0 et 1 ?',
+		question:
+			"Quel est le gain marginal de risque lorsque l'on passe d'un ensemble Top-(K-1) à un ensemble Top-K ?",
 		options: [
-			'Les deux risques conditionnels sont égaux, r(1,x) = r(0,x) = 1/2 : les deux décisions sont optimales en x, et la règle énoncée (η(x) ≥ 1/2) fixe la convention en prédisant 1.',
-			'Prédire 1 est strictement meilleur : le risque de prédire 1 vaut 0 en ce point.',
-			"Les deux décisions sont sous-optimales : le risque minimal en x vaut 1/2 et aucun classifieur ne l'atteint.",
-			"Le point x est un point de non-décision : le Théorème 1.1 n'assigne aucune valeur à h*(x) quand η(x) = 1/2."
+			"L'espérance de la probabilité de la K-ième classe la plus probable, E[η_(K)(X)]",
+			"L'exactitude Top-1",
+			'La variance du modèle',
+			"Il n'y a pas de gain systématique"
 		],
 		answerIndex: 0,
 		explanation:
-			"À η(x) = 1/2, on a r(1,x) = 1 - η(x) = η(x) = r(0,x) : les deux risques sont égaux, donc les deux actions sont optimales ; l'énoncé du Théorème 1.1 (h*(x) = 1 si η(x) ≥ 1/2) fixe la convention de l'égalité en faveur de 1, sans changer le risque atteint."
+			'Le gain marginal est précisément la probabilité moyenne de la K-ième classe la plus vraisemblable : R_{K-1}* - R_K* = E[η_{(K)}(X)].'
 	},
 	{
 		id: 'p6-syn-q6',
 		tags: ['p6/synthese'],
 		question:
-			'Pourquoi minimiser le risque conditionnel r(h(x), x) pour presque tout x suffit-il à minimiser le risque global R(h) ?',
+			'Sur quelle hypothèse fondamentale repose la garantie de couverture de la prédiction conformelle ?',
 		options: [
-			'Par le théorème de convergence dominée, qui garantit la convergence uniforme de r(h(X), X) vers r(h*(X), X).',
-			"Parce que la perte 0-1 est convexe et que l'ensemble des classifieurs est compact.",
-			"Parce que l'échantillon est i.i.d., ce qui rend R(h) une variable aléatoire de moyenne R(h*).",
-			"Par la loi des espérances totales, R(h) = E_X[r(h(X), X)], et comme r(h(x), x) - r(h*(x), x) ≥ 0 pour presque tout x, l'écart R(h) - R(h*) est l'espérance d'un terme non négatif, donc non négatif."
+			"L'indépendance et l'identité de distribution (i.i.d.) stricte",
+			"L'échangeabilité des données",
+			'La normalité des résidus',
+			'La convexité de la fonction de perte'
 		],
-		answerIndex: 3,
+		answerIndex: 1,
 		explanation:
-			"Panneau expert « Pourquoi le conditionnement suffit » (part6/lesson1) : par la loi des espérances totales R(h) = E_X[r(h(X), X)], et l'optimalité ponctuelle de h* donne r(h(x), x) - r(h*(x), x) ≥ 0 presque sûrement, si bien que l'écart global est l'espérance d'un terme non négatif — sans hypothèse de régularité sur P."
+			"La garantie repose sur l'échangeabilité, une hypothèse plus faible que i.i.d. (les données i.i.d. sont toujours échangeables)."
 	},
 	{
 		id: 'p6-syn-q7',
 		tags: ['p6/synthese'],
-		question:
-			"Quelle est l'expression exacte de l'écart entre le risque quadratique d'un prédicteur h et le risque optimal R(h*) ?",
+		question: 'Quelle est la différence entre couverture marginale et couverture conditionnelle ?',
 		options: [
-			'R(h) - R(h*) = E[(m(X) - h(X))²] ≥ 0, avec égalité si et seulement si h(x) = m(x) pour presque tout x.',
-			"R(h) - R(h*) = E[(m(X) - h(X))²] ≥ 0, mais l'écart peut s'annuler pour un h ne coïncidant avec m que sur un ensemble de mesure nulle.",
-			"R(h) - R(h*) = E[(Y - h(X))²] - E[(Y - m(X))²] = E[(h(X) - E[Y])²], l'écart dépendant de la moyenne marginale de Y.",
-			"R(h) - R(h*) = E[(m(X) - h(X))²] + E[Var(Y | X)], avec égalité si et seulement si h = m : le bruit résiduel compte dans l'écart."
+			'La couverture marginale est plus forte que la conditionnelle',
+			'La couverture conditionnelle est garantie par le théorème de base du Split Conformal',
+			'La couverture marginale est une moyenne globale, tandis que la conditionnelle doit tenir pour chaque x',
+			"Il n'y a aucune différence mathématique"
 		],
-		answerIndex: 0,
+		answerIndex: 2,
 		explanation:
-			"Démonstration du Théorème 1.2, section « Perte quadratique : la moyenne conditionnelle » : en reprenant la décomposition avec c = h(x) puis en prenant l'espérance sur X, on obtient R(h) - R(h*) = E[(m(X) - h(X))²], nul si et seulement si h(x) = m(x) pour presque tout x."
+			'La garantie conformelle est marginale : elle assure que la moyenne de la couverture sur toute la population est ≥ 1-α, mais ne garantit pas la couverture point par point.'
 	},
 	{
 		id: 'p6-syn-q8',
 		tags: ['p6/synthese'],
 		question:
-			"Dans la décomposition E[(Y - c)² | X = x] = E[(Y - m(x))² | X = x] + (m(x) - c)², quel terme est irréductible, et pourquoi ?",
+			'Sous quelle condition la borne supérieure de couverture (1 - α + 1/(n+1)) est-elle exacte ?',
 		options: [
-			"Le terme (m(x) - c)² : c'est lui qui encode le bruit résiduel de Y autour de sa moyenne conditionnelle.",
-			"Le terme E[(Y - m(x))² | X = x] : c'est la variance conditionnelle de Y autour de sa moyenne conditionnelle, il ne dépend pas de c et aucun prédicteur ne peut l'éliminer.",
-			'Les deux termes sont irréductibles : la perte quadratique ne peut être annulée en aucun cas.',
-			'Le risque conditionnel E[(Y - c)² | X = x] tout entier, qui est fixe une fois x fixé.'
+			'Quand le modèle est parfaitement calibré',
+			"Quand les scores de non-conformité sont presque sûrement distincts (pas d'égalités)",
+			"Quand l'ensemble de calibration est infini",
+			'Quand on utilise le score de rang'
 		],
 		answerIndex: 1,
 		explanation:
-			"Section « Perte quadratique : la moyenne conditionnelle » (preuve du Théorème 1.2) : le premier terme, la variance résiduelle de Y autour de sa moyenne conditionnelle, « ne dépend pas de c » — c'est la part irréductible du risque ; seul le second terme (m(x) - c)² est pilotable, et il est nul uniquement pour c = m(x)."
+			'Si les scores sont distincts, les rangs sont uniformément distribués sur {1, ..., n+1}, et la probabilité de couverture devient exactement (ceil((n+1)(1-α)))/(n+1).'
 	},
 	{
 		id: 'p6-syn-q9',
 		tags: ['p6/synthese'],
-		question:
-			"Quelle hypothèse la preuve du cas L1 du Théorème 1.2 pose-t-elle pour que l'argument g'(c) = 2F(c) - 1 soit valide ?",
+		question: "Quel est le lien de dualité entre le Top-K et l'ensemble conforme oracle ?",
 		options: [
-			"L'existence d'une densité conditionnelle f_{Y|x} : la preuve écrit g(c) comme intégrale, puis dérive sous le signe intégrale (théorème de Leibniz) pour obtenir g'(c) = 2F(c) - 1.",
-			'La convexité conjointe de la perte |y - c| en (y, c).',
-			'Que Y | X = x ait une moyenne conditionnelle nulle.',
-			'Que la fonction de répartition F_{Y|x} soit strictement croissante en tout point.'
+			"Le Top-K fixe la couverture et maximise la taille ; l'oracle fixe la taille et minimise la masse",
+			"Le Top-K fixe la taille K et maximise la masse ; l'oracle fixe la couverture 1-α et minimise la taille",
+			'Ils sont identiques pour tout modèle calibré',
+			"L'un traite la classification, l'autre la régression"
 		],
-		answerIndex: 0,
+		answerIndex: 1,
 		explanation:
-			"Préambule de la preuve du cas L1, section « Perte absolue : la médiane conditionnelle » : « En supposant que Y | X = x admet une densité conditionnelle f_{Y|x} », on sépare l'intégrale et on dérive sous le signe intégrale par le théorème de Leibniz pour obtenir g'(c) = 2F_{Y|x}(c) - 1."
+			"Les deux sont des ensembles de niveau de η(x). Le Top-K maximise la masse pour une taille fixée, l'oracle minimise la taille pour une masse fixée."
 	},
 	{
 		id: 'p6-syn-q10',
 		tags: ['p6/synthese'],
 		question:
-			"Selon le cartouche « La médiane n'est pas toujours unique », quelle convention la leçon cite-t-elle pour trancher la non-uniqueté de la médiane quand Y | X = x a une loi discrète ?",
+			"Dans la prédiction conformelle, quel est l'impact d'un modèle p(x) très médiocre sur la garantie de couverture ?",
 		options: [
-			"Choisir la moyenne des deux valeurs médianes, comme pour la médiane empirique d'un échantillon de taille paire.",
-			'Choisir la valeur la plus proche de la moyenne conditionnelle m(x).',
-			"Par exemple, choisir la plus petite valeur c atteignant le seuil F_{Y|x}(c) = 1/2 — la non-uniqueté ne remet pas en cause l'optimalité, toutes ces valeurs atteignant le même risque L1 minimal.",
-			'La médiane est toujours unique pour une loi discrète : la question de la convention ne concerne que les lois continues.'
+			'La garantie de couverture est violée',
+			'La garantie reste valide, mais les ensembles de prédiction deviennent inutilement larges',
+			'Le modèle devient automatiquement calibré',
+			'La couverture devient conditionnelle'
 		],
-		answerIndex: 2,
+		answerIndex: 1,
 		explanation:
-			"Cartouche « La médiane n'est pas toujours unique » (part6/lesson2) : pour une loi discrète, tout un intervalle de c peut vérifier F_{Y|x}(c) = 1/2 exactement, et la médiane n'est définie qu'à un choix de convention près — par exemple la plus petite valeur atteignant le seuil — sans remettre en cause l'optimalité, toutes ces valeurs atteignant le même risque L1 minimal."
+			"La validité est model-free. La qualité du modèle n'affecte que l'efficacité (la taille des ensembles), pas la validité de la garantie."
 	},
 	{
 		id: 'p6-syn-q11',
 		tags: ['p6/synthese'],
 		question:
-			"Que note la leçon part6/lesson2 à propos de la médiane empirique calculée sur un échantillon de données ?",
+			"Comment le score APS (Adaptive Prediction Sets) s'adapte-t-il différemment du score de rang ?",
 		options: [
-			"Elle est souvent non unique, notamment lorsque la taille de l'échantillon est paire.",
-			"Elle est toujours unique dès que la taille de l'échantillon dépasse 100.",
-			'Elle coïncide toujours avec la médiane conditionnelle vraie de la population.',
-			"Elle n'est définie que pour les échantillons de taille impaire."
+			'Il ignore les probabilités pour ne garder que le rang',
+			"Il utilise la masse cumulative des probabilités pour ajuster la taille de l'ensemble à la distribution",
+			"Il fixe la taille de l'ensemble indépendamment des données",
+			'Il ne fonctionne que pour le Top-1'
 		],
-		answerIndex: 0,
+		answerIndex: 1,
 		explanation:
-			"Note « Note sur la médiane empirique » (part6/lesson2) : la médiane empirique (calculée sur un échantillon de données) est souvent non unique, notamment lorsque la taille de l'échantillon est paire."
+			'Le score APS utilise le complément de la somme des probabilités des classes au moins aussi probables que la vraie classe, permettant une adaptation fine à la forme de la distribution.'
 	},
 	{
 		id: 'p6-syn-q12',
 		tags: ['p6/synthese'],
-		question:
-			"Selon la section « Comparer les deux prédicteurs », quelle est la différence de robustesse entre moyenne et médiane conditionnelles ?",
+		question: "Que se passe-t-il si l'ensemble de calibration est trop petit (n < 1/α - 1) ?",
 		options: [
-			'Les deux prédicteurs sont également sensibles aux valeurs extrêmes, la sensibilité étant inhérente au conditionnement sur X.',
-			"Une seule observation très éloignée peut déplacer la moyenne arbitrairement loin, tandis que la médiane y est robuste : c'est le prix et le bénéfice du passage de L2 à L1.",
-			'La médiane est sensible aux valeurs extrêmes car elle dépend de la fonction de répartition, tandis que la moyenne est robuste.',
-			"La moyenne est robuste par la loi des grands nombres, la médiane ne l'étant que pour les lois symétriques."
+			'La garantie de couverture est annulée',
+			"L'ensemble de prédiction devient systématiquement vide",
+			"L'ensemble de prédiction devient systématiquement l'ensemble de toutes les classes",
+			'Le quantile q devient nul'
 		],
-		answerIndex: 1,
+		answerIndex: 2,
 		explanation:
-			"Section « Comparer les deux prédicteurs » (part6/lesson2) : la moyenne est sensible aux valeurs extrêmes (une seule observation très éloignée peut la déplacer arbitrairement loin), alors que la médiane y est robuste — c'est le prix, et le bénéfice, du passage de L2 à L1."
+			"Si n est trop petit, le rang requis k = ceil((n+1)(1-α)) dépasse n, forçant la prise du score maximum et l'inclusion de toutes les classes."
 	},
 	{
 		id: 'p6-syn-q13',
 		tags: ['p6/synthese'],
 		question:
-			'Quel est le principe commun aux trois cas (perte 0-1, L2, L1) traités dans la Partie VI ?',
+			"En régression, quel est l'ensemble de prédiction optimal (oracle) pour une couverture fixée 1-α ?",
 		options: [
-			'Le choix de la perte détermine seul le prédicteur optimal, via la même logique de minimisation ponctuelle du risque conditionnel : la perte 0-1 donne la classe majoritaire, L2 la moyenne conditionnelle, L1 la médiane conditionnelle.',
-			'Les trois pertes conduisent au même prédicteur optimal, la différence entre elles n\'affectant que la vitesse de convergence.',
-			'Chaque perte exige une hypothèse de régularité supplémentaire sur η, de plus en plus forte de la perte 0-1 à L1.',
-			"Le prédicteur optimal dépend de la taille de l'échantillon n, la perte ne jouant qu'un rôle secondaire."
+			'Un intervalle centré sur la moyenne',
+			"L'ensemble des points dont la densité conditionnelle f(y|x) est supérieure à un seuil (HDR)",
+			'Un intervalle de largeur constante',
+			"La valeur unique qui minimise l'erreur quadratique"
 		],
-		answerIndex: 0,
+		answerIndex: 1,
 		explanation:
-			"Cartouche « Retenir » de part6/lesson2 : « Le choix de la perte détermine seul le prédicteur optimal : L2 sélectionne la moyenne conditionnelle (sensible aux valeurs extrêmes), L1 sélectionne la médiane conditionnelle (robuste) », sur la même logique de minimisation ponctuelle du risque conditionnelle déjà vue au Théorème 1.1 pour la perte 0-1."
+			"L'oracle en régression est une région de densité maximale (Highest Density Region), qui minimise la largeur moyenne pour une masse de probabilité donnée."
 	},
 	{
 		id: 'p6-syn-q14',
 		tags: ['p6/synthese'],
-		question: 'Quelles sont les deux faces du risque irréductible, en classification et en régression ?',
+		question:
+			"Quand un intervalle de largeur constante est-il une approximation optimale de l'oracle en régression ?",
 		options: [
-			"En classification, R* = E[min(η(X), 1 - η(X))], le chevauchement des classes ; en régression, la variance conditionnelle E[(Y - m(x))² | X = x] espérée sur X : aucun prédicteur ne peut éliminer l'un ni l'autre.",
-			"En classification, R* = E[η(X)(1 - η(X))], le produit des deux probabilités ; en régression, la variance marginale Var(Y) de Y.",
-			"En classification, le terme d'approximation de la classe choisie ; en régression, le terme d'estimation de l'algorithme.",
-			'En classification, E[max(η(X), 1 - η(X))], la probabilité de prédire juste ; en régression, la moyenne conditionnelle m(x) elle-même.'
+			'Quand les données sont fortement hétéroscédastiques',
+			'Sous homoscédasticité (la variance des erreurs ne dépend pas de x)',
+			"Quand l'ensemble de calibration est très petit",
+			'Uniquement pour les modèles linéaires'
 		],
-		answerIndex: 0,
+		answerIndex: 1,
 		explanation:
-			"En classification, R* = E[min(η(X), 1 - η(X))] (part6/lesson1, section « Risque de Bayes et séparabilité ») ; en régression, la décomposition biais-variance conditionnelle (preuve du Théorème 1.2) identifie la variance résiduelle E[(Y - m(x))² | X = x] comme la part irréductible — un bruit qu'aucun prédicteur, aussi bon soit-il, ne peut éliminer (cartouche « Biais-variance, version conditionnelle »)."
+			"L'intervalle constant suppose que la marge d'erreur est la même partout. C'est optimal si la largeur de la région de densité maximale est constante (homoscédasticité)."
 	},
 	{
 		id: 'p6-syn-q15',
 		tags: ['p6/synthese'],
-		question:
-			"Quel « fil conducteur » la leçon part6/lesson2 identifie-t-elle comme reliant classification, régression, consistance et généralisation ?",
+		question: 'Quelle est la formule du score de conformité pour les intervalles adaptatifs ?',
 		options: [
-			"Conditionner sur X = x réduit un problème global à une minimisation ponctuelle du risque conditionnel en chaque point : cette logique de décomposition par conditionnement est le fil conducteur vers les leçons sur la consistance et la généralisation.",
-			'Le théorème central limite, qui justifie la normalité des estimateurs quand la dimension grandit.',
-			"La convexité de la perte, qui garantit l'existence d'un minimum global pour toute distribution.",
-			"L'hypothèse d'indépendance des observations, sans laquelle aucune des leçons suivantes ne tiendrait."
+			's(x, y) = |y - f(x)|',
+			's(x, y) = (y - f(x))^2',
+			's(x, y) = |y - f(x)| / (σ(x) + ε)',
+			's(x, y) = 1 - p_y(x)'
 		],
-		answerIndex: 0,
+		answerIndex: 2,
 		explanation:
-			"Cartouche « Retenir » de part6/lesson2 : « Cette logique — décomposer le risque par conditionnement, puis minimiser point par point — est le fil conducteur qui reliera aussi les leçons sur la consistance et la généralisation »."
+			"Le score adaptatif normalise l'erreur absolue par une estimation de l'incertitude locale σ(x), permettant des intervalles plus étroits là où le modèle est confiant."
+	},
+	{
+		id: 'p6-syn-q16',
+		tags: ['p6/synthese'],
+		question:
+			'Que signifie un score positif dans le cadre de la Régression Quantile Conforme (CQR) ?',
+		options: [
+			"L'observation y est à l'intérieur de l'intervalle estimé",
+			"L'observation y a dépassé les bornes de l'intervalle estimé",
+			'Le modèle est parfaitement calibré',
+			"L'incertitude locale est nulle"
+		],
+		answerIndex: 1,
+		explanation:
+			"En CQR, le score s(x, y) = max(q_lo(x) - y, y - q_hi(x)) est positif si y est hors de l'intervalle et négatif s'il est à l'intérieur."
+	},
+	{
+		id: 'p6-syn-q17',
+		tags: ['p6/synthese'],
+		question: "Quel est l'objectif principal de la Régression Quantile Conforme (CQR) ?",
+		options: [
+			'Remplacer la prédiction ponctuelle par une moyenne',
+			'Combiner la forme adaptative des quantiles appris avec une garantie de couverture exacte via calibration',
+			"Supprimer le besoin d'un ensemble de calibration",
+			'Réduire la variance du modèle en utilisant le bootstrap'
+		],
+		answerIndex: 1,
+		explanation:
+			"CQR utilise des régressions quantiles pour suivre l'hétéroscédasticité, puis applique un décalage uniforme Q calculé sur calibration pour garantir la couverture."
+	},
+	{
+		id: 'p6-syn-q18',
+		tags: ['p6/synthese'],
+		question:
+			"Quelle métrique permet de détecter si un système d'intervalles échoue dans certaines régions de l'espace d'entrée ?",
+		options: [
+			'Le taux de couverture empirique global',
+			'La largeur moyenne des intervalles',
+			"L'efficacité conditionnelle",
+			"L'erreur quadratique moyenne"
+		],
+		answerIndex: 2,
+		explanation:
+			"L'efficacité conditionnelle vérifie l'homogénéité de la couverture. Une bonne couverture marginale peut cacher des échecs locaux graves."
+	},
+	{
+		id: 'p6-syn-q19',
+		tags: ['p6/synthese'],
+		question:
+			"L'estimation de l'incertitude locale σ(x) peut être réalisée par laquelle de ces méthodes ?",
+		options: [
+			'Bootstrap et Bagging',
+			'Régression quantile',
+			'Réseaux bayésiens',
+			'Toutes les réponses précédentes'
+		],
+		answerIndex: 3,
+		explanation:
+			"Toutes ces méthodes permettent d'estimer la variabilité locale des prédictions pour construire des intervalles adaptatifs."
+	},
+	{
+		id: 'p6-syn-q20',
+		tags: ['p6/synthese'],
+		question:
+			"Quel est l'impact d'une augmentation de la taille de l'ensemble de calibration sur la précision des intervalles ?",
+		options: [
+			'Elle diminue la garantie de couverture',
+			'Elle rend les intervalles systématiquement plus larges',
+			'Elle stabilise le quantile q et rapproche la couverture empirique de la garantie théorique',
+			"Elle n'a aucun effet sur la largeur des intervalles"
+		],
+		answerIndex: 2,
+		explanation:
+			"Un ensemble de calibration plus grand réduit la variance de l'estimation du quantile q, rendant les intervalles plus stables et plus proches de l'optimalité théorique."
 	}
 ];

@@ -34,7 +34,7 @@
 		display: flex;
 		align-items: center;
 		justify-content: space-between;
-		padding: 0.375rem 0.75rem;
+		padding: 0.175rem 0.75rem;
 		border-radius: var(--radius-md);
 		color: var(--color-text-muted);
 		font-size: 0.875rem;

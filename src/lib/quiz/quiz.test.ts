@@ -35,14 +35,14 @@ describe('QUESTIONS (invariants)', () => {
 		}
 	});
 
-	it('part tags only reference parts 1..9', () => {
+	it('part tags only reference parts 1..10', () => {
 		for (const q of QUESTIONS) {
 			for (const t of q.tags) {
 				const m = /^p(\d+)/.exec(t);
 				if (m) {
 					const n = Number(m[1]);
 					expect(n, `bad part in tag "${t}" (${q.id})`).toBeGreaterThanOrEqual(1);
-					expect(n, `bad part in tag "${t}" (${q.id})`).toBeLessThanOrEqual(9);
+					expect(n, `bad part in tag "${t}" (${q.id})`).toBeLessThanOrEqual(10);
 				}
 			}
 		}

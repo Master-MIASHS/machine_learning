@@ -20,10 +20,10 @@
 	import Quiz from '$lib/components/narrative/Quiz.svelte';
 	import { getQuizQuestions } from '$lib/quiz';
 
-	const meta = getPageByPath('/part8/lesson4');
+	const meta = getPageByPath('/part9/lesson4');
 	const tracker = createPageTracker(meta as PageMeta);
 
-	const quiz = getQuizQuestions('p8/l4');
+	const quiz = getQuizQuestions('p9/l4');
 	const { prev: prevMeta, next: nextMeta } = $derived(
 		getAdjacentPages(meta?.path ?? '', $settings.expertMode)
 	);

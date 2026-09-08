@@ -1,4 +1,4 @@
-.dual-view {
+/*.dual-view {
 	display: flex;
 	gap: 1rem;
 	justify-content: center;
@@ -122,7 +122,7 @@
 
 /* Maze cell state annotations used in the legend */
 
-.legend-item {
+/*.legend-item {
 	display: flex;
 	align-items: center;
 	gap: 0.35rem;
@@ -133,4 +133,4 @@
 	height: 14px;
 	border-radius: 3px;
 	flex-shrink: 0;
-}
+}*/

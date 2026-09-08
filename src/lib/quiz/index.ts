@@ -6,7 +6,7 @@
 // taught in both Part I and Part II).
 //
 // Tag convention
-//   pN            -> part N (1..9)
+//   pN            -> part N (1..10)
 //   pN/lM         -> lesson M of part N
 //   pN/lM/<slug>  -> a section / fine topic inside the lesson
 //   pN/synthese   -> the part-N "synthèse" quiz

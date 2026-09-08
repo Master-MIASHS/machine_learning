@@ -706,8 +706,8 @@
 				Heureusement, il est possible d'y remédier grâce aux
 				<strong>méthodes ensemblistes</strong> — bagging, forêts aléatoires,
 				boosting — étudiées dans la
-				<a href={resolve('/part4/lesson1')}>Partie 4, leçon 1</a> (bagging) et la
-				<a href={resolve('/part4/lesson2')}>leçon 2</a> (forêts aléatoires).
+				<a href={resolve('/part5/lesson1')}>Partie 5, leçon 1</a> (bagging) et la
+				<a href={resolve('/part5/lesson2')}>leçon 2</a> (forêts aléatoires).
 			</p>
 		</Callout>
 

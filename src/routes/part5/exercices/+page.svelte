@@ -1,11 +1,10 @@
 <script lang="ts">
 	import PageTemplate from '$lib/components/layout/PageTemplate.svelte';
-	import TheorySection from '$lib/components/narrative/TheorySection.svelte';
 	import TableOfContents, { type TocEntry } from '$lib/components/narrative/TableOfContents.svelte';
+	import TheorySection from '$lib/components/narrative/TheorySection.svelte';
 	import ExercisePanel from '$lib/components/narrative/ExercisePanel.svelte';
 	import KatexInline from '$lib/components/narrative/KatexInline.svelte';
 	import KatexBlock from '$lib/components/narrative/KatexBlock.svelte';
-	import Callout from '$lib/components/narrative/Callout.svelte';
 	import { getPageByPath, getAdjacentPages } from '$lib/navigation.js';
 	import { settings } from '$lib/stores/index.js';
 
@@ -16,2105 +15,2419 @@
 
 	const tocEntries: TocEntry[] = [
 		{
-			id: 'classification-top-k-etalonnage',
-			label: 'Classification Top-K & Étalonnage',
-			description:
-				'Exercices 9.1 à 9.20 : Évaluation Top-K, ECE/MCE, Platt Scaling, régression isotonique et limites des métriques.',
+			id: 'aggregation-bagging',
+			label: 'Agrégation et Bagging',
+			description: "Variance d'un ensemble, vote majoritaire, BMA, Bootstrap, OOB",
 			color: 'epistemic'
 		},
 		{
-			id: 'prediction-conforme-classification',
-			label: 'Prédiction Conforme en Classification',
+			id: 'forets-aleatoires',
+			label: 'Forêts Aléatoires',
 			description:
-				'Exercices 10.1 à 10.20 : Échangeabilité, validité en échantillon fini, scores APS/SAPS et couverture conditionnelle.',
+				"Corrélation d'arbres, division optimale restreinte, Gini, importance des variables",
+			color: 'positive'
+		},
+		{
+			id: 'boosting',
+			label: 'Boosting',
+			description: 'AdaBoost, perte exponentielle, marges, GBDT, pseudo-résidus',
 			color: 'surprise'
 		},
 		{
-			id: 'prediction-conforme-regression',
-			label: 'Régression Conforme',
-			description:
-				'Exercices 11.1 à 11.20 : Intervalles constants et adaptatifs, CQR, bootstrap et métriques d’évaluation.',
+			id: 'regularisation',
+			label: 'Régularisation L1 & L2',
+			description: 'Biais-variance, Ridge, Lasso, Elastic Net, optimisation',
 			color: 'agent'
-		},
-		{
-			id: 'classification-average-k',
-			label: 'Classification Average-K (Conception)',
-			description:
-				'Exercices 12.1 à 12.5 : Optimisation de la taille moyenne contrainte, Lagrangien, règle de seuil et inversion de CDF.',
-			color: 'neutral'
 		}
 	];
+
+	// --- Math Formulas Variables for Clean Template Rendering ---
+	// Lesson 5
+	const f51 = String.raw`\text{Var}\left(\frac{1}{m}\sum_{j=1}^m \hat{y}_j(X)\right) = \frac{\sigma^2}{m}`;
+	const f52 = String.raw`\text{Var}(\hat{y}(X)) = \rho \sigma^2 + \frac{1-\rho}{m} \sigma^2`;
+	const f55 = String.raw`P\left(\sum_{j=1}^m \mathbb{I}(h_j(x) \neq y) \ge \frac{m}{2}\right) \le e^{-2m(1/2 - e)^2}`;
+
+	const f75 = String.raw`E_t \le \prod_{t=1}^T Z_t = \prod_{t=1}^T 2\sqrt{\epsilon_t(1 - \epsilon_t)}`;
+
+	// Lesson 8
+	const f81 = String.raw`\mathbb{E}[(y - \hat{f}(x))^2] = \text{Biais}(\hat{f}(x))^2 + \text{Var}(\hat{f}(x)) + \sigma^2`;
+	const f83 = String.raw`\hat{w}_{\text{Ridge}} = (X^\top X + n\lambda I)^{-1}X^\top y`;
+	const f85 = String.raw`S_{\gamma}(z) = \text{sign}(z)\max(|z| - \gamma, 0)`;
 </script>
 
 <svelte:head>
-	<title>{meta?.title ?? 'Feuille d’exercices — Partie V'} — Fondations de l'Apprentissage Statistique</title>
+	<title>{meta?.title ?? 'Exercices'} — Fondations de l'Apprentissage Statistique</title>
 </svelte:head>
 
 <PageTemplate
-	title={meta?.title ?? 'Feuille d’exercices — Partie V'}
-	subtitle="Exercices sur Top-K, étalonnage, prédiction conforme et intervalles de régression"
 	prev={prevMeta}
 	next={nextMeta}
+	title={meta?.title ?? 'Exercices — Boosting et régularisation'}
+	subtitle="Entraînement sur bagging, forêts aléatoires, boosting et régularisation L1/L2"
 >
 	<TheorySection>
 		<TableOfContents entries={tocEntries} />
 
-		<!-- ════════════════════════ SECTION 9 ════════════════════════ -->
-		<h2 id="classification-top-k-etalonnage">Classification Top-K & Étalonnage</h2>
+		<!-- ==========================================
+         SECTION 5: AGRÉGATION ET BAGGING
+         ========================================== -->
+		<h2 id="aggregation-bagging">Agrégation et Bagging</h2>
 		<p>
-			Cette première série d'exercices aborde les fondements théoriques de l'évaluation Top-K,
-			l'importance de l'étalonnage (calibration) des probabilités prédites, ainsi que les méthodes
-			d'ajustement classiques.
+			Cette section aborde la réduction de variance par combinaison de modèles, le vote majoritaire,
+			le bootstrap et le principe du Bagging.
 		</p>
 
-		<ExercisePanel number="9.1" title="Définition formelle de l'erreur Top-K">
+		<ExercisePanel number="5.1" title="Réduction théorique de la variance">
 			{#snippet solution()}
 				<p>
-					Par définition, la prédiction <KatexInline
-						formula={String.raw`\text{Top}_K(\hat{p}(x))`}
-					/> contient les indices des <KatexInline formula={String.raw`K`} /> plus grandes valeurs de
-					<KatexInline formula={String.raw`\hat{p}(x)`} />. L'indicateur d'erreur vaut <KatexInline
-						formula={String.raw`1`}
-					/> si la classe réelle <KatexInline formula={String.raw`y`} /> n'y figure pas, et <KatexInline
-						formula={String.raw`0`}
-					/> sinon. On peut donc l'écrire à l'aide des indicatrices de rang :
+					Puisque les estimateurs <KatexInline formula={String.raw`\hat{y}_j(X)`} /> sont supposés indépendants
+					et de même variance <KatexInline formula={String.raw`\sigma^2`} />, nous appliquons
+					directement les propriétés de la variance pour des variables indépendantes :
 				</p>
 				<KatexBlock
-					formula={String.raw`\mathbb{I}(y \notin \text{Top}_K(\hat{p}(x))) = \mathbb{I}\left( \sum_{c=1}^C \mathbb{I}(\hat{p}_c(x) \ge \hat{p}_y(x)) > K \right)`}
+					formula={String.raw`\text{Var}(\hat{y}_{\text{agg}}(X)) = \text{Var}\left(\frac{1}{m}\sum_{j=1}^m \hat{y}_j(X)\right) = \frac{1}{m^2} \sum_{j=1}^m \text{Var}(\hat{y}_j(X)) = \frac{1}{m^2} (m\sigma^2) = \frac{\sigma^2}{m}`}
 				/>
 				<p>
-					Cette formulation montre clairement que l'erreur se produit lorsque le nombre de classes
-					jugées plus probables que la classe réelle surpasse <KatexInline
-						formula={String.raw`K`}
-					/>.
+					La variance de l'agrégat décroît donc de manière strictement linéaire avec le nombre de
+					modèles <KatexInline formula={String.raw`m`} />.
 				</p>
 			{/snippet}
 			<p>
-				Formulez mathématiquement l'indicateur d'erreur d'une prédiction <KatexInline
-					formula={String.raw`\text{Top}_K`}
-				/> pour une observation <KatexInline formula={String.raw`(x, y)`} /> en utilisant uniquement des
-				fonctions indicatrices sur le vecteur de probabilités estimées <KatexInline
-					formula={String.raw`\hat{p}(x)`}
+				Démontrez la formule <KatexInline formula={f51} /> pour un ensemble de <KatexInline
+					formula={String.raw`m`}
+				/> prédicteurs non biaisés, indépendants et de même variance <KatexInline
+					formula={String.raw`\sigma^2`}
 				/>.
 			</p>
 		</ExercisePanel>
 
-		<ExercisePanel number="9.2" title="L'Oracle Top-K bayésien">
+		<ExercisePanel number="5.2" title="Agrégation avec erreurs corrélées">
 			{#snippet solution()}
-				<p>
-					Le classifieur optimal (l'oracle) cherche à maximiser la probabilité de couverture <KatexInline
-						formula={String.raw`\mathbb{P}(Y \in S(X))`}
-					/> sous la contrainte <KatexInline formula={String.raw`|S(x)| \le K`} /> pour tout <KatexInline
-						formula={String.raw`x`}
-					/>. En décomposant par espérance conditionnelle :
-				</p>
+				<p>En développant la variance d'une somme de variables aléatoires corrélées :</p>
 				<KatexBlock
-					formula={String.raw`\mathbb{P}(Y \in S(X)) = \mathbb{E}_X \left[ \sum_{c \in S(X)} \eta_c(X) \right]`}
+					formula={String.raw`\text{Var}\left(\frac{1}{m}\sum_j \hat{y}_j\right) = \frac{1}{m^2} \left[ \sum_j \text{Var}(\hat{y}_j) + \sum_{j \neq k} \text{Cov}(\hat{y}_j, \hat{y}_k) \right]`}
 				/>
 				<p>
-					Pour maximiser cette somme point par point sous la contrainte de cardinal maximal <KatexInline
-						formula={String.raw`K`}
-					/>, la stratégie gloutonne est optimale : il faut choisir les <KatexInline
-						formula={String.raw`K`}
-					/> classes possédant les plus grandes probabilités a posteriori <KatexInline
-						formula={String.raw`\eta_c(x)`}
-					/>. Ainsi, <KatexInline formula={String.raw`S^*(x) = \text{Top}_K(\eta(x))`} />.
-				</p>
-			{/snippet}
-			<p>
-				Démontrez que le classifieur d'ensemble optimal (au sens du risque d'erreur minimal) sous la
-				contrainte que la taille de l'ensemble de prédiction <KatexInline
-					formula={String.raw`S(x)`}
-				/> soit exactement <KatexInline formula={String.raw`K`} /> est donné par l'oracle <KatexInline
-					formula={String.raw`S^*(x) = \text{Top}_K(\eta(x))`}
-				/>, où <KatexInline formula={String.raw`\eta_c(x) = \mathbb{P}(Y=c|X=x)`} />.
-			</p>
-		</ExercisePanel>
-
-		<ExercisePanel number="9.3" title="Calcul numérique du risque conditionnel Top-2">
-			{#snippet solution()}
-				<p>
-					L'oracle Top-2 sélectionne les deux classes ayant les probabilités les plus élevées : <KatexInline
-						formula={String.raw`S^*(x) = \{1, 2\}`}
-					/>. La probabilité conditionnelle que la classe réelle appartienne à cet ensemble est :
+					Puisque <KatexInline formula={String.raw`\text{Var}(\hat{y}_j) = \sigma^2`} /> et que la corrélation
+					est <KatexInline
+						formula={String.raw`\rho = \text{Cov}(\hat{y}_j, \hat{y}_k)/\sigma^2`}
+					/>, nous avons <KatexInline
+						formula={String.raw`\text{Cov}(\hat{y}_j, \hat{y}_k) = \rho\sigma^2`}
+					/>. Le nombre de termes croisés dans la double somme est <KatexInline
+						formula={String.raw`m(m-1)`}
+					/>. Ainsi :
 				</p>
 				<KatexBlock
-					formula={String.raw`\mathbb{P}(Y \in S^*(x) \mid X=x) = \eta_1(x) + \eta_2(x) = 0.50 + 0.30 = 0.80`}
+					formula={String.raw`\text{Var}(\hat{y}(X)) = \frac{1}{m^2} \left[ m\sigma^2 + m(m-1)\rho\sigma^2 \right] = \frac{\sigma^2}{m} + \frac{m-1}{m}\rho\sigma^2 = \rho\sigma^2 + \frac{1-\rho}{m}\sigma^2`}
 				/>
-				<p>
-					Le risque conditionnel Top-2 est le complément à 1 : <KatexInline
-						formula={String.raw`1 - 0.80 = 0.20`}
-					/> (soit 20%).
-				</p>
 			{/snippet}
 			<p>
-				Soit un problème à 4 classes avec <KatexInline
-					formula={String.raw`\eta(x) = (0.50, 0.30, 0.15, 0.05)`}
-				/>. Déterminez l'ensemble oracle Top-2 <KatexInline formula={String.raw`S^*(x)`} /> et calculez
-				le risque conditionnel associé.
+				Soit <KatexInline formula={String.raw`m`} /> prédicteurs de variance identique <KatexInline
+					formula={String.raw`\sigma^2`}
+				/> mais corrélés entre eux d'un facteur constant <KatexInline
+					formula={String.raw`\rho \in (0, 1)`}
+				/>. Établissez la formule :
+				<KatexBlock formula={f52} />
 			</p>
 		</ExercisePanel>
 
-		<ExercisePanel number="9.4" title="Croissance monotone de l'exactitude Top-K">
+		<ExercisePanel number="5.3" title="Limite asymptotique d'agrégation">
 			{#snippet solution()}
 				<p>
-					Par définition, pour tout vecteur de probabilités <KatexInline
-						formula={String.raw`\hat{p}(x)`}
-					/>, les ensembles Top-K sont emboîtés :
+					En prenant la limite quand <KatexInline formula={String.raw`m \to \infty`} /> dans la formule
+					de l'exercice précédent :
 				</p>
 				<KatexBlock
-					formula={String.raw`\text{Top}_K(\hat{p}(x)) \subseteq \text{Top}_{K+1}(\hat{p}(x))`}
+					formula={String.raw`\lim_{m \to \infty} \left( \rho \sigma^2 + \frac{1-\rho}{m} \sigma^2 \right) = \rho \sigma^2 + 0 = \rho \sigma^2`}
 				/>
 				<p>
-					Il s'ensuit que pour toute étiquette réelle <KatexInline formula={String.raw`y`} />, si <KatexInline
-						formula={String.raw`y \in \text{Top}_K(\hat{p}(x))`}
-					/>, alors <KatexInline formula={String.raw`y \in \text{Top}_{K+1}(\hat{p}(x))`} />. En
-					prenant l'espérance, on obtient directement <KatexInline
-						formula={String.raw`\text{Acc@}K \le \text{Acc@}(K+1)`}
-					/>.
+					<strong>Interprétation :</strong> Même avec une infinité de modèles agrégés, la variance
+					ne peut pas descendre en dessous du seuil <KatexInline
+						formula={String.raw`\rho\sigma^2`}
+					/>. C'est la raison pour laquelle le Bagging cherche à construire des arbres les plus
+					décorrélés possibles (ce qui sera maximisé par les Forêts Aléatoires).
 				</p>
 			{/snippet}
 			<p>
-				Démontrez que l'exactitude Top-K (<KatexInline formula={String.raw`\text{Acc@}K`} />) est
-				une fonction mathématiquement non-décroissante de <KatexInline formula={String.raw`K`} /> pour
-				tout <KatexInline formula={String.raw`K \in \{1, \dots, C-1\}`} />.
+				En utilisant le résultat de l'exercice 5.2, calculez la limite de la variance de l'ensemble
+				lorsque <KatexInline formula={String.raw`m \to \infty`} /> et interprétez physiquement le rôle
+				de la corrélation <KatexInline formula={String.raw`\rho`} />.
 			</p>
 		</ExercisePanel>
 
-		<ExercisePanel number="9.5" title="Cas limite de l'exactitude Top-C">
+		<ExercisePanel number="5.4" title="Probabilité de succès du vote majoritaire">
 			{#snippet solution()}
 				<p>
-					Puisque l'espace des étiquettes <KatexInline formula={String.raw`\mathcal{Y}`} /> contient exactement
-					<KatexInline formula={String.raw`C`} /> classes, nous avons <KatexInline
-						formula={String.raw`\text{Top}_C(\hat{p}(x)) = \mathcal{Y}`}
-					/> pour tout <KatexInline formula={String.raw`x`} />. Ainsi, la classe réelle <KatexInline
-						formula={String.raw`y`}
-					/> appartient trivialement à <KatexInline
-						formula={String.raw`\text{Top}_C(\hat{p}(x))`}
-					/> avec une probabilité de 1. L'exactitude <KatexInline
-						formula={String.raw`\text{Acc@}C`}
-					/> est donc toujours égale à 100%, indépendamment de la qualité ou de la calibration du modèle.
+					Soit <KatexInline formula={String.raw`Y_j = \mathbb{I}(h_j(x) = y)`} /> la variable indiquant
+					si le classifieur <KatexInline formula={String.raw`j`} /> est correct. <KatexInline
+						formula={String.raw`Y_j \sim \mathcal{B}(1-e)`}
+					/> avec <KatexInline formula={String.raw`1-e = 0.65`} />. Le vote majoritaire de <KatexInline
+						formula={String.raw`m=3`}
+					/> classifieurs est correct si au moins <KatexInline formula={String.raw`2`} /> d'entre eux
+					prennent la bonne décision. La probabilité de succès est :
+				</p>
+				<KatexBlock
+					formula={String.raw`P(S \ge 2) = \binom{3}{2} (0.65)^2 (0.35)^1 + \binom{3}{3} (0.65)^3 = 3 \times 0.4225 \times 0.35 + 0.274625 = 0.443625 + 0.274625 = 0.71825`}
+				/>
+				<p>
+					La probabilité d'erreur de l'ensemble est donc <KatexInline
+						formula={String.raw`1 - 0.71825 = 0.28175`}
+					/> (soit <KatexInline formula={String.raw`28.18\%`} />), ce qui est inférieur à l'erreur
+					individuelle de <KatexInline formula={String.raw`35\%`} />.
 				</p>
 			{/snippet}
 			<p>
-				Expliquez pourquoi <KatexInline formula={String.raw`\text{Acc@}C`} /> (où <KatexInline
-					formula={String.raw`C`}
-				/> est le nombre total de classes) est trivialement égale à 1, quel que soit le modèle ou la distribution
-				de données.
+				On dispose de <KatexInline formula={String.raw`m = 3`} /> classifieurs binaires indépendants ayant
+				chacun un taux d'erreur de <KatexInline formula={String.raw`e = 0.35`} />. Calculez la
+				probabilité exacte que le vote majoritaire commette une erreur.
 			</p>
 		</ExercisePanel>
 
-		<ExercisePanel number="9.6" title="L'exactitude Top-1 minore-t-elle l'exactitude Top-K ?">
+		<ExercisePanel number="5.5" title="Borne de Hoeffding pour le vote majoritaire">
 			{#snippet solution()}
 				<p>
-					<strong>Non.</strong> Contre-exemple : <KatexInline formula={String.raw`C = 2`} /> classes,
-					<KatexInline formula={String.raw`\hat{p}(x) = (0.4,\ 0.6)`} />, et <KatexInline formula="Y" />
-					presque sûrement la classe de probabilité <KatexInline formula="0.4" />. Alors
-					<KatexInline formula={String.raw`\text{Top}_1(\hat{p}(x))`} /> renvoie la classe de
-					probabilité <KatexInline formula="0.6" />, donc <KatexInline
-						formula={String.raw`\text{Acc@}1 = 0`}
-					/>, tandis que <KatexInline formula={String.raw`\text{Acc@}2 = 1`} /> (toutes les classes
-					sont incluses). L'inégalité demandée donnerait <KatexInline
-						formula={String.raw`0 \ge \frac{1}{2}`}
-					/>, manifestement faux.
+					Notons <KatexInline formula={String.raw`X_j = \mathbb{I}(h_j(x) \neq y)`} /> avec <KatexInline
+						formula={String.raw`\mathbb{E}[X_j] = e < 0.5`}
+					/>. L'erreur majoritaire survient si <KatexInline
+						formula={String.raw`\frac{1}{m}\sum X_j \ge \frac{1}{2}`}
+					/>. En écrivant cela sous forme de déviation par rapport à la moyenne :
 				</p>
+				<KatexBlock
+					formula={String.raw`P\left(\frac{1}{m}\sum_{j=1}^m X_j - e \ge \frac{1}{2} - e\right) \le \exp\left(-2m\left(\frac{1}{2} - e\right)^2\right)`}
+				/>
 				<p>
-					La seule relation générale est la monotonie
+					Puisque <KatexInline formula={String.raw`e < 0.5`} />, le terme <KatexInline
+						formula={String.raw`1/2 - e`}
+					/> est strictement positif, assurant que la probabilité d'erreur décroît exponentiellement vers
+					0 à mesure que <KatexInline formula={String.raw`m \to \infty`} />.
+				</p>
+			{/snippet}
+			<p>
+				Soit <KatexInline formula={String.raw`m`} /> classifieurs indépendants ayant le même taux d'erreur
+				<KatexInline formula={String.raw`e < 0.5`} />. En utilisant l'inégalité de Hoeffding,
+				démontrez la borne <KatexInline formula={f55} />.
+			</p>
+		</ExercisePanel>
+
+		<ExercisePanel number="5.6" title="BMA : Calcul de probabilité a posteriori">
+			{#snippet solution()}
+				<p>
+					Par le théorème de Bayes, la probabilité a posteriori de chaque modèle est proportionnelle
+					à sa vraisemblance multipliée par sa probabilité a priori :
+				</p>
+				<KatexBlock
+					formula={String.raw`P(\mathcal{M}_1 | S_n) = \frac{P(S_n | \mathcal{M}_1) P(\mathcal{M}_1)}{P(S_n | \mathcal{M}_1) P(\mathcal{M}_1) + P(S_n | \mathcal{M}_2) P(\mathcal{M}_2)}`}
+				/>
+				<p>
+					Puisque <KatexInline formula={String.raw`P(\mathcal{M}_1) = P(\mathcal{M}_2) = 0.5`} />,
+					ces poids a priori s'annulent :
+				</p>
+				<KatexBlock
+					formula={String.raw`P(\mathcal{M}_1 | S_n) = \frac{0.08}{0.08 + 0.02} = 0.8 \qquad \text{et} \qquad P(\mathcal{M}_2 | S_n) = 0.2`}
+				/>
+				<p>
+					La prédiction finale par BMA est donc :
 					<KatexInline
-						formula={String.raw`\text{Acc@}1 \le \text{Acc@}K \le \dots \le \text{Acc@}C = 1`}
-					/>
-					, qui découle directement du fait que
-					<KatexInline
-						formula={String.raw`\text{Top}_K(\hat{p}(x)) \supseteq \text{Top}_1(\hat{p}(x))`}
-					/>
-					pour tout <KatexInline formula="x" />.
-				</p>
-			{/snippet}
-			<p>
-				L'inégalité <KatexInline formula={String.raw`\text{Acc@}1 \ge \frac{1}{K} \text{Acc@}K`} /> est-elle
-				toujours vraie ? Répondez par oui ou par non et justifiez ; si non, donnez un contre-exemple.
-			</p>
-		</ExercisePanel>
-
-		<ExercisePanel number="9.7" title="Étalonnage fort vs étalonnage faible">
-			{#snippet solution()}
-				<p>
-					Un classifieur est <strong>fortement étalonné</strong> si <KatexInline
-						formula={String.raw`\mathbb{P}(Y=c \mid \hat{p}(X) = p) = p_c`}
-					/> pour tout vecteur de probabilité <KatexInline formula={String.raw`p`} />. Il est
-					<strong>faiblement étalonné</strong> (au sens du Top-1) si la confiance associée à sa prédiction
-					maximale correspond à sa probabilité d'être correcte :
-				</p>
-				<KatexBlock
-					formula={String.raw`\mathbb{P}(Y = \hat{y}(X) \mid \max_c \hat{p}_c(X) = \tau) = \tau`}
-				/>
-				<p>
-					L'étalonnage fort implique l'étalonnage faible par sommation sur les fibres de la
-					prédiction. La réciproque est fausse, car l'étalonnage faible ne garantit pas la validité
-					des probabilités affectées aux classes non majoritaires.
-				</p>
-			{/snippet}
-			<p>
-				Définissez formellement la différence entre l'étalonnage fort (multiclasse) et l'étalonnage
-				faible (concentré sur la classe prédite majoritaire). L'un implique-t-il l'autre ?
-			</p>
-		</ExercisePanel>
-
-		<ExercisePanel number="9.8" title="Calcul de l'ECE (Expected Calibration Error)">
-			{#snippet solution()}
-				<p>
-					La formule de l'ECE est la moyenne pondérée des écarts absolus entre confiance et
-					exactitude :
-				</p>
-				<KatexBlock
-					formula={String.raw`\text{ECE} = \sum_{b=1}^B \frac{|B_b|}{N} \left| \text{acc}(B_b) - \text{conf}(B_b) \right|`}
-				/>
-				<p>Appliquons-la au tableau :</p>
-				<ul>
-					<li>
-						Bin 1 : <KatexInline
-							formula={String.raw`\frac{100}{1000} \cdot |0.35 - 0.30| = 0.1 \cdot 0.05 = 0.005`}
-						/>
-					</li>
-					<li>
-						Bin 2 : <KatexInline
-							formula={String.raw`\frac{500}{1000} \cdot |0.55 - 0.60| = 0.5 \cdot 0.05 = 0.025`}
-						/>
-					</li>
-					<li>
-						Bin 3 : <KatexInline
-							formula={String.raw`\frac{400}{1000} \cdot |0.85 - 0.80| = 0.4 \cdot 0.05 = 0.020`}
-						/>
-					</li>
-				</ul>
-				<p>
-					En sommant, <KatexInline formula={String.raw`ECE = 0.005 + 0.025 + 0.020 = 0.050`} /> (soit
-					5.0%).
-				</p>
-			{/snippet}
-			<p>
-				Soit un échantillon de validation de <KatexInline formula={String.raw`N = 1000`} /> points répartis
-				en 3 bins d'étalonnage :
-			</p>
-			<table class="w-full text-center border my-2">
-				<thead>
-					<tr class="bg-muted"
-						><th>Bin</th><th>Nombre de points</th><th>Exactitude</th><th>Confiance moyenne</th></tr
-					>
-				</thead>
-				<tbody>
-					<tr><td>1</td><td>100</td><td>35%</td><td>30%</td></tr>
-					<tr><td>2</td><td>500</td><td>55%</td><td>60%</td></tr>
-					<tr><td>3</td><td>400</td><td>85%</td><td>80%</td></tr>
-				</tbody>
-			</table>
-			<p>Calculez l'ECE de ce modèle.</p>
-		</ExercisePanel>
-
-		<ExercisePanel number="9.9" title="Maximum Calibration Error (MCE)">
-			{#snippet solution()}
-				<p>La MCE se concentre sur le pire écart observé à l'échelle des bins d'étalonnage :</p>
-				<KatexBlock
-					formula={String.raw`\text{MCE} = \max_{b \in \{1,\dots,B\}} \left| \text{acc}(B_b) - \text{conf}(B_b) \right|`}
-				/>
-				<p>
-					Pour l'exercice précédent, les écarts absolus par bin sont tous de 5% (<KatexInline
-						formula={String.raw`0.05`}
-					/>). La MCE vaut donc <KatexInline formula={String.raw`0.05`} /> (5.0%). La MCE est très utile
-					dans les applications critiques (médecine, conduite autonome) où l'on veut garantir qu'aucune
-					sous-population (définie par une tranche de confiance) ne subit une erreur d'étalonnage disproportionnée.
-				</p>
-			{/snippet}
-			<p>
-				Définissez la métrique de la MCE (Maximum Calibration Error), calculez-la sur les données de
-				l'exercice 9.8 et expliquez sa pertinence par rapport à l'ECE dans les cas d'usage à haute
-				sécurité.
-			</p>
-		</ExercisePanel>
-
-		<ExercisePanel number="9.10" title="Propriété de préservation du Temperature Scaling">
-			{#snippet solution()}
-				<p>
-					Soit <KatexInline formula={String.raw`z_i(x)`} /> les logits d'entrée. Le modèle étalonné par
-					température calcule :
-				</p>
-				<KatexBlock
-					formula={String.raw`\hat{p}_i(x; T) = \frac{\exp(z_i(x) / T)}{\sum_j \exp(z_j(x) / T)}`}
-				/>
-				<p>
-					Puisque la fonction exponentielle et la division par un scalaire positif <KatexInline
-						formula={String.raw`T > 0`}
-					/> sont des transformations strictement croissantes, nous avons :
-				</p>
-				<KatexBlock
-					formula={String.raw`z_a(x) > z_b(x) \iff \frac{z_a(x)}{T} > \frac{z_b(x)}{T} \iff \exp\left(\frac{z_a(x)}{T}\right) > \exp\left(\frac{z_b(x)}{T}\right)`}
-				/>
-				<p>
-					Par conséquent, l'ordre des probabilités après softmax reste strictement inchangé. Les
-					ensembles Top-K et la classe prédite majoritaire (Top-1) sont rigoureusement identiques
-					pour toutes les valeurs de <KatexInline formula={String.raw`T > 0`} />.
-				</p>
-			{/snippet}
-			<p>
-				Démontrez algébriquement que la méthode de recalibration par température (Temperature
-				Scaling), qui consiste à diviser tous les logits par un scalaire <KatexInline
-					formula={String.raw`T > 0`}
-				/> avant d'appliquer la fonction softmax, ne modifie pas la prédiction Top-1 ni le classement
-				relatif des classes (Top-K).
-			</p>
-		</ExercisePanel>
-
-		<ExercisePanel number="9.11" title="Platt Scaling sous forme de régression logistique">
-			{#snippet solution()}
-				<p>
-					La méthode historique de Platt s'applique aux sorties brutes <KatexInline
-						formula={String.raw`f(x)`}
-					/> d'un SVM. Elle modélise la probabilité calibrée par une sigmoïde :
-				</p>
-				<KatexBlock
-					formula={String.raw`\hat{P}(Y=1 \mid f(x)) = \sigma(A f(x) + B) = \frac{1}{1 + \exp(-(A f(x) + B))}`}
-				/>
-				<p>
-					Les paramètres <KatexInline formula={String.raw`A`} /> et <KatexInline
-						formula={String.raw`B`}
-					/> sont trouvés en minimisant la perte d'entropie croisée binaire sur un ensemble de calibration
-					indépendant <KatexInline formula={String.raw`\mathcal{D}_{\text{cal}}`} /> :
-				</p>
-				<KatexBlock
-					formula={String.raw`\min_{A, B} -\sum_{i \in \mathcal{D}_{\text{cal}}} \left[ y_i \log \sigma(A f(x_i) + B) + (1-y_i) \log(1 - \sigma(A f(x_i) + B)) \right]`}
-				/>
-			{/snippet}
-			<p>
-				Présentez la formulation mathématique du Platt Scaling pour le cas binaire et explicitez
-				l'objectif d'optimisation sous-jacent (fonction de perte et jeu de données utilisé).
-			</p>
-		</ExercisePanel>
-
-		<ExercisePanel number="9.12" title="Généralisations multiclasses : Vector vs Matrix Scaling">
-			{#snippet solution()}
-				<p>
-					En multiclasse, le Platt Scaling se généralise aux logits <KatexInline
-						formula={String.raw`z(x)`}
+						formula={String.raw`y_{\text{BMA}} = 0.8 \times 12 + 0.2 \times 15 = 9.6 + 3.0 = 12.6`}
 					/>.
 				</p>
-				<ul>
-					<li>
-						<strong>Vector Scaling :</strong> Applique un facteur d'échelle et un biais distincts
-						par classe : <KatexInline formula={String.raw`W`} /> est diagonale. Le nombre de paramètres
-						à estimer est de <KatexInline formula={String.raw`2C`} />.
-					</li>
-					<li>
-						<strong>Matrix Scaling :</strong> Permet des interactions linéaires entre toutes les
-						classes : <KatexInline formula={String.raw`W`} /> est une matrice pleine. Le nombre de paramètres
-						est de <KatexInline formula={String.raw`C^2 + C`} />.
-					</li>
-				</ul>
-				<p>
-					Le Matrix Scaling présente un risque de surapprentissage (overfitting) très élevé dès que
-					le nombre de classes <KatexInline formula={String.raw`C`} /> grandit, contrairement au Vector
-					Scaling ou au Temperature Scaling (qui ne possède qu'un unique paramètre <KatexInline
-						formula={String.raw`T`}
-					/>).
-				</p>
 			{/snippet}
 			<p>
-				Comparez les méthodes de recalibration multiclasses <em>Vector Scaling</em> et
-				<em>Matrix Scaling</em>
-				(définies par la transformation linéaire des logits <KatexInline
-					formula={String.raw`W z(x) + b`}
-				/>) en termes de nombre de paramètres libres et de risques de surapprentissage.
+				Dans un cadre de Bayesian Model Averaging (BMA), on considère deux modèles <KatexInline
+					formula={String.raw`\mathcal{M}_1`}
+				/> et <KatexInline formula={String.raw`\mathcal{M}_2`} /> équiprobables a priori. Leurs vraisemblances
+				pour les données observées sont <KatexInline
+					formula={String.raw`P(S_n|\mathcal{M}_1) = 0.08`}
+				/> et <KatexInline formula={String.raw`P(S_n|\mathcal{M}_2) = 0.02`} />. Leurs prédictions
+				pour un point donné sont <KatexInline formula={String.raw`12`} /> et <KatexInline
+					formula={String.raw`15`}
+				/>. Calculez les poids a posteriori des modèles ainsi que la prédiction BMA finale.
 			</p>
 		</ExercisePanel>
 
-		<ExercisePanel number="9.13" title="Calibration non paramétrique : Histogram Binning">
+		<ExercisePanel number="5.7" title="Stabilité numérique du BMA par Log-Sum-Exp">
 			{#snippet solution()}
 				<p>
-					L'intervalle de confiance considéré <KatexInline formula={String.raw`[0.4, 0.6[`} /> constitue
-					un bin unique. Durant la calibration, <KatexInline formula={String.raw`40`} /> échantillons
-					y sont tombés. La probabilité révisée pour ce bin est estimée par la fréquence empirique des
-					exemples positifs :
+					Les vraisemblances <KatexInline formula={String.raw`P(S_n|\mathcal{M}_j)`} /> sont souvent extrêmement
+					proches de 0 sur de grands échantillons, ce qui provoque un "underflow" numérique (arrondi à
+					0 par la machine). En passant en échelle logarithmique :
 				</p>
 				<KatexBlock
-					formula={String.raw`\hat{\theta} = \frac{\sum_{i \in B} y_i}{|B|} = \frac{10}{10 + 30} = 0.25`}
+					formula={String.raw`\log P(\mathcal{M}_j|S_n) = \log P(S_n|\mathcal{M}_j) + \log P(\mathcal{M}_j) - \log \sum_k e^{\log P(S_n|\mathcal{M}_k) + \log P(\mathcal{M}_k)}`}
 				/>
 				<p>
-					Tout nouvel exemple pour lequel la prédiction initiale du modèle tombe dans l'intervalle <KatexInline
-						formula={String.raw`[0.4, 0.6[`}
-					/> se verra attribuer la probabilité recalibrée finale de <KatexInline
-						formula={String.raw`0.25`}
-					/> (25%).
+					Le calcul du dénominateur se fait via la fonction stable <KatexInline
+						formula={String.raw`\text{logsumexp}(x_1, \ldots, x_M) = x_{\max} + \log \sum e^{x_i - x_{\max}}`}
+					/>, évitant ainsi tout dépassement de capacité numérique.
 				</p>
 			{/snippet}
 			<p>
-				Dans un schéma d'Histogram Binning à 5 classes de confiance de largeur égale, un bin couvre
-				la plage <KatexInline formula={String.raw`[0.4, 0.6[`} />. Pendant la calibration, 40 points
-				de données tombent dans ce bin, parmi lesquels 10 appartiennent à la classe positive. Quelle
-				probabilité calibrée sera attribuée à un point de test dont le score initial est de 0.52 ?
+				Pourquoi est-il crucial, lors de l'implémentation pratique du BMA, de calculer les poids via
+				l'opérateur logarithmique <KatexInline formula={String.raw`\text{logsumexp}`} /> ? Formulez l'expression
+				mathématique de ce calcul stabilisé.
 			</p>
 		</ExercisePanel>
 
-		<ExercisePanel number="9.14" title="Optimisation par Régression Isotonique">
-			{#snippet solution()}
-				<p>La régression isotonique cherche à résoudre le problème d'optimisation suivant :</p>
-				<KatexBlock
-					formula={String.raw`\min_{g} \sum_{i \in \mathcal{D}_{\text{cal}}} (g(\hat{p}_i) - y_i)^2 \quad \text{s.t.} \quad g(a) \le g(b) \text{ pour tout } a \le b`}
-				/>
-				<p>
-					L'algorithme de référence est le <strong>Pool Adjacent Violators (PAV)</strong>.
-					Contrairement à l'Histogram Binning, elle ne requiert pas de fixer arbitrairement le
-					nombre ou les bornes des bins : elle ajuste automatiquement des paliers constants en
-					fusionnant les régions qui violent la contrainte de monotonie.
-				</p>
-			{/snippet}
-			<p>
-				Formulez le problème mathématique de la régression isotonique pour la calibration et
-				décrivez brièvement le rôle de l'algorithme PAV (Pool Adjacent Violators).
-			</p>
-		</ExercisePanel>
-
-		<ExercisePanel number="9.15" title="ECE vs Perte Logarithmique">
+		<ExercisePanel number="5.8" title="Bootstrap : Probabilité théorique d'inclusion">
 			{#snippet solution()}
 				<p>
-					Considérons un problème binaire avec une probabilité a posteriori vraie <KatexInline
-						formula={String.raw`\eta(x) = 0.5`}
-					/> pour tous les points d'une population.
-				</p>
-				<ul>
-					<li>
-						<strong>Modèle A :</strong> Prédit constamment <KatexInline
-							formula={String.raw`0.5`}
-						/>. Son exactitude est de 50%, sa confiance est de 50%. Son ECE est de 0.
-					</li>
-					<li>
-						<strong>Modèle B :</strong> Prédit <KatexInline formula={String.raw`0.9`} /> pour la moitié
-						des points et <KatexInline formula={String.raw`0.1`} /> pour l'autre moitié. Son exactitude
-						moyenne est aussi de 50% mais sa confiance est de 90%. Son ECE est très élevé (<KatexInline
-							formula={String.raw`0.4`}
-						/>).
-					</li>
-				</ul>
-				<p>
-					Le modèle A est parfaitement calibré (ECE = 0) mais inutile pour discriminer
-					individuellement les points. La perte de Cross-Entropy pénalise le manque de discernement
-					et favorise les probabilités proches de 0 ou 1 si les données sont séparables, tandis que
-					l'ECE ne mesure que la cohérence statistique des groupes.
-				</p>
-			{/snippet}
-			<p>
-				Donnez un exemple théorique de classifieur qui présente une ECE égale à 0 (calibration
-				parfaite) mais qui s'avère totalement inutile en pratique pour trier les instances de
-				manière sélective. Comparez l'objectif de l'ECE et de la Cross-Entropy.
-			</p>
-		</ExercisePanel>
-
-		<ExercisePanel number="9.16" title="Biais statistique de l'estimateur de l'ECE">
-			{#snippet solution()}
-				<p>
-					L'estimateur standard de l'ECE utilise un partitionnement en bins fixes. À cause de la
-					présence de la valeur absolue dans le calcul de la différence entre exactitude et
-					confiance :
-				</p>
-				<KatexBlock
-					formula={String.raw`\mathbb{E}\left[ \left| \text{acc}(B_b) - \text{conf}(B_b) \right| \right] \ge \left| \mathbb{E}[\text{acc}(B_b)] - \mathbb{E}[\text{conf}(B_b)] \right|`}
-				/>
-				<p>
-					Même si le modèle sous-jacent est parfaitement calibré, les fluctuations d'échantillonnage
-					au sein de chaque bin (surtout si le nombre de points par bin est petit) produisent des
-					écarts empiriques non nuls qui s'additionnent de manière positive. L'estimateur de l'ECE
-					classique est donc systématiquement <strong>biaisé vers le haut</strong>.
-				</p>
-			{/snippet}
-			<p>
-				Expliquez pourquoi l'estimateur empirique classique de l'ECE, calculé à partir d'un nombre
-				fini de bins et d'échantillons, est un estimateur biaisé (et déterminez le sens du biais).
-			</p>
-		</ExercisePanel>
-
-		<ExercisePanel number="9.17" title="Top-K Softmax pour l'entraînement">
-			{#snippet solution()}
-				<p>
-					Pendant l'entraînement standard par Cross-Entropy, le gradient pousse à maximiser la
-					probabilité de la bonne classe par rapport à <em>toutes</em> les autres classes. Dans un
-					objectif Top-K Softmax (par exemple avec la perte de charnière de classement), le gradient
-					ne pénalise la probabilité de la bonne classe que si celle-ci ne se trouve pas dans les <KatexInline
-						formula={String.raw`K`}
-					/> scores les plus élevés. Cela permet au modèle de ne pas forcer la séparation des classes
-					complexes tant qu'elles restent dans le peloton de tête, augmentant ainsi la flexibilité de
-					la frontière de décision au détriment de l'exactitude Top-1.
-				</p>
-			{/snippet}
-			<p>
-				Comment l'utilisation d'une fonction de perte ciblant directement la performance Top-K lors
-				de l'entraînement (comme la perte de classement ou les surrogates lisses) influence-t-elle
-				la répartition des probabilités par rapport à la Cross-Entropy classique ?
-			</p>
-		</ExercisePanel>
-
-		<ExercisePanel number="9.18" title="Le phénomène de sur-confiance des réseaux profonds">
-			{#snippet solution()}
-				<p>
-					Les architectures profondes modernes (comme les ResNets ou les Transformers) atteignent
-					souvent une excellente exactitude mais souffrent d'une décalibration prononcée
-					(sur-confiance). Cela s'explique par la déconnexion entre la perte d'entraînement
-					(Cross-Entropy) et l'erreur de classification : le réseau continue d'optimiser l'entropie
-					croisée en augmentant l'amplitude des logits pour rapprocher les probabilités softmax de
-					1, bien après que l'erreur de classification a convergé à zéro. L'étalonnage se dégrade
-					donc massivement durant les époques tardives d'entraînement.
-				</p>
-			{/snippet}
-			<p>
-				Pourquoi les réseaux de neurones profonds modernes ont-ils tendance à être extrêmement mal
-				étalonnés (produisant des confiances très proches de 100% même en cas d'erreur) alors que
-				leurs ancêtres plus simples (comme les réseaux de neurones à une couche cachée) l'étaient
-				moins ?
-			</p>
-		</ExercisePanel>
-
-		<ExercisePanel number="9.19" title="Décomposition du score de Brier">
-			{#snippet solution()}
-				<p>
-					Le score de Brier (erreur quadratique moyenne des probabilités) se décompose de manière
-					unique en trois composantes additives :
-				</p>
-				<KatexBlock
-					formula={String.raw`\text{BS} = \text{Fiabilité} - \text{Résolution} + \text{Incertitude}`}
-				/>
-				<ul>
-					<li>
-						<strong>Fiabilité (Reliability) :</strong> Mesure directement le défaut de calibration (proche
-						de l'ECE au carré). Idéalement égale à 0.
-					</li>
-					<li>
-						<strong>Résolution :</strong> Capacité du modèle à faire des prédictions discriminantes (éloignées
-						de la moyenne globale). Idéalement maximale.
-					</li>
-					<li>
-						<strong>Incertitude :</strong> La variance intrinsèque des données (liée au bruit de Bayes).
-					</li>
-				</ul>
-			{/snippet}
-			<p>
-				Formulez la décomposition théorique du Score de Brier en trois composantes (Fiabilité,
-				Résolution et Incertitude) et expliquez le rôle de chacune pour caractériser la qualité d'un
-				système de prévision probabiliste.
-			</p>
-		</ExercisePanel>
-
-		<ExercisePanel number="9.20" title="Vrai ou Faux : Étalonnage">
-			{#snippet solution()}
-				<ol>
-					<li>
-						<strong>VRAI :</strong> Diviser par <KatexInline formula={String.raw`T > 1`} /> écrase les
-						écarts de logits et adoucit la distribution (augmentation de l'entropie), réduisant les confiances
-						excessives.
-					</li>
-					<li>
-						<strong>FAUX :</strong> La régression isotonique est hautement non paramétrique et nécessite
-						d'assez grands jeux de données de validation pour éviter le surapprentissage locale. Pour
-						de petits jeux, le Temperature Scaling est préférable.
-					</li>
-					<li>
-						<strong>VRAI :</strong> L'ECE n'impose aucune contrainte de monotonie globale, contrairement
-						à la perte logarithmique.
-					</li>
-					<li>
-						<strong>VRAI :</strong> Par définition, l'ECE groupe les points par bins de confiance, tandis
-						que la calibration forte exige l'égalité point par point sur tout l'espace d'entrée.
-					</li>
-				</ol>
-			{/snippet}
-			<p>Répondez par Vrai ou Faux en justifiant brièvement :</p>
-			<ol>
-				<li>
-					Une température <KatexInline formula={String.raw`T > 1`} /> diminue systématiquement la confiance
-					des prédictions d'un modèle.
-				</li>
-				<li>
-					La régression isotonique est toujours la meilleure méthode de calibration lorsque
-					l'ensemble de calibration est de très petite taille (ex: <KatexInline
-						formula={String.raw`N < 50`}
-					/>).
-				</li>
-				<li>
-					Un modèle peut avoir une ECE de 0% tout en ayant une erreur de classification de 100%.
-				</li>
-				<li>
-					La calibration forte est une condition mathématique plus stricte que la calibration
-					mesurée par l'ECE.
-				</li>
-			</ol>
-		</ExercisePanel>
-
-		<!-- ════════════════════════ SECTION 10 ════════════════════════ -->
-		<h2 id="prediction-conforme-classification">Prédiction Conforme en Classification</h2>
-		<p>
-			Cette section se concentre sur le formalisme de la prédiction conforme (Split Conformal)
-			appliquée à la classification multiclasse, avec des garanties théoriques de couverture exactes
-			à échantillon fini.
-		</p>
-
-		<ExercisePanel number="10.1" title="La notion d'échangeabilité">
-			{#snippet solution()}
-				<p>
-					Une suite de variables aléatoires <KatexInline formula={String.raw`Z_1, \dots, Z_N`} /> est
-					<strong>échangeable</strong> si leur loi jointe est invariante par toute permutation des indices
-					:
-				</p>
-				<KatexBlock
-					formula={String.raw`P(Z_1, \dots, Z_N) = P(Z_{\pi(1)}, \dots, Z_{\pi(N)}) \quad \forall \pi \in \mathfrak{S}_N`}
-				/>
-				<p>
-					Si des variables sont indépendantes et identiquement distribuées (i.i.d.), leur loi jointe
-					se factorise sous forme de produit marginal : <KatexInline
-						formula={String.raw`\prod P(Z_i)`}
-					/>, ce qui est trivialement symétrique par rapport aux indices. L'i.i.d. implique donc
-					l'échangeabilité. La réciproque est fausse : par exemple, le tirage sans remise dans une
-					urne produit des variables échangeables mais dépendantes.
-				</p>
-			{/snippet}
-			<p>
-				Définissez mathématiquement la notion d'<strong>échangeabilité</strong> d'une suite de variables
-				aléatoires et démontrez pourquoi l'hypothèse i.i.d. (indépendantes et identiquement distribuées)
-				en est un cas particulier.
-			</p>
-		</ExercisePanel>
-
-		<ExercisePanel number="10.2" title="Score de conformité de base">
-			{#snippet solution()}
-				<p>
-					Le score est défini par <KatexInline formula={String.raw`s(x,y) = 1 - \hat{p}_y(x)`} />.
-					Calculons les scores pour les 3 classes possibles :
-				</p>
-				<ul>
-					<li>Classe 1 : <KatexInline formula={String.raw`s(x, 1) = 1 - 0.70 = 0.30`} /></li>
-					<li>Classe 2 : <KatexInline formula={String.raw`s(x, 2) = 1 - 0.20 = 0.80`} /></li>
-					<li>Classe 3 : <KatexInline formula={String.raw`s(x, 3) = 1 - 0.10 = 0.90`} /></li>
-				</ul>
-				<p>
-					La règle de décision de l'ensemble conforme est : <KatexInline
-						formula={String.raw`\mathcal{C}(x) = \{ c \in \mathcal{Y} \mid s(x,c) \le \hat{q} \}`}
+					1. À chaque tirage avec remise, la probabilité de ne pas sélectionner un exemple
+					spécifique <KatexInline formula={String.raw`x_i`} /> est <KatexInline
+						formula={String.raw`1 - 1/N`}
 					/>.
 				</p>
+				<p>
+					2. Les <KatexInline formula={String.raw`N`} /> tirages étant indépendants, la probabilité qu'il
+					ne soit jamais sélectionné est <KatexInline formula={String.raw`(1 - 1/N)^N`} />.
+				</p>
+				<p>
+					3. Par définition de la fonction exponentielle, <KatexInline
+						formula={String.raw`\lim_{N \to \infty} (1 - 1/N)^N = e^{-1} \approx 0.368`}
+					/>.
+				</p>
+				<p>
+					4. La probabilité d'inclusion d'un exemple dans l'échantillon bootstrap est donc le
+					complémentaire : <KatexInline formula={String.raw`1 - e^{-1} \approx 0.632`} /> (soit environ
+					<KatexInline formula={String.raw`63.2\%`} />).
+				</p>
+			{/snippet}
+			<p>
+				Démontrez que la probabilité pour qu'une observation donnée de la base initiale de taille <KatexInline
+					formula={String.raw`N`}
+				/> ne figure <em>pas</em> dans un échantillon Bootstrap de taille <KatexInline
+					formula={String.raw`N`}
+				/> tend vers <KatexInline formula={String.raw`1/e`} /> lorsque <KatexInline
+					formula={String.raw`N \to \infty`}
+				/>. En déduire le pourcentage attendu de données uniques présentes dans un échantillon
+				bootstrap.
+			</p>
+		</ExercisePanel>
+
+		<ExercisePanel number="5.9" title="Taux d'inclusion exact pour petit N">
+			{#snippet solution()}
+				<p>
+					Calculons la valeur exacte de la probabilité d'exclusion <KatexInline
+						formula={String.raw`P_{\text{excl}} = (1 - 1/N)^N`}
+					/> pour différentes tailles :
+				</p>
 				<ul>
 					<li>
-						Si <KatexInline formula={String.raw`\hat{q} = 0.85`} /> : les classes 1 et 2 ont un score
-						<KatexInline formula={String.raw`\le 0.85`} />. Ainsi, <KatexInline
-							formula={String.raw`\mathcal{C}(x) = \{1, 2\}`}
+						Pour <KatexInline formula={String.raw`N=2`} /> : <KatexInline
+							formula={String.raw`(1/2)^2 = 0.250 \implies P_{\text{incl}} = 75.0\%`}
 						/>.
 					</li>
 					<li>
-						Si <KatexInline formula={String.raw`\hat{q} = 0.25`} /> : aucun score n'est inférieur à <KatexInline
-							formula={String.raw`0.25`}
-						/>. L'ensemble est vide : <KatexInline
-							formula={String.raw`\mathcal{C}(x) = \emptyset`}
+						Pour <KatexInline formula={String.raw`N=5`} /> : <KatexInline
+							formula={String.raw`(4/5)^5 = 0.32768 \implies P_{\text{incl}} = 67.23\%`}
 						/>.
+					</li>
+					<li>
+						Pour <KatexInline formula={String.raw`N=10`} /> : <KatexInline
+							formula={String.raw`(9/10)^{10} = 0.34868 \implies P_{\text{incl}} = 65.13\%`}
+						/>.
+					</li>
+				</ul>
+				<p>
+					On constate que même pour de très petites valeurs de <KatexInline
+						formula={String.raw`N`}
+					/>, l'approximation asymptotique de <KatexInline formula={String.raw`63.2\%`} /> est rapidement
+					atteinte.
+				</p>
+			{/snippet}
+			<p>
+				Calculez la probabilité exacte d'inclusion d'une observation donnée dans un échantillon
+				bootstrap pour <KatexInline formula={String.raw`N = 2`} />, <KatexInline
+					formula={String.raw`N = 5`}
+				/> et <KatexInline formula={String.raw`N = 10`} />. Comparez avec la limite asymptotique.
+			</p>
+		</ExercisePanel>
+
+		<ExercisePanel number="5.10" title="Rôle des arbres profonds dans le Bagging">
+			{#snippet solution()}
+				<p>
+					Le Bagging réduit la variance de l'ensemble par moyennage, mais n'affecte pas (ou très
+					peu) le biais. Pour maximiser la performance :
+				</p>
+				<ul>
+					<li>
+						On utilise des modèles à <strong>faible biais</strong> (très profonds, surappris), qui
+						ont naturellement une <strong>forte variance</strong>.
+					</li>
+					<li>
+						Le processus d'agrégation élimine cette forte variance par moyennage, fournissant au
+						final un modèle à la fois peu biaisé et peu variant.
 					</li>
 				</ul>
 			{/snippet}
 			<p>
-				Soit un classifieur de test renvoyant le vecteur <KatexInline
-					formula={String.raw`\hat{p}(x) = (0.70, 0.20, 0.10)`}
-				/> pour les classes <KatexInline formula={String.raw`\{1, 2, 3\}`} />. En utilisant le score
-				de non-conformité de base <KatexInline formula={String.raw`s(x,y) = 1 - \hat{p}_y(x)`} />,
-				donnez les ensembles de prédiction conformes obtenus pour deux valeurs de seuil distinctes : <KatexInline
-					formula={String.raw`\hat{q} = 0.85`}
-				/> puis <KatexInline formula={String.raw`\hat{q} = 0.25`} />.
+				Expliquez pourquoi il est recommandé d'utiliser des arbres de décision de grande profondeur
+				(sans élagage) comme modèles de base dans le cadre du Bagging, plutôt que des arbres très
+				simplifiés (stumps).
 			</p>
 		</ExercisePanel>
 
-		<ExercisePanel number="10.3" title="Preuve de la garantie de couverture (Borne inférieure)">
+		<ExercisePanel number="5.11" title="Erreur Out-of-Bag (OOB) vs Validation Croisée">
 			{#snippet solution()}
 				<p>
-					Soit <KatexInline formula={String.raw`S_1, \dots, S_n`} /> les scores calculés sur l'ensemble
-					de calibration indépendant <KatexInline formula={String.raw`\mathcal{D}_{\text{cal}}`} />,
-					et <KatexInline formula={String.raw`S_{n+1} = s(X_{\text{test}}, Y_{\text{test}})`} /> le score
-					sur le point de test. Par l'hypothèse d'échangeabilité, la variable <KatexInline
-						formula={String.raw`S_{n+1}`}
-					/> a la même probabilité d'occuper n'importe quel rang parmi les <KatexInline
-						formula={String.raw`n+1`}
-					/> scores ordonnés. Le quantile choisi est <KatexInline
-						formula={String.raw`\hat{q} = \text{valeur au rang } \lceil (n+1)(1-\alpha) \rceil`}
-					/> des scores <KatexInline formula={String.raw`S_1, \dots, S_n`} />. La probabilité que <KatexInline
-						formula={String.raw`S_{n+1} \le \hat{q}`}
-					/> est équivalente à la probabilité que <KatexInline formula={String.raw`S_{n+1}`} /> ne fasse
-					pas partie des plus grands scores restants. Par définition des quantiles empiriques, cela correspond
-					précisément à la proportion de rangs inférieurs ou égaux, garantissant :
+					<strong>Différences majeures :</strong>
 				</p>
-				<KatexBlock
-					formula={String.raw`\mathbb{P}(Y_{\text{test}} \in \mathcal{C}(X_{\text{test}})) = \mathbb{P}(S_{n+1} \le \hat{q}) \ge \frac{\lceil (n+1)(1-\alpha) \rceil}{n+1} \ge 1 - \alpha`}
-				/>
+				<ul>
+					<li>
+						<strong>Coût computationnel :</strong> La validation croisée nécessite de ré-entraîner <KatexInline
+							formula={String.raw`K`}
+						/> fois l'ensemble complet. L'erreur OOB est obtenue "gratuitement" durant l'entraînement
+						de l'ensemble, sans aucun apprentissage supplémentaire.
+					</li>
+					<li>
+						<strong>Mécanisme :</strong> Pour chaque point <KatexInline
+							formula={String.raw`x_i`}
+						/>, on prédit sa valeur uniquement en utilisant la sous-forêt constituée des arbres
+						entraînés sur des bootstraps ne contenant pas <KatexInline formula={String.raw`x_i`} /> (environ
+						<KatexInline formula={String.raw`36.8\%`} /> des arbres).
+					</li>
+				</ul>
 			{/snippet}
 			<p>
-				Démontrez la validité de la borne inférieure de couverture marginale : <KatexInline
-					formula={String.raw`\mathbb{P}(Y_{\text{test}} \in \mathcal{C}(X_{\text{test}})) \ge 1-\alpha`}
-				/> dans le cadre du Split Conformal Prediction, en détaillant l'utilisation de l'échangeabilité
-				des scores de calibration.
+				Expliquez le principe de l'erreur Out-of-Bag (OOB). En quoi se distingue-t-elle de la
+				validation croisée classique en termes de coût algorithmique ?
 			</p>
 		</ExercisePanel>
 
-		<ExercisePanel number="10.4" title="Borne supérieure de couverture">
+		<ExercisePanel number="5.12" title="Estimation du nombre d'arbres OOB">
 			{#snippet solution()}
 				<p>
-					Si les scores de non-conformité proviennent d'une distribution continue, la probabilité
-					d'obtenir deux scores exactement identiques (égalité stricte) est nulle : <KatexInline
-						formula={String.raw`P(S_i = S_j) = 0`}
-					/>. Les rangs des <KatexInline formula={String.raw`n+1`} /> scores échangeables sont alors uniques
-					et distribués de manière strictement uniforme sur <KatexInline
-						formula={String.raw`\{1, \dots, n+1\}`}
-					/>. La probabilité que le score de test <KatexInline formula={String.raw`S_{n+1}`} /> soit strictement
-					inférieur ou égal au quantile empirique <KatexInline formula={String.raw`\hat{q}`} /> correspond
-					exactement à la probabilité que son rang soit inférieur ou égal à <KatexInline
-						formula={String.raw`k = \lceil (n+1)(1-\alpha) \rceil`}
-					/>. On obtient ainsi :
+					La probabilité qu'un arbre donné n'inclue pas un exemple spécifique est d'environ <KatexInline
+						formula={String.raw`e^{-1} \approx 0.368`}
+					/>. Le nombre d'arbres n'incluant pas cet exemple suit une loi binomiale <KatexInline
+						formula={String.raw`\mathcal{B}(M, e^{-1})`}
+					/>.
 				</p>
-				<KatexBlock
-					formula={String.raw`\mathbb{P}(S_{n+1} \le \hat{q}) = \frac{\lceil (n+1)(1-\alpha) \rceil}{n+1} < 1 - \alpha + \frac{1}{n+1}`}
-				/>
-			{/snippet}
-			<p>
-				Démontrez que sous l'hypothèse d'une distribution continue des scores (pas d'égalités ex
-				æquo), la couverture du Split Conformal est bornée supérieurement par :
-				<KatexBlock
-					formula={String.raw`\mathbb{P}(Y_{\text{test}} \in \mathcal{C}(X_{\text{test}})) \le 1 - \alpha + \frac{1}{n+1}`}
-				/>
-			</p>
-		</ExercisePanel>
-
-		<ExercisePanel number="10.5" title="Score cumulatif APS (Adaptive Prediction Sets)">
-			{#snippet solution()}
 				<p>
-					Le score cumulatif est le complément à 1 de la somme des probabilités de <strong>toutes</strong>
-					les classes au moins aussi probables que la vraie classe <KatexInline
-						formula={String.raw`y`}
-					/>, égalités incluses :
-				</p>
-				<KatexBlock
-					formula={String.raw`s(x, y) = 1 - \sum_{j \,:\, \hat{p}_j(x) \geq \hat{p}_y(x)} \hat{p}_j(x)`}
-				/>
-				<p>
-					Contrairement au score simple <KatexInline formula={String.raw`1-\hat{p}_y`} />, ce score
-					prend en compte l'ensemble de la distribution de probabilité (la forme de la queue). Il
-					s'adapte dynamiquement en produisant de grands ensembles lorsque le modèle hésite entre
-					plusieurs classes, et de très petits ensembles lorsque le modèle est confiant sur une
-					poignée d'alternatives.
+					L'espérance du nombre d'arbres OOB pour cet exemple est :
+					<KatexBlock
+						formula={String.raw`"\mathbb{E}[M_{\text{OOB}}] = M \times e^{-1} \approx 100 \times 0.368 = 36.8 \text{ arbres}`}
+					/>
+					Chaque point dispose donc en moyenne d'environ 37 arbres pour formuler sa prédiction OOB.
 				</p>
 			{/snippet}
 			<p>
-				Expliquez le fonctionnement du score de conformité cumulatif (méthode APS de Romano et al.)
-				et décrivez en quoi il offre des propriétés d'adaptabilité supérieures au score simple <KatexInline
-					formula={String.raw`1-\hat{p}_y`}
-				/>.
+				Dans une forêt de Bagging contenant <KatexInline formula={String.raw`M = 100`} /> arbres, déterminez
+				le nombre moyen d'arbres qui serviront à prédire la valeur Out-of-Bag d'une observation spécifique
+				du jeu d'apprentissage.
 			</p>
 		</ExercisePanel>
 
-		<ExercisePanel number="10.6" title="Score SAPS (Sorted Adaptive Prediction Sets)">
+		<ExercisePanel number="5.13" title="Vote majoritaire dur vs vote majoritaire doux">
 			{#snippet solution()}
 				<p>
-					On part du score cumulatif des notes — le complément à 1 de la somme des probabilités des
-					classes au moins aussi probables que la vraie classe — auquel on ajoute un terme de
-					pénalité de régularisation (variante illustrative) pour éviter de rajouter trop facilement
-					des classes très peu probables :
+					<strong>Définitions :</strong>
 				</p>
-				<KatexBlock
-					formula={String.raw`s(x, y) = 1 - \sum_{j \,:\, \hat{p}_j(x) \geq \hat{p}_y(x)} \hat{p}_j(x) + \lambda (r(y) - k)_+`}
-				/>
+				<ul>
+					<li>
+						<strong>Vote dur (Hard Voting) :</strong> Chaque classifieur prédit une classe discrète <KatexInline
+							formula={String.raw`c \in \{0, 1\}`}
+						/>. On sélectionne la classe ayant obtenu la majorité absolue des voix.
+					</li>
+					<li>
+						<strong>Vote doux (Soft Voting) :</strong> Chaque classifieur renvoie une probabilité <KatexInline
+							formula={String.raw`P(y=1|x)`}
+						/>. On calcule la moyenne de ces probabilités sur l'ensemble des arbres, puis on
+						applique le seuil de décision (0.5).
+					</li>
+				</ul>
 				<p>
-					Où <KatexInline formula={String.raw`r(y)`} /> est le rang de la vraie classe, <KatexInline
-						formula={String.raw`k`}
-					/> est un paramètre de taille cible et <KatexInline formula={String.raw`\lambda`} /> est une
-					pénalité positive. La notation <KatexInline formula={String.raw`(x)_+ = \max(0, x)`} />
-					pénalise les ensembles qui dépassent la taille <KatexInline formula={String.raw`k`} />. Cela
-					permet d'éviter que le classifieur conforme n'ajoute systématiquement un grand nombre de
-					classes à faible probabilité uniquement pour satisfaire marginalement la couverture,
-					améliorant ainsi la lisibilité de la prédiction conforme.
-				</p>
-			{/snippet}
-			<p>
-				<em>(Exercice optionnel, au-delà du cours.)</em> Décrivez le mécanisme de régularisation du
-				score « SAPS » (variante illustrative, non issue des notes) et expliquez comment
-				l'introduction d'un paramètre de pénalité de taille modifie la composition des ensembles de
-				prédiction conformes.
-			</p>
-		</ExercisePanel>
-
-		<ExercisePanel number="10.7" title="Cas limite de la taille de calibration">
-			{#snippet solution()}
-				<p>
-					Le rang du quantile empirique est donné par <KatexInline
-						formula={String.raw`k = \lceil (n+1)(1-\alpha) \rceil`}
-					/>. Si la taille de l'échantillon <KatexInline formula={String.raw`n`} /> vérifie <KatexInline
-						formula={String.raw`n < \frac{1}{\alpha} - 1`}
-					/>, on obtient <KatexInline
-						formula={String.raw`(n+1)(1-\alpha) = n + 1 - (n+1)\alpha > n`}
-					/>. Puisque le rang maximal possible est <KatexInline formula={String.raw`n`} /> pour l'échantillon
-					de calibration, cela impose de prendre <KatexInline formula={String.raw`k = n+1`} />. Le
-					seuil <KatexInline formula={String.raw`\hat{q}`} /> est alors égal à la valeur maximale possible
-					du score de conformité. Par conséquent, l'ensemble de prédiction sera systématiquement l'ensemble
-					de toutes les classes possibles pour garantir de manière conservatrice la couverture marginale.
+					Le vote doux est généralement plus performant car il préserve l'incertitude et l'intensité
+					de confiance de chaque prédicteur individuel.
 				</p>
 			{/snippet}
 			<p>
-				Montrez algébriquement ce qu'il se passe pour le calcul du quantile <KatexInline
-					formula={String.raw`\hat{q}`}
-				/> si le nombre de données de calibration <KatexInline formula={String.raw`n`} /> est strictement
-				inférieur à <KatexInline formula={String.raw`1/\alpha - 1`} />. Quelle est la conséquence
-				pratique sur les ensembles de prédiction ?
+				Quelle est la différence fondamentale entre le vote majoritaire "dur" (hard voting) et le
+				vote majoritaire "doux" (soft voting) pour un problème de classification ? Lequel est
+				généralement à privilégier ?
 			</p>
 		</ExercisePanel>
 
-		<ExercisePanel number="10.8" title="Comportement limite par rapport à alpha">
+		<ExercisePanel number="5.14" title="BMA vs Bagging">
 			{#snippet solution()}
 				<p>
-					Analysons les deux limites physiques de l'erreur autorisée <KatexInline
-						formula={String.raw`\alpha`}
+					<strong>Distinction essentielle :</strong>
+				</p>
+				<ul>
+					<li>
+						Le <strong>BMA</strong> suppose qu'un seul des modèles du candidat est le "vrai" modèle générateur
+						des données. Les probabilités a posteriori évaluent la certitude que chaque modèle soit le
+						bon. Le BMA cherche à réduire l'incertitude sur la sélection de modèle.
+					</li>
+					<li>
+						Le <strong>Bagging</strong> ne suppose pas de "vrai" modèle unique. Il combine des modèles
+						intentionnellement perturbés par échantillonnage pour lisser les fluctuations numériques (réduction
+						empirique de la variance).
+					</li>
+				</ul>
+			{/snippet}
+			<p>
+				Comparez les hypothèses philosophiques qui sous-tendent l'agrégation de modèles bayésiens
+				(BMA) et le Bagging.
+			</p>
+		</ExercisePanel>
+
+		<ExercisePanel number="5.15" title="Sensibilité du Bagging aux valeurs aberrantes">
+			{#snippet solution()}
+				<p>
+					Le Bagging est moyennement robuste aux valeurs aberrantes (outliers) : bien que
+					l'échantillonnage bootstrap exclue un outlier spécifique dans environ <KatexInline
+						formula={String.raw`36.8\%`}
+					/> des arbres de base, les <KatexInline formula={String.raw`63.2\%`} /> restants l'intégreront
+					et seront lourdement déformés si la métrique d'arbre sous-jacente y est sensible (ex: perte
+					L2). La robustesse dépend donc principalement de la robustesse intrinsèque des modèles de base
+					utilisés.
+				</p>
+			{/snippet}
+			<p>
+				Analysez l'impact de la présence de valeurs aberrantes (outliers) majeurs dans le jeu de
+				données d'apprentissage sur un modèle de Bagging d'arbres.
+			</p>
+		</ExercisePanel>
+
+		<ExercisePanel number="5.16" title="Agrégation de modèles stables">
+			{#snippet solution()}
+				<p>
+					Le Bagging n'offre aucun gain sur les classifieurs dits <strong>stables</strong> (ex:
+					régression linéaire ou régression logistique). En effet, de légères perturbations du jeu
+					de données par bootstrap produisent des coefficients de régression presque identiques.
+					Ainsi, la corrélation <KatexInline formula={String.raw`\rho`} /> entre les modèles de base tend
+					vers 1, ce qui annule l'effet de réduction de variance décrit dans la formule de l'exercice
+					5.2.
+				</p>
+			{/snippet}
+			<p>
+				Pourquoi le Bagging de modèles linéaires simples (comme la régression par moindres carrés)
+				n'apporte-t-il généralement aucune amélioration de performance par rapport à un modèle
+				linéaire unique ?
+			</p>
+		</ExercisePanel>
+
+		<ExercisePanel number="5.17" title="Calcul d'un poids optimal d'agrégation">
+			{#snippet solution()}
+				<p>
+					Nous voulons minimiser <KatexInline
+						formula={String.raw`\text{Var}(w_1 \hat{y}_1 + w_2 \hat{y}_2) = w_1^2 \sigma_1^2 + w_2^2 \sigma_2^2`}
+					/> sous la contrainte <KatexInline formula={String.raw`w_1 + w_2 = 1`} />. En remplaçant <KatexInline
+						formula={String.raw`w_2`}
+					/> par <KatexInline formula={String.raw`1 - w_1`} />, nous devons minimiser :
+				</p>
+				<KatexBlock formula={String.raw`f(w_1) = w_1^2 \sigma_1^2 + (1-w_1)^2 \sigma_2^2`} />
+				<p>
+					En annulant la dérivée : <KatexInline
+						formula={String.raw`2 w_1 \sigma_1^2 - 2(1 - w_1)\sigma_2^2 = 0 \implies w_1(\sigma_1^2 + \sigma_2^2
+          w_1(\sigma_1^2 + \sigma_2^2) = \sigma_2^2 \implies w_1^* = \frac{\sigma_2^2}{\sigma_1^2 + \sigma_2^2`}
+					/>. Par symétrie, <KatexInline
+						formula={String.raw`w_2^* = \frac{\sigma_1^2}{\sigma_1^2 + \sigma_2^2}`}
+					/>.
+				</p>
+				<p>
+					<strong>Interprétation :</strong> Le poids alloué à chaque prédicteur est inversement proportionnel
+					à sa propre variance. Un modèle plus incertain (variance élevée) se voit attribuer un poids
+					plus faible dans la décision finale.
+				</p>
+			{/snippet}
+			<p>
+				Soit deux prédicteurs non biaisés et indépendants <KatexInline
+					formula={String.raw`\hat{y}_1`}
+				/> et <KatexInline formula={String.raw`\hat{y}_2`} />, de variances respectives <KatexInline
+					formula={String.raw`\sigma_1^2`}
+				/> et <KatexInline formula={String.raw`\sigma_2^2`} />. On construit le prédicteur agrégé
+				pondéré <KatexInline
+					formula={String.raw`\hat{y}_{\text{agg}} = w_1 \hat{y}_1 + w_2 \hat{y}_2`}
+				/> sous la contrainte <KatexInline formula={String.raw`w_1 + w_2 = 1`} />. Déterminez les
+				poids optimaux <KatexInline formula={String.raw`w_1^*`} /> et <KatexInline
+					formula={String.raw`w_2^*`}
+				/> qui minimisent la variance de <KatexInline formula={String.raw`\hat{y}_{\text{agg}}`} />.
+			</p>
+		</ExercisePanel>
+
+		<ExercisePanel number="5.18" title="Impact de la taille de l'échantillon de bootstrap">
+			{#snippet solution()}
+				<p>
+					Si l'on réduit la taille des échantillons bootstrap à <KatexInline
+						formula={String.raw`N_{\text{boot}} \ll N`}
 					/> :
 				</p>
 				<ul>
 					<li>
-						<strong
-							>Quand <KatexInline formula={String.raw`\alpha \to 0`} /> (erreur nulle tolérée) :</strong
-						>
-						La couverture ciblée est de 100%. Le rang <KatexInline
-							formula={String.raw`\lceil (n+1)(1-\alpha) \rceil \to n+1`}
-						/>, ce qui pousse le quantile <KatexInline formula={String.raw`\hat{q}`} /> vers sa valeur
-						maximale historique. L'ensemble conforme devient <KatexInline
-							formula={String.raw`\mathcal{C}(x) = \mathcal{Y}`}
-						/> pour tous les points de test.
+						<strong>Biais :</strong> Le biais individuel de chaque arbre augmente car ils apprennent sur
+						moins de données.
 					</li>
 					<li>
-						<strong
-							>Quand <KatexInline formula={String.raw`\alpha \to 1`} /> (aucune garantie requise) :</strong
-						>
-						Le quantile requis tend vers le minimum de l'échantillon de calibration. Les ensembles conformes
-						se réduisent à l'ensemble vide <KatexInline formula={String.raw`\emptyset`} /> (ou presque
-						vide).
+						<strong>Variance / Corrélation :</strong> La variance et la corrélation <KatexInline
+							formula={String.raw`\rho`}
+						/> entre les arbres diminuent car les échantillons bootstrap partagent moins de points communs,
+						ce qui augmente l'efficacité du moyennage.
 					</li>
 				</ul>
+				<p>
+					À l'inverse, si <KatexInline formula={String.raw`N_{\text{boot}} \gg N`} />, les
+					échantillons bootstrap deviennent presque identiques au jeu de données d'origine,
+					maximisant la corrélation <KatexInline formula={String.raw`\rho \to 1`} /> et détruisant l'avantage
+					du Bagging.
+				</p>
 			{/snippet}
 			<p>
-				Analysez et décrivez le comportement asymptotique des ensembles de prédiction conformes <KatexInline
-					formula={String.raw`\mathcal{C}(x)`}
-				/> dans les deux cas extrêmes : <KatexInline formula={String.raw`\alpha \to 0`} /> et <KatexInline
-					formula={String.raw`\alpha \to 1`}
-				/>.
+				Analysez les effets sur le compromis biais-variance de la forêt si l'on modifie la taille de
+				chaque échantillon de bootstrap pour qu'elle soit très inférieure à <KatexInline
+					formula={String.raw`N`}
+				/>, ou au contraire très supérieure à <KatexInline formula={String.raw`N`} />.
 			</p>
 		</ExercisePanel>
 
-		<ExercisePanel number="10.9" title="Couverture marginale vs couverture conditionnelle">
+		<ExercisePanel number="5.19" title="Subbagging vs Bagging classique">
 			{#snippet solution()}
 				<p>
-					La <strong>couverture marginale</strong> garantit que :
+					Le <strong>Subbagging</strong> consiste à échantillonner <em>sans remise</em> des
+					sous-ensembles de taille <KatexInline formula={String.raw`K < N`} /> (généralement <KatexInline
+						formula={String.raw`K = 0.5N`}
+					/> ou <KatexInline formula={String.raw`K = 0.632N`} />) au lieu d'échantillonner avec
+					remise.
 				</p>
-				<KatexBlock
-					formula={String.raw`\mathbb{P}(Y_{\text{test}} \in \mathcal{C}(X_{\text{test}})) \ge 1 - \alpha`}
-				/>
 				<p>
-					C'est une moyenne globale calculée sur toutes les réalisations conjointes possibles de <KatexInline
-						formula={String.raw`X`}
-					/> et <KatexInline formula={String.raw`Y`} />. La
-					<strong>couverture conditionnelle</strong>
-					exige que cette garantie tienne pour <em>chaque sous-groupe ou point individuel</em> de l'espace
-					d'entrée :
-				</p>
-				<KatexBlock
-					formula={String.raw`\mathbb{P}(Y_{\text{test}} \in \mathcal{C}(X_{\text{test}}) \mid X_{\text{test}} = x) \ge 1 - \alpha \quad \forall x`}
-				/>
-				<p>
-					La couverture marginale n'implique pas la couverture conditionnelle. Par exemple, un
-					modèle peut avoir une couverture de 95% en moyenne en couvrant à 100% les zones faciles de
-					l'espace d'entrée et à 0% les zones difficiles (comme les populations minoritaires).
+					Sur le plan théorique et empirique, le Subbagging produit des résultats extrêmement
+					proches du Bagging classique en termes de performance prédictive et de décorrélation, tout
+					en étant parfois légèrement plus rapide à exécuter car il n'y a pas de gestion des
+					doublons.
 				</p>
 			{/snippet}
 			<p>
-				Expliquez mathématiquement pourquoi la garantie de couverture marginale fournie par la
-				prédiction conforme n'implique pas nécessairement une couverture conditionnelle uniforme
-				point par point sur tout l'espace d'entrée.
+				Qu'est-ce que le "Subbagging" et en quoi se distingue-t-il du Bagging classique sur le plan
+				de la théorie d'échantillonnage ?
 			</p>
 		</ExercisePanel>
 
-		<ExercisePanel number="10.10" title="Split Conformal vs Full Conformal">
-			{#snippet solution()}
-				<p>Comparatif entre les deux approches :</p>
-				<ul>
-					<li>
-						<strong>Split Conformal :</strong> Sépare les données en d'entraînement et de calibration.
-						Le modèle est entraîné une seule fois. Très rapide mais l'efficacité dépend de la taille de
-						la partition de calibration.
-					</li>
-					<li>
-						<strong>Full Conformal :</strong> Pour chaque nouveau point de test <KatexInline
-							formula={String.raw`x`}
-						/>, on tente d'attribuer successivement chaque classe possible <KatexInline
-							formula={String.raw`y`}
-						/>. On réentraîne le modèle complet sur <KatexInline
-							formula={String.raw`\mathcal{D} \cup \{(x, y)\}`}
-						/> pour recalculer les scores de conformité. C'est extrêmement coûteux (nécessite d'entraîner
-						<KatexInline formula={String.raw`C`} /> modèles par point de test) mais cela utilise de manière
-						optimale toutes les données disponibles.
-					</li>
-				</ul>
-			{/snippet}
-			<p>
-				Comparez la méthode <em>Split Conformal</em> (conforme par séparation) et la méthode
-				historique <em>Full Conformal</em> en termes de coût algorithmique de calcul et de conservation
-				des données d'apprentissage.
-			</p>
-		</ExercisePanel>
-
-		<ExercisePanel number="10.11" title="Invariance par transformation monotone">
-			{#snippet solution()}
-				<p>
-					Soit <KatexInline formula={String.raw`g`} /> une transformation strictement croissante appliquée
-					aux scores. Le score révisé est <KatexInline formula={String.raw`S'_i = g(S_i)`} />. Comme
-					la fonction conserve rigoureusement l'ordre des éléments :
-				</p>
-				<KatexBlock formula={String.raw`S_i \le S_j \iff g(S_i) \le g(S_j)`} />
-				<p>
-					Le quantile d'ordre <KatexInline formula={String.raw`1-\alpha`} /> des scores transformés sera
-					exactement <KatexInline formula={String.raw`\hat{q}' = g(\hat{q})`} />. La condition
-					d'inclusion dans l'ensemble conforme devient :
-				</p>
-				<KatexBlock
-					formula={String.raw`c \in \mathcal{C}'(x) \iff g(s(x, c)) \le g(\hat{q}) \iff s(x, c) \le \hat{q} \iff c \in \mathcal{C}(x)`}
-				/>
-				<p>
-					Le choix d'appliquer une transformation monotone strictement croissante aux scores n'a
-					donc absolument aucune influence sur le résultat final de l'ensemble conforme.
-				</p>
-			{/snippet}
-			<p>
-				Démontrez que l'application d'une fonction strictement croissante <KatexInline
-					formula={String.raw`g`}
-				/> sur le score de conformité n'altère en rien la composition des ensembles de prédiction conformes
-				finaux.
-			</p>
-		</ExercisePanel>
-
-		<ExercisePanel number="10.12" title="Garantie sous décalage de covariables (Covariate Shift)">
-			{#snippet solution()}
-				<p>
-					En cas de décalage de covariables (la distribution marginale <KatexInline
-						formula={String.raw`P_X`}
-					/> change entre l'apprentissage et le test mais pas la loi conditionnelle <KatexInline
-						formula={String.raw`P_{Y|X}`}
-					/>), les scores de calibration et de test ne sont plus échangeables. Tibshirani et al. ont
-					proposé le <strong>Weighted Conformal Prediction</strong> : on calcule des poids
-					d'importance <KatexInline formula={String.raw`w(x) = q(x)/p(x)`} /> (rapport des densités de
-					test et de calibration). Le calcul du quantile empirique devient un quantile pondéré par ces
-					coefficients de vraisemblance, ce qui permet de conserver une garantie exacte malgré le décalage.
-				</p>
-			{/snippet}
-			<p>
-				L'hypothèse d'échangeabilité tient-elle toujours en cas de décalage de covariables
-				(Covariate Shift) ? Comment la méthode de prédiction conforme peut-elle être modifiée pour
-				restaurer la garantie de couverture dans ce cadre ?
-			</p>
-		</ExercisePanel>
-
-		<ExercisePanel number="10.13" title="Exercice numérique pas à pas">
-			{#snippet solution()}
-				<p>Suivons rigoureusement les étapes de l'algorithme :</p>
-				<ol>
-					<li>
-						Les scores de non-conformité de calibration sont : <KatexInline
-							formula={String.raw`s_i = 1 - \hat{p}_{y_i}(x_i)`}
-						/>.
-					</li>
-					<li>
-						Valeurs obtenues : <KatexInline
-							formula={String.raw`s = (0.2, 0.4, 0.35, 0.1, 0.85)`}
-						/>.
-					</li>
-					<li>
-						Ordonnons ces 5 scores : <KatexInline
-							formula={String.raw`0.1 \le 0.2 \le 0.35 \le 0.4 \le 0.85`}
-						/>.
-					</li>
-					<li>
-						Le rang du quantile est <KatexInline
-							formula={String.raw`k = \lceil (n+1)(1-\alpha) \rceil = \lceil (5+1)(0.80) \rceil = \lceil 4.8 \rceil = 5`}
-						/>.
-					</li>
-					<li>
-						Le score au rang 5 est la valeur maximale : <KatexInline
-							formula={String.raw`\hat{q} = 0.85`}
-						/>.
-					</li>
-					<li>
-						On inclut les classes de test dont le score <KatexInline
-							formula={String.raw`1 - p_c \le 0.85`}
-						/>, soit <KatexInline formula={String.raw`p_c \ge 0.15`} />.
-					</li>
-					<li>
-						Pour le point de test <KatexInline
-							formula={String.raw`\hat{p}(x_{\text{test}}) = (0.7, 0.2, 0.1)`}
-						/> : les classes 1 (0.7) et 2 (0.2) respectent cette condition. L'ensemble conforme est <KatexInline
-							formula={String.raw`\mathcal{C}(x_{\text{test}}) = \{1, 2\}`}
-						/>.
-					</li>
-				</ol>
-			{/snippet}
-			<p>
-				Soit un ensemble de calibration indépendant de <KatexInline formula={String.raw`n = 5`} /> points
-				avec les probabilités prédites pour la classe réelle suivantes : <KatexInline
-					formula={String.raw`0.8, 0.6, 0.65, 0.9, 0.15`}
-				/>. En fixant <KatexInline formula={String.raw`\alpha = 0.20`} /> et en employant le score simple
-				<KatexInline formula={String.raw`1 - p_y`} />, calculez le seuil <KatexInline
-					formula={String.raw`\hat{q}`}
-				/> et déterminez l'ensemble de prédiction pour un point de test possédant les scores de confiance
-				<KatexInline formula={String.raw`(0.70, 0.20, 0.10)`} />.
-			</p>
-		</ExercisePanel>
-
-		<ExercisePanel number="10.14" title="Interprétation d'un ensemble de prédiction vide">
-			{#snippet solution()}
-				<p>
-					L'ensemble conforme <KatexInline formula={String.raw`\mathcal{C}(x)`} /> est vide si et seulement
-					si tous les scores de non-conformité possibles sont strictement supérieurs au seuil calibré
-					: <KatexInline formula={String.raw`s(x, c) > \hat{q} \quad \forall c \in \mathcal{Y}`} />.
-					Dans le cas du score simple, cela signifie que toutes les probabilités de classe sont très
-					faibles : <KatexInline formula={String.raw`\hat{p}_c(x) < 1 - \hat{q}`} /> pour toutes les classes.
-					C'est un signal d'alarme précieux : cela indique que le point de test <KatexInline
-						formula={String.raw`x`}
-					/> est atypique, se situe dans une zone d'incertitude extrême ou provient d'une distribution
-					différente de celle d'entraînement (donnée hors-distribution ou OOD).
-				</p>
-			{/snippet}
-			<p>
-				Expliquez sous quelles conditions un ensemble de prédiction conforme peut se révéler vide et
-				interprétez ce résultat du point de vue de la détection d'anomalies ou de données
-				hors-distribution.
-			</p>
-		</ExercisePanel>
-
-		<ExercisePanel number="10.15" title="Interprétation d'un ensemble contenant toutes les classes">
-			{#snippet solution()}
-				<p>
-					À l'inverse de l'exercice précédent, l'ensemble contient toutes les classes si tous les
-					scores possibles sont inférieurs au seuil <KatexInline formula={String.raw`\hat{q}`} />.
-					Cela signifie que le modèle est incapable d'exclure une quelconque classe avec un niveau
-					de confiance suffisant. C'est typique d'une zone de haute entropie (frontière de décision
-					complexe entre de nombreuses classes) ou d'un modèle globalement très peu performant. Pour
-					garantir la couverture de <KatexInline formula={String.raw`1-\alpha`} /> sur ce point, le système
-					doit admettre qu'il n'en sait rien et proposer toutes les options.
-				</p>
-			{/snippet}
-			<p>
-				Expliquez à l'inverse quand un ensemble contient toutes les classes possibles <KatexInline
-					formula={String.raw`\mathcal{C}(x) = \mathcal{Y}`}
-				/> et comment interpréter cette situation pour l'utilisateur final.
-			</p>
-		</ExercisePanel>
-
-		<ExercisePanel number="10.16" title="Relation directe entre calibration et efficacité">
-			{#snippet solution()}
-				<p>
-					Le théorème de couverture conforme garantit la validité (le taux de couverture de 95% est
-					assuré) <em>même si le modèle de base est totalement décalibré ou faux</em>. Cependant, la
-					<strong
-						>qualité d'étalonnage du modèle influence l'efficacité (la taille des ensembles)</strong
-					>. Si un modèle est bien calibré, ses probabilités reflètent fidèlement la réalité : ses
-					prédictions correctes auront des confiances élevées, ce qui conduira à un seuil <KatexInline
-						formula={String.raw`\hat{q}`}
-					/> bas et donc à des ensembles conformes étroits (souvent réduits à un singleton). Un modèle
-					mal calibré forcera la méthode conforme à élargir démesurément ses ensembles pour rattraper
-					ses erreurs de confiance.
-				</p>
-			{/snippet}
-			<p>
-				Expliquez la phrase suivante : « La prédiction conforme garantit la validité de la
-				couverture indépendamment de l'étalonnage du modèle de base, mais l'étalonnage de ce dernier
-				régit l'efficacité de la méthode. »
-			</p>
-		</ExercisePanel>
-
-		<ExercisePanel number="10.17" title="Évaluation : Métriques de taille">
-			{#snippet solution()}
-				<p>
-					Pour évaluer un système de prédiction conforme, on utilise principalement deux indicateurs
-					d'efficacité :
-				</p>
-				<ul>
-					<li>
-						<strong>Taille moyenne (Average Set Size) :</strong>
-						<KatexInline
-							formula={String.raw`\text{Size}_{\text{avg}} = \frac{1}{M} \sum_{i=1}^M |\mathcal{C}(x_i)|`}
-						/>. On cherche à la minimiser.
-					</li>
-					<li>
-						<strong>Variance de la taille (Size Variance) :</strong> Mesure la dispersion de la taille
-						des ensembles. Une variance élevée montre que le modèle adapte bien sa précision locale en
-						distinguant les zones faciles (petits ensembles) des zones complexes (grands ensembles).
-					</li>
-				</ul>
-			{/snippet}
-			<p>
-				Quelles sont les métriques quantitatives clés pour évaluer l'efficacité pratique d'une
-				méthode de prédiction conforme en classification, au-delà de la simple vérification du taux
-				de couverture ?
-			</p>
-		</ExercisePanel>
-
-		<ExercisePanel number="10.18" title="Gestion des égalités (scores identiques)">
-			{#snippet solution()}
-				<p>
-					Lorsque les scores de conformité prennent des valeurs discrètes ou identiques, de
-					nombreuses égalités peuvent se produire. Cela peut empêcher d'atteindre exactement le taux <KatexInline
-						formula={String.raw`1-\alpha`}
-					/> et rendre la méthode conservatrice. Pour y remédier, on introduit une
-					<strong>randomisation auxiliaire</strong>
-					: pour chaque point, on ajoute un petit bruit uniforme au score <KatexInline
-						formula={String.raw`S_i' = S_i + U`}
-					/> (avec <KatexInline formula={String.raw`U \sim \mathcal{U}(0, \epsilon)`} />), ou l'on
-					tire aléatoirement l'inclusion de la classe frontière avec une probabilité calculée pour
-					interpoler exactement le quantile. Cela permet de restaurer mathématiquement la garantie
-					exacte de couverture.
-				</p>
-			{/snippet}
-			<p>
-				Pourquoi la présence de scores de conformité identiques (égalités) pose-t-elle un problème
-				pour garantir une couverture exacte ? Comment les algorithmes conformes résolvent-ils ce cas
-				?
-			</p>
-		</ExercisePanel>
-
-		<ExercisePanel number="10.19" title="Vrai ou Faux : Prédiction Conforme">
+		<ExercisePanel number="5.20" title="Synthèse et validation des concepts">
 			{#snippet solution()}
 				<ol>
 					<li>
-						<strong>FAUX :</strong> C'est l'inverse. La prédiction conforme classique garantit une
-						couverture <em>marginale</em> exacte, la couverture conditionnelle stricte étant impossible
-						à garantir en échantillon fini sans hypothèses fortes supplémentaires sur la distribution.
+						<strong>Faux.</strong> Le Bagging n'aide pas à réduire le biais, il réduit principalement
+						la variance.
 					</li>
 					<li>
-						<strong>VRAI :</strong> L'hypothèse de base requise est uniquement l'échangeabilité des données,
-						ce qui n'impose aucune contrainte de linéarité ou de régularité sur le modèle de prédiction.
+						<strong>Vrai.</strong> L'erreur OOB fournit une estimation honnête, non biaisée de l'erreur
+						de généralisation sans besoin d'un jeu de test séparé.
 					</li>
 					<li>
-						<strong>VRAI :</strong> En échantillon fini, le fait de réserver une partie des données pour
-						la calibration prive le modèle d'une partie de sa base d'apprentissage, ce qui peut légèrement
-						dégrader la performance globale du classifieur sous-jacent.
+						<strong>Faux.</strong> Environ <KatexInline formula={String.raw`63.2\%`} /> des données uniques
+						sont incluses dans chaque échantillon bootstrap, les <KatexInline
+							formula={String.raw`36.8\%`}
+						/> restants sont Out-Of-Bag.
 					</li>
 					<li>
-						<strong>FAUX :</strong> Si le modèle est parfait (oracle), les ensembles de prédiction conformes
-						seront optimaux et de taille minimale, mais la garantie de couverture de 95% reste mathématiquement
-						respectée dans tous les cas.
+						<strong>Vrai.</strong> Plus les arbres sont corrélés, plus la variance finale de l'ensemble
+						reste proche de la variance d'un seul arbre.
 					</li>
 				</ol>
 			{/snippet}
 			<p>Répondez par Vrai ou Faux en justifiant brièvement :</p>
 			<ol>
+				<li>Le Bagging permet d'ajuster le biais d'un modèle sous-appris.</li>
 				<li>
-					La prédiction conforme classique garantit une couverture conditionnelle stricte pour tout
-					point individuel <KatexInline formula={String.raw`x`} />.
+					L'erreur OOB est calculée sur des données n'ayant jamais servi à entraîner l'arbre de base
+					évalué.
 				</li>
+				<li>Chaque échantillon de bootstrap contient exactement 50% de données originales.</li>
 				<li>
-					On peut appliquer la prédiction conforme sur un réseau de neurones boîte noire non
-					linéaire ou sur une forêt aléatoire.
-				</li>
-				<li>
-					Le Split Conformal souffre d'un compromis d'efficacité dû au fait que le modèle n'est pas
-					entraîné sur l'intégralité des données disponibles.
-				</li>
-				<li>
-					Si le modèle de base a un taux d'erreur de 50%, la prédiction conforme ne peut pas
-					atteindre une couverture de 95%.
+					L'efficacité du Bagging dépend crucialement de la faible corrélation entre les erreurs des
+					estimateurs individuels.
 				</li>
 			</ol>
 		</ExercisePanel>
 
-		<ExercisePanel number="10.20" title="Synthèse : Choix du score de conformité">
-			{#snippet solution()}
-				<table class="w-full text-center border my-2 text-sm">
-					<thead>
-						<tr class="bg-muted"
-							><th>Score</th><th>Formule mathématique</th><th>Avantages</th><th>Limites</th></tr
-						>
-					</thead>
-					<tbody>
-						<tr>
-							<td>Score simple</td>
-							<td><KatexInline formula={String.raw`1 - p_y`} /></td>
-							<td>Très simple à implémenter</td>
-							<td>N'est pas adaptatif (seuil fixe global de probabilité)</td>
-						</tr>
-						<tr>
-							<td>APS</td>
-							<td>Somme triée des probabilités</td>
-							<td>Totalement adaptatif, respecte la forme locale</td>
-							<td>Peut inclure de nombreuses classes à très faible probabilité</td>
-						</tr>
-						<tr>
-							<td>SAPS</td>
-							<td>APS + pénalité de taille</td>
-							<td>Évite d'inclure les classes non pertinentes (régularisé)</td>
-							<td>Introduit deux hyperparamètres supplémentaires à régler</td>
-						</tr>
-					</tbody>
-				</table>
-			{/snippet}
-			<p>
-				Dressez un tableau récapitulatif comparant le score simple <KatexInline
-					formula={String.raw`1-\hat{p}_y`}
-				/>, le score cumulatif (APS) et le score cumulatif régularisé (SAPS) en indiquant leurs
-				définitions, leurs forces et leurs faiblesses respectives.
-			</p>
-		</ExercisePanel>
-
-		<!-- ════════════════════════ SECTION 11 ════════════════════════ -->
-		<h2 id="prediction-conforme-regression">Régression Conforme</h2>
+		<!-- ==========================================
+                   SECTION 6: FORÊTS ALÉATOIRES
+                   ========================================== -->
+		<h2 id="forets-aleatoires">Forêts Aléatoires (Random Forests)</h2>
 		<p>
-			Cette section applique le principe de prédiction conforme au cas continu de la régression,
-			pour construire des intervalles de confiance rigoureux (largeur constante, largeur adaptative
-			par normalisation, ou CQR).
+			Cette section explore les mécanismes des Forêts Aléatoires : décorrélation des arbres par
+			sélection de features, critères de division optimale, importance des variables et convergence.
 		</p>
 
-		<ExercisePanel number="11.1" title="Dérivation de l'intervalle de largeur constante">
+		<ExercisePanel number="6.1" title="Démonstration de la variance d'une forêt">
 			{#snippet solution()}
 				<p>
-					Le score de conformité est le résidu absolu : <KatexInline
-						formula={String.raw`S_i = |y_i - \hat{f}(x_i)|`}
-					/>. Soit <KatexInline formula={String.raw`\hat{q}`} /> le quantile approprié de ces scores sur
-					l'ensemble de calibration. Par définition, l'intervalle conforme est formé par les valeurs de
-					<KatexInline formula={String.raw`y`} /> telles que :
+					En utilisant la décomposition de la variance d'un estimateur moyenné de <KatexInline
+						formula={String.raw`M`}
+					/> variables corrélées (établie à l'exercice 5.2) :
 				</p>
 				<KatexBlock
-					formula={String.raw`|y - \hat{f}(x)| \le \hat{q} \iff -\hat{q} \le y - \hat{f}(x) \le \hat{q} \iff \hat{f}(x) - \hat{q} \le y \le \hat{f}(x) + \hat{q}`}
+					formula={String.raw`\text{Var}\left(\frac{1}{M}\sum_{j=1}^M T_j(X)\right) = \bar{\rho} \sigma^2 + \frac{1-\bar{\rho}}{M}\sigma^2`}
 				/>
 				<p>
-					On obtient ainsi l'intervalle symétrique : <KatexInline
-						formula={String.raw`\mathcal{C}(x) = [\hat{f}(x) - \hat{q}, \hat{f}(x) + \hat{q}]`}
-					/>. La largeur de cet intervalle est de <KatexInline formula={String.raw`2\hat{q}`} /> pour
-					tout point <KatexInline formula={String.raw`x`} />, elle est donc parfaitement constante.
+					Ici, <KatexInline formula={String.raw`T_j(X)`} /> représente le <KatexInline
+						formula={String.raw`j`}
+					/>-ème arbre de la forêt, <KatexInline formula={String.raw`\sigma^2`} /> la variance d'un seul
+					arbre, et <KatexInline formula={String.raw`\bar{\rho}`} /> la corrélation moyenne entre les
+					arbres. Cette formule démontre que la sélection aléatoire de variables, en réduisant la corrélation
+					<KatexInline formula={String.raw`\bar{\rho}`} />, diminue directement la variance globale
+					de la forêt.
 				</p>
 			{/snippet}
 			<p>
-				En utilisant le score de conformité basé sur le résidu absolu <KatexInline
-					formula={String.raw`s(x,y) = |y - \hat{f}(x)|`}
-				/>, démontrez algébriquement que l'intervalle conforme résultant est un intervalle de
-				largeur constante centré sur la prédiction du modèle.
+				Démontrez le lien direct entre la formule de variance de Theorem 6.1 et la diminution
+				induite par la sélection aléatoire de variables (notée <KatexInline
+					formula={String.raw`m < d`}
+				/>) propre aux Forêts Aléatoires.
 			</p>
 		</ExercisePanel>
 
-		<ExercisePanel number="11.2" title="Garantie formelle en régression conforme">
+		<ExercisePanel number="6.2" title="Impact du paramètre de sélection de variables">
 			{#snippet solution()}
 				<p>
-					La garantie de couverture est identique au cas discret de la classification. Si les
-					couples <KatexInline formula={String.raw`(X_i, Y_i)`} /> sont échangeables, alors les scores
-					de résidus absolus de calibration et de test le sont également. On obtient donc exactement la
-					même garantie à échantillon fini :
+					Le paramètre <KatexInline formula={String.raw`m`} /> (souvent noté
+					<code>max_features</code>
+					ou <code>mtry</code>) régit la force de la décorrélation :
 				</p>
-				<KatexBlock
-					formula={String.raw`\mathbb{P}(Y_{\text{test}} \in [\hat{f}(X_{\text{test}}) - \hat{q}, \hat{f}(X_{\text{test}}) + \hat{q}]) \ge 1 - \alpha`}
-				/>
-				<p>
-					Cette probabilité est définie de manière marginale sur le tirage de l'ensemble
-					d'entraînement, de calibration et du couple de test.
-				</p>
-			{/snippet}
-			<p>
-				Énoncez formellement la garantie théorique de couverture obtenue pour l'intervalle de
-				régression conforme de l'exercice 11.1 et précisez les hypothèses statistiques requises.
-			</p>
-		</ExercisePanel>
-
-		<ExercisePanel number="11.3" title="Régression Quantile Conforme (CQR)">
-			{#snippet solution()}
-				<p>
-					La CQR (Conformalized Quantile Regression) combine la régression quantile et la prédiction
-					conforme. Au lieu d'un modèle de moyenne, on entraîne deux modèles de quantiles de base : <KatexInline
-						formula={String.raw`\hat{q}_{\alpha/2}(x)`}
-					/> et <KatexInline formula={String.raw`\hat{q}_{1-\alpha/2}(x)`} />. Le score de
-					conformité mesure l'erreur par rapport à ces deux bornes :
-				</p>
-				<KatexBlock
-					formula={String.raw`s(x, y) = \max\left( \hat{q}_{\alpha/2}(x) - y, \, y - \hat{q}_{1-\alpha/2}(x) \right)`}
-				/>
-				<p>
-					Le score est négatif si la vraie valeur est déjà dans l'intervalle prédit par les
-					quantiles bruts, et positif sinon. Le quantile conforme <KatexInline
-						formula={String.raw`\hat{q}`}
-					/> calculé sur ces scores sert de terme d'ajustement global appliqué aux bornes pour garantir
-					la couverture exacte de <KatexInline formula={String.raw`1-\alpha`} />.
-				</p>
-			{/snippet}
-			<p>
-				Expliquez le principe de la méthode CQR (Conformalized Quantile Regression) de Romano et al.
-				et donnez l'expression du score de conformité associé.
-			</p>
-		</ExercisePanel>
-
-		<ExercisePanel number="11.4" title="CQR symétrique vs asymétrique">
-			{#snippet solution()}
-				<p>La CQR peut utiliser deux approches pour la calibration :</p>
 				<ul>
 					<li>
-						<strong>Sémantique symétrique :</strong> Utilise un seul et unique score de
-						non-conformité (défini à l'exercice 11.3) et applique le même décalage <KatexInline
-							formula={String.raw`\hat{q}`}
-						/> aux deux bornes.
+						<strong>Si <KatexInline formula={String.raw`m`} /> diminue :</strong> La corrélation <KatexInline
+							formula={String.raw`\bar{\rho}`}
+						/> diminue (ce qui est bénéfique pour réduire la variance globale), mais la variance individuelle
+						de chaque arbre <KatexInline formula={String.raw`\sigma^2`} /> augmente ainsi que son biais
+						(car l'arbre dispose de choix de divisions de moins bonne qualité).
 					</li>
 					<li>
-						<strong>Sémantique asymétrique :</strong> Calcule séparément deux quantiles de
-						non-conformité : un pour le dépassement de la borne supérieure (<KatexInline
-							formula={String.raw`s_{\text{sup}} = y - \hat{q}_{1-\alpha/2}(x)`}
-						/>) et un pour le dépassement de la borne inférieure (<KatexInline
-							formula={String.raw`s_{\text{inf}} = \hat{q}_{\alpha/2}(x) - y`}
-						/>). Cela produit deux termes d'ajustement distincts <KatexInline
-							formula={String.raw`\hat{q}_{\text{sup}}`}
-						/> et <KatexInline formula={String.raw`\hat{q}_{\text{inf}}`} />, permettant de corriger
-						des biais systématiques asymétriques du modèle de régression quantile sous-jacent.
+						<strong>Si <KatexInline formula={String.raw`m`} /> augmente :</strong> Les arbres
+						deviennent plus performants individuellement (faible biais), mais très corrélés entre
+						eux (<KatexInline formula={String.raw`\bar{\rho} \to 1`} />), ce qui rapproche la forêt
+						d'un simple Bagging d'arbres.
 					</li>
 				</ul>
 			{/snippet}
 			<p>
-				Distinguez le fonctionnement d'une calibration CQR symétrique d'une calibration CQR
-				asymétrique. Quel est l'intérêt d'une approche asymétrique ?
+				Discutez de l'influence du paramètre de taille du sous-espace aléatoire <KatexInline
+					formula={String.raw`m`}
+				/> (nombre de variables tirées au hasard à chaque nœud) sur le compromis biais-variance d'une
+				forêt de décision.
 			</p>
 		</ExercisePanel>
 
-		<ExercisePanel number="11.5" title="Score normalisé localement (Intervalle adaptatif)">
+		<ExercisePanel number="6.3" title="Calcul de l'impureté de Gini">
 			{#snippet solution()}
+				<p>La formule de Gini pour un nœud binaire à deux classes (0 et 1) est :</p>
+				<KatexBlock formula={String.raw`I_G(t) = 1 - (p_0^2 + p_1^2)`} />
 				<p>
-					Le score normalisé est <KatexInline
-						formula={String.raw`s(x, y) = \frac{|y - \hat{f}(x)|}{\sigma(x) + \varepsilon}`}
-					/>. Soit <KatexInline formula={String.raw`\hat{q}`} /> le quantile de ces scores sur l'ensemble
-					de calibration. Le point <KatexInline formula={String.raw`y`} /> appartient à l'ensemble conforme
-					si et seulement si :
+					Ici, la proportion de la classe positive est <KatexInline
+						formula={String.raw`p_1 = 30 / (30 + 70) = 0.3`}
+					/> et <KatexInline formula={String.raw`p_0 = 0.7`} />.
 				</p>
 				<KatexBlock
-					formula={String.raw`\frac{|y - \hat{f}(x)|}{\sigma(x) + \varepsilon} \le \hat{q} \iff |y - \hat{f}(x)| \le \hat{q} (\sigma(x) + \varepsilon)`}
-				/>
-				<p>L'intervalle de prédiction conforme s'écrit donc :</p>
-				<KatexBlock
-					formula={String.raw`\mathcal{C}(x) = \left[ \hat{f}(x) - \hat{q} (\sigma(x) + \varepsilon), \, \hat{f}(x) + \hat{q} (\sigma(x) + \varepsilon) \right]`}
+					formula={String.raw`I_G(t) = 1 - (0.7^2 + 0.3^2) = 1 - (0.49 + 0.09) = 1 - 0.58 = 0.42`}
 				/>
 				<p>
-					La largeur de cet intervalle est de <KatexInline
-						formula={String.raw`2 \hat{q} (\sigma(x) + \varepsilon)`}
-					/>. Elle varie donc directement de manière proportionnelle à l'estimation locale du bruit
-					de données <KatexInline formula={String.raw`\sigma(x)`} />.
-				</p>
-			{/snippet}
-			<p>
-				Soit un score de conformité normalisé localement : <KatexInline
-					formula={String.raw`s(x,y) = \frac{|y - \hat{f}(x)|}{\sigma(x) + \varepsilon}`}
-				/>, où <KatexInline formula={String.raw`\sigma(x)`} /> est un estimateur de l'écart-type local
-				et <KatexInline formula={String.raw`\varepsilon > 0`} /> un terme de régularisation. Dérivez l'expression
-				analytique de l'intervalle conforme adaptatif associé.
-			</p>
-		</ExercisePanel>
-
-		<ExercisePanel number="11.6" title="Estimation de l'incertitude locale par Bootstrap">
-			{#snippet solution()}
-				<p>
-					Pour estimer <KatexInline formula={String.raw`\sigma(x)`} />, on peut utiliser le
-					bootstrap :
-				</p>
-				<ol>
-					<li>
-						On tire <KatexInline formula={String.raw`B`} /> échantillons de bootstrap de l'ensemble d'entraînement.
-					</li>
-					<li>
-						On entraîne un modèle de régression <KatexInline formula={String.raw`f_b`} /> sur chaque échantillon.
-					</li>
-					<li>
-						Pour un point <KatexInline formula={String.raw`x`} />, on calcule l'écart-type empirique
-						des prédictions des modèles bootstrap :
-					</li>
-				</ol>
-				<KatexBlock
-					formula={String.raw`\sigma(x) = \sqrt{\frac{1}{B-1} \sum_{b=1}^B (f_b(x) - \bar{f}(x))^2}`}
-				/>
-				<p>
-					Où <KatexInline formula={String.raw`\bar{f}(x) = \frac{1}{B}\sum f_b(x)`} /> est la prédiction
-					moyenne de l'ensemble (bagging).
-				</p>
-			{/snippet}
-			<p>
-				Présentez le protocole d'estimation de la variance locale <KatexInline
-					formula={String.raw`\sigma(x)`}
-				/> en utilisant une approche par Bootstrap (Bagging) sur un modèle de régression arbitraire.
-			</p>
-		</ExercisePanel>
-
-		<ExercisePanel number="11.7" title="Robustesse face à un mauvais estimateur d'incertitude">
-			{#snippet solution()}
-				<p>
-					C'est une propriété majeure de la prédiction conforme : <strong
-						>la garantie de couverture de 95% reste mathématiquement préservée</strong
-					>, même si l'estimateur <KatexInline formula={String.raw`\sigma(x)`} /> de la variance est complètement
-					faux ou biaisé (par exemple s'il s'agit d'une constante arbitraire ou de valeurs erronées).
-					La seule conséquence d'un mauvais estimateur <KatexInline
-						formula={String.raw`\sigma(x)`}
-					/> est une <strong>perte d'efficacité (largeur sous-optimale)</strong> : l'intervalle sera
-					trop large dans certaines zones et trop étroit dans d'autres, perdant sa capacité
-					d'adaptation locale idéale, mais sans jamais violer la couverture marginale globale de <KatexInline
-						formula={String.raw`1-\alpha`}
+					L'indice d'impureté de Gini de ce nœud vaut donc <KatexInline
+						formula={String.raw`0.42`}
 					/>.
 				</p>
 			{/snippet}
 			<p>
-				Si notre estimateur de l'incertitude locale <KatexInline formula={String.raw`\sigma(x)`} /> est
-				de très mauvaise qualité, la garantie de couverture de l'intervalle conforme adaptatif de l'exercice
-				11.5 est-elle compromise ? Qu'est-ce qui est affecté en pratique ?
+				Soit un nœud <KatexInline formula={String.raw`t`} /> contenant 100 exemples d'apprentissage, dont
+				30 de la classe positive (1) et 70 de la classe négative (0). Calculez l'impureté de Gini <KatexInline
+					formula={String.raw`I_G(t)`}
+				/> de ce nœud.
 			</p>
 		</ExercisePanel>
 
-		<ExercisePanel number="11.8" title="Évaluation : Largeur moyenne de l'intervalle">
+		<ExercisePanel number="6.4" title="Calcul du gain de division par l'indice de Gini">
 			{#snippet solution()}
 				<p>
-					L'efficacité de l'intervalle sur un échantillon de test de taille <KatexInline
-						formula={String.raw`M`}
-					/> se mesure par sa largeur moyenne :
+					L'impureté initiale du nœud parent est <KatexInline
+						formula={String.raw`I_G(t) = 0.42`}
+					/>. Le nœud fils gauche contient 40 exemples dont 10 positifs (<KatexInline
+						formula={String.raw`p_{L,1} = 0.25, \; p_{L,0} = 0.75`}
+					/>) :
 				</p>
 				<KatexBlock
-					formula={String.raw`\text{Width}_{\text{avg}} = \frac{1}{M} \sum_{i=1}^M \left( \text{borne\_sup}(x_i) - \text{borne\_inf}(x_i) \right)`}
+					formula={String.raw`I_G(t_L) = 1 - (0.25^2 + 0.75^2) = 1 - (0.0625 + 0.5625) = 0.375`}
 				/>
 				<p>
-					Pour l'intervalle constant de largeur <KatexInline formula={String.raw`2\hat{q}`} />, la
-					largeur moyenne est simplement de <KatexInline formula={String.raw`2\hat{q}`} />. Pour
-					l'intervalle adaptatif, elle vaut <KatexInline
-						formula={String.raw`\frac{2\hat{q}}{M} \sum (\sigma(x_i) + \varepsilon)`}
-					/>. À couverture égale (ex: 95%), la méthode la plus efficace est celle qui minimise cette
-					largeur moyenne.
+					Le nœud fils droit contient 60 exemples dont 20 positifs (<KatexInline
+						formula={String.raw`p_{R,1} = 1/3, \; p_{R,0} = 2/3`}
+					/>) :
+				</p>
+				<KatexBlock
+					formula={String.raw`I_G(t_R) = 1 - ((1/3)^2 + (2/3)^2) = 1 - (1/9 + 4/9) = 4/9 \approx 0.444`}
+				/>
+				<p>Le gain de Gini de cette division est :</p>
+				<KatexBlock
+					formula={String.raw`\Delta I_G = 0.42 - \frac{40}{100}(0.375) - \frac{60}{100}(0.444) = 0.42 - 0.15 - 0.266 = 0.004`}
+				/>
+				<p>
+					Le gain généré par cette division est extrêmement faible (<KatexInline
+						formula={String.raw`0.004`}
+					/>), indiquant une séparation peu discriminante.
 				</p>
 			{/snippet}
 			<p>
-				Définissez mathématiquement la métrique de <strong>largeur moyenne</strong> de l'intervalle conforme
-				et expliquez pourquoi elle constitue le critère principal d'efficacité à couverture fixe.
+				En reprenant le nœud de l'exercice 6.3, on propose une division <KatexInline
+					formula={String.raw`s`}
+				/> qui sépare les données ainsi : le nœud de gauche <KatexInline
+					formula={String.raw`t_L`}
+				/> contient 40 exemples (dont 10 positifs) et le nœud de droite <KatexInline
+					formula={String.raw`t_R`}
+				/> contient 60 exemples (dont 20 positifs). Calculez le gain de division de Gini <KatexInline
+					formula={String.raw`\Delta I_G(s, t)`}
+				/>.
 			</p>
 		</ExercisePanel>
 
-		<ExercisePanel number="11.9" title="Évaluation : Indice de couverture conditionnelle">
+		<ExercisePanel number="6.5" title="Probabilité d'inclure la meilleure feature">
 			{#snippet solution()}
 				<p>
-					Pour mesurer empiriquement si un intervalle adaptatif approche la couverture
-					conditionnelle, on procède par partitionnement :
-				</p>
-				<ol>
-					<li>
-						On découpe l'espace des entrées en bins disjoints <KatexInline
-							formula={String.raw`X_1, \dots, X_G`}
-						/> (par exemple sur l'axe d'une variable ou selon la valeur de l'incertitude).
-					</li>
-					<li>
-						On calcule le taux de couverture indépendant dans chaque groupe <KatexInline
-							formula={String.raw`g`}
-						/> : <KatexInline formula={String.raw`C_g`} />.
-					</li>
-					<li>
-						On calcule l'écart quadratique moyen de couverture (Conditional Coverage Violations) :
-					</li>
-				</ol>
-				<KatexBlock
-					formula={String.raw`\text{CVV} = \frac{1}{G} \sum_{g=1}^G \left( C_g - (1-\alpha) \right)^2`}
-				/>
-				<p>
-					Plus cet indice est proche de 0, plus la couverture est uniforme et proche de la
-					couverture conditionnelle idéale.
-				</p>
-			{/snippet}
-			<p>
-				Concevez un protocole expérimental et formulez un indicateur mathématique permettant
-				d'évaluer la qualité de la <strong>couverture conditionnelle</strong> d'une méthode de régression
-				conforme.
-			</p>
-		</ExercisePanel>
-
-		<ExercisePanel number="11.10" title="La méthode Jackknife+">
-			{#snippet solution()}
-				<p>
-					Le Jackknife+ évite de scinder les données en entraînement et calibration en utilisant une
-					approche de type validation croisée « leave-one-out » (LOO). Soit <KatexInline
-						formula={String.raw`\hat{f}_{-i}`}
-					/> le modèle entraîné en excluant le point <KatexInline formula={String.raw`i`} />, et les
-					résidus associés <KatexInline formula={String.raw`R_i = |y_i - \hat{f}_{-i}(x_i)|`} />.
-					Pour un nouveau point <KatexInline formula={String.raw`x`} />, l'intervalle construit est
+					Le problème revient à calculer la probabilité d'obtenir au moins une fois la variable
+					informative <KatexInline formula={String.raw`X_1`} /> lors d'un tirage sans remise de <KatexInline
+						formula={String.raw`m`}
+					/> éléments parmi <KatexInline formula={String.raw`d`} />. Il est plus facile de calculer
+					la probabilité complémentaire (ne jamais tirer <KatexInline formula={String.raw`X_1`} />)
 					:
 				</p>
 				<KatexBlock
-					formula={String.raw`\mathcal{C}_{\text{J}+}(x) = \left[ \min_i \left( \hat{f}_{-i}(x) - R_i \right) , \, \max_i \left( \hat{f}_{-i}(x) + R_i \right) \right]`}
+					formula={String.raw`P(\text{Exclusion}) = \frac{\binom{d-1}{m}}{\binom{d}{m}} = \frac{(d-1)!}{m!(d-1-m)!} \times \frac{m!(d-m)!}{d!} = \frac{d-m}{d} = 1 - \frac{m}{d}`}
 				/>
-				<p>
-					Le théorème de Barber et al. démontre que cet intervalle garantit une couverture
-					rigoureuse de <KatexInline formula={String.raw`1 - 2\alpha`} /> (souvent très proche de <KatexInline
-						formula={String.raw`1-\alpha`}
-					/> en pratique), sans exiger de partition de calibration séparée, au prix d'un coût de calcul
-					élevé (réentraînement de <KatexInline formula={String.raw`n`} /> modèles).
-				</p>
-			{/snippet}
-			<p>
-				Présentez la formulation mathématique des intervalles de la méthode <strong
-					>Jackknife+</strong
-				> de Barber et al. et donnez sa garantie de couverture théorique.
-			</p>
-		</ExercisePanel>
-
-		<ExercisePanel number="11.11" title="Comparaison : Jackknife-minmax vs Jackknife+">
-			{#snippet solution()}
-				<p>
-					Le Jackknife-minmax est une version plus conservatrice du Jackknife+. L'intervalle se
-					formule par :
-				</p>
+				<p>La probabilité d'inclure la variable clé dans le sous-espace est donc :</p>
 				<KatexBlock
-					formula={String.raw`\mathcal{C}_{\text{minmax}}(x) = \left[ \min_j \hat{f}_{-j}(x) - q_{1-\alpha}, \, \max_j \hat{f}_{-j}(x) + q_{1-\alpha} \right]`}
+					formula={String.raw`P(\text{Inclusion}) = 1 - P(\text{Exclusion}) = \frac{m}{d}`}
 				/>
 				<p>
-					Où <KatexInline formula={String.raw`q_{1-\alpha}`} /> est le quantile des résidus LOO. Cet intervalle
-					est mathématiquement plus large ou égal à celui du Jackknife+, garantissant une couverture de
-					<KatexInline formula={String.raw`1-\alpha`} /> totale mais au prix d'intervalles souvent trop
-					conservateurs (trop larges) en pratique. Le Jackknife+ offre un bien meilleur compromis de taille.
+					Pour <KatexInline formula={String.raw`d=100`} /> et <KatexInline
+						formula={String.raw`m = \sqrt{100} = 10`}
+					/>, la probabilité d'inclure cette variable clé à chaque nœud est de seulement <KatexInline
+						formula={String.raw`10\%`}
+					/>. Cela permet aux <KatexInline formula={String.raw`90\%`} /> des nœuds restants d'explorer
+					d'autres variables, décorrélant fortement les arbres.
 				</p>
 			{/snippet}
 			<p>
-				Comparez la méthode <em>Jackknife-minmax</em> et la méthode <em>Jackknife+</em> en termes de conservatisme
-				des intervalles de prédiction produits.
+				Soit un jeu de données comportant <KatexInline formula={String.raw`d`} /> variables prédictives,
+				dont une seule variable <KatexInline formula={String.raw`X_1`} /> est fortement informative. Déterminez
+				la probabilité exacte que <KatexInline formula={String.raw`X_1`} /> fasse partie du sous-ensemble
+				aléatoire de taille <KatexInline formula={String.raw`m`} /> sélectionné à un nœud donné.
 			</p>
 		</ExercisePanel>
 
-		<ExercisePanel number="11.12" title="CV+ (Validation Croisée Conforme)">
+		<ExercisePanel number="6.6" title="Règle empirique de classification">
 			{#snippet solution()}
 				<p>
-					La méthode CV+ généralise le Jackknife+ au cadre du K-fold cross-validation pour réduire
-					le coût computationnel. Au lieu de réentraîner <KatexInline formula={String.raw`n`} /> modèles
-					(LOO), on n'en entraîne que <KatexInline formula={String.raw`K`} /> (typiquement <KatexInline
-						formula={String.raw`K=5`}
-					/> ou <KatexInline formula={String.raw`K=10`} />). Soit <KatexInline
-						formula={String.raw`B(i)`}
-					/> le bloc contenant le point <KatexInline formula={String.raw`i`} />, et <KatexInline
-						formula={String.raw`\hat{f}_{-B(i)}`}
-					/> le modèle entraîné sans ce bloc. Les résidus sont définis par <KatexInline
-						formula={String.raw`R_i = |y_i - \hat{f}_{-B(i)}(x_i)|`}
-					/>. La formule d'intervalle pour un point <KatexInline formula={String.raw`x`} /> reste la même
-					que celle du Jackknife+, en remplaçant les modèles LOO par les modèles de bloc correspondants.
-					Elle conserve la garantie théorique de couverture de <KatexInline
-						formula={String.raw`1-2\alpha`}
+					Pour la classification, la règle par défaut est <KatexInline
+						formula={String.raw`m = \lfloor \sqrt{d} \rfloor`}
 					/>.
 				</p>
+				<p>
+					Pour <KatexInline formula={String.raw`d = 400`} /> variables, le nombre de caractéristiques
+					évaluées à chaque nœud est <KatexInline formula={String.raw`m = \sqrt{400} = 20`} />.
+					L'intérêt de cette valeur est de trouver un bon compromis entre la puissance prédictive de
+					chaque arbre (qui chuterait si <KatexInline formula={String.raw`m`} /> était trop petit) et
+					la décorrélation indispensable (qui s'annulerait si <KatexInline
+						formula={String.raw`m \to d`}
+					/>).
+				</p>
 			{/snippet}
 			<p>
-				Décrivez le principe de la méthode <strong>CV+</strong> (Cross-Validation Conforme) et expliquez
-				pourquoi elle est computationnellement plus avantageuse que le Jackknife+.
+				Pour un problème de classification binaire comportant <KatexInline
+					formula={String.raw`d = 400`}
+				/> variables, déterminez la valeur recommandée par défaut de <KatexInline
+					formula={String.raw`m`}
+				/> d'après les règles empiriques classiques de Leo Breiman. Justifiez l'intérêt de ce choix.
+			</p>
+		</ExercisePanel>
+
+		<ExercisePanel number="6.7" title="Règle empirique de régression">
+			{#snippet solution()}
+				<p>
+					Pour la régression, la règle par défaut est <KatexInline
+						formula={String.raw`m = \lfloor d / 3 \rfloor`}
+					/>.
+				</p>
+				<p>
+					Pour <KatexInline formula={String.raw`d = 150`} /> variables, le nombre de variables examinées
+					est <KatexInline formula={String.raw`150 / 3 = 50`} />. La régression nécessite
+					généralement d'évaluer plus de variables simultanément que la classification pour lisser
+					convenablement la surface de réponse continue et maintenir un biais raisonnable.
+				</p>
+			{/snippet}
+			<p>
+				Pour un problème de régression comportant <KatexInline formula={String.raw`d = 150`} /> variables,
+				quelle est la valeur de <KatexInline formula={String.raw`m`} /> recommandée par défaut ? Expliquez
+				pourquoi cette valeur est proportionnellement plus grande que pour la classification.
 			</p>
 		</ExercisePanel>
 
 		<ExercisePanel
-			number="11.13"
-			title="Impact d'un unique point aberrant (outlier) en calibration"
+			number="6.8"
+			title="Calcul de l'importance des caractéristiques par impureté (MDI)"
 		>
 			{#snippet solution()}
 				<p>
-					Dans le cadre de l'intervalle conforme de <strong>largeur constante</strong>, le seuil <KatexInline
-						formula={String.raw`\hat{q}`}
-					/> est calculé globalement sur tous les résidus. L'introduction d'un point aberrant (outlier)
-					avec un résidu absolu colossal <KatexInline
-						formula={String.raw`R_{\text{outlier}} \gg 0`}
-					/> va décaler vers le haut la distribution empirique des résidus. Si la taille de l'échantillon
-					<KatexInline formula={String.raw`n`} /> est faible ou si la proportion d'outliers est significative
-					par rapport à <KatexInline formula={String.raw`\alpha`} />, le quantile <KatexInline
-						formula={String.raw`\hat{q}`}
-					/> va augmenter fortement. Comme l'intervalle est constant, tous les points de test recevront
-					un intervalle artificiellement élargi, détériorant massivement l'efficacité globale pour s'adapter
-					à une seule anomalie.
-				</p>
-			{/snippet}
-			<p>
-				Analysez l'impact de l'introduction d'un unique point aberrant (outlier) extrême dans
-				l'ensemble de calibration sur la largeur des intervalles conformes constants de l'ensemble
-				de test.
-			</p>
-		</ExercisePanel>
-
-		<ExercisePanel number="11.14" title="Régression conforme multidimensionnelle">
-			{#snippet solution()}
-				<p>
-					Si la cible <KatexInline formula={String.raw`Y \in \mathbb{R}^d`} />, l'ensemble conforme
-					n'est plus un intervalle mais une région (par exemple une ellipse ou une boîte dans <KatexInline
-						formula={String.raw`\mathbb{R}^d`}
-					/>). On définit un score de non-conformité basé sur une norme (la distance euclidienne ou
-					la distance de Mahalanobis) :
-				</p>
-				<KatexBlock formula={String.raw`s(x, y) = \|y - \hat{f}(x)\|_2`} />
-				<p>
-					Soit <KatexInline formula={String.raw`\hat{q}`} /> le quantile de ces scores. La région conforme
-					de test est une boule de rayon <KatexInline formula={String.raw`\hat{q}`} /> centrée sur la
-					prédiction vectorielle du modèle :
+					L'importance MDI d'une variable correspond à la somme pondérée des diminutions d'impureté
+					de Gini sur tous les nœuds où cette variable a été choisie pour la division. Le premier
+					nœud (parent) engendre une baisse de <KatexInline formula={String.raw`0.12`} />, pondérée
+					par la proportion d'exemples <KatexInline formula={String.raw`200 / 200 = 1.0`} />. Le
+					second nœud engendre une baisse de <KatexInline formula={String.raw`0.08`} />, pondérée
+					par la proportion d'exemples <KatexInline formula={String.raw`80 / 200 = 0.4`} />.
 				</p>
 				<KatexBlock
-					formula={String.raw`\mathcal{C}(x) = \{ y \in \mathbb{R}^d \mid \|y - \hat{f}(x)\|_2 \le \hat{q} \}`}
+					formula={String.raw`\text{MDI}(X_2) = (1.0 \times 0.12) + (0.4 \times 0.08) = 0.12 + 0.032 = 0.152`}
 				/>
 				<p>
-					Cette région garantit un taux de couverture marginal de <KatexInline
-						formula={String.raw`1-\alpha`}
-					/> en dimension <KatexInline formula={String.raw`d`} />.
+					L'importance brute MDI de la variable <KatexInline formula={String.raw`X_2`} /> pour cet arbre
+					est de <KatexInline formula={String.raw`0.152`} />.
 				</p>
 			{/snippet}
 			<p>
-				Comment peut-on étendre le cadre de la régression conforme pour traiter le cas d'une
-				variable cible multidimensionnelle <KatexInline formula={String.raw`Y \in \mathbb{R}^d`} /> ?
-				Proposez une formulation pour le score et la région géométrique conforme de test.
+				Dans un arbre de décision d'une forêt, la variable <KatexInline formula={String.raw`X_2`} /> est
+				utilisée pour scinder deux nœuds : le nœud racine (contenant l'intégralité des 200 points, réduction
+				d'impureté de <KatexInline formula={String.raw`0.12`} />) et un sous-nœud gauche (contenant
+				80 points, réduction d'impureté de <KatexInline formula={String.raw`0.08`} />). Calculez la
+				contribution cumulée de <KatexInline formula={String.raw`X_2`} /> à l'importance Mean Decrease
+				in Impurity (MDI) dans cet arbre.
 			</p>
 		</ExercisePanel>
 
-		<ExercisePanel number="11.15" title="Calibration locale par partitionnement (Binning)">
+		<ExercisePanel number="6.9" title="Biais systématique du MDI pour les variables catégorielles">
 			{#snippet solution()}
 				<p>
-					La calibration locale par partitionnement (Binning Conformal Regression) procède ainsi :
+					L'importance par réduction d'impureté (MDI) souffre d'un biais majeur en faveur des
+					variables possédant un <strong>grand nombre de modalités uniques</strong> (comme les identifiants
+					ou les variables continues).
+				</p>
+				<p>
+					Puisqu'un arbre de décision cherche la meilleure division parmi toutes les valeurs
+					possibles d'une variable, une variable à forte cardinalité offre de multiples points de
+					coupure arbitraires. Même si cette variable est totalement décorrélée de la cible, elle
+					permettra de réduire artificiellement l'impureté sur l'échantillon d'apprentissage par pur
+					surapprentissage, gonflant indûment son score MDI.
+				</p>
+			{/snippet}
+			<p>
+				Pourquoi le critère d'importance des variables MDI (Mean Decrease Impurity) est-il
+				sévèrement biaisé en faveur des variables catégorielles à haute cardinalité (grand nombre de
+				catégories) ?
+			</p>
+		</ExercisePanel>
+
+		<ExercisePanel number="6.10" title="Importance par permutation (MDA)">
+			{#snippet solution()}
+				<p>
+					Le calcul de l'importance par permutation (Mean Decrease Accuracy) d'une variable
+					s'effectue en 4 étapes clés :
 				</p>
 				<ol>
 					<li>
-						On sépare l'espace des entrées en <KatexInline formula={String.raw`M`} /> régions disjointes
-						(bins) <KatexInline formula={String.raw`B_1, \dots, B_M`} />.
-					</li>
-					<li>On partitionne l'ensemble de calibration selon ces bins.</li>
-					<li>
-						On calcule de manière indépendante un quantile de calibration <KatexInline
-							formula={String.raw`\hat{q}_m`}
-						/> pour chaque bin <KatexInline formula={String.raw`B_m`} />.
+						Mesurer l'erreur Out-of-Bag (OOB) originale de chaque arbre sur sa fraction de données
+						non apprises.
 					</li>
 					<li>
-						Pour un nouveau point <KatexInline formula={String.raw`x \in B_m`} />, l'intervalle est
-						construit à l'aide du seuil local <KatexInline formula={String.raw`\hat{q}_m`} />.
+						Perturber aléatoirement (mélanger) les valeurs de la variable d'intérêt uniquement dans
+						le jeu de données OOB.
+					</li>
+					<li>Prédire à nouveau l'erreur OOB modifiée sur ces arbres.</li>
+					<li>
+						Calculer la différence d'erreur moyenne : si la variable est cruciale, perturber ses
+						valeurs détruit la performance et fait bondir l'erreur d'évaluation.
 					</li>
 				</ol>
-				<p>
-					Cette méthode améliore grandement la couverture conditionnelle locale mais nécessite que
-					chaque bin contienne suffisamment de points de calibration pour pouvoir calculer des
-					quantiles stables.
-				</p>
 			{/snippet}
 			<p>
-				Décrivez le mécanisme de calibration locale par partitionnement (Binning) en régression et
-				comparez ses avantages et limites par rapport à la calibration globale.
+				Décrivez l'algorithme de calcul de l'importance des variables par permutation (Mean Decrease
+				Accuracy, MDA). En quoi cette technique résout-elle le biais identifié à l'exercice 6.9 ?
 			</p>
 		</ExercisePanel>
 
-		<ExercisePanel number="11.16" title="Rôle de la constante de lissage epsilon">
+		<ExercisePanel number="6.11" title="Forêts Aléatoires vs Arbres de décision uniques">
 			{#snippet solution()}
 				<p>
-					Le score normalisé s'écrit <KatexInline
-						formula={String.raw`s(x,y) = |y - \hat{f}(x)| / (\sigma(x) + \varepsilon)`}
-					/>. La constante <KatexInline formula={String.raw`\varepsilon > 0`} /> remplit deux rôles majeurs
-					:
+					L'avantage fondamental des Forêts Aléatoires réside dans la <strong
+						>stabilité de l'estimation</strong
+					> :
 				</p>
 				<ul>
 					<li>
-						<strong>Stabilité numérique :</strong> Elle empêche une division par zéro si
-						l'estimateur de l'incertitude locale s'annule : <KatexInline
-							formula={String.raw`\sigma(x) = 0`}
-						/>.
+						<strong>Variance :</strong> Un arbre de décision unique est extrêmement sensible aux variations
+						locales du jeu d'apprentissage (forte variance). Une forêt lisse ces instabilités en moyennant
+						des centaines d'arbres décorrélés.
 					</li>
 					<li>
-						<strong>Régulation de l'incertitude :</strong> Si <KatexInline
-							formula={String.raw`\varepsilon`}
-						/> est très grand, la normalisation locale est atténuée et la largeur tend vers celle d'un
-						intervalle constant. Si <KatexInline formula={String.raw`\varepsilon \to 0`} />,
-						l'intervalle devient hyper-sensible aux faibles valeurs de <KatexInline
-							formula={String.raw`\sigma(x)`}
-						/>. C'est donc un paramètre de lissage contrôlant la transition entre intervalles
-						constants et adaptatifs.
+						<strong>Généralisation :</strong> La forêt réduit drastiquement le risque de surapprentissage
+						tout en préservant la capacité non linéaire d'ajustement des arbres profonds.
 					</li>
 				</ul>
 			{/snippet}
 			<p>
-				Dans la formule du score normalisé localement, quel est le rôle mathématique et l'impact
-				pratique du choix de la constante de lissage <KatexInline
-					formula={String.raw`\varepsilon`}
-				/> ?
+				Quel est le principal avantage d'une forêt aléatoire par rapport à un arbre de décision
+				unique construit sur le même jeu de données ? Répondez en termes de biais et de variance.
 			</p>
 		</ExercisePanel>
 
-		<ExercisePanel number="11.17" title="La métrique combinée CWC">
+		<ExercisePanel number="6.12" title="Convergence mathématique du Random Forest">
 			{#snippet solution()}
 				<p>
-					La métrique CWC (Coverage Width-based Criterion) pénalise à la fois une mauvaise
-					couverture et des intervalles trop larges :
+					<strong>Non, il n'y a aucun risque de surapprentissage</strong> en augmentant indéfiniment
+					le nombre d'arbres <KatexInline formula={String.raw`M`} />.
 				</p>
-				<KatexBlock
-					formula={String.raw`\text{CWC} = \text{Width}_{\text{avg}} \cdot \left( 1 + \gamma \cdot \mathbb{I}( \text{Cov} < 1-\alpha ) \cdot \exp(-\eta(\text{Cov} - (1-\alpha))) \right)`}
-				/>
 				<p>
-					Où <KatexInline formula={String.raw`\text{Cov}`} /> est la couverture empirique et <KatexInline
-						formula={String.raw`\gamma, \eta`}
-					/> sont des paramètres de pénalité positifs. La CWC reste égale à la largeur moyenne tant que
-					la couverture minimale de <KatexInline formula={String.raw`1-\alpha`} /> est respectée. Dès
-					que la couverture descend en dessous de ce seuil critique, la CWC explose de manière exponentielle.
-					Elle permet de pénaliser lourdement les modèles d'intervalles invalides.
+					En vertu de la loi forte des grands nombres, lorsque <KatexInline
+						formula={String.raw`M \to \infty`}
+					/>, l'erreur de généralisation d'une forêt aléatoire converge presque sûrement vers une
+					limite théorique stable (Theorem 6.5). Ajouter des arbres au-delà d'un certain seuil ne
+					fait que stabiliser la prédiction et consommer du temps de calcul, sans dégrader la
+					performance.
 				</p>
 			{/snippet}
 			<p>
-				Définissez la métrique combinée <strong>CWC</strong> (Coverage Width-based Criterion) et expliquez
-				pourquoi elle s'avère pertinente pour guider le choix d'un modèle d'intervalle.
+				Est-il possible de provoquer un surapprentissage (overfitting) en augmentant indéfiniment le
+				nombre d'arbres <KatexInline formula={String.raw`M`} /> dans une forêt aléatoire ? Justifiez à
+				l'aide des résultats de convergence asymptotique de Leo Breiman.
 			</p>
 		</ExercisePanel>
 
-		<ExercisePanel number="11.18" title="Construction d'intervalles unilatéraux">
+		<ExercisePanel number="6.13" title="Robustesse face aux variables redondantes">
 			{#snippet solution()}
 				<p>
-					Pour construire un intervalle unilatéral inférieur (par exemple pour garantir que la vraie
-					valeur ne descend pas en dessous de la borne inférieure avec une probabilité <KatexInline
-						formula={String.raw`1-\alpha`}
-					/>), on adapte le score :
+					Si l'on ajoute 10 copies identiques d'une variable informative <KatexInline
+						formula={String.raw`X_1`}
+					/> :
 				</p>
-				<KatexBlock formula={String.raw`s_{\text{unilat}}(x, y) = \hat{f}(x) - y`} />
+				<ul>
+					<li>
+						<strong>Performance prédictive :</strong> Elle reste inchangée car les arbres trouveront toujours
+						l'information utile.
+					</li>
+					<li>
+						<strong>Importances MDI et MDA :</strong> Les scores d'importance vont s'effondrer pour la
+						variable originale car l'information est désormais partagée et diluée entre les 10 copies
+						colinéaires. L'utilisateur pourrait croire à tort que cette variable est devenue inutile.
+					</li>
+				</ul>
+			{/snippet}
+			<p>
+				Analysez le comportement d'une forêt aléatoire et l'impact sur l'importance de ses
+				caractéristiques (MDI) si l'on ajoute dans le jeu de données 10 variables qui sont des
+				copies parfaites de la variable la plus prédictive.
+			</p>
+		</ExercisePanel>
+
+		<ExercisePanel number="6.14" title="Optimisation numérique : les Extra-Trees">
+			{#snippet solution()}
 				<p>
-					Soit <KatexInline formula={String.raw`\hat{q}`} /> le quantile d'ordre <KatexInline
-						formula={String.raw`1-\alpha`}
-					/> de ces scores (non absolus) de calibration. Le point de test respectera la couverture si
+					Les <strong>Extremely Randomized Trees (Extra-Trees)</strong> poussent l'aléa encore plus loin
 					:
 				</p>
-				<KatexBlock
-					formula={String.raw`\hat{f}(x) - y \le \hat{q} \iff y \ge \hat{f}(x) - \hat{q}`}
-				/>
-				<p>
-					L'intervalle de prédiction conforme unilatéral est alors : <KatexInline
-						formula={String.raw`\mathcal{C}(x) = [\hat{f}(x) - \hat{q}, \, +\infty[`}
-					/>.
-				</p>
+				<ul>
+					<li>
+						Au lieu de chercher le seuil de coupure optimal (le split maximisant le gain de Gini)
+						pour chaque variable sélectionnée, ils tirent des <strong
+							>seuils de coupure totalement au hasard</strong
+						> pour chaque variable candidate.
+					</li>
+					<li>
+						Cela accélère considérablement l'apprentissage (pas d'évaluation de tous les seuils de
+						coupure possibles) et réduit encore plus la corrélation <KatexInline
+							formula={String.raw`\bar{\rho}`}
+						/> entre les arbres, au prix d'une légère augmentation du biais individuel.
+					</li>
+				</ul>
 			{/snippet}
 			<p>
-				Comment adapter le score de conformité et l'algorithme de régression conforme pour
-				construire un intervalle <strong>unilatéral</strong> de la forme <KatexInline
-					formula={String.raw`[\text{borne\_inf}(x), +\infty[`}
-				/> avec une garantie de couverture de <KatexInline formula={String.raw`1-\alpha`} /> ?
+				Quelle est la différence méthodologique fondamentale entre une Forêt Aléatoire classique et
+				l'algorithme des Forêts Extrêmement Aléatoires (Extra-Trees) ? Quel est l'intérêt
+				informatique majeur de cette variante ?
 			</p>
 		</ExercisePanel>
 
-		<ExercisePanel number="11.19" title="Vrai ou Faux : Régression Conforme">
+		<ExercisePanel number="6.15" title="Gestion des données manquantes par Surrogate Splits">
+			{#snippet solution()}
+				<p>
+					Les "surrogate splits" (divisions de secours) sont des règles alternatives apprises à
+					chaque nœud :
+				</p>
+				<p>
+					Si la variable de division principale <KatexInline formula={String.raw`X_j`} /> est manquante
+					pour un exemple à tester, l'arbre utilise une autre variable <KatexInline
+						formula={String.raw`X_k`}
+					/> dont le comportement de division mime au plus près celui de <KatexInline
+						formula={String.raw`X_j`}
+					/>. Cela permet de propager l'exemple à gauche ou à droite de manière robuste sans avoir
+					recours à une imputation préalable des données manquantes.
+				</p>
+			{/snippet}
+			<p>
+				Expliquez le principe de la gestion des données manquantes par les arbres de décision via le
+				mécanisme des divisions de substitution ("surrogate splits").
+			</p>
+		</ExercisePanel>
+
+		<ExercisePanel number="6.16" title="Élagage et forêts aléatoires">
+			{#snippet solution()}
+				<p>
+					Dans une forêt aléatoire, il est de coutume de laisser les arbres croître jusqu'à leur
+					taille maximale (sans élagage) pour deux raisons :
+				</p>
+				<ol>
+					<li>
+						Un arbre profond a un biais extrêmement faible. Bien que sa variance individuelle soit
+						immense, le processus de moyennage sur des centaines d'arbres élimine cette variance.
+					</li>
+					<li>
+						Élaguer les arbres augmenterait artificiellement le biais individuel de chaque
+						estimateur, réduisant l'expressivité de la forêt finale.
+					</li>
+				</ol>
+			{/snippet}
+			<p>
+				Pourquoi n'est-il généralement pas nécessaire d'élaguer (pruning) les arbres de décision
+				individuels au sein d'une Forêt Aléatoire ?
+			</p>
+		</ExercisePanel>
+
+		<ExercisePanel number="6.17" title="Forêts obliques vs orthogonales">
+			{#snippet solution()}
+				<p>
+					<strong>Comparaison :</strong>
+				</p>
+				<ul>
+					<li>
+						<strong>Orthogonales (classiques) :</strong> Les divisions s'effectuent sur une seule
+						variable à la fois (<KatexInline formula={String.raw`X_j \le s`} />), ce qui crée des
+						frontières de décision parallèles aux axes de l'espace.
+					</li>
+					<li>
+						<strong>Obliques :</strong> Les divisions s'effectuent sur des combinaisons linéaires de
+						plusieurs variables (<KatexInline formula={String.raw`\sum w_i X_i \le s`} />). Elles
+						sont beaucoup plus performantes pour modéliser des corrélations complexes et des
+						diagonales, mais leur recherche de division est beaucoup plus coûteuse.
+					</li>
+				</ul>
+			{/snippet}
+			<p>
+				Qu'est-ce qu'une "forêt oblique" par rapport à une forêt aléatoire orthogonale classique ?
+				Quel type de frontière de décision cela permet-il de tracer ?
+			</p>
+		</ExercisePanel>
+
+		<ExercisePanel number="6.18" title="Robustesse des Forêts Aléatoires face aux bruits de labels">
+			{#snippet solution()}
+				<p>
+					Grâce à l'effet régulateur du bootstrap et du moyennage, les forêts aléatoires sont
+					remarquablement robustes au bruit sur la variable cible. Quelques arbres apprendront des
+					règles aberrantes basées sur les labels bruités, mais la majorité silencieuse des autres
+					arbres (ne contenant pas ces points bruités dans leurs bootstraps respectifs) dominera et
+					maintiendra la cohérence de la décision globale.
+				</p>
+			{/snippet}
+			<p>
+				Discutez de la sensibilité et de la robustesse d'une forêt aléatoire face à un jeu de
+				données contenant un taux modéré de labels bruités (erreurs d'étiquetage).
+			</p>
+		</ExercisePanel>
+
+		<ExercisePanel number="6.19" title="Vrai ou Faux sur les Forêts Aléatoires">
 			{#snippet solution()}
 				<ol>
 					<li>
-						<strong>FAUX :</strong> L'erreur absolue mesure la dispersion moyenne des résidus bruts, tandis
-						que la CQR cible directement les quantiles de la distribution conditionnelle, ce qui la rend
-						beaucoup plus robuste et précise face aux asymétries et bruits hétéroscédastiques locaux.
+						<strong>Vrai.</strong> Contrairement aux modèles linéaires ou de réseaux de neurones, les
+						arbres n'effectuent que des comparaisons de seuils et sont donc insensibles aux transformations
+						monotones.
 					</li>
 					<li>
-						<strong>VRAI :</strong> Le théorème de validité conforme ne repose sur aucune hypothèse paramétrique
-						concernant la distribution des erreurs (comme la normalité des résidus).
+						<strong>Faux.</strong> Le paramètre critique à optimiser est <KatexInline
+							formula={String.raw`m`}
+						/> (mtry).
 					</li>
 					<li>
-						<strong>FAUX :</strong> Bien que la garantie de couverture de <KatexInline
-							formula={String.raw`1-2\alpha`}
-						/> du Jackknife+ soit théoriquement plus faible que le <KatexInline
-							formula={String.raw`1-\alpha`}
-						/> classique, en pratique sa couverture observée est presque identique à <KatexInline
-							formula={String.raw`1-\alpha`}
-						/>, tout en évitant de diviser le jeu de données.
+						<strong>Vrai.</strong> Les forêts aléatoires s'adaptent très bien aux problèmes où la
+						dimension <KatexInline formula={String.raw`d`} /> est bien supérieure au nombre d'exemples
+						<KatexInline formula={String.raw`n`} />.
 					</li>
 					<li>
-						<strong>VRAI :</strong> Si l'échangeabilité des données n'est pas vérifiée, la distribution
-						des erreurs passées n'a aucune raison statistique de refléter les erreurs futures, invalidant
-						ainsi les fondements mathématiques de la garantie conforme.
+						<strong>Faux.</strong> L'importance par permutation nécessite des données Out-of-Bag (ou de
+						test) pour être calculée rigoureusement.
 					</li>
 				</ol>
 			{/snippet}
 			<p>Répondez par Vrai ou Faux en justifiant brièvement :</p>
 			<ol>
 				<li>
-					La méthode CQR produit des intervalles identiques en tout point à la méthode de
-					normalisation par écart-type absolue de l'erreur.
+					Les forêts aléatoires sont insensibles à la mise à l'échelle (scaling/normalization) des
+					variables continues.
 				</li>
 				<li>
-					La régression conforme offre des garanties valides même si les résidus ne suivent pas une
-					loi normale.
+					Le nombre d'arbres <KatexInline formula={String.raw`M`} /> est l'hyperparamètre qui requiert
+					la recherche sur grille (grid search) la plus minutieuse car il peut causer du surapprentissage.
 				</li>
 				<li>
-					La méthode Jackknife+ produit des intervalles systématiquement deux fois plus larges que
-					la méthode Split Conformal car sa garantie théorique est de <KatexInline
-						formula={String.raw`1-2\alpha`}
-					/> au lieu de <KatexInline formula={String.raw`1-\alpha`} />.
+					Les forêts de décision gèrent nativement les cas où <KatexInline
+						formula={String.raw`d \gg n`}
+					/>.
 				</li>
 				<li>
-					Une rupture temporelle violant l'échangeabilité des données détruit la garantie
-					mathématique de couverture de la régression conforme.
+					L'importance par permutation (MDA) se calcule uniquement à partir des données
+					d'apprentissage qui ont servi à construire les arbres.
 				</li>
 			</ol>
 		</ExercisePanel>
 
-		<ExercisePanel number="11.20" title="Bilan : Comparatif des méthodes de régression">
+		<ExercisePanel number="6.20" title="Bilan : Optimisation des hyperparamètres critiques">
 			{#snippet solution()}
-				<table class="w-full text-center border my-2 text-xs">
-					<thead>
-						<tr class="bg-muted"
-							><th>Méthode</th><th>Score utilisé</th><th>Adaptabilité locale</th><th
-								>Coût de calcul</th
-							></tr
-						>
-					</thead>
-					<tbody>
-						<tr>
-							<td>Largeur constante</td>
-							<td><KatexInline formula={String.raw`|y - \hat{f}(x)|`} /></td>
-							<td>Nulle (largeur uniforme)</td>
-							<td>Très faible (un seul entraînement)</td>
-						</tr>
-						<tr>
-							<td>Normalisation locale</td>
-							<td
-								><KatexInline
-									formula={String.raw`\frac{|y - \hat{f}(x)|}{\sigma(x) + \varepsilon}`}
-								/></td
-							>
-							<td>Moyenne (mise à l'échelle locale par l'écart-type)</td>
-							<td>Moyen (entraînement du modèle de variance)</td>
-						</tr>
-						<tr>
-							<td>CQR</td>
-							<td
-								><KatexInline
-									formula={String.raw`\max(\hat{q}_{\alpha/2} - y, y - \hat{q}_{1-\alpha/2})`}
-								/></td
-							>
-							<td>Maximale (s'adapte à la forme de la distribution locale)</td>
-							<td>Moyen à élevé (deux régressions quantiles de base)</td>
-						</tr>
-					</tbody>
-				</table>
+				<p>
+					Pour optimiser une forêt aléatoire, la hiérarchie des hyperparamètres à régler est la
+					suivante :
+				</p>
+				<ol>
+					<li>
+						<strong
+							><code>max_features</code> / <code>mtry</code> (<KatexInline
+								formula={String.raw`m`}
+							/>) :</strong
+						> Le plus important. Détermine la corrélation globale de la forêt.
+					</li>
+					<li>
+						<strong><code>min_samples_leaf</code> / <code>max_depth</code> :</strong> Contrôle la régularisation
+						et la taille des feuilles individuelles des arbres.
+					</li>
+					<li>
+						<strong><code>n_estimators</code> (<KatexInline formula={String.raw`M`} />) :</strong> Doit
+						simplement être choisi "suffisamment grand" (ex: 500 ou 1000) pour garantir la convergence
+						statistique, sans besoin d'optimisation par grille.
+					</li>
+				</ol>
 			{/snippet}
 			<p>
-				Dressez un tableau récapitulatif comparant la régression conforme à largeur constante, la
-				régression conforme normalisée localement et la CQR en fonction de leurs scores, de leur
-				capacité d'adaptation locale et de leur coût de calcul.
+				Dressez une synthèse méthodologique de l'ordre d'importance et de l'optimisation des
+				hyperparamètres d'une forêt aléatoire lors d'une phase de tuning de modèle.
 			</p>
 		</ExercisePanel>
 
-		<!-- ════════════════════════ SECTION 12 ════════════════════════ -->
-		<h2 id="classification-average-k">Classification Average-K (Conception)</h2>
+		<!-- ==========================================
+                   SECTION 7: BOOSTING
+                   ========================================== -->
+		<h2 id="boosting">Boosting</h2>
 		<p>
-			La classification <strong>Average-K</strong> propose un cadre dual de la prédiction conforme.
-			Au lieu de contraindre le risque d'erreur (conduire à une taille d'ensemble variable pour
-			garantir une couverture de <KatexInline formula={String.raw`1-\alpha`} />), l'Average-K fixe
-			de manière stricte la <strong>taille moyenne attendue</strong> de l'ensemble de prédiction
-			(notée <KatexInline formula={String.raw`\kappa`} />) et cherche à minimiser le risque d'erreur
-			sous cette contrainte. C'est un outil précieux pour calibrer des flux à bande passante fixe
-			(ex: un opérateur humain qui traite exactement 2 prédictions en moyenne par dossier).
+			Cette section examine les techniques d'apprentissage séquentiel par Boosting : AdaBoost, la
+			théorie des marges, les fonctions de perte et le Gradient Boosting (GBDT).
 		</p>
 
-		<Callout type="definition" title="Le cadre Average-K">
-			Soit <KatexInline formula={String.raw`\mathcal{C}(X) \subseteq \mathcal{Y}`} /> un classifieur d'ensemble.
-			On cherche à résoudre le problème d'optimisation sous contrainte :
-			<KatexBlock
-				formula={String.raw`\min_{\mathcal{C}} \mathbb{P}(Y \notin \mathcal{C}(X)) \quad \text{s.t.} \quad \mathbb{E}[|\mathcal{C}(X)|] \le \kappa`}
-			/>
-			où <KatexInline formula={String.raw`\kappa \ge 1`} /> est la contrainte sur le nombre moyen de classes
-			suggérées.
-		</Callout>
-
-		<ExercisePanel number="12.1" title="Formalisation théorique et Lagrangien">
+		<ExercisePanel number="7.1" title="Algorithme AdaBoost pas à pas">
 			{#snippet solution()}
 				<p>
-					La contrainte de taille s'écrit <KatexInline
-						formula={String.raw`\mathbb{E}[|\mathcal{C}(X)|] \le \kappa`}
-					/>. En introduisant un multiplicateur de Lagrange <KatexInline
-						formula={String.raw`\lambda \ge 0`}
-					/>, nous formulons le Lagrangien :
+					1. Initialisation des poids : <KatexInline formula={String.raw`w_i^{(1)} = 1/5 = 0.2`} /> pour
+					les 5 exemples.
+				</p>
+				<p>
+					2. Erreur pondérée du premier classifieur : <KatexInline formula={String.raw`h_1`} /> se trompe
+					sur un seul point de poids 0.2.
+					<KatexInline formula={String.raw`\epsilon_1 = 0.2`} />.
+				</p>
+				<p>
+					3. Calcul du poids de vote du modèle <KatexInline formula={String.raw`\alpha_1`} /> :
 				</p>
 				<KatexBlock
-					formula={String.raw`\mathcal{L}(\mathcal{C}, \lambda) = \mathbb{P}(Y \notin \mathcal{C}(X)) + \lambda \left( \mathbb{E}[|\mathcal{C}(X)|] - \kappa \right)`}
+					formula={String.raw`\alpha_1 = \frac{1}{2} \ln\left(\frac{1 - 0.2}{0.2}\right) = \frac{1}{2} \ln(4) \approx 0.693`}
 				/>
 				<p>
-					Exprimons chaque terme en fonction des probabilités conditionnelles vraies <KatexInline
-						formula={String.raw`\eta_c(x) = \mathbb{P}(Y=c|X=x)`}
-					/>. La probabilité d'erreur s'écrit :
-				</p>
-				<KatexBlock
-					formula={String.raw`\mathbb{P}(Y \notin \mathcal{C}(X)) = 1 - \mathbb{P}(Y \in \mathcal{C}(X)) = 1 - \mathbb{E}_X\left[ \sum_{c=1}^C \eta_c(X) \mathbb{I}(c \in \mathcal{C}(X)) \right]`}
-				/>
-				<p>La taille attendue de l'ensemble s'exprime par :</p>
-				<KatexBlock
-					formula={String.raw`\mathbb{E}[|\mathcal{C}(X)|] = \mathbb{E}_X\left[ \sum_{c=1}^C \mathbb{I}(c \in \mathcal{C}(X)) \right]`}
-				/>
-				<p>En injectant ces deux expressions dans le Lagrangien, on obtient :</p>
-				<KatexBlock
-					formula={String.raw`\mathcal{L}(\mathcal{C}, \lambda) = 1 - \lambda\kappa + \mathbb{E}_X \left[ \sum_{c=1}^C (\lambda - \eta_c(X)) \mathbb{I}(c \in \mathcal{C}(X)) \right]`}
-				/>
-				<p>
-					Cette réécriture décompose magnifiquement le problème global en une somme d'optimisations
-					locales, point par point.
+					Le premier classifieur aura une influence de <KatexInline formula={String.raw`0.693`} /> dans
+					l'agrégat final.
 				</p>
 			{/snippet}
 			<p>
-				Formulez le problème d'optimisation de la classification Average-K sous la forme d'un
-				Lagrangien avec un multiplicateur de Lagrange <KatexInline
-					formula={String.raw`\lambda \ge 0`}
-				/>. Montrez que minimiser ce Lagrangien équivaut à minimiser l'expression :
-				<KatexBlock
-					formula={String.raw`\mathbb{E}_X \left[ \sum_{c=1}^C (\lambda - \eta_c(X)) \mathbb{I}(c \in \mathcal{C}(X)) \right]`}
-				/>
+				Sur un jeu de données de <KatexInline formula={String.raw`N = 5`} /> points, un classifieur de
+				base <KatexInline formula={String.raw`h_1`} /> commet une erreur sur une seule observation. Calculez
+				son erreur pondérée initiale <KatexInline formula={String.raw`\epsilon_1`} /> et son coefficient
+				d'importance de vote <KatexInline formula={String.raw`\alpha_1`} /> selon les règles d'AdaBoost.
 			</p>
 		</ExercisePanel>
 
-		<ExercisePanel number="12.2" title="Dérivation du classifieur optimal (Seuil)">
+		<ExercisePanel number="7.2" title="Mise à jour des poids d'AdaBoost">
 			{#snippet solution()}
 				<p>
-					L'expression trouvée à l'exercice 12.1 s'optimise en minimisant le terme à l'intérieur de
-					l'espérance pour chaque réalisation de <KatexInline formula={String.raw`X=x`} /> de manière
-					indépendante. Pour un <KatexInline formula={String.raw`x`} /> donné, nous voulons choisir l'état
-					de chaque variable d'inclusion <KatexInline
-						formula={String.raw`\mathbb{I}(c \in \mathcal{C}(x)) \in \{0, 1\}`}
-					/> afin de minimiser la somme :
+					Reprenons les valeurs : <KatexInline formula={String.raw`w_i^{(1)} = 0.2`} />, <KatexInline
+						formula={String.raw`\alpha_1 = 0.693`}
+					/>. Le facteur de normalisation vaut :
 				</p>
 				<KatexBlock
-					formula={String.raw`\sum_{c=1}^C (\lambda - \eta_c(x)) \mathbb{I}(c \in \mathcal{C}(x))`}
+					formula={String.raw`Z_1 = 2 \sqrt{\epsilon_1(1-\epsilon_1)} = 2 \sqrt{0.2 \times 0.8} = 2 \sqrt{0.16} = 0.8`}
 				/>
 				<p>
-					Chaque terme de cette somme est indépendant. Pour minimiser la somme, nous devons activer
-					l'indicateur (choisir <KatexInline formula={String.raw`1`} />) si et seulement si son
-					coefficient associé est strictement négatif :
-				</p>
-				<KatexBlock formula={String.raw`\lambda - \eta_c(x) < 0 \iff \eta_c(x) > \lambda`} />
-				<p>
-					En cas d'égalité <KatexInline formula={String.raw`\eta_c(x) = \lambda`} />, le choix
-					n'affecte pas la valeur de la somme. Nous en déduisons la règle de décision optimale du
-					classifieur Average-K :
+					Pour les 4 exemples correctement classés (<KatexInline
+						formula={String.raw`y_i h_1(x_i) = 1`}
+					/>) :
 				</p>
 				<KatexBlock
-					formula={String.raw`\mathcal{C}_\lambda^*(x) = \{ c \in \mathcal{Y} \mid \eta_c(x) \ge \lambda \}`}
+					formula={String.raw`w_{\text{correct}} = \frac{0.2 \times e^{-0.693}}{0.8} = \frac{0.2 \times 0.5}{0.8} = 0.125`}
 				/>
 				<p>
-					C'est un résultat remarquable : le classifieur optimal est un <strong
-						>classifieur de seuil</strong
-					>
-					où la probabilité a posteriori doit dépasser exactement la valeur du multiplicateur de Lagrange
-					<KatexInline formula={String.raw`\lambda`} />.
+					Pour l'exemple mal classé (<KatexInline formula={String.raw`y_i h_1(x_i) = -1`} />) :
+				</p>
+				<KatexBlock
+					formula={String.raw`w_{\text{incorrect}} = \frac{0.2 \times e^{0.693}}{0.8} = \frac{0.2 \times 2.0}{0.8} = 0.500`}
+				/>
+				<p>
+					<strong>Vérification :</strong> La somme des nouveaux poids est bien <KatexInline
+						formula={String.raw`4 \times 0.125 + 0.500 = 1.0`}
+					/>. On observe que le point mal classé concentre désormais <KatexInline
+						formula={String.raw`50\%`}
+					/> du poids total pour l'itération suivante.
 				</p>
 			{/snippet}
 			<p>
-				En minimisant point par point l'espérance obtenue à l'exercice 12.1, démontrez que le
-				classifieur d'ensemble optimal <KatexInline
-					formula={String.raw`\mathcal{C}^*_\lambda(x)`}
-				/> est un classifieur basé sur un seuillage des probabilités conditionnelles réelles, où le seuil
-				est exactement égal à <KatexInline formula={String.raw`\lambda`} />.
+				À l'aide des résultats de l'exercice 7.1, calculez la valeur du facteur de normalisation <KatexInline
+					formula={String.raw`Z_1`}
+				/>, puis déterminez les nouveaux poids <KatexInline formula={String.raw`w_i^{(2)}`} /> pour les
+				exemples correctement classés et pour l'exemple incorrectement classé.
 			</p>
 		</ExercisePanel>
 
-		<ExercisePanel number="12.3" title="Définition de la fonction de taille attendue">
+		<ExercisePanel number="7.3" title="Preuve de la formule d'importance d'AdaBoost">
 			{#snippet solution()}
 				<p>
-					Soit la fonction <KatexInline
-						formula={String.raw`G(\lambda) = \mathbb{E}[|\mathcal{C}_\lambda^*(X)|]`}
-					/>. En remplaçant par l'expression du classifieur optimal de seuil :
+					AdaBoost cherche à minimiser la somme des poids de l'étape suivante, ce qui équivaut à
+					minimiser le facteur de normalisation <KatexInline formula={String.raw`Z_t(\alpha)`} /> par
+					rapport à <KatexInline formula={String.raw`\alpha`} /> :
 				</p>
 				<KatexBlock
-					formula={String.raw`G(\lambda) = \mathbb{E}_X\left[ \sum_{c=1}^C \mathbb{I}(\eta_c(X) \ge \lambda) \right] = \sum_{c=1}^C \mathbb{P}(\eta_c(X) \ge \lambda)`}
+					formula={String.raw`Z_t(\alpha) = \sum_{i=1}^N w_i^{(t)} e^{-\alpha y_i h_t(x_i)} = \sum_{y_i = h_t(x_i)} w_i^{(t)} e^{-\alpha} + \sum_{y_i \neq h_t(x_i)} w_i^{(t)} e^{\alpha} = (1 - \epsilon_t)e^{-\alpha} + \epsilon_t e^{\alpha}`}
 				/>
 				<p>
-					Pour tout <KatexInline formula={String.raw`\lambda_1 \le \lambda_2`} />, l'événement <KatexInline
-						formula={String.raw`\{\eta_c(X) \ge \lambda_2\} \subseteq \{\eta_c(X) \ge \lambda_1\}`}
-					/>. Par monotonicité de la mesure de probabilité, nous avons donc :
+					En annulant la dérivée par rapport à <KatexInline formula={String.raw`\alpha`} /> :
 				</p>
 				<KatexBlock
-					formula={String.raw`\mathbb{P}(\eta_c(X) \ge \lambda_2) \le \mathbb{P}(\eta_c(X) \ge \lambda_1) \quad \forall c`}
+					formula={String.raw`\frac{\partial Z_t}{\partial \alpha} = -(1 - \epsilon_t)e^{-\alpha} + \epsilon_t e^{\alpha} = 0 \implies \epsilon_t e^{\alpha} = (1 - \epsilon_t)e^{-\alpha} \implies e^{2\alpha} = \frac{1 - \epsilon_t}{\epsilon_t}`}
 				/>
 				<p>
-					En sommant ces inégalités, on prouve que <KatexInline
-						formula={String.raw`G(\lambda_2) \le G(\lambda_1)`}
-					/>. La fonction de taille moyenne attendue <KatexInline
-						formula={String.raw`G(\lambda)`}
-					/> est donc une <strong>fonction monotone non-croissante</strong> du seuil <KatexInline
-						formula={String.raw`\lambda`}
+					En prenant le logarithme népérien et en divisant par 2, on retrouve bien l'expression
+					optimale : <KatexInline
+						formula={String.raw`\alpha_t = \frac{1}{2} \ln\left(\frac{1 - \epsilon_t}{\epsilon_t}\right)`}
 					/>.
 				</p>
 			{/snippet}
 			<p>
-				Définissez la fonction <KatexInline formula={String.raw`G(\lambda)`} /> représentant la taille
-				moyenne attendue de l'ensemble optimal en fonction du seuil <KatexInline
-					formula={String.raw`\lambda`}
-				/>. Démontrez que cette fonction est monotone non-croissante sur l'intervalle <KatexInline
-					formula={String.raw`[0, 1]`}
+				Démontrez de façon rigoureuse que le coefficient <KatexInline
+					formula={String.raw`\alpha_t`}
+				/> défini par AdaBoost est bien la valeur optimale qui minimise le facteur de normalisation <KatexInline
+					formula={String.raw`Z_t`}
+				/> à l'étape <KatexInline formula={String.raw`t`} />.
+			</p>
+		</ExercisePanel>
+
+		<ExercisePanel number="7.4" title="AdaBoost et perte exponentielle">
+			{#snippet solution()}
+				<p>
+					Montrons que la mise à jour récursive des poids implique que le poids final d'un exemple
+					est directement lié à la perte exponentielle globale :
+				</p>
+				<p>
+					Par définition, à chaque étape <KatexInline
+						formula={String.raw`w_i^{(t+1)} = w_i^{(t)} \frac{e^{-\alpha_t y_i h_t(x_i)}}{Z_t}`}
+					/>. En déroulant la récurrence depuis <KatexInline
+						formula={String.raw`w_i^{(1)} = 1/N`}
+					/> :
+				</p>
+				<KatexBlock
+					formula={String.raw`w_i^{(T+1)} = \frac{1}{N} \frac{e^{-\sum_{t=1}^T \alpha_t y_i h_t(x_i)}}{\prod_{t=1}^T Z_t} = \frac{1}{N \prod Z_t} e^{-y_i F_T(x_i)}`}
+				/>
+				<p>
+					Le poids d'un exemple est donc proportionnel à sa perte exponentielle <KatexInline
+						formula={String.raw`"L(y_i, F_T(x_i)) = e^{-y_i F_T(x_i)}`}
+					/>, validant le fait qu'AdaBoost est un algorithme de descente de gradient coordonnée sur
+					la perte exponentielle.
+				</p>
+			{/snippet}
+			<p>
+				Établissez la relation mathématique prouvant que la mise à jour séquentielle des poids dans
+				AdaBoost équivaut à minimiser de manière gloutonne la perte exponentielle globale <KatexInline
+					formula={String.raw`L(y, f(x)) = e^{-y f(x)}`}
 				/>.
 			</p>
 		</ExercisePanel>
 
-		<ExercisePanel number="12.4" title="Optimalité de lambda via fonction de répartition inverse">
+		<ExercisePanel number="7.5" title="Borne supérieure de l'erreur d'apprentissage">
 			{#snippet solution()}
 				<p>
-					Pour respecter exactement la contrainte de budget <KatexInline
-						formula={String.raw`\mathbb{E}[|\mathcal{C}(X)|] \le \kappa`}
-					/>, nous voulons trouver le plus petit seuil <KatexInline formula={String.raw`\lambda`} /> (pour
-					inclure le plus de classes possibles et donc minimiser l'erreur) tel que la taille ne dépasse
-					pas <KatexInline formula={String.raw`\kappa`} />. Cela correspond mathématiquement à
-					définir le seuil optimal par :
+					Notons que si le classifieur commet une erreur de prédiction sur l'exemple <KatexInline
+						formula={String.raw`i`}
+					/>, alors <KatexInline formula={String.raw`y_i F_T(x_i) \le 0`} />, ce qui implique <KatexInline
+						formula={String.raw`e^{-y_i F_T(x_i)} \ge 1`}
+					/>. Ainsi, nous pouvons majorer la fonction indicatrice d'erreur :
 				</p>
 				<KatexBlock
-					formula={String.raw`\lambda^* = \inf \{ \lambda \in [0, 1] \mid G(\lambda) \le \kappa \}`}
+					formula={String.raw`\mathbb{I}(\text{sign}(F_T(x_i)) \neq y_i) \le e^{-y_i F_T(x_i)}`}
 				/>
 				<p>
-					Puisque <KatexInline
-						formula={String.raw`G(\lambda) = \sum \mathbb{P}(\eta_c(X) \ge \lambda)`}
-					/>, <KatexInline formula={String.raw`G`} /> est une somme de fonctions de survie (compléments
-					à 1 de la fonction de répartition cumulative CDF). La formulation de <KatexInline
-						formula={String.raw`\lambda^*`}
-					/> est donc rigoureusement la définition de la
-					<strong
-						>fonction de répartition cumulative inverse généralisée (ou fonction quantile)</strong
-					> de la distribution globale des probabilités du modèle.
+					En sommant sur tout le jeu d'apprentissage de taille <KatexInline
+						formula={String.raw`N`}
+					/> et en exploitant le résultat de l'exercice précédent :
+				</p>
+				<KatexBlock
+					formula={String.raw`\frac{1}{N}\sum_{i=1}^N \mathbb{I}(F_T(x_i) \neq y_i) \le \frac{1}{N}\sum_{i=1}^N e^{-y_i F_T(x_i)} = \sum_{i=1}^N w_i^{(T+1)} \prod_{t=1}^T Z_t = \prod_{t=1}^T Z_t`}
+				/>
+				<p>
+					Puisque <KatexInline formula={String.raw`\sum w_i^{(T+1)} = 1`} />, l'erreur
+					d'apprentissage est bien bornée supérieurement par le produit des facteurs de
+					normalisation <KatexInline formula={String.raw`\prod_{t=1}^T Z_t`} />.
 				</p>
 			{/snippet}
 			<p>
-				Expliquez comment le seuil optimal <KatexInline formula={String.raw`\lambda^*`} /> satisfaisant
-				la contrainte de taille <KatexInline formula={String.raw`\kappa`} /> se déduit de <KatexInline
-					formula={String.raw`G`}
-				/> et faites le lien mathématique avec l'inversion d'une fonction de répartition cumulative (CDF).
+				Démontrez le théorème 7.1 établissant que l'erreur d'apprentissage d'AdaBoost est majorée
+				par le produit des facteurs de normalisation successifs :
+				<KatexBlock formula={f75} />
 			</p>
 		</ExercisePanel>
 
-		<ExercisePanel number="12.5" title="Comparaison philosophique : Conforme vs Average-K">
+		<ExercisePanel number="7.6" title="AdaBoost sur classifieur parfait ou inversé">
 			{#snippet solution()}
-				<p>Comparaison des deux approches :</p>
-				<table class="w-full text-center border my-2 text-xs">
+				<p>Analysons les deux situations extrêmes :</p>
+				<ul>
+					<li>
+						<strong>Si <KatexInline formula={String.raw`\epsilon_t = 0`} /> :</strong> Le
+						classifieur est parfait. La formule donne <KatexInline
+							formula={String.raw`\alpha_t = \frac{1}{2} \ln(1/0) = +\infty`}
+						/>. AdaBoost attribue un poids infini à ce classifieur et l'algorithme s'arrête, la
+						prédiction étant parfaite.
+					</li>
+					<li>
+						<strong>Si <KatexInline formula={String.raw`\epsilon_t = 1`} /> :</strong> Le
+						classifieur se trompe systématiquement. <KatexInline
+							formula={String.raw`\alpha_t = \frac{1}{2} \ln(0/1) = -\infty`}
+						/>. AdaBoost l'intègre avec un coefficient négatif, ce qui revient à inverser
+						systématiquement toutes ses prédictions pour en faire un classifieur parfait !
+					</li>
+				</ul>
+			{/snippet}
+			<p>
+				Qu'advient-il de la valeur de <KatexInline formula={String.raw`\alpha_t`} /> si un classifieur
+				de base obtient un taux d'erreur <KatexInline formula={String.raw`\epsilon_t = 0`} /> ? Et s'il
+				obtient un taux d'erreur de <KatexInline formula={String.raw`\epsilon_t = 1`} /> ? En quoi cela
+				témoigne-t-il de l'élégance de la méthode ?
+			</p>
+		</ExercisePanel>
+
+		<ExercisePanel number="7.7" title="Calcul de la marge fonctionnelle d'un point">
+			{#snippet solution()}
+				<p>
+					La marge fonctionnelle d'un point <KatexInline formula={String.raw`(x_i, y_i)`} /> est définie
+					par <KatexInline formula={String.raw`m_i = y_i F(x_i)`} />. Ici, <KatexInline
+						formula={String.raw`y_i = 1`}
+					/> et les votes des modèles pondérés sont :
+				</p>
+				<ul>
+					<li>Modèle 1 (poids 0.7) : prédiction <KatexInline formula={String.raw`+1`} /></li>
+					<li>Modèle 2 (poids 0.4) : prédiction <KatexInline formula={String.raw`-1`} /></li>
+					<li>Modèle 3 (poids 0.2) : prédiction <KatexInline formula={String.raw`+1`} /></li>
+				</ul>
+				<p>
+					La valeur continue de la prédiction cumulée est <KatexInline
+						formula={String.raw`F(x_i) = 0.7(1) + 0.4(-1) + 0.2(1) = 0.7 - 0.4 + 0.2 = 0.5`}
+					/>.
+				</p>
+				<p>
+					La marge fonctionnelle vaut <KatexInline
+						formula={String.raw`m_i = y_i F(x_i) = 1 \times 0.5 = 0.5`}
+					/>. Elle est positive, ce qui signifie que le point est classé correctement par
+					l'ensemble.
+				</p>
+			{/snippet}
+			<p>
+				Soit un ensemble composé de trois classifieurs de poids respectifs <KatexInline
+					formula={String.raw`\alpha_1=0.7`}
+				/>, <KatexInline formula={String.raw`\alpha_2=0.4`} /> et <KatexInline
+					formula={String.raw`\alpha_3=0.2`}
+				/>. Pour un exemple positif (<KatexInline formula={String.raw`y_i = 1`} />), les prédictions
+				individuelles sont <KatexInline formula={String.raw`h_1(x_i) = 1`} />, <KatexInline
+					formula={String.raw`h_2(x_i) = -1`}
+				/> et <KatexInline formula={String.raw`h_3(x_i) = 1`} />. Calculez la marge fonctionnelle <KatexInline
+					formula={String.raw`m_i`}
+				/> de cet exemple.
+			</p>
+		</ExercisePanel>
+
+		<ExercisePanel number="7.8" title="Théorie des marges et non-surapprentissage">
+			{#snippet solution()}
+				<p>
+					L'erreur d'apprentissage d'AdaBoost tombe souvent à 0 après seulement quelques dizaines
+					d'itérations. Pourtant, continuer à ajouter des arbres améliore encore l'erreur de test
+					(phénomène qui contredit la théorie classique de la complexité VC).
+				</p>
+				<p>
+					<strong>Explication :</strong> Même lorsque l'erreur d'apprentissage est nulle (tous les
+					points ont une marge positive), continuer les itérations pousse les exemples
+					d'apprentissage loin de la frontière de décision, ce qui
+					<strong>augmente la marge géométrique minimale</strong>. Une marge plus grande se traduit
+					par une meilleure capacité de généralisation (Théorème 7.2) et immunise le modèle contre
+					le surapprentissage.
+				</p>
+			{/snippet}
+			<p>
+				Expliquez pourquoi le Boosting continue souvent à améliorer l'erreur de généralisation sur
+				le jeu de test même après que l'erreur d'apprentissage a atteint zéro. Faites référence au
+				concept de marge géométrique.
+			</p>
+		</ExercisePanel>
+
+		<ExercisePanel number="7.9" title="Gradient Boosting : Pseudo-résidus L2">
+			{#snippet solution()}
+				<p>
+					La fonction de perte quadratique pour un exemple est <KatexInline
+						formula={String.raw`L(y_i, F(x_i)) = \frac{1}{2}(y_i - F(x_i))^2`}
+					/>. Le pseudo-résidu <KatexInline formula={String.raw`r_{it}`} /> correspond à l'opposé du gradient
+					de la perte par rapport à la prédiction actuelle :
+				</p>
+				<KatexBlock
+					formula={String.raw`r_{it} = -\left[\frac{\partial L(y_i, F(x_i))}{\partial F(x_i)}\right]_{F=F_{t-1}} = -\left[-(y_i - F(x_i))\right]_{F=F_{t-1}} = y_i - F_{t-1}(x_i)`}
+				/>
+				<p>
+					<strong>Conclusion :</strong> Pour la perte quadratique, le pseudo-résidu est exactement égal
+					au résidu usuel (la différence entre la vraie valeur et la prédiction du modèle actuel). L'arbre
+					de l'étape suivante va donc tout simplement chercher à prédire l'erreur résiduelle.
+				</p>
+			{/snippet}
+			<p>
+				Dans le cadre du Gradient Boosting, démontrez que pour la perte quadratique <KatexInline
+					formula={String.raw`L(y, F) = \frac{1}{2}(y - F)^2`}
+				/>, le pseudo-résidu <KatexInline formula={String.raw`r_{it}`} /> calculé à chaque étape correspond
+				exactement au résidu classique <KatexInline formula={String.raw`y_i - F_{t-1}(x_i)`} />.
+			</p>
+		</ExercisePanel>
+
+		<ExercisePanel number="7.10" title="Gradient Boosting : Pseudo-résidus L1">
+			{#snippet solution()}
+				<p>
+					La fonction de perte absolue est <KatexInline
+						formula={String.raw`L(y_i, F(x_i)) = |y_i - F(x_i)|`}
+					/>. Calculons le gradient par rapport à la prédiction :
+				</p>
+				<KatexBlock
+					formula={String.raw`\frac{\partial |y_i - F(x_i)|}{\partial F(x_i)} = -\text{sign}(y_i - F(x_i))`}
+				/>
+				<p>Le pseudo-résidu vaut donc :</p>
+				<KatexBlock formula={String.raw`r_{it} = \text{sign}(y_i - F_{t-1}(x_i))`} />
+				<p>
+					<strong>Conclusion :</strong> Contrairement à la perte L2, l'arbre de l'étape suivante
+					cherche uniquement à prédire la <em>direction</em> de l'erreur (signe positif ou négatif), indépendamment
+					de son amplitude. Cela rend le Gradient Boosting L1 extrêmement robuste aux valeurs aberrantes
+					(outliers).
+				</p>
+			{/snippet}
+			<p>
+				Pour une fonction de perte absolue (perte L1) <KatexInline
+					formula={String.raw`L(y, F) = |y - F|`}
+				/>, déterminez l'expression des pseudo-résidus <KatexInline formula={String.raw`r_{it}`} />.
+				Comparez leur robustesse aux outliers avec celle des pseudo-résidus L2.
+			</p>
+		</ExercisePanel>
+
+		<ExercisePanel number="7.11" title="Initialisation optimale pour la perte L2">
+			{#snippet solution()}
+				<p>
+					Le modèle initial constant <KatexInline formula={String.raw`F_0(x)`} /> est défini par le paramètre
+					constant qui minimise la perte globale sur le jeu d'apprentissage :
+				</p>
+				<KatexBlock
+					formula={String.raw`F_0(x) = \arg\min_{\gamma} \sum_{i=1}^N \frac{1}{2}(y_i - \gamma)^2`}
+				/>
+				<p>
+					En annulant la dérivée par rapport à <KatexInline formula={String.raw`\gamma`} /> :
+				</p>
+				<KatexBlock
+					formula={String.raw`-\sum_{i=1}^N (y_i - \gamma) = 0 \implies N\gamma = \sum_{i=1}^N y_i \implies \gamma = \frac{1}{N}\sum_{i=1}^N y_i`}
+				/>
+				<p>
+					Le prédicteur initial optimal <KatexInline formula={String.raw`F_0`} /> est donc tout simplement
+					la <strong>moyenne empirique</strong> de la cible sur le jeu de données d'apprentissage.
+				</p>
+			{/snippet}
+			<p>
+				Démontrez que le modèle initial optimal <KatexInline formula={String.raw`F_0(x)`} /> pour le Gradient
+				Boosting avec perte quadratique est la moyenne arithmétique des valeurs de la cible.
+			</p>
+		</ExercisePanel>
+
+		<ExercisePanel number="7.12" title="Initialisation optimale pour la perte L1">
+			{#snippet solution()}
+				<p>Pour la perte absolue L1 :</p>
+				<KatexBlock formula={String.raw`F_0(x) = \arg\min_{\gamma} \sum_{i=1}^N |y_i - \gamma|`} />
+				<p>
+					La valeur constante qui minimise la somme des écarts absolus sur un jeu de points est, par
+					définition, la <strong>médiane</strong> des observations.
+				</p>
+				<p>
+					Ainsi, <KatexInline formula={String.raw`F_0(x) = \text{médiane}(y_1, \dots, y_N)`} />.
+				</p>
+			{/snippet}
+			<p>
+				Quel est le modèle constant d'initialisation <KatexInline formula={String.raw`F_0(x)`} /> optimal
+				pour le Gradient Boosting sous la perte absolue L1 ?
+			</p>
+		</ExercisePanel>
+
+		<ExercisePanel number="7.13" title="Stochastic Gradient Boosting">
+			{#snippet solution()}
+				<p>
+					Le <strong>Stochastic Gradient Boosting</strong> introduit une étape d'échantillonnage aléatoire
+					à chaque itération :
+				</p>
+				<ul>
+					<li>
+						Chaque arbre de boosting successif est entraîné uniquement sur une fraction (ex: 50% à
+						80%) tirée au hasard et sans remise du jeu de données d'apprentissage.
+					</li>
+					<li>
+						Cette technique réduit significativement la corrélation entre les arbres successifs,
+						améliore l'effet régulateur contre le surapprentissage et réduit la durée de calcul de
+						chaque itération.
+					</li>
+				</ul>
+			{/snippet}
+			<p>
+				Expliquez le principe du "Stochastic Gradient Boosting" proposé par Jerome Friedman et
+				précisez ses bénéfices en termes de généralisation et de temps de calcul.
+			</p>
+		</ExercisePanel>
+
+		<ExercisePanel number="7.14" title="Rôle du taux d'apprentissage (Shrinkage)">
+			{#snippet solution()}
+				<p>
+					La mise à jour de la prédiction cumulée s'écrit <KatexInline
+						formula={String.raw`F_t(x) = F_{t-1}(x) + \eta \sum \gamma_{jt} \mathbb{I}(x \in R_{jt})`}
+					/>.
+				</p>
+				<p>
+					Réduire <KatexInline formula={String.raw`\eta`} /> (ex: <KatexInline
+						formula={String.raw`\eta = 0.01`}
+					/>) oblige chaque arbre à ne corriger qu'une infime fraction de l'erreur résiduelle. Cela
+					permet d'avancer de manière prudente dans l'espace des fonctions de décision, évitant de
+					surajuster le modèle aux fluctuations locales. En contrepartie, il faut augmenter
+					proportionnellement le nombre d'arbres <KatexInline formula={String.raw`T`} /> pour atteindre
+					la convergence.
+				</p>
+			{/snippet}
+			<p>
+				Pourquoi l'introduction d'un taux d'apprentissage <KatexInline
+					formula={String.raw`\eta \in (0, 1]`}
+				/> (appelé <em>shrinkage</em>) est-elle essentielle dans le Gradient Boosting ? Quel est son
+				impact sur le nombre total d'itérations requis ?
+			</p>
+		</ExercisePanel>
+
+		<ExercisePanel number="7.15" title="Sensibilité d'AdaBoost au bruit">
+			{#snippet solution()}
+				<p>
+					AdaBoost utilise la <strong>perte exponentielle</strong>, qui est extrêmement sensible aux
+					valeurs aberrantes et aux erreurs d'étiquetage.
+				</p>
+				<p>
+					Si un exemple est très bruité ou impossible à classer correctement, AdaBoost va s'obstiner
+					sur ce point difficile et va démultiplier son poids d'itération en itération (<KatexInline
+						formula={String.raw`e^{\alpha y_i h(x_i)}`}
+					/>). Les classifieurs suivants vont alors concentrer toutes leurs ressources à tenter de
+					classifier correctement cet unique point bruité, dégradant la frontière de décision sur le
+					reste des données saines.
+				</p>
+			{/snippet}
+			<p>
+				Expliquez pourquoi l'algorithme AdaBoost classique est particulièrement vulnérable aux
+				bruits de labels et aux données aberrantes (outliers).
+			</p>
+		</ExercisePanel>
+
+		<ExercisePanel number="7.16" title="Formulation du Tree Boosting (GBDT)">
+			{#snippet solution()}
+				<p>
+					Dans le GBDT, après avoir partitionné l'espace en régions disjointes <KatexInline
+						formula={String.raw`R_{jt}`}
+					/> à l'aide d'un arbre de régression, on ré-optimise la valeur prédite <KatexInline
+						formula={String.raw`\gamma_{jt}`}
+					/> dans chaque feuille <KatexInline formula={String.raw`j`} /> en résolvant :
+				</p>
+				<KatexBlock
+					formula={String.raw`\gamma_{jt} = \arg\min_{\gamma} \sum_{x_i \in R_{jt}} L(y_i, F_{t-1}(x_i) + \gamma)`}
+				/>
+				<p>
+					Cette étape de recalibrage de la constante de la feuille pour la perte globale <KatexInline
+						formula={String.raw`L`}
+					/> est cruciale : elle garantit que la prédiction finale de l'arbre est optimale pour la perte
+					ciblée (par exemple, la médiane des résidus pour la perte L1, ou des approximations de Newton
+					pour la log-perte), et non pas simplement une moyenne des pseudo-résidus.
+				</p>
+			{/snippet}
+			<p>
+				Une fois la structure de l'arbre déterminée à l'étape <KatexInline
+					formula={String.raw`t`}
+				/>, comment calcule-t-on la valeur optimale <KatexInline
+					formula={String.raw`\gamma_{jt}`}
+				/> à prédire dans chaque feuille <KatexInline formula={String.raw`j`} /> ?
+			</p>
+		</ExercisePanel>
+
+		<ExercisePanel number="7.17" title="XGBoost vs GBDT Classique">
+			{#snippet solution()}
+				<p>
+					<strong>XGBoost</strong> propose deux améliorations mathématiques majeures :
+				</p>
+				<ol>
+					<li>
+						<strong>Régularisation :</strong> Il intègre directement des pénalités L1 (<KatexInline
+							formula={String.raw`\alpha`}
+						/>) et L2 (<KatexInline formula={String.raw`\lambda`} />) sur la structure des arbres
+						(poids des feuilles) dans la fonction objective pour limiter le surapprentissage.
+					</li>
+					<li>
+						<strong>Développement de Taylor au second ordre :</strong> Au lieu d'utiliser une simple
+						approximation au premier ordre (comme Friedman), XGBoost formule son gain de division à
+						l'aide du gradient (premier ordre) et du <strong>Hessien</strong> (second ordre) de la perte,
+						permettant une convergence beaucoup plus rapide pour des pertes complexes.
+					</li>
+				</ol>
+			{/snippet}
+			<p>
+				Quelles sont les deux innovations mathématiques majeures introduites par l'algorithme
+				XGBoost par rapport au Gradient Boosting classique de Friedman ?
+			</p>
+		</ExercisePanel>
+
+		<ExercisePanel number="7.18" title="Perte robuste de Huber">
+			{#snippet solution()}
+				<p>
+					La perte de Huber se comporte comme une perte L2 pour de petites erreurs et comme une
+					perte L1 pour des erreurs supérieures à un seuil <KatexInline
+						formula={String.raw`\delta`}
+					/> :
+				</p>
+				<ul>
+					<li>
+						Elle est continue et différentiable partout (contrairement à la perte L1 qui n'est pas
+						dérivable en 0), ce qui facilite l'optimisation par gradient.
+					</li>
+					<li>
+						Elle est robuste aux outliers (croissance linéaire de la perte pour de grandes erreurs),
+						évitant le comportement quadratique de la perte L2.
+					</li>
+				</ul>
+			{/snippet}
+			<p>
+				Qu'est-ce que la fonction de perte robuste de Huber ? Quel est son avantage pour le Gradient
+				Boosting par rapport aux pertes pures L1 et L2 ?
+			</p>
+		</ExercisePanel>
+
+		<ExercisePanel number="7.19" title="Vrai ou Faux sur le Boosting">
+			{#snippet solution()}
+				<ol>
+					<li>
+						<strong>Faux.</strong> Contrairement au Bagging, le Boosting est un processus
+						strictement séquentiel (l'arbre <KatexInline formula={String.raw`t`} /> dépend de l'arbre
+						<KatexInline formula={String.raw`t-1`} />), ce qui empêche la parallélisation native de
+						la construction des arbres.
+					</li>
+					<li>
+						<strong>Vrai.</strong> C'est la base théorique d'AdaBoost : combiner des classifieurs à peine
+						meilleurs qu'un tirage aléatoire pour former un classifieur fort.
+					</li>
+					<li>
+						<strong>Faux.</strong> Un taux d'apprentissage trop élevé (<KatexInline
+							formula={String.raw`\eta = 1`}
+						/>) provoque souvent un surapprentissage rapide et empêche de trouver le minimum global
+						de manière stable.
+					</li>
+					<li>
+						<strong>Vrai.</strong> Le boosting corrigeant séquentiellement les erreurs des étapes précédentes,
+						il finit par surapprendre de manière dramatique si l'on ajoute trop d'arbres sur un jeu de
+						données contenant du bruit.
+					</li>
+				</ol>
+			{/snippet}
+			<p>Répondez par Vrai ou Faux en justifiant brièvement :</p>
+			<ol>
+				<li>
+					On peut facilement paralléliser la construction de tous les arbres d'un modèle de Gradient
+					Boosting pour accélérer l'apprentissage.
+				</li>
+				<li>
+					Les apprenants de base (weak learners) dans AdaBoost peuvent avoir des performances à
+					peine supérieures à 50% de précision.
+				</li>
+				<li>
+					Il est toujours préférable de régler le taux d'apprentissage <KatexInline
+						formula={String.raw`\eta`}
+					/> à sa valeur maximale 1 pour converger plus vite.
+				</li>
+				<li>
+					Contrairement aux forêts aléatoires, le Boosting est sensible au surapprentissage si le
+					nombre d'arbres est excessivement élevé.
+				</li>
+			</ol>
+		</ExercisePanel>
+
+		<ExercisePanel number="7.20" title="Bilan : Bagging vs Boosting">
+			{#snippet solution()}
+				<table>
 					<thead>
-						<tr class="bg-muted"
-							><th>Caractéristique</th><th>Prédiction Conforme</th><th>Classification Average-K</th
-							></tr
-						>
+						<tr>
+							<th>Caractéristique</th>
+							<th>Bagging</th>
+							<th>Boosting</th>
+						</tr>
 					</thead>
 					<tbody>
 						<tr>
-							<td><strong>Variable contrôlée</strong></td>
-							<td>Le risque d'erreur (borné par <KatexInline formula={String.raw`\alpha`} />)</td>
-							<td
-								>La taille moyenne attendue (bornée par <KatexInline
-									formula={String.raw`\kappa`}
-								/>)</td
-							>
+							<td>Architecture</td>
+							<td>Parallèle / Indépendante</td>
+							<td>Séquentielle / Dépendante</td>
 						</tr>
 						<tr>
-							<td><strong>Comportement par point</strong></td>
-							<td>Taille d'ensemble hautement variable selon l'incertitude locale</td>
-							<td
-								>Seuil de confiance rigoureusement uniforme (<KatexInline
-									formula={String.raw`\lambda`}
-								/>)</td
-							>
+							<td>Action principale</td>
+							<td>Réduction de variance</td>
+							<td>Réduction de biais</td>
 						</tr>
 						<tr>
-							<td><strong>Cas d'usage idéal</strong></td>
-							<td>Systèmes critiques exigeant des garanties de sécurité absolues</td>
-							<td>Flux opérationnels industriels avec contrainte de ressources</td>
+							<td>Arbres de base</td>
+							<td>Profonds (faible biais, forte variance)</td>
+							<td>Peu profonds / Stumps (fort biais)</td>
+						</tr>
+						<tr>
+							<td>Sensibilité au bruit</td>
+							<td>Très robuste</td>
+							<td>Sensible (risque d'overfitting)</td>
 						</tr>
 					</tbody>
 				</table>
 			{/snippet}
 			<p>
-				Résumez de manière conceptuelle et philosophique la différence fondamentale entre le cadre
-				de la prédiction conforme (contrôle du risque, taille d'ensemble variable) et celui de la
-				classification Average-K (contrôle des ressources, risque d'erreur variable).
+				Dressez un tableau comparatif synthétique confrontant le Bagging et le Boosting sur les
+				aspects suivants : mode de construction (séquentiel/parallèle), objectif principal
+				(biais/variance), profondeur typique des arbres de base et sensibilité au bruit de données.
+			</p>
+		</ExercisePanel>
+
+		<!-- ==========================================
+                   SECTION 8: RÉGULARISATION L1 & L2
+                   ========================================== -->
+		<h2 id="regularisation">Régularisation L1 et L2</h2>
+		<p>
+			Cette section traite du compromis biais-variance, de la régularisation Ridge (L2), du Lasso
+			(L1), de l'Elastic Net, et de leurs aspects géométriques et algorithmiques.
+		</p>
+
+		<ExercisePanel number="8.1" title="Décomposition Biais-Variance formelle">
+			{#snippet solution()}
+				<p>
+					Soit <KatexInline formula={String.raw`y = f(x) + \varepsilon`} /> avec <KatexInline
+						formula={String.raw`\mathbb{E}[\varepsilon] = 0`}
+					/> et <KatexInline formula={String.raw`\text{Var}(\varepsilon) = \sigma^2`} />.
+					Développons l'erreur quadratique moyenne d'un prédicteur <KatexInline
+						formula={String.raw`\hat{f}`}
+					/> au point <KatexInline formula={String.raw`x`} /> :
+				</p>
+				<KatexBlock
+					formula={String.raw`\mathbb{E}[(y - \hat{f}(x))^2] = \mathbb{E}[(f(x) + \varepsilon - \hat{f}(x))^2] = \mathbb{E}[((f(x) - \mathbb{E}[\hat{f}(x)]) + (\mathbb{E}[\hat{f}(x)] - \hat{f}(x)) + \varepsilon)^2]`}
+				/>
+				<p>
+					En développant le carré, tous les termes croisés s'annulent sous l'espérance car <KatexInline
+						formula={String.raw`\varepsilon`}
+					/> est indépendant de <KatexInline formula={String.raw`\hat{f}(x)`} /> et <KatexInline
+						formula={String.raw`\mathbb{E}[\hat{f}(x) - \mathbb{E}[\hat{f}(x)]] = 0`}
+					/>. Il reste :
+				</p>
+				<KatexBlock
+					formula={String.raw`\mathbb{E}[(y - \hat{f}(x))^2] = (f(x) - \mathbb{E}[\hat{f}(x)])^2 + \mathbb{E}[(\mathbb{E}[\hat{f}(x)] - \hat{f}(x))^2] + \mathbb{E}[\varepsilon^2]`}
+				/>
+				<p>
+					On identifie respectivement : <KatexInline
+						formula={String.raw`\text{Biais}(\hat{f}(x))^2 + \text{Var}(\hat{f}(x)) + \sigma^2`}
+					/> (le bruit irréductible).
+				</p>
+			{/snippet}
+			<p>
+				Démontrez la formule de décomposition de l'erreur quadratique moyenne <KatexInline
+					formula={f81}
+				/> pour un estimateur quelconque <KatexInline formula={String.raw`\hat{f}(x)`} />.
+			</p>
+		</ExercisePanel>
+
+		<ExercisePanel number="8.2" title="Équivalence des formulations de régularisation">
+			{#snippet solution()}
+				<p>
+					L'équivalence repose sur les conditions d'optimalité de Karush-Kuhn-Tucker (KKT).
+					Considérons le problème sous contrainte : <KatexInline
+						formula={String.raw`\min_w \mathcal{L}(w)`}
+					/> s.t. <KatexInline formula={String.raw`\|w\|_2^2 \le t`} />. Le Lagrangien s'écrit :
+				</p>
+				<KatexBlock
+					formula={String.raw`\mathcal{L}(w, \lambda) = \frac{1}{2n}\|y - Xw\|_2^2 + \frac{\lambda}{2}(\|w\|_2^2 - t)`}
+				/>
+				<p>
+					Pour une valeur de contrainte <KatexInline formula={String.raw`t`} /> rendant la contrainte
+					active, il existe un multiplicateur de Lagrange unique <KatexInline
+						formula={String.raw`\lambda > 0`}
+					/> tel que la solution du Lagrangien coïncide exactement avec la solution du problème pénalisé
+					(formule de Tikhonov). La relation est monotone : réduire <KatexInline
+						formula={String.raw`t`}
+					/> équivaut à augmenter la pénalité <KatexInline formula={String.raw`\lambda`} />.
+				</p>
+			{/snippet}
+			<p>
+				Expliquez rigoureusement pourquoi la formulation pénalisée (Lagrangienne) et la formulation
+				sous contrainte (Tikhonov) d'un problème de régularisation sont mathématiquement
+				équivalentes.
+			</p>
+		</ExercisePanel>
+
+		<ExercisePanel number="8.3" title="Dérivation de la solution analytique Ridge">
+			{#snippet solution()}
+				<p>
+					Le coût à minimiser est : <KatexInline
+						formula={String.raw`J(w) = \frac{1}{2}(y - Xw)^\top(y - Xw) + \frac{n\lambda}{2} w^\top w`}
+					/>. Développons ce coût :
+				</p>
+				<KatexBlock
+					formula={String.raw`J(w) = \frac{1}{2}\left( y^\top y - 2 w^\top X^\top y + w^\top X^\top X w \right) + \frac{n\lambda}{2} w^\top w`}
+				/>
+				<p>
+					Calculons le gradient par rapport à <KatexInline formula={String.raw`w`} /> :
+				</p>
+				<KatexBlock formula={String.raw`\nabla_w J(w) = -X^\top y + X^\top X w + n\lambda w`} />
+				<p>En annulant ce gradient pour trouver le minimum :</p>
+				<KatexBlock
+					formula={String.raw`(X^\top X + n\lambda I) w = X^\top y \implies w^* = (X^\top X + n\lambda I)^{-1} X^\top y`}
+				/>
+			{/snippet}
+			<p>
+				Retrouvez la solution analytique de la régression Ridge <KatexInline formula={f83} /> en calculant
+				et en annulant le gradient de la fonction objectif correspondante.
+			</p>
+		</ExercisePanel>
+
+		<ExercisePanel number="8.4" title="Interprétation géométrique L1 vs L2">
+			{#snippet solution()}
+				<p>L'explication réside dans la géométrie des courbes de niveau de la pénalité :</p>
+				<ul>
+					<li>
+						<strong>Lasso (L1) :</strong> La boule unité <KatexInline
+							formula={String.raw`\|w\|_1 \le t`}
+						/> est un polyèdre (un losange en 2D) possédant des angles pointus situés directement sur
+						les axes de coordonnées (où certaines composantes <KatexInline
+							formula={String.raw`w_j = 0`}
+						/>). Les courbes de niveau de la perte quadratique (des ellipses) ont de fortes chances
+						de toucher d'abord un de ces angles pointus, annulant ainsi des coefficients.
+					</li>
+					<li>
+						<strong>Ridge (L2) :</strong> La boule de contrainte <KatexInline
+							formula={String.raw`\|w\|_2 \le t`}
+						/> est lisse et sphérique. Le point de contact avec l'ellipse de perte se produit presque
+						toujours en un point générique hors des axes, réduisant les coefficients sans jamais les annuler
+						strictement.
+					</li>
+				</ul>
+			{/snippet}
+			<p>
+				À l'aide d'un argument géométrique (dessin des contours de la perte et des boules de
+				contraintes en 2D), expliquez pourquoi le Lasso produit des solutions creuses
+				(parcimonieuses) tandis que Ridge ne le fait pas.
+			</p>
+		</ExercisePanel>
+
+		<ExercisePanel number="8.5" title="Opérateur de seuillage doux (Lasso 1D)">
+			{#snippet solution()}
+				<p>
+					En dimension 1 avec <KatexInline formula={String.raw`X^\top X = n`} />, la fonction de
+					coût simplifiée s'écrit :
+					<KatexInline
+						formula={String.raw`J(w) = \frac{1}{2}(w - w_{\text{OLS}})^2 + \lambda |w|`}
+					/>. Analysons selon le signe de <KatexInline formula={String.raw`w`} /> :
+				</p>
+				<ul>
+					<li>
+						Si <KatexInline formula={String.raw`w > 0`} />, <KatexInline
+							formula={String.raw`\partial J = w - w_{\text{OLS}} + \lambda = 0 \implies w^* = w_{\text{OLS}} - \lambda`}
+						/> (valide uniquement si <KatexInline
+							formula={String.raw`w_{\text{OLS}} > \lambda`}
+						/>).
+					</li>
+					<li>
+						Si <KatexInline formula={String.raw`w < 0`} />, <KatexInline
+							formula={String.raw`\partial J = w - w_{\text{OLS}} - \lambda = 0 \implies w^* = w_{\text{OLS}} + \lambda`}
+						/> (valide uniquement si <KatexInline
+							formula={String.raw`w_{\text{OLS}} < -\lambda`}
+						/>).
+					</li>
+					<li>
+						Si <KatexInline formula={String.raw`|w_{\text{OLS}}| \le \lambda`} />, la solution
+						optimale est rabattue exactement à <KatexInline formula={String.raw`w^* = 0`} />.
+					</li>
+				</ul>
+				<p>
+					Ceci correspond exactement à l'opérateur de seuillage doux : <KatexInline
+						formula={String.raw`\hat{w} = \text{sign}(w_{\text{OLS}}) \max(|w_{\text{OLS}}| - \lambda, 0)`}
+					/>.
+				</p>
+			{/snippet}
+			<p>
+				En dimension <KatexInline formula={String.raw`d = 1`} />, démontrez que la solution du Lasso
+				est donnée par l'opérateur de seuillage doux (Soft-Thresholding) :
+				<KatexBlock formula={f85} />
+			</p>
+		</ExercisePanel>
+
+		<ExercisePanel number="8.6" title="Opérateur de contraction linéaire (Ridge 1D)">
+			{#snippet solution()}
+				<p>
+					En dimension 1 avec <KatexInline formula={String.raw`X^\top X = n`} />, le coût du Ridge
+					est <KatexInline
+						formula={String.raw`J(w) = \frac{1}{2}(w - w_{\text{OLS}})^2 + \frac{\lambda}{2} w^2`}
+					/>. Dérivons par rapport à <KatexInline formula={String.raw`w`} /> :
+				</p>
+				<KatexBlock
+					formula={String.raw`J'(w) = w - w_{\text{OLS}} + \lambda w = 0 \implies w(1 + \lambda) = w_{\text{OLS}} \implies w^* = \frac{1}{1 + \lambda} w_{\text{OLS}}`}
+				/>
+				<p>
+					Le coefficient Ridge est obtenu par une simple contraction linéaire (division par un
+					facteur constant <KatexInline formula={String.raw`1+\lambda`} />) de la solution
+					classique. Contrairement au Lasso, le coefficient ne s'annule jamais pour des valeurs
+					finies de <KatexInline formula={String.raw`\lambda`} />.
+				</p>
+			{/snippet}
+			<p>
+				En dimension <KatexInline formula={String.raw`d=1`} />, déterminez la solution analytique de
+				la régression Ridge et mettez-la sous la forme d'un opérateur de contraction linéaire de la
+				solution OLS.
+			</p>
+		</ExercisePanel>
+
+		<ExercisePanel number="8.7" title="Invertibilité garantie grâce à la régularisation Ridge">
+			{#snippet solution()}
+				<p>
+					La matrice de covariance empirique <KatexInline formula={String.raw`X^\top X`} /> est semi-définie
+					positive, ses valeurs propres sont positives ou nulles (<KatexInline
+						formula={String.raw`\lambda_j \ge 0`}
+					/>). Lorsque <KatexInline formula={String.raw`d > n`} />, le rang de <KatexInline
+						formula={String.raw`X^\top X`}
+					/> est au maximum <KatexInline formula={String.raw`n < d`} />, ce qui implique qu'au moins <KatexInline
+						formula={String.raw`d-n`}
+					/> valeurs propres sont nulles, rendant la matrice non inversible.
+				</p>
+				<p>
+					En ajoutant le terme Ridge <KatexInline formula={String.raw`n\lambda I`} /> (avec <KatexInline
+						formula={String.raw`\lambda > 0`}
+					/>), les nouvelles valeurs propres de la matrice <KatexInline
+						formula={String.raw`X^\top X + n\lambda I`}
+					/> deviennent <KatexInline formula={String.raw`\lambda_j + n\lambda`} />. Puisque <KatexInline
+						formula={String.raw`n\lambda > 0`}
+					/>, toutes les valeurs propres sont strictement positives. La matrice est donc définie
+					positive et garantie d'être inversible, offrant une solution unique stable.
+				</p>
+			{/snippet}
+			<p>
+				Expliquez comment la régularisation Ridge résout mathématiquement le problème de la
+				non-invertibilité de la matrice <KatexInline formula={String.raw`X^\top X`} /> lorsque le nombre
+				de variables <KatexInline formula={String.raw`d`} /> est strictement supérieur au nombre d'exemples
+				<KatexInline formula={String.raw`n`} />.
+			</p>
+		</ExercisePanel>
+
+		<ExercisePanel number="8.8" title="Colinéarité et régression Ridge">
+			{#snippet solution()}
+				<p>
+					Soit deux variables colinéaires <KatexInline formula={String.raw`X_1 = X_2`} />. Ridge
+					pénalise la somme des carrés <KatexInline formula={String.raw`w_1^2 + w_2^2`} />. Pour
+					prédire un effet cumulé constant <KatexInline formula={String.raw`C = w_1 + w_2`} />,
+					Ridge va minimiser :
+				</p>
+				<KatexBlock formula={String.raw`w_1^2 + w_2^2 \quad \text{s.t.} \quad w_1 + w_2 = C`} />
+				<p>
+					La solution de ce problème quadratique sous contrainte est obtenue pour l'égalité parfaite
+					: <KatexInline formula={String.raw`w_1 = w_2 = C/2`} />.
+				</p>
+				<p>
+					<strong>Propriété :</strong> Ridge gère la colinéarité en
+					<strong>partageant équitablement</strong> les coefficients entre les variables fortement corrélées.
+				</p>
+			{/snippet}
+			<p>
+				Soit deux caractéristiques identiques <KatexInline formula={String.raw`X_1 = X_2`} />.
+				Comment la régularisation Ridge distribue-t-elle les coefficients <KatexInline
+					formula={String.raw`w_1`}
+				/> et <KatexInline formula={String.raw`w_2`} /> ? Justifiez par un calcul de minimisation.
+			</p>
+		</ExercisePanel>
+
+		<ExercisePanel number="8.9" title="Colinéarité et Lasso : instabilité de sélection">
+			{#snippet solution()}
+				<p>
+					Pour deux variables identiques <KatexInline formula={String.raw`X_1 = X_2`} /> et un effet cumulé
+					<KatexInline formula={String.raw`w_1 + w_2 = C`} />, le Lasso pénalise la norme L1 : <KatexInline
+						formula={String.raw`|w_1| + |w_2|`}
+					/>.
+				</p>
+				<p>
+					Sous la contrainte d'effet constant, la valeur de la pénalité vaut <KatexInline
+						formula={String.raw`|w_1| + |C - w_1|`}
+					/>, qui est constante et égale à <KatexInline formula={String.raw`|C|`} /> pour toute combinaison
+					où <KatexInline formula={String.raw`w_1`} /> et <KatexInline formula={String.raw`w_2`} /> ont
+					le même signe.
+				</p>
+				<p>
+					Il y a donc une <strong>infinité de solutions optimales</strong> pour le Lasso (par
+					exemple, <KatexInline formula={String.raw`w_1 = C`} /> et <KatexInline
+						formula={String.raw`w_2 = 0`}
+					/>, ou inversement). En pratique, le Lasso va sélectionner l'une des variables de manière
+					totalement arbitraire selon les perturbations numériques du solveur, ce qui rend le modèle
+					instable pour l'interprétation.
+				</p>
+			{/snippet}
+			<p>
+				Reprenez l'hypothèse de colinéarité de l'exercice 8.8 (<KatexInline
+					formula={String.raw`X_1 = X_2`}
+				/>). Montrez que le Lasso n'offre pas de solution unique pour ce couple de variables et
+				discutez des conséquences sur la sélection de variables.
+			</p>
+		</ExercisePanel>
+
+		<ExercisePanel number="8.10" title="Elastic Net : Synthèse et stabilisation">
+			{#snippet solution()}
+				<p>La fonction objective de l'Elastic Net est :</p>
+				<KatexBlock
+					formula={String.raw`\min_{w} \frac{1}{2n}\|y - Xw\|_2^2 + \lambda \left( \alpha \|w\|_1 + \frac{1-\alpha}{2} \|w\|_2^2 \right)`}
+				/>
+				<p>
+					<strong>Avantage double :</strong> La partie L1 (<KatexInline
+						formula={String.raw`\alpha`}
+					/>) génère de la sparsité en annulant des coefficients non informatifs, tandis que la
+					partie L2 (<KatexInline formula={String.raw`1-\alpha`} />) stabilise le comportement face
+					aux variables corrélées en forçant un effet de groupe (les variables corrélées sont
+					sélectionnées ensemble au lieu d'une seule de manière aléatoire).
+				</p>
+			{/snippet}
+			<p>
+				Donnez la formulation de l'Elastic Net. Expliquez en quoi cette formulation résout
+				simultanément les faiblesses respectives du Lasso (instabilité face aux corrélations) et de
+				Ridge (absence de sélection de variables).
+			</p>
+		</ExercisePanel>
+
+		<ExercisePanel number="8.11" title="Ridge : Décomposition en éléments propres">
+			{#snippet solution()}
+				<p>
+					Soit la décomposition SVD de la matrice des données <KatexInline
+						formula={String.raw`X = UDV^\top`}
+					/>. Alors <KatexInline formula={String.raw`X^\top X = V D^2 V^\top`} />. Exprimons la
+					solution Ridge à l'aide de cette décomposition :
+				</p>
+				<KatexBlock
+					formula={String.raw`\hat{w}_{\text{Ridge}} = (V D^2 V^\top + n\lambda I)^{-1} V D U^\top y = V (D^2 + n\lambda I)^{-1} D U^\top y`}
+				/>
+				<p>
+					Pour chaque composante principale <KatexInline formula={String.raw`j`} />, le coefficient
+					est contracté par un facteur :
+				</p>
+				<KatexBlock formula={String.raw`f_j = \frac{d_j^2}{d_j^2 + n\lambda}`} />
+				<p>
+					Si une composante principale a une très faible valeur propre <KatexInline
+						formula={String.raw`d_j^2 \ll n\lambda`}
+					/>, son coefficient associé est drastiquement réduit vers 0. C'est l'effet de filtrage des
+					directions de faible variance, souvent associées au bruit.
+				</p>
+			{/snippet}
+			<p>
+				En exploitant la décomposition en valeurs singulières (SVD) de <KatexInline
+					formula={String.raw`X`}
+				/>, démontrez comment la régularisation Ridge filtre en priorité les coefficients associés
+				aux directions de faible variance (petites valeurs singulières de <KatexInline
+					formula={String.raw`X^\top X`}
+				/>).
+			</p>
+		</ExercisePanel>
+
+		<ExercisePanel number="8.12" title="Degrés de liberté effectifs de Ridge">
+			{#snippet solution()}
+				<p>
+					Les degrés de liberté effectifs d'un ajustement linéaire régularisé Ridge se calculent par
+					la trace de la matrice de projection (Hat matrix) <KatexInline
+						formula={String.raw`H(\lambda)`}
+					/> :
+				</p>
+				<KatexBlock
+					formula={String.raw`df(\lambda) = \text{tr}(H(\lambda)) = \text{tr}\left( X(X^\top X + n\lambda I)^{-1}X^\top \right) = \text{tr}\left( X^\top X(X^\top X + n\lambda I)^{-1} \right)`}
+				/>
+				<p>
+					En utilisant les valeurs singulières <KatexInline formula={String.raw`d_j`} /> de <KatexInline
+						formula={String.raw`X`}
+					/> :
+				</p>
+				<KatexBlock
+					formula={String.raw`df(\lambda) = \sum_{j=1}^d \frac{d_j^2}{d_j^2 + n\lambda}`}
+				/>
+				<p>
+					On vérifie que si <KatexInline formula={String.raw`\lambda = 0`} />, <KatexInline
+						formula={String.raw`df(0) = d`}
+					/> (nombre de variables total). Si <KatexInline
+						formula={String.raw`\lambda \to \infty`}
+					/>, <KatexInline formula={String.raw`df(\lambda) \to 0`} />.
+				</p>
+			{/snippet}
+			<p>
+				Définissez le concept de "degrés de liberté effectifs" (effective degrees of freedom) pour
+				la régression Ridge et établissez sa formule de calcul en fonction des valeurs singulières
+				de <KatexInline formula={String.raw`X`} />.
+			</p>
+		</ExercisePanel>
+
+		<ExercisePanel number="8.13" title="Descente par coordonnées pour le Lasso">
+			{#snippet solution()}
+				<p>
+					L'algorithme optimise la fonction objectif coordonnée par coordonnée de manière itérative
+					: Pour chaque variable <KatexInline formula={String.raw`j`} />, on fixe tous les autres
+					coefficients <KatexInline formula={String.raw`w_{k \neq j}`} /> et on calcule le résidu partiel
+					<KatexInline
+						formula={String.raw`\rho_j = \sum_{i=1}^n x_{ij}(y_i - \sum_{k \neq j} w_k x_{ik})`}
+					/>.
+				</p>
+				<p>
+					Le problème se ramène à une minimisation unidimensionnelle équivalente à l'exercice 8.5.
+					La mise à jour du coefficient <KatexInline formula={String.raw`w_j`} /> est donnée par :
+				</p>
+				<KatexBlock formula={String.raw`w_j^{(k+1)} = \frac{S_{n\lambda}(\rho_j)}{\|X_j\|_2^2}`} />
+				<p>
+					Cette méthode est extrêmement efficace pour le Lasso car la mise à jour par seuillage doux
+					est analytique et très rapide, évitant des inversions de matrices coûteuses.
+				</p>
+			{/snippet}
+			<p>
+				Décrivez le principe de fonctionnement de l'algorithme de Descente par Coordonnées
+				(Coordinate Descent) utilisé pour résoudre le problème d'optimisation non différentiable du
+				Lasso.
+			</p>
+		</ExercisePanel>
+
+		<ExercisePanel number="8.14" title="Règle de l'écart-type pour la validation croisée">
+			{#snippet solution()}
+				<p>La règle du "One Standard Error" (1-SE Rule) consiste à :</p>
+				<ol>
+					<li>
+						Trouver le paramètre <KatexInline formula={String.raw`\lambda_{\min}`} /> qui donne l'erreur
+						moyenne minimale de validation croisée.
+					</li>
+					<li>Calculer l'écart-type (Standard Error, SE) de cette erreur au point optimal.</li>
+					<li>
+						Sélectionner le modèle le plus parcimonieux (c'est-à-dire le plus grand <KatexInline
+							formula={String.raw`\lambda`}
+						/> pour le Lasso) dont l'erreur reste inférieure à <KatexInline
+							formula={String.raw`\text{Erreur}(\lambda_{\min}) + 1\text{SE}`}
+						/>.
+					</li>
+				</ol>
+				<p>
+					Cette règle permet d'éviter le surapprentissage en favorisant systématiquement un modèle
+					plus simple et plus robuste dès lors que sa perte de performance par rapport à l'optimum
+					théorique n'est pas statistiquement significative.
+				</p>
+			{/snippet}
+			<p>
+				Expliquez le principe de la règle du "One Standard Error" (1-SE Rule) utilisée lors de la
+				sélection de l'hyperparamètre <KatexInline formula={String.raw`\lambda`} /> par validation croisée
+				pour les modèles régularisés.
+			</p>
+		</ExercisePanel>
+
+		<ExercisePanel number="8.15" title="Interprétation bayésienne du Ridge">
+			{#snippet solution()}
+				<p>
+					Supposons un modèle <KatexInline formula={String.raw`y = Xw + \varepsilon`} /> avec un bruit
+					gaussien <KatexInline
+						formula={String.raw`\varepsilon \sim \mathcal{N}(0, \sigma^2 I)`}
+					/>. La vraisemblance est :
+					<KatexInline
+						formula={String.raw`P(y|X, w) \propto \exp\left(-\frac{1}{2\sigma^2}\|y - Xw\|_2^2\right)`}
+					/>.
+				</p>
+				<p>
+					Si l'on pose un a priori gaussien centré sur les coefficients : <KatexInline
+						formula={String.raw`w \sim \mathcal{N}(0, \tau^2 I)`}
+					/>, sa densité est <KatexInline
+						formula={String.raw`P(w) \propto \exp\left(-\frac{1}{2\tau^2}\|w\|_2^2\right)`}
+					/>. La probabilité a posteriori s'écrit par la formule de Bayes : <KatexInline
+						formula={String.raw`P(w|X,y) \propto P(y|X,w)P(w)`}
+					/>. En prenant le logarithme négatif :
+				</p>
+				<KatexBlock
+					formula={String.raw`-\log P(w|X,y) = \frac{1}{2\sigma^2}\|y - Xw\|_2^2 + \frac{1}{2\tau^2}\|w\|_2^2 + C`}
+				/>
+				<p>
+					Maximiser cette probabilité a posteriori (estimation MAP) équivaut à minimiser le coût
+					Ridge en posant <KatexInline formula={String.raw`\lambda = \sigma^2 / \tau^2`} />.
+				</p>
+			{/snippet}
+			<p>
+				Démontrez que la régression Ridge équivaut mathématiquement à la recherche du Maximum A
+				Posteriori (MAP) d'une régression linéaire sous l'hypothèse d'un a priori Gaussien sur les
+				coefficients <KatexInline formula={String.raw`w`} />.
+			</p>
+		</ExercisePanel>
+
+		<ExercisePanel number="8.16" title="Interprétation bayésienne du Lasso">
+			{#snippet solution()}
+				<p>
+					En conservant la même vraisemblance gaussienne, supposons cette fois un a priori de
+					Laplace (double exponentiel) sur les coefficients :
+					<KatexInline formula={String.raw`P(w) \propto \exp\left(-\frac{1}{b}\|w\|_1\right)`} />.
+				</p>
+				<p>La log-probabilité a posteriori négative s'écrit :</p>
+				<KatexBlock
+					formula={String.raw`-\log P(w|X,y) = \frac{1}{2\sigma^2}\|y - Xw\|_2^2 + \frac{1}{b}\|w\|_1 + C`}
+				/>
+				<p>
+					Maximiser cette a posteriori (MAP) équivaut à minimiser la fonction objective du Lasso
+					avec <KatexInline formula={String.raw`\lambda = 2\sigma^2 / b`} />.
+				</p>
+			{/snippet}
+			<p>
+				Démontrez que la régression Lasso équivaut à la recherche du Maximum A Posteriori (MAP)
+				d'une régression linéaire sous l'hypothèse d'un a priori de Laplace sur les coefficients <KatexInline
+					formula={String.raw`w`}
+				/>.
+			</p>
+		</ExercisePanel>
+
+		<ExercisePanel number="8.17" title="Nécessité absolue de la standardisation">
+			{#snippet solution()}
+				<p>
+					La pénalité de régularisation applique le même traitement <KatexInline
+						formula={String.raw`\lambda`}
+					/> à tous les coefficients <KatexInline formula={String.raw`w_j`} /> sans distinction d'échelle.
+				</p>
+				<p>
+					Si une variable <KatexInline formula={String.raw`X_1`} /> est mesurée en mètres (valeurs de
+					1 à 10) et une autre <KatexInline formula={String.raw`X_2`} /> en millimètres (valeurs de 1000
+					à 10000), le coefficient <KatexInline formula={String.raw`w_1`} /> devra être 1000 fois plus
+					grand que <KatexInline formula={String.raw`w_2`} /> pour avoir le même effet physique sur la
+					cible. La pénalité va donc écraser de manière disproportionnée le coefficient <KatexInline
+						formula={String.raw`w_1`}
+					/> uniquement en raison de son unité de mesure. Standardiser les données ramène toutes les variables
+					à la même échelle (variance unitaire), garantissant une pénalisation équitable.
+				</p>
+			{/snippet}
+			<p>
+				Pourquoi est-il absolument indispensable de centrer et de réduire (standardiser) les
+				variables prédictives avant de procéder à l'entraînement d'un modèle Ridge ou Lasso ?
+			</p>
+		</ExercisePanel>
+
+		<ExercisePanel number="8.18" title="Exclusion de l'intercept de la pénalité">
+			{#snippet solution()}
+				<p>
+					L'ordonnée à l'origine (intercept, noté <KatexInline formula={String.raw`w_0`} />)
+					représente la valeur moyenne de la cible lorsque toutes les caractéristiques sont nulles.
+				</p>
+				<p>
+					Si l'on pénalisait <KatexInline formula={String.raw`w_0`} />, la solution dépendrait du
+					choix de l'origine du repère des données (par exemple, ajouter une constante globale à la
+					cible <KatexInline formula={String.raw`y`} /> modifierait de manière complexe tous les coefficients).
+					Exclure l'intercept de la pénalisation garantit que le modèle est invariant par translation
+					globale de la cible ou des variables explicatives.
+				</p>
+			{/snippet}
+			<p>
+				Pourquoi l'ordonnée à l'origine (intercept) ne doit-elle jamais être pénalisée dans les
+				formulations du Ridge et du Lasso ?
+			</p>
+		</ExercisePanel>
+
+		<ExercisePanel number="8.19" title="Vrai ou Faux sur la Régularisation L1/L2">
+			{#snippet solution()}
+				<ol>
+					<li>
+						<strong>Vrai.</strong> Ridge possède une solution analytique globale unique car son coût est
+						strictement convexe et différentiable partout.
+					</li>
+					<li>
+						<strong>Faux.</strong> Augmenter <KatexInline formula={String.raw`\lambda`} /> contraint plus
+						fortement les coefficients, ce qui augmente le biais du modèle mais réduit sa variance.
+					</li>
+					<li>
+						<strong>Vrai.</strong> Pour un modèle Lasso, si <KatexInline
+							formula={String.raw`\lambda`}
+						/> est choisi suffisamment grand, tous les coefficients sans exception sont mis à 0.
+					</li>
+					<li>
+						<strong>Faux.</strong> Le Lasso est extrêmement efficace pour la sélection de variables
+						lorsque <KatexInline formula={String.raw`d \gg n`} />, car il peut sélectionner au
+						maximum <KatexInline formula={String.raw`n`} /> variables uniques avant de saturer.
+					</li>
+				</ol>
+			{/snippet}
+			<p>Répondez par Vrai ou Faux en justifiant brièvement :</p>
+			<ol>
+				<li>
+					La régression Ridge possède toujours une solution analytique unique, même si <KatexInline
+						formula={String.raw`d > n`}
+					/>.
+				</li>
+				<li>
+					Augmenter la valeur de l'hyperparamètre <KatexInline formula={String.raw`\lambda`} /> réduit
+					le biais du modèle.
+				</li>
+				<li>
+					Il existe une valeur critique de <KatexInline formula={String.raw`\lambda`} /> au-delà de laquelle
+					tous les coefficients du Lasso valent strictement 0.
+				</li>
+				<li>
+					Le Lasso est inapplicable lorsque la dimension <KatexInline formula={String.raw`d`} /> est strictement
+					supérieure au nombre d'exemples <KatexInline formula={String.raw`n`} />.
+				</li>
+			</ol>
+		</ExercisePanel>
+
+		<ExercisePanel number="8.20" title="Bilan synthétique : Ridge vs Lasso">
+			{#snippet solution()}
+				<table>
+					<thead>
+						<tr>
+							<th>Propriété</th>
+							<th>Ridge (L2)</th>
+							<th>Lasso (L1)</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr>
+							<td>Forme de la pénalité</td>
+							<td><KatexInline formula={String.raw`w_j^2`} /></td>
+							<td><KatexInline formula={String.raw`|w_j|`} /></td>
+						</tr>
+						<tr>
+							<td>Solution analytique</td>
+							<td>Oui (formule fermée)</td>
+							<td>Non (optimisation numérique)</td>
+						</tr>
+						<tr>
+							<td>Sélection de variables</td>
+							<td>Non (réduction vers 0 sans annulation)</td>
+							<td>Oui (coefficients mis à 0 pile)</td>
+						</tr>
+						<tr>
+							<td>Variables colinéaires</td>
+							<td>Partage équitable des poids</td>
+							<td>Sélection arbitraire d'une seule variable</td>
+						</tr>
+					</tbody>
+				</table>
+			{/snippet}
+			<p>
+				Dressez un tableau comparatif exhaustif opposant la régression Ridge et le Lasso sur les
+				critères suivants : expression de la pénalité, existence d'une solution analytique sous
+				forme fermée, capacité de sélection automatique de variables et comportement en présence de
+				variables hautement corrélées.
 			</p>
 		</ExercisePanel>
 	</TheorySection>
 </PageTemplate>
 
 <style>
-	table {
-		width: 100%;
-		border-collapse: collapse;
-		margin: 1rem 0;
-	}
 	th,
 	td {
-		border: 1px solid var(--state-error-border, #ddd);
-		padding: 8px;
+		padding: 0.5rem;
+		border-bottom: 1px solid rgba(0, 0, 0, 0.1);
 	}
 </style>

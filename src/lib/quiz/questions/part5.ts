@@ -4,511 +4,471 @@ export const PART5: QuizQuestion[] = [
 	{
 		id: 'p5-l1-q1',
 		tags: ['p5/l1'],
-		question: "D'après la leçon, de quoi est constitué le prédicteur Top-K bayésien S*(x) ?",
+		question:
+			"D'après le théorème 5.1, que devient la variance de l'agrégation (moyenne de m prédicteurs à erreurs centrées et indépendantes) ?",
 		options: [
-			'Les K classes ayant les plus grands scores estimés p_c(x) produits par le modèle.',
-			'Les K classes ayant les plus grandes probabilités conditionnelles vraies η_c(x).',
-			'Les K classes ayant les plus grandes probabilités a priori P(Y = c).',
-			'Les K classes ayant la plus grande incertitude a posteriori au point x.'
+			'elle est multipliée par m',
+			'elle reste inchangée',
+			'elle est divisée par m²',
+			'elle est divisée par m'
 		],
-		answerIndex: 1,
+		answerIndex: 3,
 		explanation:
-			"Le meilleur ensemble de taille K fixe maximise la masse de probabilité captée Σ_{c∈S} η_c(x) : c'est exactement les K classes les plus probables au sens de la vérité η(x) — et non de son estimation p(x) (section « Le risque Top-K bayésien »)."
+			"Théorème 5.1 : sous l'indépendance, les termes croisés E[ε_j ε_k] (j ≠ k) s'annulent et il reste (1/m) E[ε²] : la variance est réduite d'un facteur m. Le callout « Remarque cruciale » rappelle que cela ne fonctionne que si les modèles font des erreurs complémentaires."
 	},
 	{
 		id: 'p5-l1-q2',
 		tags: ['p5/l1'],
 		question:
-			'Exemple numérique de la leçon : avec 5 classes et η(x) = (0.50, 0.25, 0.15, 0.07, 0.03), quel est le risque bayésien Top-3 en ce point x ?',
-		options: ['0.05', '0.15', '0.10', '0.25'],
-		answerIndex: 2,
+			"L'exemple 5.1.1 considère m prédicteurs dont les erreurs ont une corrélation constante ρ : la variance agrégée vaut ρσ² + (1−ρ)σ²/m. Que se passe-t-il quand m tend vers l'infini ?",
+		options: [
+			'la variance tend vers 0',
+			'la variance tend vers ρσ², quel que soit le nombre de modèles ajoutés',
+			'la variance diverge',
+			'la variance tend vers σ²'
+		],
+		answerIndex: 1,
 		explanation:
-			'Le risque ponctuel vaut 1 - (0.50 + 0.25 + 0.15) = 0.10. La masse restante 0.07 + 0.03 est irréductiblement hors du Top-3 en ce point, quel que soit le modèle utilisé.'
+			"Seul le second terme décroît en 1/m ; le premier terme ρσ² ne dépend pas de m : au-delà d'un certain point, ajouter des modèles n'apporte plus qu'un gain marginal. C'est donc la corrélation entre modèles, et non leur nombre, qui borne le gain possible — la motivation du bagging et des forêts aléatoires, qui cherchent à réduire activement ρ."
 	},
 	{
 		id: 'p5-l1-q3',
 		tags: ['p5/l1'],
-		question: "D'après la leçon, que fait le Temperature Scaling avec T > 1 ?",
+		question:
+			"Dans un échantillon bootstrap de taille n tiré avec remise dans les n points du jeu d'entraînement, quelle proportion des points originaux est en moyenne absente de l'échantillon ?",
 		options: [
-			'Il aplatit la distribution des scores, rendant le modèle moins confiant, sans modifier le classement des classes.',
-			'Il resserre la distribution et rend le modèle plus confiant.',
-			"Il modifie le classement des classes et donc l'ensemble Top-K.",
-			"Il garantit la diminution de l'ECE pour tout modèle initial."
+			'environ 1/e ≈ 36,8 %',
+			'environ 1/2 = 50 %',
+			'exactement 1/n',
+			'aucune : avec n tirages, tous les points sont forcément présents'
 		],
 		answerIndex: 0,
 		explanation:
-			"Avec T > 1 la distribution softmax s'aplatit (moins de confiance), avec T < 1 elle se resserre ; comme le rééchelonnage est une fonction strictement croissante des logits, le classement — et donc le prédicteur Top-K — est inchangé, seul le choix de K par seuillage est affecté (section « Calibration de la confiance »)."
+			"Définition 5.5 et callout « Pourquoi 63.2 % ? » : la probabilité qu'un point ne soit pas sélectionné lors d'un tirage est 1 − 1/n ; après n tirages indépendants, (1 − 1/n)ⁿ → e^(−1) ≈ 0,368. Environ 36,8 % des points sont donc out-of-bag et environ 63,2 % sont présents au moins une fois."
 	},
 	{
 		id: 'p5-l1-q4',
 		tags: ['p5/l1'],
 		question:
-			'La règle K* = plus petit K tel que Acc@K ≥ tau (seuil de précision cible) a quel statut, selon la leçon ?',
+			"Selon le théorème 5.6 et le callout d'intuition qui l'accompagne, sur quel type de modèle de base le bagging est-il le plus utile ?",
 		options: [
-			'Elle est décision-théoriquement optimale, car elle adapte K à chaque point x.',
-			'Elle garantit la couverture tau en chaque point x, individuellement.',
-			'Elle nécessite de connaître les probabilités vraies η(x) pour être calculée.',
-			"Elle fixe un K global pour tout l'espace, approximation grossière de la règle pointwise optimale K(x)."
+			'sur les modèles stables, déjà à faible variance (comme la régression linéaire)',
+			'uniquement sur les modèles probabilistes qui sortent des distributions',
+			'sur les modèles instables, dont les prédictions changent beaucoup avec de petites variations des données (arbres non élagués, réseaux de neurones)',
+			'uniquement lorsque le modèle de base est convexe'
 		],
-		answerIndex: 3,
+		answerIndex: 2,
 		explanation:
-			"Le cartouche d'avertissement « Un K global n'est pas optimal point par point » précise qu'un K unique est une approximation commode mais sous-optimale de la règle locale K(x) — plus petite valeur telle que la masse cumulative de η soit ≥ tau — idée que la prédiction conformelle formalisera sans connaître η."
+			"Le théorème 5.6 (variance baggée = σ²/M si les modèles sont décorrélés) est le plus utile pour les modèles instables : le bootstrap rend l'hypothèse d'indépendance approximativement vraie en entraînant chaque modèle sur un sous-échantillon différent. Un modèle déjà stable (régression linéaire), à variance faible, a en revanche essentiellement rien à gagner de l'agrégation."
 	},
 	{
 		id: 'p5-l1-q5',
 		tags: ['p5/l1'],
-		question:
-			"Pourquoi choisir K par seuillage de la masse cumulative exige un modèle calibré, alors qu'un K fixé ne l'exige pas ?",
+		question: "Quel est l'intérêt principal de l'erreur out-of-bag (OOB) (définition 5.7) ?",
 		options: [
-			'Parce que le risque Top-K bayésien dépend des valeurs exactes de η.',
-			'Parce que le K fixé ne dépend que du classement des classes, tandis que le seuillage dépend des valeurs des scores.',
-			"Parce que l'ECE doit être strictement nulle pour utiliser un seuil quelconque.",
-			"Parce que le classement estimé p(x) n'est jamais celui de la vérité η(x)."
+			'elle réentraîne chaque modèle sur les points manquants de son bootstrap',
+			"elle fournit une estimation de l'erreur de généralisation sans ensemble de validation séparé",
+			'elle remplace le bootstrap par un sous-échantillonnage aléatoire sans remise',
+			"elle garantit que le biais de l'agrégat est nul"
 		],
 		answerIndex: 1,
 		explanation:
-			'La leçon opère la séparation nette : S*(x) = Top_K(η(x)) ne dépend que du classement des η_c(x), pas de leurs valeurs ; mais dès que K est choisi par seuil de masse, les valeurs de p(x) comptent et doivent approcher η_c(x) elles-mêmes, pas seulement leur rang.'
+			"Chaque exemple (x_i, y_i) est évalué uniquement par les modèles dont l'échantillon bootstrap ne contenait pas cet exemple (l'ensemble C_i), exactement comme s'il s'agissait d'un ensemble de test indépendant : une estimation non biaisée de la généralisation, sans avoir mis de côté la moindre donnée au départ."
 	},
 	{
 		id: 'p5-l2-q1',
 		tags: ['p5/l2'],
 		question:
-			'Sur quoi repose, selon la leçon, la garantie de couverture marginale P(Y ∈ C(X)) ≥ 1 - alpha de la prédiction conformelle scindée ?',
-		options: [
-			'Sur le fait que le modèle p(x) soit bien calibré en valeur.',
-			'Sur le fait que les scores de non-conformité soient presque sûrement distincts.',
-			"Sur le fait que l'ensemble de calibration soit strictement plus grand que l'ensemble d'entraînement.",
-			"Sur l'échangeabilité des données (X_1, Y_1), ..., (X_n, Y_n), (X, Y), hypothèse plus faible que i.i.d."
-		],
-		answerIndex: 3,
+			"D'après le théorème 6.1, quelle est la variance asymptotique (M → ∞) de l'agrégat de M arbres dont la corrélation moyenne par paires est ρ̄ et la variance individuelle σ² ?",
+		options: ['ρ̄σ²', '0', 'σ²', '(1−ρ̄)σ²/M'],
+		answerIndex: 0,
 		explanation:
-			"La garantie est exacte en échantillon fini et model-free : elle ne repose sur aucune hypothèse sur la forme du classificateur, seulement sur l'échangeabilité des données — les données i.i.d. étant toujours échangeables (section « Garantie de couverture »)."
+			"Théorème 6.1 : Var(agrégé) = ρ̄σ² + (1−ρ̄)σ²/M ; quand M → ∞, le second terme s'annule et la variance reste bornée inférieurement par ρ̄σ², quel que soit le nombre d'arbres. C'est donc la corrélation, et non M, qui borne le gain — d'où l'intérêt de réduire ρ̄ directement."
 	},
 	{
 		id: 'p5-l2-q2',
 		tags: ['p5/l2'],
-		question:
-			'La garantie de couverture est marginale, et non conditionnelle. Quelle est la conséquence directe soulignée par la leçon ?',
+		question: 'Par rapport au bagging pur, que fait le Random Forest pour décorreler les arbres ?',
 		options: [
-			"L'ensemble de prédiction sous- couvre en chaque point x de l'espace d'entrée.",
-			'La garantie est automatiquement violée dès que le modèle est mal calibré.',
-			"Un ensemble peut respecter la couverture moyenne 1 - alpha tout en sous-couvrant fortement dans certaines régions de l'espace.",
-			'La couverture est exactement égale à 1 - alpha en chaque point x.'
+			'il diminue la taille des échantillons bootstrap',
+			'à chaque nœud, la division est choisie parmi un sous-ensemble aléatoire de m features plutôt que parmi toutes les d',
+			'il remplace le vote majoritaire par un vote pondéré',
+			"il augmente le nombre d'arbres"
 		],
-		answerIndex: 2,
+		answerIndex: 1,
 		explanation:
-			"La probabilité est prise sur le tirage conjoint de (X, Y) : c'est une garantie moyenne sur toute la population de x. La garantie conditionnelle P(Y ∈ C(X) | X = x) ≥ 1 - alpha n'est pas fournie et ne peut en général pas être obtenue de façon distribution-free (la leçon cite Barber et al., 2021, dans la Définition 10.1)."
+			"Définition 6.3 (division optimale restreinte) : à chaque nœud, on tire un sous-ensemble aléatoire F_t de m features et on maximise le gain d'impureté uniquement sur ce sous-ensemble. Cette contrainte structurelle force les arbres à explorer des partitions différentes et réduit directement la corrélation ρ̄ ; le bagging pur (m = d) ne réduit que le terme (1−ρ̄)σ²/M."
 	},
 	{
 		id: 'p5-l2-q3',
 		tags: ['p5/l2'],
 		question:
-			"Selon la section « Le prédicteur oracle et le dual du Top-K », quelle est la dualité entre le Top-K et l'ensemble conforme oracle ?",
-		options: [
-			'Le Top-K fixe la couverture et maximise la taille ; le conforme fixe la taille et minimise la masse capturée.',
-			"Le Top-K fixe la taille K et maximise la masse capturée ; l'ensemble conforme oracle fixe la masse cible 1 - alpha et minimise la taille.",
-			'Les deux problèmes fixent la taille K et ne diffèrent que par le score utilisé.',
-			"Le Top-K fixe la masse cible et minimise la taille ; l'ensemble conforme oracle fixe la taille et maximise la masse."
-		],
-		answerIndex: 1,
+			'Selon les règles empiriques de la définition 6.4, quelle est la valeur typique de m (nombre de features par division) pour la classification ?',
+		options: ['m ≈ d/3', 'm = d', 'm = 1', 'm = √d'],
+		answerIndex: 3,
 		explanation:
-			'Les deux problèmes sont duaux : on fixe soit la taille K (Top-K), soit la couverture 1 - alpha (conforme oracle) ; dans les deux cas la solution est un ensemble de niveau de η(x) — seule la contrainte active change.'
+			'Définition 6.4 : m = √d pour la classification et m ≈ d/3 pour la régression. Ces valeurs offrent un compromis entre la qualité individuelle des divisions (m grand → biais faible) et la diversité entre arbres (m petit → corrélation ρ̄ faible).'
 	},
 	{
 		id: 'p5-l2-q4',
 		tags: ['p5/l2'],
 		question:
-			'Pourquoi la garantie de couverture tient-elle quel que soit le modèle p(x), même médiocre ou aléatoire ?',
+			'Parmi d = 100 features, une seule (x_1) est fortement prédictive (exemple 6.4.1). Avec m = 10 (≈ √d), que se passe-t-il à chaque nœud ?',
 		options: [
-			'Parce que le quantile empirique converge toujours vers le quantile vrai de η.',
-			'Parce que le score de rang est invariant à la miscalibration près.',
-			'Parce que la garantie est conditionnelle à X, qui ne dépend pas du modèle.',
-			"Parce que la qualité de p(x) n'affecte que la taille des ensembles (l'efficacité), pas la validité de la garantie."
+			'x_1 est choisie à chaque division, comme en bagging pur',
+			'x_1 est exclue de tous les arbres',
+			"x_1 est candidate avec une probabilité d'environ 10 % ; dans les autres nœuds, les arbres sont forcés de diviser sur des features bruitées, ce qui les décorrèle fortement",
+			'la forêt converge vers un arbre unique'
 		],
-		answerIndex: 3,
+		answerIndex: 2,
 		explanation:
-			"Le cartouche « Validité contre efficacité » est explicite : la garantie ne dépend que de l'échangeabilité des scores, pas de la qualité de p(x) ; un modèle mal calibré reste valide sous conformalisation mais produit des ensembles inutilement larges."
+			"Exemple 6.4.1 : avec m = √100 = 10, x_1 est vue par un nœud avec une probabilité de 10/100 ; dans les 90 % de nœuds restants, l'arbre divise sur les 99 features bruitées. Chaque arbre est individuellement plus faible, mais ρ̄ chute fortement : dans ce cas, le compromis biais/décorrélation du théorème 6.1 penche très en faveur d'un petit m."
 	},
 	{
 		id: 'p5-l2-q5',
 		tags: ['p5/l2'],
 		question:
-			'Que se passe-t-il si on choisit alpha = 0.01 au lieu de alpha = 0.1, selon la section « Le seuil quantile » ?',
+			"Pourquoi la leçon recommande-t-elle l'importance par permutation plutôt que la diminution moyenne de l'impureté (MDI) pour une sélection de features critique ?",
 		options: [
-			"La garantie est plus forte (99 %) mais au prix d'ensembles souvent triviaux.",
-			'La garantie est la même mais les ensembles sont toujours plus petits.',
-			'La garantie est de 99 % et les ensembles sont garantis réduits à une seule classe.',
-			"La garantie n'est plus valable qu'asymptotiquement, quand n est grand."
+			"parce qu'elle est beaucoup moins coûteuse à calculer",
+			'parce que la MDI est biaisée en faveur des features à nombreuses modalités et des nœuds hauts, un artefact du critère de Gini',
+			'parce que la permutation ne nécessite aucun ensemble de validation',
+			"parce que la MDI utilise des informations non disponibles à l'entraînement"
 		],
-		answerIndex: 0,
+		answerIndex: 1,
 		explanation:
-			"Le niveau alpha contrôle le compromis : alpha = 0.1 garantit une couverture d'au moins 90 % avec des ensembles plus larges ; un alpha plus petit (0.01) fournit une garantie plus forte (99 %) mais au prix d'ensembles souvent triviaux."
+			"Callout « Attention au biais » : l'importance par impureté surévalue systématiquement les features continues et celles avec de nombreuses modalités — un artefact du critère de Gini lui-même, pas une propriété des données. L'importance par permutation mesure la dégradation réelle de la performance quand la feature est détruite : plus honnête, mais coûteuse (P réévaluations par feature)."
 	},
 	{
 		id: 'p5-l3-q1',
 		tags: ['p5/l3'],
 		question:
-			"Pour les intervalles de largeur constante, quel est le score de non-conformité et quelle est la forme de l'ensemble de prédiction ?",
+			"Dans AdaBoost, que devient le poids α_t d'un classifieur faible lorsque son erreur pondérée ε_t tend vers 0 ?",
 		options: [
-			'Score |y - f(x)| / (sigma(x) + epsilon) : intervalle de largeur variable selon x.',
-			'Score |y - f(x)| : intervalle [f(x) - q, f(x) + q] de largeur identique en tout point de prédiction.',
-			'Score f(x) - y : intervalle asymétrique centré en zéro.',
-			'Score 1 - p_y(x) : ensemble de cardinalité variable.'
+			'α_t tend vers 0',
+			'α_t devient négatif',
+			'α_t est fixé à 1',
+			'α_t tend vers +∞ : le classifieur reçoit tout le poids'
 		],
-		answerIndex: 1,
+		answerIndex: 3,
 		explanation:
-			"Le score est la valeur absolue du résidu ; le quantile q des résidus absolus sur l'ensemble de calibration donne un intervalle symétrique centré sur la prédiction du modèle, avec la même « marge d'erreur » pour tous les points, indépendamment de x (section « Intervalles de largeur constante »)."
+			"α_t = (1/2) ln((1−ε_t)/ε_t) encode la fiabilité du classifieur : si ε_t → 0 alors α_t → +∞ (très fiable) ; si ε_t = 0,5 alors α_t = 0 (le modèle n'apporte rien, c'est le hasard) ; l'algorithme s'arrête dès que ε_t ≥ 1/2."
 	},
 	{
 		id: 'p5-l3-q2',
 		tags: ['p5/l3'],
 		question:
-			"Selon la leçon, quand l'intervalle constant est-il une bonne approximation de l'ensemble oracle (région de densité maximale) ?",
+			"Dans la mise à jour des poids d'AdaBoost, un exemple correctement classé par h_t voit son poids multiplié par le facteur exp(−α_t) < 1. Que signifie cela ?",
 		options: [
-			'Quand le modèle est suffisamment complexe, quelle que soit la structure des erreurs.',
-			'Quand la densité de Y sachant X est multimodale.',
-			"Quand l'ensemble de calibration est petit, car le quantile q est alors plus robuste.",
-			"Quand la largeur oracle ne dépend pas de x, c'est-à-dire sous homoscédasticité."
+			'son poids diminue, si bien que les classifieurs faibles suivants se concentrent davantage sur les exemples mal classés',
+			"l'exemple est ignoré par la suite par tous les classifieurs",
+			'son étiquette est inversée',
+			"l'algorithme s'arrête"
 		],
-		answerIndex: 3,
+		answerIndex: 0,
 		explanation:
-			"Le cartouche d'avertissement « Ce que l'oracle révèle sur l'intervalle constant » est explicite : dès que la largeur de la région de densité maximale varie avec x, l'intervalle constant est nécessairement trop large à certains endroits et trop étroit à d'autres — il n'approxime l'oracle que si la largeur ne dépend pas de x, précisément la condition d'homoscédasticité."
+			"Section « Mise à jour adaptative des poids » : si la prédiction est correcte, le facteur est exp(−α_t) < 1 (le poids diminue) ; si elle est incorrecte, il est exp(+α_t) > 1 (le poids augmente). C'est ce mécanisme de rétroaction qui rend l'algorithme adaptatif : à chaque itération, il se concentre sur les exemples « difficiles »."
 	},
 	{
 		id: 'p5-l3-q3',
 		tags: ['p5/l3'],
 		question:
-			'En régression quantile conforme (CQR), pourquoi corrige-t-on la paire de quantiles appris par une calibration conforme ?',
+			"Selon le théorème 7.1, pourquoi l'erreur d'entraînement d'AdaBoost décroît-elle exponentiellement tant que chaque classifieur faible vérifie ε_t < 1/2 ?",
 		options: [
-			"Parce que rien ne garantit, en échantillon fini, que les quantiles appris couvrent exactement 1 - alpha ; l'étape conforme mesure cette erreur de calibration et la corrige par un décalage uniforme Q.",
-			"Parce que la régression quantile n'est pas un problème convexe et ne peut pas être optimisée.",
-			"Parce que l'étape conforme augmente la largeur moyenne afin de rendre la méthode robuste.",
-			'Parce que les quantiles appris sont biaisés vers la moyenne conditionnelle.'
+			'parce que la perte exponentielle est bornée par 1',
+			"parce que le nombre d'exemples n augmente",
+			"parce que Z_t < 1 et que l'erreur d'entraînement est bornée par le produit des facteurs Z_t",
+			'parce que la marge géométrique devient infinie'
 		],
-		answerIndex: 0,
+		answerIndex: 2,
 		explanation:
-			"Le cartouche « Pourquoi corriger une régression quantile déjà entraînée ? » explique que les quantiles estimés sont eux-mêmes des approximations : l'étape de calibration mesure l'écart sur des données indépendantes et le corrige par un décalage uniforme Q, combinant la forme adaptative de la régression quantile et la garantie exacte de la prédiction conforme, quelle que soit la qualité des quantiles."
+			"Théorème 7.1 : l'erreur d'entraînement du classifieur final est bornée par Π Z_t ; aussi longtemps que ε_t < 1/2, on a Z_t < 1, et le produit décroît exponentiellement avec le nombre d'itérations. C'est ce qui justifie qu'il suffit d'apprenants faibles, légèrement meilleurs que le hasard (erreur < 50 %), pour construire un apprenant fort."
 	},
 	{
 		id: 'p5-l3-q4',
 		tags: ['p5/l3'],
 		question:
-			'En CQR, le score s(x, y) = max(q_lo(x) - y, y - q_hi(x)) est de quel signe, et que mesure-t-il ?',
+			'Quelle affirmation distingue correctement AdaBoost du gradient boosting, selon la section « Points de divergence » ?',
 		options: [
-			"Toujours positif, il mesure la distance au bord le plus proche de l'intervalle.",
-			"Positif quand y est hors de l'intervalle estimé (dépassement), négatif quand y est à l'intérieur (marge restante).",
-			"Négatif quand y est hors de l'intervalle estimé, positif quand y est à l'intérieur.",
-			"Il mesure l'incertitude locale sigma(x) du modèle."
+			'AdaBoost entraîne ses modèles en parallèle, le GBM en séquentiel',
+			"AdaBoost repère les exemples tandis que le GBM ajuste des pseudo-résidus ; AdaBoost minimise une perte exponentielle fixe, le GBM accepte n'importe quelle perte différentiable",
+			'AdaBoost est plus robuste au bruit, car sa pénalité exponentielle est douce',
+			"Le GBM ne fonctionne qu'avec la perte quadratique"
 		],
 		answerIndex: 1,
 		explanation:
-			"La leçon définit un score signé de dépassement : positif et mesurant le dépassement si y tombe hors de l'intervalle [q_lo(x), q_hi(x)], négatif et mesurant la marge restante s'il tombe à l'intérieur (section « Régression quantile conforme (CQR) »)."
+			"AdaBoost change la distribution de données (poids w_i), le GBM change l'objectif à prédire (résidus). AdaBoost minimise une perte exponentielle fixe — très sévère face aux outliers, un point bruité voit son poids exploser — tandis que le GBM accepte n'importe quelle perte différentiable et est plus robuste avec un taux d'apprentissage η faible."
 	},
 	{
 		id: 'p5-l3-q5',
 		tags: ['p5/l3'],
 		question:
-			"Une méthode respecte la couverture empirique 1 - alpha sur l'ensemble de test, mais la couverture échoue systématiquement dans une région de l'espace d'entrée. Quel indicateur d'évaluation détecte ce problème ?",
+			'Quelle est la différence entre la marge fonctionnelle (définition 7.2) et la marge géométrique (définition 7.3) ?',
 		options: [
-			'La largeur moyenne des intervalles.',
-			'Le taux de couverture empirique.',
-			"L'efficacité conditionnelle, qui vérifie l'homogénéité de la couverture à travers les régions de l'espace d'entrée.",
-			"Le quantile conforme Q calculé sur l'ensemble de calibration."
+			'aucune : les deux grandeurs sont identiques',
+			'la marge fonctionnelle est toujours négative',
+			"la marge géométrique n'est utilisée que pour la régression",
+			"la marge géométrique normalise la marge fonctionnelle par la somme Σ|α_t|, la rendant indépendante de l'échelle des poids, comme pour les SVM"
 		],
+		answerIndex: 3,
+		explanation:
+			"Définition 7.3 : la marge géométrique m̄_i = Y_i F(X_i) / Σ|α_t| divise la marge fonctionnelle par le poids total des classifieurs ; dans ce cadre, Σ|α_t| joue le rôle de la norme du vecteur de paramètres. Elle mesure la distance réelle d'un point à la frontière de décision, indépendamment de l'échelle des α_t — par analogie avec les SVM."
+	},
+	{
+		id: 'p5-l4-q1',
+		tags: ['p5/l4'],
+		question:
+			'Pourquoi la solution Ridge reste-t-elle définie même si X transpose X est singulière ?',
+		options: [
+			'Parce que la norme L1 crée des zéros exacts',
+			'Parce que lambda I rend la matrice régularisée inversible',
+			'Parce que la validation croisée élimine les colonnes redondantes',
+			'Parce que Ridge standardise automatiquement les variables'
+		],
+		answerIndex: 1,
+		explanation:
+			'La leçon précise que le terme lambda I garantit que la matrice à inverser est définie positive. La formule fermée reste donc valable même quand p dépasse n.'
+	},
+	{
+		id: 'p5-l4-q2',
+		tags: ['p5/l4'],
+		question:
+			'Dans le cas de colonnes orthonormales, si le coefficient OLS vaut 0.8 et lambda vaut 1.0, la solution Lasso vaut :',
+		options: ['1.8', '0.8', '0', '-0.2'],
 		answerIndex: 2,
 		explanation:
-			"La section « Évaluation des intervalles de prédiction » définit l'efficacité conditionnelle comme la vérification que la couverture ne dépend pas excessivement des valeurs de X : c'est l'indicateur subtil qui détecte les échecs locaux que la couverture marginale — celle garantie par le théorème — ne peut pas voir."
+			'Le soft-thresholding calcule max(0.8 − 1.0, 0), donc 0. Le coefficient passe exactement à zéro, ce qui réalise une sélection de variables.'
+	},
+	{
+		id: 'p5-l4-q3',
+		tags: ['p5/l4'],
+		question: "Dans l'objectif Elastic Net, alpha = 0 correspond à :",
+		options: ['Lasso pur', 'Sans régularisation', 'Une perte 0-1', 'Ridge pur'],
+		answerIndex: 3,
+		explanation:
+			'La leçon indique que alpha = 1 donne le Lasso pur et alpha = 0 donne le Ridge pur.'
+	},
+	{
+		id: 'p5-l4-q4',
+		tags: ['p5/l4'],
+		question:
+			'Sous une descente de gradient simple, le weight decay L2 multiplie le poids courant par :',
+		options: ['(1 - eta lambda)', '(1 + eta lambda)', 'eta lambda', 'lambda / 2'],
+		answerIndex: 0,
+		explanation:
+			"La définition 8.6 décrit une érosion multiplicative par (1 - eta lambda) avant l'application du gradient de la tâche."
 	},
 	{
 		id: 'p5-syn-q1',
 		tags: ['p5/synthese'],
-		question: 'Quel est le prédicteur Top-K bayésien S*(x) pour un point x ?',
+		question: "Quel est l'objectif principal du Bagging (Bootstrap Aggregating) ?",
 		options: [
-			"L'ensemble des K classes ayant les plus grands scores estimés p(x)",
-			"L'ensemble des K classes ayant les plus grandes probabilités conditionnelles vraies η(x)",
-			"L'ensemble des K classes ayant les probabilités a priori les plus élevées",
-			"L'ensemble des classes dont la probabilité dépasse un seuil fixe"
+			'Réduire le biais du modèle',
+			"Réduire la variance de l'estimateur",
+			'Éliminer totalement le bruit des données',
+			"Accélérer le temps d'entraînement"
 		],
 		answerIndex: 1,
 		explanation:
-			'Le prédicteur Top-K bayésien maximise la masse de probabilité captée en choisissant les K classes les plus probables au sens de la vérité η(x).'
+			'Le Bagging réduit la variance en moyennant plusieurs modèles entraînés sur des échantillons bootstrap, sans affecter significativement le biais.'
 	},
 	{
 		id: 'p5-syn-q2',
 		tags: ['p5/synthese'],
-		question: 'Quelle est la propriété de la courbe K ↦ Acc@K ?',
+		question:
+			'Dans une forêt aléatoire, pourquoi sélectionne-t-on un sous-ensemble de variables (mtry) à chaque nœud ?',
 		options: [
-			'Elle est monotone décroissante',
-			'Elle est constante',
-			'Elle est monotone croissante',
-			'Elle suit une courbe en U'
+			'Pour réduire la complexité computationnelle uniquement',
+			'Pour forcer les arbres à être identiques',
+			'Pour décorréler les arbres et réduire la variance globale',
+			'Pour augmenter le biais de chaque arbre'
 		],
 		answerIndex: 2,
 		explanation:
-			"Comme les ensembles Top-K sont emboîtés (Top-K ⊆ Top-K+1), l'exactitude ne peut que croître ou rester stable lorsque K augmente."
+			'En limitant les variables disponibles, on évite que tous les arbres ne fassent la même division dominante, ce qui réduit la corrélation entre eux.'
 	},
 	{
 		id: 'p5-syn-q3',
 		tags: ['p5/synthese'],
-		question: "Quel est l'effet du Temperature Scaling sur le prédicteur Top-K pour un K fixé ?",
-		options: [
-			"Il modifie le classement des classes et donc l'ensemble Top-K",
-			"Il ne modifie pas le classement des classes, donc l'ensemble Top-K reste inchangé",
-			'Il rend le modèle systématiquement plus confiant',
-			"Il annule l'exactitude Top-1"
-		],
-		answerIndex: 1,
+		question:
+			"Quelle est la probabilité asymptotique (N → ∞) qu'une observation ne figure pas dans un échantillon Bootstrap ?",
+		options: ['0.5', '0.632', '1/e (environ 0.368)', '0.25'],
+		answerIndex: 2,
 		explanation:
-			'Le Temperature Scaling est une fonction strictement croissante des logits ; il modifie les valeurs des probabilités (calibration) mais préserve rigoureusement leur ordre.'
+			"La probabilité d'exclusion tend vers (1 - 1/N)^N, ce qui converge vers e⁻¹ ≈ 0.368."
 	},
 	{
 		id: 'p5-syn-q4',
 		tags: ['p5/synthese'],
-		question:
-			'Pourquoi le choix de K par seuillage de la masse cumulative exige-t-il un modèle calibré ?',
+		question: "Qu'est-ce que l'erreur Out-of-Bag (OOB) ?",
 		options: [
-			'Parce que le classement des classes ne suffit plus, les valeurs exactes des scores comptent',
-			'Parce que le risque bayésien dépend uniquement des rangs',
-			"Parce que l'ECE doit être nulle pour tout seuil",
-			'Parce que le modèle doit être linéaire'
+			"L'erreur mesurée sur le jeu de test final",
+			"L'erreur calculée en utilisant uniquement les arbres qui n'ont pas vu l'exemple concerné",
+			"La différence entre l'erreur d'entraînement et l'erreur de test",
+			"L'erreur commise sur les variables exclues"
 		],
-		answerIndex: 0,
+		answerIndex: 1,
 		explanation:
-			'Pour un K fixé, seul le classement compte. Mais pour choisir K tel que Σ p_c ≥ τ, on a besoin que p_c soit une bonne approximation de η_c.'
+			"L'erreur OOB est une estimation honnête de la généralisation car chaque point est prédit par des arbres entraînés sans lui."
 	},
 	{
 		id: 'p5-syn-q5',
 		tags: ['p5/synthese'],
-		question:
-			"Quel est le gain marginal de risque lorsque l'on passe d'un ensemble Top-(K-1) à un ensemble Top-K ?",
+		question: 'Comment AdaBoost ajuste-t-il les poids des exemples entre deux itérations ?',
 		options: [
-			"L'espérance de la probabilité de la K-ième classe la plus probable, E[η_(K)(X)]",
-			"L'exactitude Top-1",
-			'La variance du modèle',
-			"Il n'y a pas de gain systématique"
+			'Il donne plus de poids aux exemples faciles',
+			'Il distribue les poids uniformément',
+			'Il augmente le poids des exemples mal classés',
+			'Il diminue le poids des exemples les plus bruités'
 		],
-		answerIndex: 0,
+		answerIndex: 2,
 		explanation:
-			'Le gain marginal est précisément la probabilité moyenne de la K-ième classe la plus vraisemblable : R_{K-1}* - R_K* = E[η_{(K)}(X)].'
+			'AdaBoost force le modèle suivant à se concentrer sur les erreurs du précédent en augmentant le poids des exemples mal classés.'
 	},
 	{
 		id: 'p5-syn-q6',
 		tags: ['p5/synthese'],
-		question:
-			'Sur quelle hypothèse fondamentale repose la garantie de couverture de la prédiction conformelle ?',
+		question: "Le Gradient Boosting (GBDT) diffère d'AdaBoost principalement par :",
 		options: [
-			"L'indépendance et l'identité de distribution (i.i.d.) stricte",
-			"L'échangeabilité des données",
-			'La normalité des résidus',
-			'La convexité de la fonction de perte'
+			"L'utilisation de modèles parallèles",
+			"L'optimisation d'une fonction de perte via des pseudo-résidus (gradients)",
+			"L'absence de taux d'apprentissage",
+			"L'utilisation exclusive de modèles très profonds"
 		],
 		answerIndex: 1,
 		explanation:
-			"La garantie repose sur l'échangeabilité, une hypothèse plus faible que i.i.d. (les données i.i.d. sont toujours échangeables)."
+			'GBDT généralise le boosting en ajustant chaque nouveau modèle pour suivre la direction négative du gradient de la perte.'
 	},
 	{
 		id: 'p5-syn-q7',
 		tags: ['p5/synthese'],
-		question: 'Quelle est la différence entre couverture marginale et couverture conditionnelle ?',
+		question:
+			"Quel est l'effet du 'shrinkage' (taux d'apprentissage η < 1) dans le Gradient Boosting ?",
 		options: [
-			'La couverture marginale est plus forte que la conditionnelle',
-			'La couverture conditionnelle est garantie par le théorème de base du Split Conformal',
-			'La couverture marginale est une moyenne globale, tandis que la conditionnelle doit tenir pour chaque x',
-			"Il n'y a aucune différence mathématique"
+			'Il accélère la convergence',
+			"Il réduit le besoin en nombre d'arbres",
+			"Il ralentit l'apprentissage pour améliorer la généralisation",
+			'Il élimine le besoin de pseudo-résidus'
 		],
 		answerIndex: 2,
 		explanation:
-			'La garantie conformelle est marginale : elle assure que la moyenne de la couverture sur toute la population est ≥ 1-α, mais ne garantit pas la couverture point par point.'
+			'Le shrinkage réduit la contribution de chaque arbre, forçant le modèle à apprendre plus lentement et plus robustement.'
 	},
 	{
 		id: 'p5-syn-q8',
 		tags: ['p5/synthese'],
 		question:
-			'Sous quelle condition la borne supérieure de couverture (1 - α + 1/(n+1)) est-elle exacte ?',
+			"Dans la régularisation Ridge (L2), quel est l'effet sur les coefficients colinéaires ?",
 		options: [
-			'Quand le modèle est parfaitement calibré',
-			"Quand les scores de non-conformité sont presque sûrement distincts (pas d'égalités)",
-			"Quand l'ensemble de calibration est infini",
-			'Quand on utilise le score de rang'
+			"Il en annule un et garde l'autre",
+			'Il les partage équitablement',
+			'Il les rend tous nuls',
+			'Il augmente leur valeur'
 		],
 		answerIndex: 1,
 		explanation:
-			'Si les scores sont distincts, les rangs sont uniformément distribués sur {1, ..., n+1}, et la probabilité de couverture devient exactement (ceil((n+1)(1-α)))/(n+1).'
+			"Ridge distribue les poids entre les variables corrélées, contrairement au Lasso qui a tendance à n'en choisir qu'une."
 	},
 	{
 		id: 'p5-syn-q9',
 		tags: ['p5/synthese'],
-		question: "Quel est le lien de dualité entre le Top-K et l'ensemble conforme oracle ?",
+		question:
+			'Quelle propriété fondamentale du Lasso (L1) le rend utile pour la sélection de variables ?',
 		options: [
-			"Le Top-K fixe la couverture et maximise la taille ; l'oracle fixe la taille et minimise la masse",
-			"Le Top-K fixe la taille K et maximise la masse ; l'oracle fixe la couverture 1-α et minimise la taille",
-			'Ils sont identiques pour tout modèle calibré',
-			"L'un traite la classification, l'autre la régression"
+			'Il rend la fonction objective strictement convexe',
+			'Il produit des solutions creuses (certains coefficients sont strictement nuls)',
+			'Il garantit que tous les coefficients sont identiques',
+			'Il élimine le besoin de standardisation'
 		],
 		answerIndex: 1,
 		explanation:
-			"Les deux sont des ensembles de niveau de η(x). Le Top-K maximise la masse pour une taille fixée, l'oracle minimise la taille pour une masse fixée."
+			'La forme en losange de la contrainte L1 favorise les solutions où les coins (axes) sont touchés, annulant ainsi certains poids.'
 	},
 	{
 		id: 'p5-syn-q10',
 		tags: ['p5/synthese'],
-		question:
-			"Dans la prédiction conformelle, quel est l'impact d'un modèle p(x) très médiocre sur la garantie de couverture ?",
+		question: "L'Elastic Net est une combinaison de Ridge et Lasso. Pourquoi l'utiliser ?",
 		options: [
-			'La garantie de couverture est violée',
-			'La garantie reste valide, mais les ensembles de prédiction deviennent inutilement larges',
-			'Le modèle devient automatiquement calibré',
-			'La couverture devient conditionnelle'
+			'Pour combiner la sélection de variables (L1) et la stabilité face aux corrélations (L2)',
+			"Parce qu'il est beaucoup plus rapide à calculer que Ridge",
+			"Parce qu'il ne nécessite pas de hyperparamètre lambda"
 		],
-		answerIndex: 1,
+		answerIndex: 0,
 		explanation:
-			"La validité est model-free. La qualité du modèle n'affecte que l'efficacité (la taille des ensembles), pas la validité de la garantie."
+			"L'Elastic Net offre le meilleur des deux mondes : la sparsité du Lasso et l'effet de groupe du Ridge."
 	},
 	{
 		id: 'p5-syn-q11',
 		tags: ['p5/synthese'],
 		question:
-			"Comment le score APS (Adaptive Prediction Sets) s'adapte-t-il différemment du score de rang ?",
+			'Pourquoi est-il indispensable de standardiser les données avant un Lasso ou un Ridge ?',
 		options: [
-			'Il ignore les probabilités pour ne garder que le rang',
-			"Il utilise la masse cumulative des probabilités pour ajuster la taille de l'ensemble à la distribution",
-			"Il fixe la taille de l'ensemble indépendamment des données",
-			'Il ne fonctionne que pour le Top-1'
+			'Pour rendre les données gaussiennes',
+			"Pour éviter que l'échelle d'une variable n'influence disproportionnément sa pénalité",
+			'Pour supprimer les valeurs aberrantes',
+			'Pour transformer les variables catégorielles en numériques'
 		],
 		answerIndex: 1,
 		explanation:
-			'Le score APS utilise le complément de la somme des probabilités des classes au moins aussi probables que la vraie classe, permettant une adaptation fine à la forme de la distribution.'
+			"Comme la pénalité s'applique uniformément aux coefficients, une variable avec une petite échelle aura un coefficient naturellement grand, et sera donc plus pénalisée."
 	},
 	{
 		id: 'p5-syn-q12',
 		tags: ['p5/synthese'],
-		question: "Que se passe-t-il si l'ensemble de calibration est trop petit (n < 1/α - 1) ?",
+		question:
+			"Selon le compromis biais-variance, que se passe-t-il quand on augmente la complexité d'un modèle ?",
 		options: [
-			'La garantie de couverture est annulée',
-			"L'ensemble de prédiction devient systématiquement vide",
-			"L'ensemble de prédiction devient systématiquement l'ensemble de toutes les classes",
-			'Le quantile q devient nul'
+			'Le biais augmente et la variance diminue',
+			'Le biais diminue et la variance augmente',
+			'Les deux augmentent',
+			'Les deux diminuent'
 		],
-		answerIndex: 2,
+		answerIndex: 1,
 		explanation:
-			"Si n est trop petit, le rang requis k = ceil((n+1)(1-α)) dépasse n, forçant la prise du score maximum et l'inclusion de toutes les classes."
+			"Un modèle plus complexe s'ajuste mieux aux données (moins de biais) mais devient plus sensible aux fluctuations (plus de variance)."
 	},
 	{
 		id: 'p5-syn-q13',
 		tags: ['p5/synthese'],
-		question:
-			"En régression, quel est l'ensemble de prédiction optimal (oracle) pour une couverture fixée 1-α ?",
+		question: "Quel est l'impact d'un nombre d'arbres M très élevé dans une Forêt Aléatoire ?",
 		options: [
-			'Un intervalle centré sur la moyenne',
-			"L'ensemble des points dont la densité conditionnelle f(y|x) est supérieure à un seuil (HDR)",
-			'Un intervalle de largeur constante',
-			"La valeur unique qui minimise l'erreur quadratique"
+			'Le modèle finit par surapprendre (overfitting)',
+			"L'erreur de généralisation converge vers une limite stable",
+			'La variance du modèle augmente indéfiniment',
+			'Le biais du modèle augmente proportionnellement'
 		],
 		answerIndex: 1,
 		explanation:
-			"L'oracle en régression est une région de densité maximale (Highest Density Region), qui minimise la largeur moyenne pour une masse de probabilité donnée."
+			"Contrairement au Boosting, augmenter M dans une Random Forest ne cause pas d'overfitting ; cela stabilise simplement la prédiction."
 	},
 	{
 		id: 'p5-syn-q14',
 		tags: ['p5/synthese'],
 		question:
-			"Quand un intervalle de largeur constante est-il une approximation optimale de l'oracle en régression ?",
+			"Dans le Gradient Boosting, quelle valeur constante est utilisée pour initialiser F₀ lors d'une perte L2 ?",
 		options: [
-			'Quand les données sont fortement hétéroscédastiques',
-			'Sous homoscédasticité (la variance des erreurs ne dépend pas de x)',
-			"Quand l'ensemble de calibration est très petit",
-			'Uniquement pour les modèles linéaires'
+			'Le zéro',
+			'La médiane des cibles',
+			'La moyenne des cibles',
+			'La valeur la plus fréquente'
 		],
-		answerIndex: 1,
+		answerIndex: 2,
 		explanation:
-			"L'intervalle constant suppose que la marge d'erreur est la même partout. C'est optimal si la largeur de la région de densité maximale est constante (homoscédasticité)."
+			"Pour la perte quadratique, la constante qui minimise l'erreur globale est la moyenne empirique."
 	},
 	{
 		id: 'p5-syn-q15',
 		tags: ['p5/synthese'],
-		question: 'Quelle est la formule du score de conformité pour les intervalles adaptatifs ?',
-		options: [
-			's(x, y) = |y - f(x)|',
-			's(x, y) = (y - f(x))^2',
-			's(x, y) = |y - f(x)| / (σ(x) + ε)',
-			's(x, y) = 1 - p_y(x)'
-		],
-		answerIndex: 2,
-		explanation:
-			"Le score adaptatif normalise l'erreur absolue par une estimation de l'incertitude locale σ(x), permettant des intervalles plus étroits là où le modèle est confiant."
-	},
-	{
-		id: 'p5-syn-q16',
-		tags: ['p5/synthese'],
 		question:
-			'Que signifie un score positif dans le cadre de la Régression Quantile Conforme (CQR) ?',
+			'Quelle est la différence majeure entre le vote dur et le vote doux dans un ensemble de classifieurs ?',
 		options: [
-			"L'observation y est à l'intérieur de l'intervalle estimé",
-			"L'observation y a dépassé les bornes de l'intervalle estimé",
-			'Le modèle est parfaitement calibré',
-			"L'incertitude locale est nulle"
+			'Le vote dur est plus lent',
+			'Le vote doux utilise les probabilités de confiance, le vote dur utilise uniquement la classe finale',
+			'Le vote doux ne fonctionne que pour le Boosting',
+			"Il n'y a aucune différence en pratique"
 		],
 		answerIndex: 1,
 		explanation:
-			"En CQR, le score s(x, y) = max(q_lo(x) - y, y - q_hi(x)) est positif si y est hors de l'intervalle et négatif s'il est à l'intérieur."
-	},
-	{
-		id: 'p5-syn-q17',
-		tags: ['p5/synthese'],
-		question: "Quel est l'objectif principal de la Régression Quantile Conforme (CQR) ?",
-		options: [
-			'Remplacer la prédiction ponctuelle par une moyenne',
-			'Combiner la forme adaptative des quantiles appris avec une garantie de couverture exacte via calibration',
-			"Supprimer le besoin d'un ensemble de calibration",
-			'Réduire la variance du modèle en utilisant le bootstrap'
-		],
-		answerIndex: 1,
-		explanation:
-			"CQR utilise des régressions quantiles pour suivre l'hétéroscédasticité, puis applique un décalage uniforme Q calculé sur calibration pour garantir la couverture."
-	},
-	{
-		id: 'p5-syn-q18',
-		tags: ['p5/synthese'],
-		question:
-			"Quelle métrique permet de détecter si un système d'intervalles échoue dans certaines régions de l'espace d'entrée ?",
-		options: [
-			'Le taux de couverture empirique global',
-			'La largeur moyenne des intervalles',
-			"L'efficacité conditionnelle",
-			"L'erreur quadratique moyenne"
-		],
-		answerIndex: 2,
-		explanation:
-			"L'efficacité conditionnelle vérifie l'homogénéité de la couverture. Une bonne couverture marginale peut cacher des échecs locaux graves."
-	},
-	{
-		id: 'p5-syn-q19',
-		tags: ['p5/synthese'],
-		question:
-			"L'estimation de l'incertitude locale σ(x) peut être réalisée par laquelle de ces méthodes ?",
-		options: [
-			'Bootstrap et Bagging',
-			'Régression quantile',
-			'Réseaux bayésiens',
-			'Toutes les réponses précédentes'
-		],
-		answerIndex: 3,
-		explanation:
-			"Toutes ces méthodes permettent d'estimer la variabilité locale des prédictions pour construire des intervalles adaptatifs."
-	},
-	{
-		id: 'p5-syn-q20',
-		tags: ['p5/synthese'],
-		question:
-			"Quel est l'impact d'une augmentation de la taille de l'ensemble de calibration sur la précision des intervalles ?",
-		options: [
-			'Elle diminue la garantie de couverture',
-			'Elle rend les intervalles systématiquement plus larges',
-			'Elle stabilise le quantile q et rapproche la couverture empirique de la garantie théorique',
-			"Elle n'a aucun effet sur la largeur des intervalles"
-		],
-		answerIndex: 2,
-		explanation:
-			"Un ensemble de calibration plus grand réduit la variance de l'estimation du quantile q, rendant les intervalles plus stables et plus proches de l'optimalité théorique."
+			'Le vote doux pondère les décisions par la confiance du modèle, ce qui est généralement plus performant.'
 	}
 ];

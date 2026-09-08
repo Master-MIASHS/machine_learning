@@ -59,7 +59,7 @@ describe('reserved parts (classification supervisée & clustering)', () => {
 		expect(PAGES[idx + 3].path).toBe('/part3/practice/travaux-pratiques');
 	});
 
-	it('places the reserved parts between Part I and the regularization part (now IV)', async () => {
+	it('places the reserved parts between Part I and the regression part (now IV)', async () => {
 		const { PAGES } = await load();
 		const idx = PAGES.findIndex((p) => p.path === '/part1/practice/travaux-pratiques');
 		expect(PAGES[idx + 1].path).toBe('/part2/lesson1');
@@ -67,20 +67,40 @@ describe('reserved parts (classification supervisée & clustering)', () => {
 		expect(PAGES[idxEnd + 1].path).toBe('/part4/lesson1');
 	});
 
-	it('keeps renumbered content: regularization at IV, set-valued at V, loss at IX', async () => {
+	it('registers the Part IV (régression linéaire) pages in course order', async () => {
+		const { PAGES } = await load();
+		const idx = PAGES.findIndex((p) => p.path === '/part4/lesson1');
+		expect(idx).toBeGreaterThan(0);
+		expect(PAGES[idx].part).toBe(4);
+		expect(PAGES[idx + 1].path).toBe('/part4/lesson2');
+		expect(PAGES[idx + 2].path).toBe('/part4/lesson3');
+		expect(PAGES[idx + 3].path).toBe('/part4/lesson4');
+		expect(PAGES[idx + 4].path).toBe('/part4/lesson5');
+		expect(PAGES[idx + 5].path).toBe('/part4/quiz');
+		expect(PAGES[idx + 6].path).toBe('/part4/exercices');
+		expect(PAGES[idx + 7].path).toBe('/part4/practice/travaux-pratiques');
+		// The regression part sits between clustering and regularization.
+		expect(PAGES[idx - 1].path).toBe('/part3/practice/travaux-pratiques');
+		expect(PAGES[idx + 8].path).toBe('/part5/lesson1');
+	});
+
+	it('keeps renumbered content: regression at IV, regularization at V, loss at X', async () => {
 		const { PAGES } = await load();
 		expect(PAGES.find((p) => p.path === '/part4/lesson1')?.title).toBe(
+			'Le modèle linéaire et les moindres carrés'
+		);
+		expect(PAGES.find((p) => p.path === '/part5/lesson1')?.title).toBe(
 			'Méthodes ensemblistes et Bagging'
 		);
-		expect(PAGES.find((p) => p.path === '/part5/lesson1')?.title).toBe('Classification Top-K');
-		expect(PAGES.find((p) => p.path === '/part9/lesson1')?.title).toBe(
+		expect(PAGES.find((p) => p.path === '/part6/lesson1')?.title).toBe('Classification Top-K');
+		expect(PAGES.find((p) => p.path === '/part10/lesson1')?.title).toBe(
 			'De la perte 0-1 aux pertes proxy'
 		);
 	});
 
-	it('exposes a PART_NAMES entry for every part 1 through 9', async () => {
+	it('exposes a PART_NAMES entry for every part 1 through 10', async () => {
 		const { PART_NAMES } = await load();
-		for (const n of [1, 2, 3, 4, 5, 6, 7, 8, 9]) {
+		for (const n of [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]) {
 			expect(PART_NAMES[n]).toBeDefined();
 		}
 	});
@@ -138,7 +158,7 @@ describe('getAdjacentPages', () => {
 	it('returns no next for the last page in either mode', async () => {
 		const { getAdjacentPages } = await load();
 		for (const includeExpert of [false, true]) {
-			const { next } = getAdjacentPages('/part9/exercices', includeExpert);
+			const { next } = getAdjacentPages('/part10/exercices', includeExpert);
 			expect(next).toBeUndefined();
 		}
 	});

@@ -10,7 +10,7 @@
 	const meta = getPageByPath('/part9/quiz');
 	createPageTracker(meta as PageMeta);
 
-	// Whole part: the curated synthèse questions plus every lesson quiz in Part IX.
+	// Whole part: the curated synthèse questions plus every lesson quiz in Part VIII.
 	const quiz = getQuizQuestions('p9');
 
 	const { prev: prevMeta, next: nextMeta } = $derived(
@@ -26,7 +26,7 @@
 
 <PageTemplate
 	title={meta?.title ?? 'Quiz de synthèse — Partie IX'}
-	subtitle="Vérifiez vos acquis sur les pertes proxy, la calibration et la décomposition de l'erreur"
+	subtitle="Vérifiez vos acquis sur la concentration, la généralisation et la dimension VC"
 	prev={prevMeta}
 	next={nextMeta}
 >

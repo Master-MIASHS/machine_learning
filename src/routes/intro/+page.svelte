@@ -89,39 +89,48 @@
 			</li>
 			<li>
 				<a href={resolve('/part4/lesson1')}>
-					<strong>Partie IV — Régularisation :</strong> méthodes ensemblistes et Bagging,
+					<strong>Partie IV — Régression linéaire :</strong> le modèle linéaire et les
+					moindres carrés (Gauss–Markov), ANOVA et ANCOVA, inférence dans le modèle
+					gaussien (Student, Fisher, intervalles de prédiction), validation et diagnostic
+					du modèle (colinéarité, résidus, observations influentes), choix de modèle et
+					sélection de variables (AIC, BIC, Cp).
+				</a>
+			</li>
+			<li>
+				<a href={resolve('/part5/lesson1')}>
+					<strong>Partie V — Régularisation :</strong> méthodes ensemblistes et Bagging,
 					Random Forest et sélection de features, Boosting (AdaBoost, Gradient Boosting),
 					régularisation L1/L2/Elastic Net.
 				</a>
 			</li>
 			<li>
-				<a href={resolve('/part5/lesson1')}>
-					<strong>Partie V — Set-valued / Prédictions conformelles :</strong>
+				<a href={resolve('/part6/lesson1')}>
+					<strong>Partie VI — Set-valued / Prédictions conformelles :</strong>
 					classification Top-K, prédiction conformelle, intervalles de prédiction.
 				</a>
 			</li>
 			<li>
-				<a href={resolve('/part6/lesson1')}>
-					<strong>Partie VI — Optimum de Bayes :</strong> classifieur de Bayes,
+				<a href={resolve('/part7/lesson1')}>
+					<strong>Partie VII — Optimum de Bayes :</strong> classifieur de Bayes,
 					régression optimale (L2/L1), risque de Bayes comme borne irréductible.
 				</a>
 			</li>
 			<li>
-				<a href={resolve('/part7/lesson1')}>
-					<strong>Partie VII — Consistance :</strong> convergence des classifieurs appris
+				<a href={resolve('/part8/lesson1')}>
+					<strong>Partie VIII — Consistance :</strong> convergence des classifieurs appris
 					(en probabilité, en moyenne quadratique, presque sûrement — et au sens universel), consistance du k-NN.
 				</a>
 			</li>
 			<li>
-				<a href={resolve('/part8/lesson1')}>
-					<strong>Partie VIII — Généralisation :</strong> inégalités de concentration
+				<a href={resolve('/part9/lesson1')}>
+					<strong>Partie IX — Généralisation :</strong> inégalités de concentration
 					(Markov, Tchebychev), bornes de généralisation pour classes finies, dimension VC
 					et lemme de Sauer–Shelah, SVM, limites de la théorie VC et double descente.
 				</a>
 			</li>
 			<li>
-				<a href={resolve('/part9/lesson1')}>
-					<strong>Partie IX — Fonctions de perte :</strong> de la perte 0-1 aux pertes
+				<a href={resolve('/part10/lesson1')}>
+					<strong>Partie X — Fonctions de perte :</strong> de la perte 0-1 aux pertes
 					proxy convexes, calibration des pertes, décomposition de l'erreur.
 				</a>
 			</li>

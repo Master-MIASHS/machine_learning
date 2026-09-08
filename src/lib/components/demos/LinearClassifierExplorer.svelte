@@ -298,7 +298,7 @@
 		<strong>régression logistique</strong> prédit +1 seulement si σ(z) ≥ α. σ(z) joue le rôle de probabilité
 		de l'étiquette +1 : proche de 1/2 près de l'hyperplan, proche de 0 ou 1 loin de lui. Les deux risques
 		empiriques (0-1 et logistique) sont calculés sur le jeu de données — la logistique est la version
-		lissée que l'on peut optimiser (Partie IX).
+		lissée que l'on peut optimiser (Partie X).
 	</p>
 </div>
 

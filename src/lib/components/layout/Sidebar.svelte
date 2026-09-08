@@ -309,7 +309,7 @@
 	}
 
 	.part-label {
-		font-size: 0.8rem;
+		font-size: 1rem;
 		font-weight: 600;
 		text-transform: uppercase;
 		letter-spacing: 0.08em;

@@ -4,351 +4,547 @@ export const PART9: QuizQuestion[] = [
 	{
 		id: 'p9-l1-q1',
 		tags: ['p9/l1'],
-		question:
-			"Pourquoi la leçon dit-elle que la perte 0-1 n'est pas directement optimisable par descente de gradient ?",
+		question: "Que dit l'inégalité de Markov, selon la leçon ?",
 		options: [
-			"Parce qu'elle n'est pas bornée",
-			"Parce qu'elle est non convexe, discontinue et que son gradient est nul presque partout",
-			"Parce qu'elle dépend de la dimension VC",
-			"Parce qu'elle est trop facile à calculer"
+			'Pour toute variable aléatoire Z de variance finie : P(|Z - E[Z]| ≥ ε) ≤ Var(Z)/ε².',
+			'Pour toute variable aléatoire Z : P(Z ≥ t) ≤ e^{-t} E[Z].',
+			'Pour des variables i.i.d. Z_i dans [0, 1] : P(|(1/n) Σ Z_i - E[Z_1]| ≥ ε) ≤ 2 e^{-2nε²}.',
+			'Pour une variable aléatoire Z ≥ 0 presque sûrement et t > 0 : P(Z ≥ t) ≤ E[Z]/t.'
 		],
-		answerIndex: 1,
-		explanation: 'Ces propriétés empêchent un gradient de fournir une direction de descente utile.'
+		answerIndex: 3,
+		explanation:
+			"Markov : pour Z ≥ 0 presque sûrement et t > 0, P(Z ≥ t) ≤ E[Z]/t ; la démonstration minore Z par t·1_{Z ≥ t} presque sûrement, puis prend l'espérance, qui préserve l'inégalité."
 	},
 	{
 		id: 'p9-l1-q2',
 		tags: ['p9/l1'],
-		question: 'Si y = +1 et f(x) = -3, la marge t = y f(x) vaut :',
-		options: ['-3', '3', '0', '+1'],
+		question:
+			"Comment l'inégalité de Bienaymé-Tchebychev se déduit-elle de celle de Markov, selon la démonstration de la leçon ?",
+		options: [
+			'En appliquant Markov à la variable positive (Z - E[Z])² avec le seuil ε², et en notant que les événements {(Z - E[Z])² ≥ ε²} et {|Z - E[Z]| ≥ ε} coïncident.',
+			'En appliquant Markov à Z elle-même avec le seuil ε, puis en élevant la borne obtenue au carré.',
+			"Par l'inégalité triangulaire des espérances, appliquée à |Z - E[Z]|.",
+			'En supposant que Z est gaussienne, cas où les deux inégalités deviennent équivalentes.'
+		],
 		answerIndex: 0,
 		explanation:
-			'La marge est négative, ce qui signifie que le signe de f(x) est opposé à y et que le classifieur se trompe.'
+			"Le cartouche « Tchebychev, c'est Markov appliqué intelligemment » résume : le choix est d'appliquer Markov au carré de l'écart à la moyenne plutôt qu'à la variable elle-même — ce qui transforme une borne portant sur Z en une borne portant sur la variance, bien plus informative pour la dispersion autour d'une moyenne."
 	},
 	{
 		id: 'p9-l1-q3',
 		tags: ['p9/l1'],
-		question: "La perte charnière utilisée par le SVM s'écrit :",
-		options: ['log(1 + exp(-t))', 'exp(-t)', 'max(0, 1 - y f(x))', '(1 - y f(x))²'],
-		answerIndex: 2,
-		explanation: 'La leçon associe la charnière max(0, 1 - y f(x)) au SVM.'
+		question:
+			"Pour la moyenne empirique (1/n) Σ Z_i de n variables i.i.d. de moyenne μ et de variance σ², que donne l'inégalité de Tchebychev ?",
+		options: [
+			'P(|(1/n) Σ Z_i - μ| ≥ ε) ≤ σ²/ε², une borne indépendante de n.',
+			"P(|(1/n) Σ Z_i - μ| ≥ ε) ≤ σ²/(n ε²) → 0, soit un écart typique d'ordre 1/√n.",
+			'P(|(1/n) Σ Z_i - μ| ≥ ε) ≤ 2 e^{-nε}, une décroissance exponentielle en n.',
+			'La moyenne empirique converge presque sûrement vers μ mais pas en probabilité.'
+		],
+		answerIndex: 1,
+		explanation:
+			"Avec E[(1/n) Σ Z_i] = μ et Var((1/n) Σ Z_i) = σ²/n, Tchebychev donne la borne σ²/(n ε²) qui s'annule quand n → +∞ : c'est la loi des grands nombres sous forme quantitative — on sait que la convergence a lieu, et à quelle vitesse (1/√n sur l'écart typique, la probabilité de dépassement décroissant en 1/n)."
 	},
 	{
 		id: 'p9-l1-q4',
 		tags: ['p9/l1'],
-		question: 'La perte logistique et la cross-entropy sont :',
+		question:
+			"Pour un classifieur h fixé à l'avance, quelle borne explicite la leçon déduit-elle pour P(|R_n(h) - R(h)| ≥ ε) ?",
 		options: [
-			'deux pertes sans rapport avec la marge',
-			'identiques uniquement pour les réseaux très profonds',
-			'deux approximations différentes de la perte 0-1',
-			'identiques à un changement de convention près entre étiquettes -1/+1 et 0/1'
+			'1/(n ε²), puisque les indicateurs Z_i sont de Bernoulli.',
+			'R(h)/n, par Markov appliqué directement au risque empirique.',
+			'1/(4 n ε²), puisque Var(Z_i) = R(h)(1 - R(h)) est majoré par 1/4, atteint en R(h) = 1/2.',
+			'2 e^{-2nε²}, par Hoeffding, sans hypothèse supplémentaire.'
 		],
-		answerIndex: 3,
+		answerIndex: 2,
 		explanation:
-			'La leçon montre que la cross-entropy redonne la perte logistique sous ce changement de convention.'
+			'Les indicateurs Z_i = 1_{h(X_i) ≠ Y_i} sont de Bernoulli avec variance exacte R(h)(1 - R(h)) ; cette quantité est maximisée en 1/4 pour R(h) = 1/2, ce qui donne la borne explicite 1/(4n ε²) (section « Les limites du contrôle pour un classifieur fixé »).'
+	},
+	{
+		id: 'p9-l1-q5',
+		tags: ['p9/l1'],
+		question:
+			'Pourquoi cette borne ne suffit-elle pas à contrôler le classifieur ĥ effectivement choisi par minimisation du risque empirique R_n sur une classe H ?',
+		options: [
+			'Parce que la borne exige que n soit supérieur à 1000 pour être non triviale.',
+			"Parce qu'elle n'est valable que pour h fixé à l'avance, indépendamment des données : elle ne contrôle pas le sup de l'écart sur toute la classe, et ĥ dépend de l'échantillon.",
+			"Parce que R_n(h) est toujours supérieur à R(h), si bien que l'écart est toujours positif.",
+			'Parce que la perte 0-1 est NP-difficile à minimiser.'
+		],
+		answerIndex: 1,
+		explanation:
+			"Le cartouche d'avertissement « Cette borne ne suffit pas encore » est explicite : en apprentissage, on ne choisit jamais un h arbitraire à l'avance — on sélectionne ĥ après avoir vu les données, en minimisant R_n sur H — et un contrôle valable pour chaque h pris isolément ne dit rien sur celui, potentiellement trompeur, que l'algorithme finit par choisir."
 	},
 	{
 		id: 'p9-l2-q1',
 		tags: ['p9/l2'],
 		question:
-			"Pour une perte convexe positive, le Théorème 4.1 affirme qu'elle est calibrée si et seulement si :",
+			'Selon le Théorème 3.1 (cas séparable, |H| < +∞), sous réalisabilité, quelle borne obtient-on pour le minimiseur du risque empirique ?',
 		options: [
-			"phi'(0) > 0",
-			'phi(0) = 0',
-			"elle est différentiable en 0 et phi'(0) < 0",
-			'C_phi(0, eta) est toujours linéaire'
+			'P(R(ĥ) > ε) ≤ 2|H| e^{-2nε²}, pour tout ε > 0.',
+			'R(ĥ) ≤ log(|H|/δ)/n, de façon déterministe, sans aucune probabilité.',
+			'P(R(ĥ) > ε) ≤ |H| e^{-nε}, pour tout ε > 0 ; en particulier n ≥ log(|H|/δ)/ε suffit pour avoir confiance 1 - δ.',
+			'P(R(ĥ) > ε) ≤ e^{-nε}/|H|, pour tout ε > 0.'
 		],
 		answerIndex: 2,
-		explanation: "C'est le critère local de calibration de Bartlett, Jordan et McAuliffe (2006)."
+		explanation:
+			"Théorème 3.1 : sous réalisabilité, le minimiseur du risque empirique a un risque empirique nul ; l'événement d'échec est inclus dans l'union sur les hypothèses mauvaises de l'événement où elles sont trompées par l'échantillon, et l'union bound donne |H| e^{-nε} (démonstration en quatre étapes : réduction aux échantillons trompeurs, union bound, borne par hypothèse, conclusion)."
 	},
 	{
 		id: 'p9-l2-q2',
 		tags: ['p9/l2'],
-		question: "Dans la preuve, la dérivée du risque conditionnel C_phi en 0 s'écrit :",
-		options: ["(2 eta - 1) phi'(0)", "eta phi'(0)", "phi'(0) / (2 eta - 1)", "(1 - 2 eta) phi'(0)"],
+		question:
+			"Selon le Théorème 3.2 (cas non séparable, |H| < +∞), qu'a-t-on avec probabilité 1 - δ ?",
+		options: [
+			'R(ĥ) ≤ R_Sn(ĥ) + sqrt((log|H| + log(2/δ)) / (2n)), la borne étant uniforme sur la classe.',
+			'R(ĥ) ≤ log(|H|/δ)/n, avec la même vitesse que dans le cas séparable.',
+			'R(ĥ) ≤ 2 R_Sn(ĥ), sans aucune dépendance à |H|.',
+			'sup_{h∈H} |R(h) - R_Sn(h)| ≤ log(1/δ)/n, sans le terme log|H|.'
+		],
 		answerIndex: 0,
 		explanation:
-			"Ce signe dépend de (2 eta - 1) et de phi'(0), ce qui place le minimiseur du bon côté de 0."
+			"Théorème 3.2 : Hoeffding appliqué à un h fixé donne P(|R_Sn(h) - R(h)| ≥ t) ≤ 2 e^{-2nt²} ; l'union bound sur H (P(∃ h, |écart| ≥ t) ≤ 2|H| e^{-2nt²}) et la calibration δ = 2|H| e^{-2nt²} donnent l'écart uniforme sqrt((log|H| + log(2/δ))/(2n)), qui s'applique à ĥ bien qu'il soit une fonction aléatoire de l'échantillon."
 	},
 	{
 		id: 'p9-l2-q3',
 		tags: ['p9/l2'],
-		question: 'Pour la perte logistique, la pente en 0 vaut :',
-		options: ['-1', '-2', '0', '-1/2'],
-		answerIndex: 3,
-		explanation: "La leçon calcule phi'(t) = -exp(-t)/(1 + exp(-t)), donc phi'(0) = -1/2."
+		question:
+			'Pourquoi le cas séparable converge-t-il plus vite (en 1/n) que le cas non séparable (en 1/√n), selon la leçon ?',
+		options: [
+			"Parce que l'union bound est plus efficace quand |H| est petit.",
+			"Parce que la réalisabilité permet un argument purement combinatoire sur les échantillons trompeurs — une hypothèse mauvaise est trompée ou non, c'est binaire — et sans elle on doit se rabattre sur une concentration probabiliste plus générale mais plus lente.",
+			"Parce que l'inégalité de Hoeffding ne s'applique pas aux variables de Bernoulli.",
+			'Parce que dans le cas non séparable, le risque empirique est toujours nul.'
+		],
+		answerIndex: 1,
+		explanation:
+			"La section « Comparer les deux régimes » explique : sans classifieur parfait dans H, il n'y a plus le critère du « risque empirique nul », et on perd l'argument combinatoire des échantillons trompeurs (binaire : trompé ou non) au profit d'une concentration probabiliste plus générale mais plus lente à converger."
 	},
 	{
 		id: 'p9-l2-q4',
 		tags: ['p9/l2'],
-		question: "La perte charnière est calibrée malgré son point d'angle parce que :",
+		question:
+			"Dans le cas séparable, qu'est-ce qui garantit que le minimiseur du risque empirique ĥ a un risque empirique nul ?",
 		options: [
-			"son point d'angle est en 0",
-			"son point d'angle est en 1, donc elle est différentiable en 0 avec une pente négative",
-			'sa pente en 0 est positive',
-			'elle vaut 0 pour toutes les marges'
+			"Le fait que l'échantillon soit suffisamment grand.",
+			'Le fait que la perte 0-1 soit continue.',
+			'Le fait que toutes les hypothèses de H ne fassent aucune erreur sur les données.',
+			'La réalisabilité : h* ∈ H vérifie R_Sn(h*) = 0, et ĥ, qui minimise R_Sn sur H, a donc R_Sn(ĥ) = 0.'
 		],
-		answerIndex: 1,
+		answerIndex: 3,
 		explanation:
-			"La leçon souligne que la charnière a son point d'angle en t = 1, pas en 0, et que sa pente en 0 est -1."
+			"Étape 1 de la démonstration du Théorème 3.1 : par réalisabilité, R_Sn(h*) = 0 toujours, donc aussi R_Sn(ĥ) = 0 puisque c'est le minimiseur — c'est ce qui rend possible la réduction aux « échantillons trompeurs »."
+	},
+	{
+		id: 'p9-l2-q5',
+		tags: ['p9/l2'],
+		question:
+			'Que représente le terme log|H| dans les bornes, et quelle mise en garde la leçon y attache-t-elle ?',
+		options: [
+			"Le biais de la classe H, qui s'annule quand n grandit.",
+			"Le nombre d'échantillons trompeurs effectivement observés dans l'échantillon.",
+			"Le prix de la recherche dans H : doubler |H| ne coûte qu'une observation supplémentaire — mais en pratique, la sélection de paramètres fait croître |H| de façon exponentielle, ce que le coût logarithmique masque.",
+			'La variance du risque empirique, qui ne dépend que de δ.'
+		],
+		answerIndex: 2,
+		explanation:
+			"Le cartouche « Un coût seulement logarithmique — mais attention » l'énonce : log|H| est le prix de la recherche dans la classe (doubler |H| ne coûte qu'une observation supplémentaire à ε et δ fixés), mais cette économie est trompeuse en pratique, car une grille d'hyperparamètres fait croître |H| de façon exponentielle en amont."
 	},
 	{
 		id: 'p9-l3-q1',
 		tags: ['p9/l3'],
-		question: 'Dans la décomposition A + B + C du Théorème 4.2, le terme A correspond à :',
+		question: "Selon la leçon, que signifie dire qu'une classe H brise un ensemble C de m points ?",
 		options: [
-			"l'écart d'approximation entre le minimiseur global et le classifieur de Bayes",
-			"l'écart d'estimation dû à l'utilisation d'un échantillon fini",
-			'le coût de la restriction à la classe F',
-			'la variance du gradient stochastique'
+			'Que H contient au moins m classifieurs.',
+			'Que tout étiquetage de C est réalisable : pour tout (y_1, ..., y_m) dans {0,1}^m, il existe h ∈ H avec h(x_i) = y_i pour tout i — autrement dit, H réalise les 2^m dichotomies.',
+			'Que H sépare les points de C avec une marge strictement positive.',
+			"Que C est nécessairement contenu dans l'échantillon d'entraînement."
 		],
 		answerIndex: 1,
 		explanation:
-			"A mesure l'écart entre le modèle appris sur l'échantillon et le meilleur modèle de la classe pour le phi-risque."
+			"Définition de la brisure : H réalise toutes les dichotomies de C, c'est-à-dire que le nombre d'étiquetages réalisables sur C est exactement 2^m ; la dimension VC est la plus grande taille m d'un ensemble brisé, avec la convention VCdim = +∞ si H brise des ensembles de taille arbitraire."
 	},
 	{
 		id: 'p9-l3-q2',
 		tags: ['p9/l3'],
-		question: "Le terme B s'annule dès que :",
-		options: [
-			'f** ∈ F',
-			"phi'(0) > 0",
-			"la taille de l'échantillon est petite",
-			'le terme A est négatif'
-		],
-		answerIndex: 0,
+		question:
+			"D'après les exemples de la leçon, quelle est la dimension VC des hyperplans de ℝ^d ?",
+		options: ['d', '2d', 'd + 1', 'd²'],
+		answerIndex: 2,
 		explanation:
-			"B mesure le coût de la restriction à F ; la leçon indique qu'il est nul si le minimiseur global f** appartient à F."
+			"La leçon donne une série d'exemples à dimension VC croissante : seuils sur ℝ (VCdim = 1, l'étiquetage (1, 0) étant impossible sur une paire ordonnée), intervalles sur ℝ (VCdim = 2, l'étiquetage (1, 0, 1) impossible sur un triplet ordonné), hyperplans de ℝ^d (VCdim = d + 1)."
 	},
 	{
 		id: 'p9-l3-q3',
 		tags: ['p9/l3'],
-		question: "Le terme C s'annule lorsque :",
+		question:
+			'Quel est le rôle essentiel du lemme de Sauer-Shelah dans la démonstration de la borne de généralisation VC ?',
 		options: [
-			'f** ∈ F',
-			"la taille de l'échantillon est grande",
-			'F est une classe finie',
-			'la perte phi est calibrée'
+			"Il borne le nombre de dichotomies réalisables sur m points de façon polynomiale en m — (em/d)^d dès que VCdim = d < +∞ — au lieu de 2^m : c'est ce qui permet d'appliquer l'union bound aux dichotomies réalisables plutôt qu'à H, même quand H est infini.",
+			"Il montre que |H| est fini pour toute classe d'hyperplans.",
+			'Il donne une borne inférieure sur la dimension VC en fonction de n.',
+			"Il montre que l'union bound est inutile dès que H est fini."
 		],
-		answerIndex: 3,
+		answerIndex: 0,
 		explanation:
-			"C mesure l'écart entre le minimiseur global du phi-risque et le classifieur de Bayes ; une perte calibrée rend ce terme nul."
+			"Le cartouche « Le point essentiel » résume : le basculement de la croissance exponentielle (2^m) à la croissance polynomiale en m (de degré d) est ce qui rend une borne de généralisation possible même pour une classe infinie ; la démonstration (omise dans la leçon) raffine l'union bound de la leçon précédente en l'appliquant aux dichotomies effectivement réalisables sur l'échantillon."
 	},
 	{
 		id: 'p9-l3-q4',
 		tags: ['p9/l3'],
-		question: "Si phi est calibrée et si f** ∈ F, l'excès de risque 0-1 se réduit à :",
-		options: ['A + B', 'B + C', 'A seul', 'A + C'],
+		question:
+			'Selon le Théorème 3.4 (Vapnik, 1995), si ||X_i||_2 ≤ R presque sûrement, que peut-on dire de VCdim(H_gamma), la classe des classifieurs linéaires de norme 1 séparant avec marge gamma ?',
+		options: [
+			'Elle est égale à d + 1, comme pour tous les hyperplans de ℝ^d.',
+			"Elle est majorée par n, la taille de l'échantillon.",
+			'Elle est infinie, puisque H_gamma contient une infinité de classifieurs.',
+			'Elle est majorée par floor(R²/gamma²) : elle ne dépend que du rapport entre le rayon des données et la marge, pas de la dimension ambiante d.'
+		],
+		answerIndex: 3,
+		explanation:
+			"Théorème 3.4 : VCdim(H_gamma) ≤ floor(R²/gamma²) ; le cartouche d'insistion souligne que cette dimension VC ne dépend pas de la dimension de l'espace d'entrée — seulement du rapport R²/gamma² — ce qui explique que le SVM peut généraliser correctement même en très grande dimension, à condition d'une marge suffisamment grande relative à l'échelle des données."
+	},
+	{
+		id: 'p9-l3-q5',
+		tags: ['p9/l3'],
+		question: 'Dans le Théorème 3.3 (borne VC), que remplace-t-on, par rapport au Théorème 3.2 ?',
+		options: [
+			'log|H| est remplacé par log n, qui croît plus lentement.',
+			'log|H| est remplacé par le terme d log(2en/d), qui reste fini même quand |H| est infini — par exemple pour les hyperplans de ℝ^d.',
+			"log|H| est remplacé par log(2/δ) seul, la complexité de la classe n'entrant plus.",
+			"log|H| est remplacé par n, la taille de l'échantillon."
+		],
+		answerIndex: 1,
+		explanation:
+			"La leçon l'énonce explicitement : la structure de la borne est la même qu'au Théorème 3.2 (racine d'un terme de complexité sur n), à ceci près que log|H| a été remplacé par d log(2en/d) — un terme qui, lui, reste fini même quand |H| ne l'est pas."
+	},
+	{
+		id: 'p9-l4-q1',
+		tags: ['p9/l4'],
+		question:
+			"Pour un réseau de neurones à L couches et W paramètres, la dimension VC donnée par Bartlett (1998) est de l'ordre de :",
+		options: ['O(W + L)', 'O(W L log W)', 'O(log W / L)', 'O(n)'],
+		answerIndex: 1,
+		explanation:
+			"La leçon cite VCdim = O(W L log W) pour les réseaux à fonctions d'activation seuil."
+	},
+	{
+		id: 'p9-l4-q2',
+		tags: ['p9/l4'],
+		question:
+			"Pour que la borne VC soit non triviale pour un réseau moderne, la leçon indique qu'il faudrait :",
+		options: [
+			'un n très grand devant W L log W, soit environ 10^10',
+			"un n de l'ordre de 10^6",
+			'W plus petit que n',
+			'une interpolation exacte des données'
+		],
+		answerIndex: 0,
+		explanation:
+			"Les jeux de données habituels sont plutôt de l'ordre de 10^6 à 10^7, donc la borne VC devient triviale."
+	},
+	{
+		id: 'p9-l4-q3',
+		tags: ['p9/l4'],
+		question: "Dans le phénomène de double descente, le seuil d'interpolation correspond à :",
+		options: ['W très petit devant n', 'W très grand devant n', 'W environ égal à n', 'n égal à 0'],
 		answerIndex: 2,
-		explanation: "Dans ce cas favorable, B et C sont nuls, il ne reste que le terme d'estimation A."
+		explanation:
+			'Au seuil W ≈ n, le modèle commence à interpoler et le risque explose avant de redescendre en régime sur-paramétré.'
+	},
+	{
+		id: 'p9-l4-q4',
+		tags: ['p9/l4'],
+		question:
+			'Selon la leçon, pour la régression logistique sur des données linéairement séparables, la descente de gradient converge vers :',
+		options: [
+			'la solution de norme maximale',
+			'le classifieur de marge maximale avec une pénalité explicite',
+			'la solution des moindres carrés exacte',
+			'le classifieur de marge maximale, même sans régularisation explicite'
+		],
+		answerIndex: 3,
+		explanation:
+			"C'est le biais implicite de l'optimiseur décrit par Zhang et al. (2017) et Soudry et al. (2018)."
 	},
 	{
 		id: 'p9-syn-q1',
 		tags: ['p9/synthese'],
-		question: "Comment la leçon reformule-t-elle le problème de classification par la marge ?",
+		question: "Quelle est la forme exacte de l'inégalité de Hoeffding, selon la leçon ?",
 		options: [
-			"On cherche f : X → ℝ avec h_f(x) = sgn(f(x)) et des étiquettes Y ∈ {-1, +1} ; la marge t = y f(x) est positive quand le signe est bon et |t| mesure la confiance ; la perte de substitution s'écrit ℓ_φ(f(x), y) = φ(y f(x)) avec φ : ℝ → ℝ_+.",
-			"On cherche directement h : X → {0, 1} et la perte s'écrit φ(h(x) - y), sans score réel.",
-			"La marge t = y f(x) est négative quand la prédiction est bonne, et φ : ℝ → ℝ_+ est la probabilité a posteriori de la classe.",
-			"La marge est t = |f(x) - y| et la perte de substitution s'écrit φ(f(x) + y)."
+			"Pour des variables i.i.d. Z_i dans [0, 1] : P(|(1/n) Σ Z_i - E[Z_1]| ≥ ε) ≤ 2 e^{-2nε²}, et l'exposant devient -2nε²/(b-a)² pour des variables dans [a, b].",
+			"Pour des variables i.i.d. Z_i dans [0, 1] : P(|(1/n) Σ Z_i - E[Z_1]| ≥ ε) ≤ e^{-nε²}, sans facteur 2, et l'exposant devient -nε²/(b-a)².",
+			"Pour des variables i.i.d. Z_i dans [0, 1] : P(|(1/n) Σ Z_i - E[Z_1]| ≥ ε) ≤ 2 e^{-nε}, et l'exposant devient -nε/(b-a)².",
+			'Pour des variables i.i.d. Z_i dans [0, 1] : P(|(1/n) Σ Z_i - E[Z_1]| ≥ ε) ≤ 1/(4nε²), la même borne que celle de Tchebychev.'
 		],
 		answerIndex: 0,
 		explanation:
-			"Cette reformulation par le score réel f et la marge t = y f(x) est le pont entre la perte 0-1, non optimisable, et les pertes proxy convexes : toutes les pertes usuelles ne dépendent de (x, y) que par la marge."
+			"Hoeffding exploite le bornage : décroissance exponentielle 2 e^{-2nε²} à deux queues, sans connaître la variance, au prix d'une hypothèse supplémentaire — connaître une borne uniforme sur les observations ; sur [a, b], l'exposant est -2nε²/(b-a)²."
 	},
 	{
 		id: 'p9-syn-q2',
 		tags: ['p9/synthese'],
-		question: 'Que montre la vérification φ_{0-1}(t) = 1_{t < 0} ?',
+		question: 'Quand n augmente, comment se comportent les trois bornes pour la moyenne empirique, selon la leçon ?',
 		options: [
-			"Que la perte 0-1 est une perte de substitution au sens propre — ℓ = 1_{yf(x) < 0} = 1_{sgn f(x) ≠ y} — la seule, hélas, qui ne puisse pas s'optimiser.",
-			"Que la perte 0-1 n'est pas une perte de substitution et doit être traitée en dehors du cadre.",
-			'Que φ_{0-1} est convexe et calibrée, donc optimisable par descente de gradient.',
-			"Que la perte 0-1 s'optimise exactement par descente de gradient lorsque f est linéaire."
+			'La borne de Markov reste constante, celle de Tchebychev décroît comme 1/n et celle de Hoeffding décroît exponentiellement.',
+			'Les trois bornes décroissent comme 1/n, à des constantes près.',
+			'Markov décroît exponentiellement, Tchebychev comme 1/n et Hoeffding reste constante.',
+			'Les trois bornes décroissent exponentiellement, mais à des vitesses différentes.'
 		],
 		answerIndex: 0,
 		explanation:
-			"La leçon vérifie que la 0-1 s'écrit bien φ(y f(x)) : elle appartient au cadre des pertes de substitution, mais y est l'unique perte non convexe, discontinue, de gradient nul presque partout — d'où le recours aux pertes proxy."
+			"Markov ne contrôle que l'espérance et ne s'améliore donc pas avec n ; Tchebychev exploite Var(Z̄_n) = σ²/n et décroît en 1/n ; Hoeffding exploite le bornage et décroît comme e^{-2nε²} — souvent plus informative que Tchebychev pour les grands échantillons, mais elle exige de connaître une borne uniforme."
 	},
 	{
 		id: 'p9-syn-q3',
 		tags: ['p9/synthese'],
-		question: "Comment la leçon définit-elle le φ-risque et le φ-risque de Bayes ?",
+		question: "Quel est le mécanisme de la démonstration de l'inégalité de Markov, selon la leçon ?",
 		options: [
-			'R_φ(f) = E[φ(Y f(X))], espérance sur (X, Y) de loi P, et R_φ* = inf sur toutes les fonctions f : X → ℝ de R_φ(f).',
-			'R_φ(f) = (1/n) Σ φ(y_i f(x_i)) sur un échantillon fixé, et R_φ* = min de R_φ sur la classe H.',
-			'R_φ(f) = E[φ(f(X)) - Y], et R_φ* = 0 par définition.',
-			'R_φ(f) = P(sgn f(X) ≠ Y), et R_φ* est le risque de Bayes 0-1.'
+			"On minore Z par t·1_{Z ≥ t} presque sûrement, puis on prend l'espérance : E[Z] ≥ t·P(Z ≥ t).",
+			"On applique l'inégalité triangulaire à E[|Z|], puis on divise par E[Z].",
+			'On applique la loi des grands nombres à Z/t.',
+			"On décompose Z en partie positive et partie négative, puis on borne chacune par sa variance."
 		],
 		answerIndex: 0,
 		explanation:
-			"Le φ-risque est l'espérance de la perte de substitution sous la distribution (X, Y), et R_φ* est son infimum sur toutes les fonctions de score réelles : c'est l'analogue du risque de Bayes pour la perte φ, que la calibration relie ensuite au risque 0-1."
+			"La minoration Z ≥ t·1_{Z ≥ t} est vérifiée sur {Z < t} (membre de droit nul) et sur {Z ≥ t} (où Z ≥ t) ; l'espérance, qui préserve les inégalités, donne E[Z] ≥ E[t·1_{Z ≥ t}] = t·P(Z ≥ t), d'où la borne en divisant par t."
 	},
 	{
 		id: 'p9-syn-q4',
 		tags: ['p9/synthese'],
-		question: 'Selon le tableau des quatre pertes usuelles, à quels algorithmes sont associées la perte exponentielle et la perte carrée (Brier) ?',
+		question: "Quel énoncé en forme de risque donne le corollaire du cas séparable (Théorème 3.1) ?",
 		options: [
-			'La perte exponentielle e^{-t} à AdaBoost, et la perte carrée (1 - t)² à la classification par moindres carrés (least-squares classification).',
-			'La perte exponentielle au SVM, et la perte carrée à la régression logistique.',
-			'La perte exponentielle au k-NN, et la perte carrée à AdaBoost.',
-			'La perte exponentielle à AdaBoost, et la perte carrée au SVM.'
+			'Avec probabilité 1 - δ, R(ĥ) ≤ log(|H|/δ)/n.',
+			'Avec probabilité 1 - δ, R(ĥ) ≤ log(|H|·δ)/n.',
+			'Avec probabilité 1 - δ, R(ĥ) ≤ (log|H| + log(2/δ))/(2n), sans racine carrée.',
+			'Avec probabilité 1 - δ, R(ĥ) = 0, par réalisabilité.'
 		],
 		answerIndex: 0,
 		explanation:
-			'Le tableau associe : logistique log(1 + e^{-t}) → régression logistique / deep learning ; charnière max(0, 1 - t) → SVM ; exponentielle e^{-t} → AdaBoost ; carrée (1 - t)² → least-squares classification.'
+			'En résolvant δ = |H|e^{-nε} en ε, le corollaire donne ε = log(|H|/δ)/n, soit R(ĥ) ≤ log(|H|/δ)/n avec probabilité 1 - δ : une vitesse en 1/n, nettement plus rapide que la vitesse 1/√n du cas non séparable.'
 	},
 	{
 		id: 'p9-syn-q5',
 		tags: ['p9/synthese'],
-		question: 'Que vérifie la leçon sur les quatre pertes usuelles au voisinage de 0 ?',
+		question: "Dans la démonstration du Théorème 3.1, quel est le rôle de l'ensemble M des « échantillons trompeurs » ?",
 		options: [
-			"Les quatre sont convexes et vérifient φ'(0) < 0 ; la charnière, non différentiable en t = 1, est néanmoins différentiable en t = 0, où sa pente vaut -1.",
-			'Les quatre sont linéaires au voisinage de 0, de pente 0.',
-			"Toutes sauf la charnière vérifient φ'(0) < 0, la charnière n'étant pas différentiable en 0.",
-			"Seule la perte logistique vérifie φ'(0) < 0."
+			"C'est l'ensemble des échantillons sur lesquels au moins une hypothèse mauvaise h (R(h) > ε) a un risque empirique nul ; {R(ĥ) > ε} est inclus dans M, ce qui autorise l'union bound sur H_bad.",
+			"C'est l'ensemble des hypothèses de H qui font exactement ε erreurs sur l'échantillon.",
+			"C'est l'ensemble des échantillons de taille inférieure à log(|H|/δ)/ε.",
+			"C'est l'ensemble des hypothèses h avec R(h) = 0, sur lequel on applique Hoeffding."
 		],
 		answerIndex: 0,
 		explanation:
-			"C'est la propriété commune qui annonce le critère de calibration de la leçon suivante (Théorème 4.1) : la non-différentiabilité de la charnière est en t = 1, pas en 0, donc elle y est différentiable avec pente -1 et le critère s'applique sans ambiguïté."
+			"Étapes 1 et 2 de la preuve : par réalisabilité, R_Sn(h*) = 0 donc R_Sn(ĥ) = 0 ; si R(ĥ) > ε, alors ĥ ∈ H_bad et l'échantillon est trompeur, d'où {R(ĥ) > ε} ⊂ M ; l'union bound donne P^n(M) ≤ Σ_{h∈H_bad} P^n(R_Sn(h) = 0) ≤ |H| e^{-nε}."
 	},
 	{
 		id: 'p9-syn-q6',
 		tags: ['p9/synthese'],
-		question: "Quel est le mécanisme de l'équivalence entre perte logistique et cross-entropy, selon l'exercice de la leçon ?",
+		question: "Dans la constante de la borne du Théorème 3.2, d'où vient le facteur 2 présent dans log(2/δ) ?",
 		options: [
-			"Avec ỹ = (y+1)/2 et 1 - σ(t) = σ(-t), on obtient ℓ_CE(ỹ, f(x)) = log(1 + e^{-(2ỹ-1)f(x)}) : les deux pertes coïncident à un changement de convention d'étiquettes près, et minimiser la cross-entropy revient à maximiser la vraisemblance, P(Y=1|X=x) = σ(f(x)).",
-			'Les deux pertes sont identiques sans aucun changement de variables, pour les étiquettes -1/+1.',
-			"L'équivalence n'est vraie que si σ(t) = t, c'est-à-dire hors de la sigmoïde.",
-			'La cross-entropy est la perte logistique composée avec l\'exponentielle, sans lien avec la vraisemblance.'
+			"Il vient des deux queues de l'inégalité de Hoeffding (2 e^{-2nt²}) et de la calibration δ = 2|H|e^{-2nt²}, résolue en t.",
+			"Il vient du fait que l'union bound compte chaque hypothèse deux fois.",
+			"C'est une constante technique sans origine, optimisable en la remplaçant par 1.",
+			'Il vient de la borne 1/4 de la variance des indicateurs de Bernoulli.'
 		],
 		answerIndex: 0,
 		explanation:
-			"L'exercice développe les deux cas ỹ = 1 (ℓ_CE = -log σ(f(x)) = log(1 + e^{-f(x)})) et ỹ = 0 (ℓ_CE = -log(1 - σ(f(x))) = log(1 + e^{f(x)})) en utilisant 1 - σ(t) = σ(-t) : la cross-entropy est exactement la perte logistique sous le changement de convention ỹ = (y+1)/2, et sa minimisation est la maximisation de la vraisemblance du modèle logistique."
+			"Hoeffding appliquée à un h fixé donne P(|R_Sn(h) - R(h)| ≥ t) ≤ 2 e^{-2nt²} ; l'union bound sur H donne P(∃ h, |écart| ≥ t) ≤ 2|H| e^{-2nt²} ; la calibration δ = 2|H|e^{-2nt²} résout t = sqrt((log|H| + log(2/δ))/(2n)) : le 2 de log(2/δ) est celui des deux queues."
 	},
 	{
 		id: 'p9-syn-q7',
 		tags: ['p9/synthese'],
-		question: "Quelle est la définition formelle d'une perte calibrée, selon la leçon ?",
+		question: "Quel est l'apport central du Théorème 3.2 par rapport à la borne de Hoeffding pour un h fixé ?",
 		options: [
-			'Une perte φ convexe et positive est calibrée si, pour toute suite (f_n) de fonctions mesurables, R_φ(f_n) → R_φ* entraîne R(h_{f_n}) → R*.',
-			'Une perte est calibrée si elle est convexe et vérifie φ(0) = 0.',
-			"Une perte est calibrée si φ'(0) < 0, sans aucune hypothèse de convexité.",
-			"Une perte est calibrée si elle s'annule quand t → +∞."
+			"La borne est uniforme : elle vaut simultanément pour tout h ∈ H, ce qui permet de l'appliquer au minimiseur ĥ bien que celui-ci soit une fonction aléatoire de l'échantillon.",
+			"Elle remplace l'hypothèse i.i.d. par la seule échangeabilité.",
+			'Elle supprime le terme log|H| de la borne.',
+			"Elle donne une convergence presque sûre au lieu d'une convergence en probabilité."
 		],
 		answerIndex: 0,
 		explanation:
-			"Autrement dit : minimiser le φ-risque conduit bien à minimiser le risque 0-1 — toute suite de modèles qui amène le φ-risque vers sa borne inférieure amène aussi le risque 0-1 vers la sienne ; la convexité et la positivité font partie de l'hypothèse."
+			"Le passage du contrôle h-fixé au contrôle uniforme est l'ingrédient essentiel, au prix de log|H| : puisque |R(h) - R_Sn(h)| ≤ t pour tout h à la fois, la décomposition R(ĥ) = [R(ĥ) - R_Sn(ĥ)] + R_Sn(ĥ) donne R(ĥ) ≤ R_Sn(ĥ) + t pour le ĥ effectivement choisi, même aléatoire."
 	},
 	{
 		id: 'p9-syn-q8',
 		tags: ['p9/synthese'],
-		question: "Quel est le risque conditionnel C_φ, et comment s'écrit R_φ(f) par la loi des espérances totales ?",
+		question: "Quel est l'énoncé exact du Théorème 3.3 (borne VC) pour une classe de dimension VC d < +∞ ?",
 		options: [
-			'C_φ(α, η) = ηφ(α) + (1 - η)φ(-α), avec η(x) = P(Y=1|X=x), et R_φ(f) = E_X[C_φ(f(X), η(X))].',
-			'C_φ(α, η) = ηφ(α) - (1 - η)φ(-α), et R_φ(f) = E[φ(f(X))] sans conditionnement.',
-			'C_φ(α, η) = φ(α - η), et R_φ(f) = E_X[φ(f(X) - η(X))].',
-			'C_φ(α, η) = max(ηφ(α), (1 - η)φ(-α)), et R_φ(f) est un sup, pas une espérance.'
+			'Avec probabilité 1 - δ, |R(h) - R_Sn(h)| ≤ sqrt((8d·log(2en/d) + 8·log(4/δ))/n), simultanément pour tout h.',
+			'Avec probabilité 1 - δ, |R(h) - R_Sn(h)| ≤ sqrt((d·log(2en/d) + log(2/δ))/(2n)), simultanément pour tout h.',
+			'Avec probabilité 1 - δ, |R(h) - R_Sn(h)| ≤ 8d·log(2en/d) + 8·log(4/δ), sans division par n.',
+			'Avec probabilité 1 - δ, |R(h) - R_Sn(h)| ≤ sqrt((8|H|·log(2en/|H|) + 8·log(4/δ))/n), avec |H| fini.'
 		],
 		answerIndex: 0,
 		explanation:
-			"En conditionnant sur X, la perte espérée pour un score α au point où la probabilité a posteriori vaut η est le mélange ηφ(α) + (1 - η)φ(-α) ; la loi des espérances totales ramène le φ-risque global à l'espérance, sur X, du risque conditionnel — le même schéma que pour le classifieur de Bayes de la Partie VI."
+			"La structure est la même qu'au Théorème 3.2 — racine d'un terme de complexité sur n — mais log|H| est remplacé par 8d·log(2en/d), un terme fini même quand |H| est infini, comme pour les hyperplans de ℝ^d ; le terme 8·log(4/δ) porte la confiance 1 - δ."
 	},
 	{
 		id: 'p9-syn-q9',
 		tags: ['p9/synthese'],
-		question: "Qu'est-ce que la calibration ponctuelle exige du minimiseur du risque conditionnel ?",
+		question: "Quel est l'énoncé exact du lemme de Sauer-Shelah (1972) ?",
 		options: [
-			'Que tout minimiseur α*(η) de α ↦ C_φ(α, η) vérifie : η > 1/2 ⟺ argmin C_φ(·, η) ⊂ ℝ₊*, et η < 1/2 ⟺ argmin C_φ(·, η) ⊂ ℝ₋* — le signe du prédicteur optimal pour φ coïncide avec celui du classifieur de Bayes.',
-			'Que C_φ(α, η) soit strictement croissant en α pour tout η.',
-			'Que le minimiseur soit unique pour tout η, y compris η = 1/2.',
-			'Que argmin C_φ(·, η) = {0} pour tout η ≠ 1/2.'
+			"Si VCdim(H) = d < +∞, alors le coefficient de brisure Π_H(m) ≤ Σ_{i=0}^{d} C(m, i) pour tout m ; l'enveloppe (em/d)^d n'est valable que pour m ≥ d.",
+			'Si VCdim(H) = d, alors Π_H(m) ≤ (em/d)^d pour tout m, y compris m < d.',
+			"Si VCdim(H) = d, alors Π_H(m) = 2^d exactement, quelle que soit la taille de l'ensemble considéré.",
+			'Si VCdim(H) = d, alors Π_H(m) ≤ d^m pour tout m, sans condition sur m.'
 		],
 		answerIndex: 0,
 		explanation:
-			"La calibration ponctuelle est la condition « au bon signe » : le score optimal doit être strictement positif quand la classe 1 est majoritaire et strictement négatif sinon ; la preuve du Théorème 4.1 montre qu'une perte convexe positive est calibrée si et seulement si elle est différentiable en 0 avec φ'(0) < 0."
+			"Le lemme borne le nombre de dichotomies réalisables par une somme de coefficients binomiaux ; (em/d)^d n'en est qu'une enveloppe, valide pour m ≥ d. Le basculement de la croissance exponentielle 2^m à la croissance polynomiale de degré d est ce qui rend une borne de généralisation possible même pour une classe infinie."
 	},
 	{
 		id: 'p9-syn-q10',
 		tags: ['p9/synthese'],
-		question: 'Dans la direction (⇒) de la preuve du Théorème 4.1, que montre le passage à la limite η → 1/2⁺ ?',
+		question: "Selon les exemples de la leçon, pourquoi les seuils ont-ils une dimension VC de 1 et les intervalles une dimension VC de 2 ?",
 		options: [
-			"Que la différentiabilité de φ en 0 n'est pas supposée mais démontrée : la limite donne le sandwich φ'₋(0) ≤ φ'₊(0) ≤ φ'₋(0), d'où φ'₊(0) = φ'₋(0), puis φ'(0) < 0.",
-			'Que φ doit être linéaire au voisinage de 0.',
-			'Que la convexité de φ est nécessairement stricte.',
-			"Que φ'(0) = 0 est le bon critère de calibration."
+			"Tout singleton est brisé, mais sur une paire ordonnée l'étiquetage (1, 0) est impossible pour les seuils, et sur un triplet ordonné l'étiquetage (1, 0, 1) est impossible pour les intervalles.",
+			'Les seuils ne brisent aucun ensemble non vide, et les intervalles ne brisent aucune paire.',
+			"L'étiquetage (1, 0) est impossible sur une paire ordonnée pour les intervalles, et l'étiquetage (1, 0, 1) pour les seuils.",
+			"Les seuils et les intervalles ont tous deux une dimension VC de 1, aucune paire n'étant brisée."
 		],
 		answerIndex: 0,
 		explanation:
-			"La calibration impose, pour tout η > 1/2, ηφ'₊(0) - (1-η)φ'₋(0) < 0 ; en η → 1/2⁺ on obtient φ'₊(0) ≤ φ'₋(0), tandis que la convexité donne toujours φ'₋(0) ≤ φ'₊(0) : le sandwich prouve la différentiabilité en 0, et le signe de (C_φ)'(0) = (2η-1)φ'(0) pour η > 1/2 donne φ'(0) < 0."
+			"Exemples à dimension VC croissante de la leçon : seuils sur ℝ (VCdim = 1), intervalles sur ℝ (VCdim = 2), hyperplans de ℝ^d (VCdim = d + 1) ; l'obstruction est toujours un étiquetage « alterné » impossible sur les points ordonnés."
 	},
 	{
 		id: 'p9-syn-q11',
 		tags: ['p9/synthese'],
-		question: "Quelles sont les valeurs de φ'(0) pour les pertes exponentielle et carrée (Brier) ?",
+		question: "Comment la leçon définit-elle la classe H_γ des classifieurs à marge γ ?",
 		options: [
-			"Exponentielle : φ'(0) = -1 ; carrée (Brier) : φ'(0) = -2.",
-			"Exponentielle : φ'(0) = -1/2 ; carrée (Brier) : φ'(0) = -1.",
-			'Exponentielle : φ\'(0) = 1 ; carrée (Brier) : φ\'(0) = 2.',
-			"Exponentielle : φ'(0) = 0 ; carrée (Brier) : φ'(0) = -1."
+			"H_γ = {h_{w,b} : ‖w‖_2 = 1, séparant l'échantillon avec marge γ}, où h_{w,b}(x) = sgn(w^T x - b) et Y_i(w^T X_i - b) ≥ γ pour tout i.",
+			"H_γ = {h_{w,b} : ‖w‖_2 ≤ γ}, séparant exactement l'échantillon, sans normalisation de la norme.",
+			'H_γ = {h_{w,b} : ‖w‖_2 = γ}, sans aucune condition sur les marges des observations.',
+			"H_γ = {h_{w,b} : b = 0, séparant avec marge γ}, les hyperplans passant par l'origine seulement."
 		],
 		answerIndex: 0,
 		explanation:
-			'La leçon calcule les quatre pentes : logistique -1/2, charnière -1, exponentielle -1, carrée -2 — toutes négatives, donc les quatre pertes usuelles sont calibrées (Théorème 4.1).'
+			"La définition fait intervenir la normalisation ‖w‖_2 = 1 — c'est elle qui rend la marge γ comparable d'un classifieur à l'autre — et la condition Y_i(w^T X_i - b) ≥ γ sur toutes les observations de l'échantillon."
 	},
 	{
 		id: 'p9-syn-q12',
 		tags: ['p9/synthese'],
-		question: "Selon la leçon, quelle particularité distingue la perte carrée (Brier) des trois autres pertes usuelles ?",
+		question: "Quel est l'énoncé complet du Théorème 3.4 (Vapnik, 1995) quand ‖X_i‖_2 ≤ R presque sûrement ?",
 		options: [
-			"Elle est la seule qui ne s'annule pas quand t → +∞ : elle croît comme t² et pénalise donc aussi les grandes marges correctes (défaut connu du moindres carrés), tandis que la charnière vaut 0 dès t ≥ 1.",
-			'Elle est la seule non convexe des quatre.',
-			"Elle est la seule dont φ'(0) > 0.",
-			"Elle n'est définie que pour t ≤ 0."
+			'VCdim(H_γ) ≤ floor(R²/γ²), et avec probabilité 1 - δ : |R(h) - R_Sn(h)| ≤ sqrt((8 floor(R²/γ²)·log(2enγ²/R²) + 8·log(4/δ))/n) ; la borne ne dépend pas de la dimension ambiante d.',
+			'VCdim(H_γ) ≤ R²/γ², et avec probabilité 1 - δ : |R(h) - R_Sn(h)| ≤ sqrt((8d·log(2en/d) + 8·log(4/δ))/n), avec la dimension ambiante d.',
+			'VCdim(H_γ) = d + 1, comme pour tous les hyperplans, et la borne est sqrt((8d·log(2en/d) + 8·log(4/δ))/n).',
+			"VCdim(H_γ) ≤ floor(R²/γ²), mais la borne ne vaut que sous l'hypothèse de réalisabilité."
 		],
 		answerIndex: 0,
 		explanation:
-			'Logistique, charnière et exponentielle deviennent négligeables pour les grandes marges correctes ; la Brier, (1 - t)², continue à croître comme t² : elle pénalise même les prédictions correctes très confiantes — le défaut connu de la classification par moindres carrés.'
+			"Théorème 3.4 : la dimension VC de la classe des classifieurs à marge ne dépend que du rapport R²/γ², pas de la dimension de l'espace d'entrée — c'est ce qui explique que le SVM puisse généraliser correctement en très grande dimension, à condition d'une marge suffisamment grande relative à l'échelle des données."
 	},
 	{
 		id: 'p9-syn-q13',
 		tags: ['p9/synthese'],
-		question: 'Que montrent les contre-exemples de la démo de la leçon, φ(t) = t² et φ(t) = (1+t)² (illustratifs, hors du support du cours) ?',
+		question: 'Quelle extension du SVM la leçon signale-t-elle explicitement comme hors du support du cours ?',
 		options: [
-			"φ(t) = t² a φ'(0) = 0 : le minimiseur du risque conditionnel reste collé à 0 quelle que soit η ; φ(t) = (1+t)² a φ'(0) = 2 > 0 : le minimiseur a le mauvais signe des deux côtés de η = 1/2 — le critère φ'(0) < 0 n'est pas une curiosité formelle.",
-			'Que les deux pertes sont calibrées, ce qui invalide le Théorème 4.1.',
-			'Que φ(t) = t² est calibrée et (1+t)² ne l\'est pas : seul le signe de φ(0) compte.',
-			'Que les deux pertes donnent le même minimiseur α*(η) pour tout η.'
+			'Le kernel trick, qui transpose les hyperplans dans des espaces de caractéristiques de dimension infinie : il est donné comme complément, au-delà du cours.',
+			"La borne du Théorème 3.4 elle-même, qui n'est qu'un résultat heuristique.",
+			"L'usage de la perte quadratique au lieu de la perte charnière.",
+			"La normalisation ‖w‖_2 = 1, qui simplifierait excessivement la définition de la marge."
 		],
 		answerIndex: 0,
 		explanation:
-			'Ces contre-exemples (donnés par la démo de la leçon, au-delà du support du cours) montrent les deux façons d\'échouer au critère : pente nulle en 0 (aucun signe, jamais) et pente positive (mauvais signe, toujours) — d\'où l\'importance du signe strict φ\'(0) < 0.'
+			"Le cartouche « Ce que cette borne dit vraiment » l'énonce explicitement : la version à noyau, qui travaille en dimension infinie, ne fait pas partie du support du cours et est donnée comme complément."
 	},
 	{
 		id: 'p9-syn-q14',
 		tags: ['p9/synthese'],
-		question: "Dans la décomposition du Théorème 4.2, que mesurent les termes B et C, et pourquoi leur nom est-il contre-intuitif ?",
+		question: 'Quels sont les trois régimes du phénomène de double descente, selon la leçon ?',
 		options: [
-			'B est le « terme de calibration », nul si f** ∈ F (piloté par la classe F) ; C est le « terme d\'approximation », nul si φ est calibrée (piloté par la perte) — l\'inverse de l\'intuition.',
-			'B est piloté par la perte φ et C par la classe F.',
-			'B et C mesurent la même quantité, dans un ordre différent.',
-			'B est le terme d\'estimation et C le terme d\'approximation.'
+			"Sous-paramétré (W ≪ n) : courbe en U classique ; seuil d'interpolation (W ≈ n) : le risque explose ; sur-paramétré (W ≫ n) : le risque redescend et peut atteindre des niveaux très bas malgré l'interpolation exacte — un phénomène non expliqué par la théorie VC.",
+			'Sous-paramétré : le risque explose ; seuil : le risque est minimal ; sur-paramétré : le risque repart à la hausse.',
+			'Les trois régimes correspondent à n < d, n = d, n > d, avec le minimum toujours atteint au seuil n = d.',
+			'Le risque est monotone décroissant en W dans tous les régimes.'
 		],
 		answerIndex: 0,
 		explanation:
-			'Convention de la leçon et de la source : B = R(h_{f*}) - R(h_{f**}) s\'annule quand le minimiseur global f** appartient à F — c\'est donc la classe qui le pilote ; C = R(h_{f**}) - R* s\'annule quand φ est calibrée — c\'est donc la perte qui le pilote.'
+			"La leçon décrit précisément ces trois régimes en fonction du nombre de paramètres W à n fixé : le minimum n'est pas au seuil d'interpolation, et la redescension du régime sur-paramétré invalide la vision classique du compromis biais-variance, sans être expliquée par la théorie VC."
 	},
 	{
 		id: 'p9-syn-q15',
 		tags: ['p9/synthese'],
-		question: 'Quels sont les trois objets en compétition mis en place avant le Théorème 4.2 ?',
+		question: "Dans la figure de la leçon (régression linéaire par pseudo-inverse, d = 50), que se passe-t-il dans les trois régimes n < d, n = d, n > d ?",
 		options: [
-			'f̂_F(S_n) (le modèle appris sur l\'échantillon, minimiseur du φ-risque empirique sur F), f* (le meilleur modèle de F pour le φ-risque, minimiseur de R_φ sur F) et f** (le minimiseur global du φ-risque, x ↦ argmin C_φ(α, η(x))).',
-			'f̂ (le classifieur de Bayes), f* (le classifieur k-NN) et f** (le SVM).',
-			'Les trois objets sont des risques, pas des fonctions : R̂, R* et R**.',
-			'f̂, f* et f** sont définis sans la classe F, qui n\'entre que dans le terme A.'
+			"n < d : système sous-déterminé, la pseudo-inverse renvoie la solution de norme minimale ; n = d : interpolation exacte β̂ = X⁻¹y (R_Sn = 0) mais X est mal conditionnée et l'erreur de test explose ; n > d : système sur-déterminé, moindres carrés, et l'erreur de test converge vers l'erreur irréductible σ².",
+			"n < d : moindres carrés ; n = d : solution de norme minimale ; n > d : explosion permanente de l'erreur de test.",
+			'Les trois régimes donnent la même erreur de test, la pseudo-inverse étant indépendante de n.',
+			"n = d est le régime optimal : l'erreur de test y est minimale et l'interpolation parfaite y est sans coût."
 		],
 		answerIndex: 0,
 		explanation:
-			'La mise en place oppose le modèle qu\'on apprend (f̂_F sur l\'échantillon), le meilleur modèle disponible dans la classe (f* pour le φ-risque) et le meilleur modèle en absolu (f**, dont le φ-risque de Bayes est R_φ* = R_φ(f**)) : les termes A, B, C mesurent les écarts successifs de cette chaîne.'
+			"C'est le mécanisme illustré par la figure : au seuil n = d, l'interpolation exacte coïncide avec un mal conditionnement maximal de X, d'où l'explosion de l'erreur de test ; le minimum global n'est pas atteint au seuil mais après, et la convergence est vers σ², l'erreur de Bayes irréductible du modèle."
+	},
+	{
+		id: 'p9-syn-q16',
+		tags: ['p9/synthese'],
+		question: "Selon la remarque de lecture de la leçon, où est le minimum global de l'erreur de test, et comment les deux points de vue se rapportent-ils ?",
+		options: [
+			"Le minimum n'est pas au seuil d'interpolation mais après ; le point de vue du phénomène (W variable à n fixé) et celui de la figure (n variable à d fixé) sont duaux, le seuil étant toujours l'égalité entre nombre de paramètres et nombre d'observations.",
+			"Le minimum est exactement au seuil, où l'interpolation devient possible.",
+			"Les deux points de vue sont contradictoires : l'un prédit une explosion, l'autre une redescension.",
+			"Le minimum n'existe pas : l'erreur de test diverge quand n → +∞."
+		],
+		answerIndex: 0,
+		explanation:
+			'La remarque de lecture souligne la dualité : le phénomène fait varier W à n fixé, la figure fait varier n à d fixé, mais dans les deux cas le seuil critique est l\'égalité entre nombre de paramètres et nombre d\'observations, avec un minimum de l\'erreur de test atteint au-delà du seuil.'
+	},
+	{
+		id: 'p9-syn-q17',
+		tags: ['p9/synthese'],
+		question: 'Que dit la borne par normes de Bartlett, Foster et Telgarsky (2017) ?',
+		options: [
+			"Avec probabilité 1 - δ, R(h) - R_Sn(h) = Õ((Π_l ‖W_l‖_op)·(Σ_l ‖W_l‖_F^{2/3})^{3/2} / √n), où ‖·‖_op est la norme spectrale et ‖·‖_F la norme de Frobenius ; elle est indépendante de la profondeur et de la largeur en tant que telles.",
+			"Elle borne l'excès de risque par O(W·L·log W / n), la dimension VC de Bartlett (1998).",
+			"Elle n'est non triviale que si les poids sont nuls.",
+			'Elle est une borne sur la variance : Var(R_Sn(h)) ≤ (Π_l ‖W_l‖_F)/n.'
+		],
+		answerIndex: 0,
+		explanation:
+			"La borne ne dépend que des normes des poids (spectrales et de Frobenius), pas de la profondeur ou de la largeur en tant que telles : elle peut rester non triviale même pour des réseaux très larges, si les poids restent petits — l'une des pistes modernes, sans qu'aucune ne soit complète."
+	},
+	{
+		id: 'p9-syn-q18',
+		tags: ['p9/synthese'],
+		question: "Que sont la complexité de Rademacher empirique et sa borne de généralisation, selon la leçon ?",
+		options: [
+			"R̂_n(H) = E_σ[sup_{h∈H} (1/n) Σ σ_i h(X_i)], avec σ_i de loi de Rademacher (±1 équiprobables) indépendantes de l'échantillon ; avec probabilité 1 - δ : sup_{h∈H} |R(h) - R_Sn(h)| ≤ 2R̂_n(H) + sqrt(log(2/δ)/(2n)) ; son avantage est d'être data-dependent.",
+			'R̂_n(H) = max_{h∈H} (R(h) - R_Sn(h)), calculée sans variable aléatoire ; la borne est sqrt(log|H|/(2n)).',
+			'R̂_n(H) est la dimension VC de H ; la borne est sqrt(8d·log(2en/d)/n).',
+			'R̂_n(H) ne dépend que de la taille de H, et la borne exige que H soit fini.'
+		],
+		answerIndex: 0,
+		explanation:
+			'Le sup est pris sur la classe mais moyenné sur des bruits de Rademacher σ_i indépendants des données : la complexité est donc data-dependent — elle mesure la complexité de H sur l\'échantillon effectif, et peut être bornée indépendamment du nombre de paramètres pour des réseaux à poids contraints en norme.'
+	},
+	{
+		id: 'p9-syn-q19',
+		tags: ['p9/synthese'],
+		question: "Vers quoi déplacent les explications modernes (biais implicite, borne BFT, Rademacher) la question de la généralisation, selon la leçon ?",
+		options: [
+			"D'« combien de paramètres ? » vers « quelle solution l'optimisation sélectionne-t-elle, et combien est-elle régulière ? » — sans qu'aucune explication ne soit complète : la généralisation des réseaux profonds reste un sujet de recherche actif.",
+			'Vers le calcul exact de la dimension VC des réseaux profonds.',
+			'Vers la preuve que le sur-ajustement est impossible en sur-paramétré.',
+			"Vers l'abandon de la théorie de la généralisation au profit de l'heuristique."
+		],
+		answerIndex: 0,
+		explanation:
+			"Le « Retenir » de la leçon le résume : les pistes modernes déplacent la question du nombre de paramètres vers la régularité de la solution sélectionnée par l'optimisation — « sans qu'aucune ne fournisse une explication complète », la généralisation des réseaux profonds restant un sujet de recherche actif."
+	},
+	{
+		id: 'p9-syn-q20',
+		tags: ['p9/synthese'],
+		question: "Quel lien permet-on de faire, à l'échelle de la partie, entre le biais implicite de la descente de gradient et le Théorème 3.4 ?",
+		options: [
+			"La descente de gradient sur la régression logistique (données linéairement séparables) converge vers le classifieur de marge maximale — exactement le type de classifieur contrôlé par le Théorème 3.4, dont la dimension VC ≤ floor(R²/γ²) est indépendante de la dimension ambiante.",
+			"Le biais implicite prouve que la dimension VC des réseaux de neurones est bornée par la taille de l'échantillon.",
+			'Le Théorème 3.4 montre que la descente de gradient converge toujours vers la solution de plus grande norme.',
+			"Les deux résultats sont sans rapport : l'un porte sur l'optimisation, l'autre sur la complexité."
+		],
+		answerIndex: 0,
+		explanation:
+			"Synthèse de la partie : l'optimiseur sélectionne implicitement des solutions régulières de marge maximale (Zhang et al., 2017 ; Soudry et al., 2018) — la solution SVM — et c'est précisément la classe des classifieurs à marge qui bénéficie de la borne de Vapnik (1995) indépendante de la dimension : la bonne généralisation du régime sur-paramétré s'explique partiellement par la marge, pas par le nombre de paramètres."
 	}
 ];

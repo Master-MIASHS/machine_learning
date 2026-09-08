@@ -716,7 +716,7 @@
 		<p>
 			L'algorithme des k plus proches voisins sera ensuite étudié rigoureusement — conditions de
 			consistance du prédicteur k-NN (règle de Stone) — dans la
-			<a href={resolve('/part7/lesson2')}>Partie VII</a>.
+			<a href={resolve('/part8/lesson2')}>Partie VIII</a>.
 		</p>
 
 		<h2 id="formulation-probabiliste">Formulation formelle</h2>
@@ -882,8 +882,8 @@
 			<ConditionalRegressionExplorer />
 		</InteractiveSection>
 		<p class="forward-ref">
-			L'exploration ci-dessus, issue de la Partie VI, sera étudiée rigoureusement (théorème et
-			preuve générale) dans la <a href={resolve('/part6/lesson2')}>leçon 2 de la Partie VI</a>.
+			L'exploration ci-dessus, issue de la Partie VII, sera étudiée rigoureusement (théorème et
+			preuve générale) dans la <a href={resolve('/part7/lesson2')}>leçon 2 de la Partie VII</a>.
 		</p>
 
 		<h3>Coût absolu et coût 0/1</h3>
@@ -919,7 +919,7 @@
 			<p>
 				Elle est connue sous le nom de <strong>classifieur de Bayes</strong>. Sa démonstration
 				rigoureuse (décomposition du risque conditionnel) est donnée dans la
-				<a href={resolve('/part6/lesson1')}>leçon 1 de la Partie VI</a>.
+				<a href={resolve('/part7/lesson1')}>leçon 1 de la Partie VII</a>.
 			</p>
 		</Callout>
 
@@ -931,7 +931,7 @@
 			<BayesDecisionExplorer />
 		</InteractiveSection>
 		<p class="forward-ref">
-			Widget repris de la <a href={resolve('/part6/lesson1')}>Partie VI</a> : le risque conditionnel des deux actions
+			Widget repris de la <a href={resolve('/part7/lesson1')}>Partie VII</a> : le risque conditionnel des deux actions
 			et le seuil η(x) = 1/2 qui définit le classifieur de Bayes.
 		</p>
 
@@ -1013,7 +1013,7 @@
 		<p>
 			Les propriétés de <KatexInline formula="R_n(h)" /> — en particulier le fait qu'elle converge vers
 			<KatexInline formula="R(h)" /> et que la minimisation empirique produise un bon prédicteur — font
-			l'objet de la <a href={resolve('/part8/lesson1')}>Partie VIII</a> (concentration et risque empirique).
+			l'objet de la <a href={resolve('/part9/lesson1')}>Partie IX</a> (concentration et risque empirique).
 		</p>
 
 		<h2 id="metriques">Évaluer un modèle</h2>
@@ -1485,8 +1485,8 @@
 
 		<p>
 			La décomposition formelle de l'erreur en biais et variance est donnée dans la
-			<a href={resolve('/part9/lesson1')}>Partie IX</a>, et les conditions sous lesquelles le prédicteur k-NN
-			est consistant (règle de Stone) dans la <a href={resolve('/part7/lesson2')}>Partie VII</a>.
+			<a href={resolve('/part10/lesson1')}>Partie X</a>, et les conditions sous lesquelles le prédicteur k-NN
+			est consistant (règle de Stone) dans la <a href={resolve('/part8/lesson2')}>Partie VIII</a>.
 		</p>
 
 		<h2 id="selection-modele">Sélectionner un modèle</h2>

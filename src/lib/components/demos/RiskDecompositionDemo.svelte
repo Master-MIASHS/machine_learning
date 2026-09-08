@@ -200,7 +200,7 @@
 		Démonstration <strong>illustrative</strong>, pas une preuve : A est la moyenne de
 		{N_REPLICATES} tirages de demi-loi normale d'échelle <KatexInline formula={scaleFormula} />,
 		le théorème le contrôlant en espérance, au taux <KatexInline formula={rateFormula} /> (bornes de
-		concentration de la partie VI) ; B est proportionnel à la lacune de capacité ; C est l'écart 0-1
+		concentration de la partie VII) ; B est proportionnel à la lacune de capacité ; C est l'écart 0-1
 		exact entre le minimiseur global du φ-risque et le classifieur de Bayes pour une loi discrète
 		<KatexInline formula={etaLawFormula} />. Augmentez n pour réduire A ; passez la capacité à 1
 		pour annuler B (<KatexInline formula={fbbInFFormula} />) ; choisissez une perte non calibrée

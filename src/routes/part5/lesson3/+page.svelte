@@ -2,20 +2,27 @@
 	import PageTemplate from '$lib/components/layout/PageTemplate.svelte';
 	import TheorySection from '$lib/components/narrative/TheorySection.svelte';
 	import InteractiveSection from '$lib/components/narrative/InteractiveSection.svelte';
+	import DefinitionBlock from '$lib/components/narrative/DefinitionBlock.svelte';
+	import TheoremBlock from '$lib/components/narrative/TheoremBlock.svelte';
+
+	import ExercisePanel from '$lib/components/narrative/ExercisePanel.svelte';
 	import Callout from '$lib/components/narrative/Callout.svelte';
-	import ExpertPanel from '$lib/components/narrative/ExpertPanel.svelte';
-	import Bibliography from '$lib/components/narrative/bib/Bibliography.svelte';
-	import BibElement from '$lib/components/narrative/bib/BibElement.svelte';
 	import KatexBlock from '$lib/components/narrative/KatexBlock.svelte';
 	import KatexInline from '$lib/components/narrative/KatexInline.svelte';
-	import PredictionIntervalVisualizer from '$lib/components/demos/PredictionIntervalVisualizer.svelte';
-	import AdaptiveIntervalDemo from '$lib/components/demos/AdaptiveIntervalDemo.svelte';
-	import BootstrapUncertainty from '$lib/components/demos/BootstrapUncertainty.svelte';
-	import IntervalQualityDashboard from '$lib/components/demos/IntervalQualityDashboard.svelte';
+	import Bibliography from '$lib/components/narrative/bib/Bibliography.svelte';
+	import BibElement from '$lib/components/narrative/bib/BibElement.svelte';
+
+	// Demo components
+	import AdaBoostStepByStep from '$lib/components/demos/AdaBoostStepByStep.svelte';
+	import ExponentialLossVisualizer from '$lib/components/demos/ExponentialLossVisualizer.svelte';
+	import MarginDistribution from '$lib/components/demos/MarginDistribution.svelte';
+	import GradientBoostingDemo from '$lib/components/demos/GradientBoostingDemo.svelte';
+	import BoostingComparison from '$lib/components/demos/BoostingComparison.svelte';
+
+	import TableOfContents from '$lib/components/narrative/TableOfContents.svelte';
 	import { getPageByPath, getAdjacentPages, type PageMeta } from '$lib/navigation.js';
 	import { settings } from '$lib/stores/index.js';
 	import { createPageTracker } from '$lib/stores/progress.svelte';
-	import TableOfContents from '$lib/components/narrative/TableOfContents.svelte';
 	import Quiz from '$lib/components/narrative/Quiz.svelte';
 	import { getQuizQuestions } from '$lib/quiz';
 
@@ -36,554 +43,994 @@
 
 	const tocEntries: TocEntry[] = [
 		{
-			id: 'intervalles-constants',
-			label: 'Intervalles de largeur constante',
-			description: 'Fondements et intuition',
+			id: 'introduction-boosting',
+			label: 'Introduction au Boosting',
+			description: 'Séquentialité vs parallélisme',
 			color: 'neutral'
 		},
 		{
-			id: 'impl-constants',
-			label: 'Implémentation des intervalles constants',
-			description: 'Algorithme pas à pas',
+			id: 'adaboost',
+			label: "L'algorithme AdaBoost",
+			description: 'Répondération adaptative et apprentissage faible',
 			color: 'epistemic'
 		},
 		{
-			id: 'regime-oracle',
-			label: 'Le régime oracle : régions de densité maximale',
-			description: "L'optimalité théorique",
+			id: 'perte-exponentielle',
+			label: 'Perte exponentielle et margins',
+			description: 'Surrogates, convexité et margins',
 			color: 'belief'
 		},
 		{
-			id: 'intervalles-adaptatifs',
-			label: 'Intervalles adaptatifs',
-			description: "Adaptation à l'hétéroscédasticité",
+			id: 'distribution-margins',
+			label: 'Distribution des margins et généralisation',
+			description: 'Risque de surapprentissage et théorie',
 			color: 'positive'
 		},
 		{
-			id: 'incertitude-locale',
-			label: "Estimation de l'incertitude locale",
-			description: 'Bootstrap et variance locale',
+			id: 'gradient-boosting',
+			label: 'Gradient Boosting',
+			description: "Descente de gradient dans l'espace des fonctions",
 			color: 'surprise'
 		},
 		{
-			id: 'cqr',
-			label: 'Régression quantile conforme (CQR)',
-			description: 'Correction des quantiles entraînés',
-			color: 'epistemic'
+			id: 'methodes-modernes',
+			label: 'Méthodes modernes : XGBoost, LightGBM et CatBoost',
+			description: 'Limitations du GB classique et extensions',
+			color: 'agent'
 		},
 		{
-			id: 'evaluation-intervalles',
-			label: 'Évaluation des intervalles de prédiction',
-			description: 'Métriques de couverture et de largeur',
+			id: 'comparaison-synthese',
+			label: 'Comparaison et synthèse',
+			description: 'Choisir entre AdaBoost et Gradient Boosting',
 			color: 'neutral'
 		},
 		{
-			id: 'synthese',
-			label: 'Synthèse',
-			description: 'Récapitulatif sur la régression conformelle',
-			color: 'neutral'
+			id: 'synthese-comparaison',
+			label: 'Synthèse et comparaison des méthodes',
+			description: 'Tableau comparatif, guide de choix, bonnes pratiques',
+			color: 'belief'
 		}
 	];
 
-	// ─── Formula constants ─────────────────────────────
-	// Same fix as the previous two lessons: curly braces inside <script> are never
-	// touched by Svelte's brace-parsing (that only applies to markup), so escaping the
-	// grouping braces of \mathcal{}, \hat{}, \mathbb{} was pure breakage — \mathcal\{C\}
-	// does not pass C as an argument to \mathcal, it prints a literal brace glyph.
-	const F_OBJECTIVE = String.raw`\mathcal{C}(x) = [a(x), b(x)]`;
-	const F_COVERAGE = String.raw`\mathbb{P}(Y \in [a(X), b(X)]) \geq 1 - \alpha`;
-	const F_HAT_F = String.raw`\hat{f}`;
-	const F_SCORE_CONSTANT = String.raw`s(x, y) = |y - \hat{f}(x)|`;
-	const F_INTERVAL = String.raw`\mathcal{C}(x) = [\hat{f}(x) - q, \hat{f}(x) + q]`;
-	const F_SCORE_ADAPTIVE = String.raw`s(x, y) = \frac{|y - \hat{f}(x)|}{\sigma(x) + \varepsilon}`;
-	const F_COVERAGE_RATE = String.raw`\frac{1}{n} \sum_{i=1}^{n} \mathbb{1}[y_i \in [a(x_i), b(x_i)]]`;
-	const F_AVG_WIDTH = String.raw`\frac{1}{n} \sum_{i=1}^{n} (b(x_i) - a(x_i))`;
-	const F_SIGMA = String.raw`\sigma(x)`;
-	const F_EPSILON = String.raw`\varepsilon > 0`;
+	// ── Formula variables (stored in script so Svelte never parses backslashes) ──
 
-	// ─── New: oracle / density-level-set formalism ─────
-	const F_DENSITY = String.raw`f_{Y \mid X}(y \mid x)`;
-	const F_ORACLE_HDR = String.raw`\mathcal{C}^*(x) = \{\, y \;:\; f_{Y \mid X}(y \mid x) \geq t(x) \,\}`;
-	const F_ORACLE_HDR_MASS = String.raw`\int_{\mathcal{C}^*(x)} f_{Y \mid X}(y \mid x) \, dy = 1 - \alpha`;
-	const F_QUANTILE_FUNC = String.raw`Q_{Y \mid X}(\tau \mid x) = \inf\{\, y \;:\; F_{Y \mid X}(y \mid x) \geq \tau \,\}`;
-	const F_SYMMETRIC_ORACLE = String.raw`\mathcal{C}^*(x) = \big[\, Q_{Y \mid X}(\alpha/2 \mid x), \; Q_{Y \mid X}(1 - \alpha/2 \mid x) \,\big]`;
+	// AdaBoost algorithm formulas
+	const initWeights = 'w_i^{(1)} = \\frac{1}{n}, \\quad i = 1,\\dots,n';
+	const weightedError =
+		'\\varepsilon_t = \\sum_{i=1}^{n} w_i^{(t)} \\; 1\\{h_t(X_i) \\neq Y_i\\} = \\mathbb{E}_{w^{(t)}}[h_t(X) \\neq Y]';
+	const alphaT =
+		'\\alpha_t = \\frac{1}{2}\\,\\ln\\!\\left(\\frac{1 - \\varepsilon_t}{\\varepsilon_t}\\right)';
+	const weightUpdate =
+		'w_i^{(t+1)} = \\frac{w_i^{(t)}}{Z_t} \\; \\exp\\bigl(-\\alpha_t Y_i h_t(X_i)\\bigr)';
+	const normalizationFactor =
+		'Z_t = \\sum_{i=1}^{n} w_i^{(t)} \\exp\\bigl(-\\alpha_t Y_i h_t(X_i)\\bigr)';
+	const finalPrediction =
+		'H(x) = \\operatorname{sign}\\!\\left(\\sum_{t=1}^{T} \\alpha_t h_t(x)\\right)';
+	const tRange = 't = 1, \\dots, T';
 
-	// ─── New: conformalized quantile regression (CQR) ──
-	const F_QLO_QHI = String.raw`\hat{q}_{lo}(x), \; \hat{q}_{hi}(x)`;
-	const F_CQR_SCORE = String.raw`s(x, y) = \max\big(\hat{q}_{lo}(x) - y, \; y - \hat{q}_{hi}(x)\big)`;
-	const F_CQR_INTERVAL = String.raw`\mathcal{C}(x) = \big[\, \hat{q}_{lo}(x) - Q, \; \hat{q}_{hi}(x) + Q \,\big]`;
+	// AdaBoost training error bound — Theorem 7.1
+	const trainingErrorBound =
+		'\\frac{1}{n}\\sum_{i=1}^{n} 1\\{H(X_i) \\neq Y_i\\} \\leq \\prod_{t=1}^{T} Z_t';
+	const expLossBound = '\\exp\\bigl(-Y_i F(X_i)\\bigr)';
+
+	// Inline references — AdaBoost section
+	const dataLabelled = '(X_i, Y_i)_{i=1}^n';
+	const yInLabels = 'Y_i \\in \\{-1, +1\\}';
+	const TVar = 'T';
+	const h_t = 'h_t';
+	const wAt_t = 'w^{(t)}';
+	const epsilon_t_to_0 = '\\varepsilon_t \\to 0';
+	const alpha_t_to_inf = '\\alpha_t \\to +\\infty';
+	const epsilon_eq_half = '\\varepsilon_t = 0.5';
+	const alpha_eq_zero = '\\alpha_t = 0';
+	const epsilon_ge_half = '\\varepsilon_t \\geq 1/2';
+	const epsilon_gt_half = '\\varepsilon_t > 0.5';
+	const alpha_lt_zero = '\\alpha_t < 0';
+	const iSym = 'i';
+	const expAlphaFactor = '\\exp(-\\alpha_t Y_i h_t(X_i))';
+	const yEqHtX = 'Y_i = h_t(X_i)';
+	const expMinusAlphaLt1 = '\\exp(-\\alpha_t) < 1';
+	const expPlusAlphaGt1 = '\\exp(+\\alpha_t) > 1';
+	const Z_t = 'Z_t';
+	const epsilon_lt_half = '\\varepsilon_t < 0.5';
+	const Z_lt_1 = 'Z_t < 1';
+	const w_i = 'w_i';
+
+	// Exponential loss — Section 3
+	const exponentialLoss = 'L(y, f(x)) = \\exp\\bigl(-y\\,f(x)\\bigr)';
+	const negMarginExp = '-y\\,f(x)';
+	const derivExpLoss = '\\frac{\\partial}{\\partial f}\\exp(-y\\,f) = -y\\;\\exp(-y\\,f)';
+	const yfx = 'y\\,f(x)';
+	const fSym = 'f';
+	const expMinusyf = '\\exp(-y\\,f)';
+
+	// Functional margin — Definition 7.2
+	const functionalMarginDef =
+		'm_i = Y_i F(X_i) \\quad\\text{où}\\quad F(x) = \\sum_{t=1}^{T} \\alpha_t h_t(x)';
+	const m_i = 'm_i';
+	const marginPositive = 'm_i > 0';
+	const marginNegative = 'm_i < 0';
+	const marginZero = 'm_i = 0';
+
+	// Callout — loss 0-1 indicator
+	const loss01Indicator = '\\mathbb{1}\\{y\\,f(x) < 0\\}';
+
+	// Generalization bound by margins — Theorem 7.2
+	const generalizationMarginBound =
+		'\\mathrm{err}_{gen}(H) \\leq \\frac{N_{\\rho}(T)}{n} + O\\left(\\sqrt{\\frac{d\\log(n/d)+\\log(1/\\delta)}{n\\rho^2}}\\right)';
+	const rhoGt0 = '\\rho > 0';
+	const N_rho_T = 'N_{\\rho}(T)';
+
+	// Geometric margin — Definition 7.3
+	const geometricMarginDef = '\\bar{m}_i = \\frac{Y_i F(X_i)}{\\sum_{t=1}^{T} |\\alpha_t|}';
+	const alphaSumDenom = '\\sum_{t=1}^{T} |\\alpha_t|';
+	const alpha_tSym = '\\alpha_t';
+
+	// Exercise 7.1 — margin computation helpers
+	const F_x_i = 'F(x_i)';
+	const m_i_formula = 'm_i = Y_i \\cdot F(x_i)';
+	const marginLt0 = 'm_i < 0';
+	const abs_m_i = '|m_i|';
+	const alpha_1_val = '\\alpha_1 = 0.6';
+	const alpha_2_val = '\\alpha_2 = 0.4';
+	const alpha_3_val = '\\alpha_3 = 0.8';
+	const Y_i_eq_plus1 = 'Y_i = +1';
+	const plusOne = '+1';
+	const minusOne = '-1';
+
+	// Gradient Boosting — Section 5
+	const gbInit =
+		'F_0(x) = \\underset{\\gamma}{\\arg\\min}\\; \\sum_{i=1}^{n} L\\bigl(Y_i, \\gamma\\bigr)';
+	const pseudoResiduals =
+		'r_{it} = -\\left[\\frac{\\partial L(Y_i, F(x_i))}{\\partial F(x_i)}\\right]_{F = F_{t-1}}';
+	const r_it = 'r_{it}';
+	const squaredLossResidual = 'r_i = Y_i - F(X_i)';
+	const squaredLossDef = 'L(y, f) = \\frac{1}{2}(y - f)^2';
+	const gammaOptimization =
+		'\\gamma_t = \\underset{\\gamma}{\\arg\\min}\\; \\sum_{i=1}^{n} L\\bigl(Y_i, F_{t-1}(X_i) + \\gamma h_t(X_i)\\bigr)';
+	const gbUpdate = 'F_t(x) = F_{t-1}(x) + \\eta \\; \\gamma_t \\; h_t(x)';
+	const etaSymbol = '\\eta';
+	const gbFinalPrediction = 'F_T(x)';
+
+	// Inline references — Gradient Boosting section
+	const F_x = 'F(x)';
+	const thetaSym = '\\theta';
+	const gdUpdateBlock =
+		'\\theta^{(t)} = \\theta^{(t-1)} - \\eta \\nabla_{\\theta} J(\\theta^{(t-1)})';
+	const gbGradBlock = 'F_t(x) = F_{t-1}(x) - \\eta \\; h_t(x)';
+	const thetaInRd = '\\theta \\in \\mathbb{R}^d';
+	const FfuncSpace = 'F : \\mathcal{X} \\to \\mathbb{R}';
+
+	// Section 6 — Comparison
+	const etaRange = '\\eta \\in [0.01, 0.3]';
 </script>
 
 <svelte:head>
-	<title>{meta?.title ?? 'Intervalles de prédiction'} — Fondations de l'Apprentissage Statistique</title>
+	<title>{meta?.title} — Fondations de l'Apprentissage Statistique</title>
 </svelte:head>
 
 <PageTemplate
-	title={meta?.title ?? 'Intervalles de prédiction'}
-	subtitle="Construire des intervalles fiables : largeur constante, adaptation locale et régression quantile conforme"
+	title={meta?.title ?? 'Boosting (AdaBoost, Gradient Boosting)'}
+	subtitle="Apprentissage séquentiel : AdaBoost, pertes exponentielles, marges et gradient boosting"
 	prev={prevMeta}
 	next={nextMeta}
 >
-	<!-- ═══════════ Introduction ═══════════ -->
+	<!-- SECTION 1 : INTRODUCTION AU BOOSTING -->
 	<TheorySection>
 		<TableOfContents entries={tocEntries} />
+		<h2 id="introduction-boosting">Introduction au Boosting</h2>
 		<p>
-			La prédiction conformelle en classification construit des ensembles de classes à partir de
-			<KatexInline formula={String.raw`\eta_c(x) = \mathbb{P}(Y = c \mid X = x)`} />. En
-			<strong>régression</strong>, <KatexInline formula="Y" /> est continue : il n'y a plus de classes
-			à énumérer, mais l'objet théorique sous-jacent joue exactement le même rôle. C'est la
-			<strong>densité conditionnelle</strong>
-			<KatexInline formula={F_DENSITY} /> — l'analogue continu de <KatexInline
-				formula="\eta_c(x)"
-			/>. Un <strong>intervalle de prédiction</strong>
-			<KatexInline formula={F_OBJECTIVE} /> remplace l'ensemble de classes, avec la même exigence : contenir
-			la valeur vraie de <KatexInline formula="Y" /> avec une garantie probabiliste.
+			Les méthodes de <strong>boosting</strong> constituent une famille d'algorithmes ensemblistes
+			séquentiels. Contrairement au bagging, qui entraîne des modèles <em>en parallèle</em>, le
+			boosting construit un ensemble de manière <em>séquentielle</em> : chaque nouveau modèle s'efforce
+			de corriger les erreurs commises par les précédents.
 		</p>
 
+		<h3>Séquentiel vs Parallèle</h3>
 		<p>
-			L'objectif est double : garantir que l'intervalle couvre la valeur réelle avec une probabilité
-			suffisante, tout en le rendant le plus <em>étroit possible</em>. Ce compromis entre couverture
-			et précision définit toute la richesse de la régression conformelle.
+			Cette distinction fondamentale entraîne des différences majeures entre les deux approches :
 		</p>
+		<ol>
+			<li>
+				<strong>Bagging</strong> — Les modèles sont entraînés indépendamment. L'agrégation réduit la
+				<strong>variance</strong>. Chaque modèle utilise un échantillon bootstrap du jeu
+				d'entraînement.
+			</li>
+			<li>
+				<strong>Boosting</strong> — Les modèles s'appuient les uns sur les autres. L'itération
+				réduit le
+				<strong>biais</strong>. Chaque modèle « se concentre » sur les exemples que les précédents
+				ont mal classés.
+			</li>
+		</ol>
 
-		<Callout type="definition" title="Objectif en régression conformelle">
-			Construire <KatexInline formula={F_OBJECTIVE} /> tel que :
-			<KatexBlock formula={F_COVERAGE} />
-			L'intervalle doit être le plus <em>petit possible</em> tout en respectant la contrainte de couverture.
-		</Callout>
-	</TheorySection>
-
-	<!-- ═══════════ Intervalles de largeur constante ═══════════ -->
-	<TheorySection>
-		<h2 id="intervalles-constants">Intervalles de largeur constante</h2>
-
-		<p>
-			L'approche la plus simple utilise un score de conformité basé sur l'<strong
-				>erreur absolue</strong
-			>
-			entre la prédiction du modèle et la valeur observée. L'idée est intuitive : plus une observation
-			s'est éloignée de la prédiction, moins elle est « conforme » au modèle.
-		</p>
-
-		<Callout type="definition" title="Score de conformité constant">
-			Le score de conformité est la valeur absolue du résidu :
-			<KatexBlock formula={F_SCORE_CONSTANT} />
-			L'ensemble de prédiction devient alors un intervalle symétrique centré sur la prédiction :
-			<KatexBlock formula={F_INTERVAL} />
-			où <KatexInline formula="q" /> est le quantile d'ordre approprié des résidus absolus sur l'ensemble
-			de calibration.
-		</Callout>
-
-		<p>
-			Ce score produit des intervalles de <strong>largeur constante</strong> — indépendante du point de
-			prédiction. En d'autres termes, chaque prédiction bénéficie de la même « marge d'erreur », calibrée
-			davantage par les pires cas observés sur l'ensemble de calibration. Cette simplicité est à la fois
-			un avantage (robustesse, facilité de mise en œuvre) et une limitation (aucune adaptation locale).
-		</p>
-
-		<Callout type="intuition" title="Quand les intervalles constants suffisent-ils ?">
-			Les intervalles de largeur constante sont appropriés lorsque la variance des erreurs est
-			<strong>homoscédastique</strong> — c'est-à-dire que la dispersion des résidus est uniforme dans
-			tout l'espace d'entrée. C'est souvent le cas pour des données bien prétraitées ou des modèles linéaires
-			sur des variables gaussiennes.
-		</Callout>
-	</TheorySection>
-
-	<!-- ═══════════ Démo 11.1 — Visualisation des intervalles ═══════════ -->
-	<InteractiveSection
-		number="11.1"
-		title="Visualisation des intervalles"
-		onInteract={tracker.trackInteraction}
-	>
-		<PredictionIntervalVisualizer />
-	</InteractiveSection>
-
-	<!-- ═══════════ Implémentation des intervalles constants ═══════════ -->
-	<TheorySection>
-		<h2 id="impl-constants">Implémentation des intervalles constants</h2>
-
-		<p>
-			L'algorithme se décompose en trois étapes nettes, directement calquées sur le cadre général de
-			la prédiction conformelle.
-		</p>
-
-		<ExpertPanel title="Algorithme pas à pas">
+		<Callout type="intuition" title="Différence philosophique">
 			<p>
-				<strong>Étape 1 — Entraînement :</strong> Apprendre un régresseur
-				<KatexInline formula={F_HAT_F} /> sur les données d'entraînement.
-			</p>
-			<p>
-				<strong>Étape 2 — Calibration :</strong> Sur l'ensemble de calibration, calculer les résidus
-				absolus <KatexInline formula={F_SCORE_CONSTANT} /> pour chaque observation, puis extraire le quantile
-				<KatexInline formula="q" /> correspondant au niveau de confiance <KatexInline
-					formula="1 - \alpha"
-				/>.
-			</p>
-			<p>
-				<strong>Étape 3 — Prédiction :</strong> Pour chaque nouvelle observation
-				<KatexInline formula="x" />, retourner l'intervalle
-				<KatexInline formula={F_INTERVAL} />.
-			</p>
-		</ExpertPanel>
-
-		<p>
-			En pratique, l'implémentation est très compacte. On calcule les résidus sur la calibration, on
-			en tire le quantile approprié (avec l'ajustement classique pour garantir la couverture en
-			échantillon fini), puis on applique ce seuil uniformément aux prédictions de test. La largeur
-			d'intervalle est identique pour tous les points — d'où le nom « largeur constante ».
-		</p>
-	</TheorySection>
-
-	<!-- ═══════════ Le régime oracle : régions de densité maximale ═══════════ -->
-	<TheorySection>
-		<h2 id="regime-oracle">Le régime oracle : régions de densité maximale</h2>
-
-		<p>
-			Comme en classification, il est instructif de se demander ce que ferait la méthode si l'on
-			connaissait la vraie loi conditionnelle de <KatexInline formula="Y" /> plutôt qu'un modèle appris.
-			Parmi <em>tous</em> les ensembles <KatexInline formula={String.raw`\mathcal{C}(x)`} /> de masse
-			<KatexInline formula="1-\alpha" />, quel est le plus étroit ?
-		</p>
-
-		<p>
-			Si <KatexInline formula={F_DENSITY} /> est unimodale, la réponse est géométriquement intuitive :
-			pour une masse de probabilité fixée, la région la plus compacte est celle qui empile la densité
-			la plus haute — une <strong>région de densité maximale</strong> (« highest density region »),
-			c'est-à-dire un <strong>ensemble de niveau</strong> de la densité :
-		</p>
-
-		<KatexBlock formula={F_ORACLE_HDR} />
-
-		<p>
-			où le seuil <KatexInline formula="t(x)" /> est choisi pour que la masse capturée soit exactement
-			<KatexInline formula="1-\alpha" /> :
-		</p>
-
-		<KatexBlock formula={F_ORACLE_HDR_MASS} />
-
-		<Callout type="insight" title="Le même principe, trois fois">
-			C'est exactement la structure rencontrée deux fois déjà : en classification à K fixé (leçon
-			1), l'ensemble optimal était le niveau supérieur de <KatexInline formula="\eta(x)" /> ; en classification
-			conforme (leçon 2), l'ensemble oracle à couverture fixée était de nouveau un niveau de <KatexInline
-				formula="\eta(x)"
-			/>. Ici, avec <KatexInline formula="Y" /> continue, c'est un niveau de <KatexInline
-				formula={F_DENSITY}
-			/>. La prédiction d'ensembles, en classification comme en régression, revient toujours à
-			découper l'espace des sorties par un seuil sur une fonction de vraisemblance conditionnelle.
-		</Callout>
-
-		<p>
-			Dans le cas particulier — fréquent en pratique — où <KatexInline formula={F_DENSITY} /> est symétrique
-			et unimodale, la région de densité maximale coïncide avec l'intervalle centré sur les quantiles
-			conditionnels symétriques. En notant la fonction quantile conditionnelle
-		</p>
-
-		<KatexBlock formula={F_QUANTILE_FUNC} />
-
-		<p>l'intervalle oracle devient simplement :</p>
-
-		<KatexBlock formula={F_SYMMETRIC_ORACLE} />
-
-		<Callout type="warning" title="Ce que l'oracle révèle sur l'intervalle constant">
-			L'intervalle constant de la section précédente,
-			<KatexInline formula={F_INTERVAL} />, n'est une bonne approximation de
-			<KatexInline formula={String.raw`{\mathcal{C}^*(x)`} /> que si la <em>largeur</em> de la
-			région oracle,
-			<KatexInline
-				formula={String.raw`Q_{Y\mid X}(1-\alpha/2\mid x) - Q_{Y\mid X}(\alpha/2\mid x)`}
-			/>, ne dépend pas de <KatexInline formula="x" /> — précisément la condition d'homoscédasticité évoquée
-			plus haut. Dès que cette largeur varie avec <KatexInline formula="x" />, l'intervalle constant
-			est nécessairement trop large à certains endroits et trop étroit à d'autres : il ne peut pas
-			suivre un oracle dont la forme change d'un point à l'autre.
-		</Callout>
-	</TheorySection>
-
-	<!-- ═══════════ Intervalles adaptatifs ═══════════ -->
-	<TheorySection>
-		<h2 id="intervalles-adaptatifs">Intervalles adaptatifs</h2>
-
-		<p>
-			Les intervalles constants souffrent d'un défaut majeur : ils ne tiennent aucun compte de l'<em
-				>incertitude locale</em
-			> du modèle. Or, dans la plupart des situations réelles, certaines régions de l'espace d'entrée
-			sont naturellement plus difficiles à prédire que d'autres. Un intervalle uniformément large gaspille
-			de l'information dans les zones faciles, et reste insuffisant dans les zones difficiles.
-		</p>
-
-		<p>
-			Les <strong>intervalles adaptatifs</strong> résolvent ce problème en normalisant l'erreur pour chaque
-			point par une estimation de son incertitude locale :
-		</p>
-
-		<Callout type="definition" title="Score de conformité adaptatif">
-			Le score est normalisé par l'incertitude locale :
-			<KatexBlock formula={F_SCORE_ADAPTIVE} />
-			où <KatexInline formula={F_SIGMA} /> est une estimation de l'incertitude locale et
-			<KatexInline formula={F_EPSILON} /> évite la division par zéro.
-		</Callout>
-
-		<p>
-			Le principe est simple : si le modèle prédit avec précision un point (faible incertitude
-			locale), une erreur modérée sera fortement pénalisée et l'intervalle sera étroit. Si le modèle
-			est incertain (forte variance locale), la même erreur sera considérée comme attendue et
-			l'intervalle s'élargira. L'avantage est clair : les intervalles sont
-			<strong>plus étroits dans les régions de forte confiance</strong> et
-			<strong>plus larges dans les régions incertaines</strong>.
-		</p>
-
-		<Callout type="insight" title="Hétéroscédasticité">
-			Lorsque la variance des résidus n'est pas constante — on dit que les données sont
-			<strong>hétéroscédastiques</strong> — les intervalles adaptatifs sont nettement plus efficaces que
-			les intervalles constants. Ils s'adaptent à la structure locale des erreurs au lieu d'appliquer
-			une marge uniforme.
-		</Callout>
-	</TheorySection>
-
-	<!-- ═══════════ Démo 11.2 — Comparaison constant vs adaptatif ═══════════ -->
-	<InteractiveSection
-		number="11.2"
-		title="Comparaison constant vs adaptatif"
-		onInteract={tracker.trackInteraction}
-	>
-		<AdaptiveIntervalDemo />
-	</InteractiveSection>
-
-	<!-- ═══════════ Estimation de l'incertitude locale ═══════════ -->
-	<TheorySection>
-		<h2 id="incertitude-locale">Estimation de l'incertitude locale</h2>
-
-		<p>
-			L'utilisation du score adaptatif pose la question pratique : comment estimer
-			<KatexInline formula={F_SIGMA} /> de manière fiable ? Plusieurs approches sont couramment employées,
-			chacune avec ses propres compromis en termes de coût computationnel et de précision.
-		</p>
-
-		<ExpertPanel title="Méthodes d'estimation de σ(x)">
-			<p>
-				<strong>1. Bootstrap :</strong> Entraîner le modèle sur plusieurs échantillons bootstrap (rechantillonnage
-				avec remise) et calculer l'écart-type des prédictions pour chaque point. Cette méthode capture
-				directement la variabilité induite par les fluctuations de l'ensemble d'entraînement.
-			</p>
-			<p>
-				<strong>2. Bagging :</strong> Variante du bootstrap où l'on moyenne les prédictions d'un ensemble
-				de modèles. La variance des prédictions individuelles sert d'estimateur de l'incertitude.
-			</p>
-			<p>
-				<strong>3. Régression quantile :</strong> Entraînement séparé sur les quantiles supérieurs et
-				inférieurs (p. ex. 84e et 16e percentiles). La différence entre ces quantiles fournit une estimation
-				de la dispersion locale.
-			</p>
-			<p>
-				<strong>4. Réseaux bayésiens :</strong> Dans les modèles probabilistes, la variance a posteriori
-				des prédictions offre une estimation directe et cohérente de l'incertitude. Mais le coût computationnel
-				est généralement plus élevé.
-			</p>
-		</ExpertPanel>
-
-		<p>
-			Le <strong>bootstrap</strong> est probablement l'approche la plus répandue : elle est non paramétrique,
-			facile à mettre en œuvre, et compatible avec n'importe quel algorithme d'apprentissage. Le principe
-			est d'observer comment les prédictions varient quand on change légèrement l'ensemble d'entraînement.
-		</p>
-	</TheorySection>
-
-	<!-- ═══════════ Démo 11.3 — Bootstrap ═══════════ -->
-	<InteractiveSection
-		number="11.3"
-		title="Incertitude par Bootstrap"
-		onInteract={tracker.trackInteraction}
-	>
-		<BootstrapUncertainty />
-	</InteractiveSection>
-
-	<!-- ═══════════ Régression quantile conforme (CQR) ═══════════ -->
-	<TheorySection>
-		<h2 id="cqr">Régression quantile conforme (CQR)</h2>
-
-		<p>
-			Le score adaptatif <KatexInline formula={F_SCORE_ADAPTIVE} /> approxime l'adaptation à l'hétéroscédasticité
-			en passant par une estimation séparée de <KatexInline formula={F_SIGMA} />. Une approche plus
-			directe consiste à estimer la forme de l'intervalle oracle
-			<KatexInline formula={F_SYMMETRIC_ORACLE} /> elle-même, via une
-			<strong>régression quantile</strong>, puis à corriger cette estimation par calibration
-			conforme. C'est le principe de la
-			<strong>régression quantile conforme</strong> (CQR).
-		</p>
-
-		<ExpertPanel title="Algorithme CQR">
-			<p>
-				<strong>Étape 1 — Régression quantile :</strong> Apprendre deux fonctions
-				<KatexInline formula={F_QLO_QHI} />, estimant respectivement les quantiles conditionnels
-				<KatexInline formula="\alpha/2" /> et <KatexInline formula="1-\alpha/2" /> de
-				<KatexInline formula="Y" /> sachant <KatexInline formula="X" /> (p. ex. par régression quantile
-				ou forêts quantiles).
-			</p>
-			<p>
-				<strong>Étape 2 — Score de conformité :</strong> Sur l'ensemble de calibration, calculer le score
-				signé de dépassement :
-			</p>
-			<KatexBlock formula={F_CQR_SCORE} />
-			<p>
-				Ce score est positif si <KatexInline formula="y" /> tombe hors de l'intervalle estimé
-				<KatexInline formula={String.raw`[\hat{q}_{lo}(x), \hat{q}_{hi}(x)]`} /> (il mesure alors le dépassement),
-				et négatif s'il tombe à l'intérieur (il mesure la marge restante).
-			</p>
-			<p>
-				<strong>Étape 3 — Calibration et prédiction :</strong> Calculer le quantile
-				<KatexInline formula="Q" /> des scores de calibration au niveau
-				<KatexInline formula={String.raw`\lceil (n+1)(1-\alpha) \rceil`} />, puis retourner :
-			</p>
-			<KatexBlock formula={F_CQR_INTERVAL} />
-		</ExpertPanel>
-
-		<Callout type="insight" title="Pourquoi corriger une régression quantile déjà entraînée ?">
-			Les quantiles <KatexInline formula={F_QLO_QHI} /> estimés à l'étape 1 sont eux-mêmes des approximations
-			: rien ne garantit, en échantillon fini, qu'ils couvrent exactement
-			<KatexInline formula="1-\alpha" /> des observations. L'étape 2 mesure précisément cette erreur de
-			calibration sur des données indépendantes, et l'étape 3 la corrige par un décalage uniforme
-			<KatexInline formula="Q" />. Le résultat hérite de la <strong>forme adaptative</strong> de la
-			régression quantile (l'intervalle suit l'hétéroscédasticité) et de la
-			<strong>garantie exacte</strong> de la prédiction conforme — quelle que soit la qualité de
-			<KatexInline formula={F_QLO_QHI} />, exactement comme la validité de la leçon précédente ne
-			dépendait pas de la qualité du classificateur sous-jacent.
-		</Callout>
-	</TheorySection>
-
-	<!-- ═══════════ Évaluation des intervalles ═══════════ -->
-	<TheorySection>
-		<h2 id="evaluation-intervalles">Évaluation des intervalles de prédiction</h2>
-
-		<p>
-			La validation d'une méthode d'intervalles de prédiction repose sur plusieurs métriques
-			complémentaires. Aucune mesure seule ne suffit : on doit vérifier à la fois que la garantie de
-			couverture est respectée et que les intervalles ne sont pas artificiellement larges.
-		</p>
-
-		<Callout type="definition" title="Métriques d'évaluation">
-			<p>
-				<strong>Taux de couverture empirique :</strong> Fraction d'observations de test dont la
-				valeur vraie est incluse dans l'intervalle de prédiction :
-				<KatexBlock formula={F_COVERAGE_RATE} />
-			</p>
-			<p>
-				<strong>Largeur moyenne :</strong> Moyenne des largeurs d'intervalle sur l'ensemble de test
-				:
-				<KatexBlock formula={F_AVG_WIDTH} />
-			</p>
-			<p>
-				<strong>Efficacité conditionnelle :</strong> Vérifier que la couverture est homogène à
-				travers les différentes régions de l'espace d'entrée, et ne dépend pas excessivement des
-				valeurs de <KatexInline formula="X" />.
+				Tandis que le bagging repose sur la <strong>distribution du risque</strong> (diversifier les
+				erreurs), le boosting repose sur l'<strong>accumulation progressive de savoir-faire</strong
+				>. Les apprenants faibles deviennent, par itération, un classifieur puissant.
 			</p>
 		</Callout>
 
+		<h3>Les apprenants faibles</h3>
 		<p>
-			Un bon système d'intervalles doit atteindre un taux de couverture proche (ou supérieur) de
-			<KatexInline formula="1 - \alpha" /> tout en minimisant la largeur moyenne. L'efficacité conditionnelle
-			est l'indicateur le plus subtil : si les intervalles couvrent bien globalement mais échouent systématiquement
-			dans certaines régions, la méthode est jugée inégale — c'est exactement ce que la couverture
-			<em>marginale</em> garantie par le théorème de la leçon précédente ne peut pas détecter.
+			L'idée centrale du boosting est qu'il suffit d'<strong>apprenants faibles</strong> — des
+			modèles légèrement meilleurs que le hasard (taux d'erreur strictement inférieur à 50 % pour la
+			classification binaire). En les combinant de manière intelligente, on obtient un
+			<em>apprenant fort</em>
+			dont l'erreur d'apprentissage peut être rendue arbitrairement petite. Ce résultat contre-intuitif
+			a été rigoureusement démontré par Freund et Schapire en 1995 avec la naissance d'<strong
+				>AdaBoost</strong
+			>.
 		</p>
 
-		<Callout type="warning" title="Exercice d'application">
-			<p>
-				Comparez les intervalles constants et adaptatifs (ou CQR) sur un jeu de données
-				<strong>hétéroscédastique</strong> :
-			</p>
-			<ol>
+		<Callout type="summary" title="Points clés">
+			<ul>
+				<li><strong>Séquentionnel</strong> : chaque itération dépend des précédentes</li>
 				<li>
-					Construisez les deux types d'intervalles et vérifiez empiriquement la garantie de
-					couverture pour différents niveaux <KatexInline formula="\alpha" />
+					<strong>Réduction de biais</strong> : on affine progressivement la frontière de décision
 				</li>
-				<li>Analysez l'efficacité (largeur d'intervalle) des deux approches</li>
 				<li>
-					Évaluez l'efficacité conditionnelle : la couverture est-elle uniforme dans toutes les
-					régions ?
+					<strong>Apprenants faibles</strong> : stumps (arbres de profondeur 1)...
 				</li>
-			</ol>
+			</ul>
 		</Callout>
 	</TheorySection>
 
-	<!-- ═══════════ Démo 11.4 — Dashboard qualité ═══════════ -->
-	<InteractiveSection
-		number="11.4"
-		title="Dashboard de qualité des intervalles"
-		onInteract={tracker.trackInteraction}
-	>
-		<IntervalQualityDashboard />
-	</InteractiveSection>
-
-	<!-- ═══════════ Synthèse ═══════════ -->
+	<!-- SECTION 2 : L'ALGORITHME ADA BOOST -->
 	<TheorySection>
-		<h2 id="synthese">Synthèse</h2>
-
+		<h2 id="adaboost">L'algorithme AdaBoost</h2>
 		<p>
-			La régression conformelle étend le cadre de la prédiction d'ensembles au cas continu, en
-			remplaçant la probabilité conditionnelle discrète <KatexInline formula="\eta_c(x)" /> par la densité
-			conditionnelle <KatexInline formula={F_DENSITY} />. L'oracle reste, dans les deux cas, un
-			ensemble de niveau ; seule la nature de l'objet niveau change. Le passage de classes discrètes
-			à des <strong>intervalles de prédiction</strong> introduit des choix de conception importants :
+			AdaBoost (Adaptive Boosting) est le premier algorithme de boosting avec des garanties
+			théoriques. Il fonctionne par répondération adaptative des exemples : à chaque itération, les
+			points mal classés voient leur poids augmenter, forçant l'apprenant faible suivant à s'en
+			préoccuper davantage.
 		</p>
 
+		<DefinitionBlock number="7.1" title="AdaBoost (Adaptive Boosting)">
+			<p>
+				Soit un jeu de données étiqueté <KatexInline formula={dataLabelled} /> avec <KatexInline
+					formula={yInLabels}
+				/>. L'algorithme produit <KatexInline formula={TVar} /> classifieurs faibles pondérés :
+			</p>
+
+			<div class="algo-block">
+				<h3>Algorithme AdaBoost</h3>
+				<p>
+					<strong>Initialisation :</strong> Poids uniformes <KatexInline formula={initWeights} />
+				</p>
+				<ol>
+					<li>Pour chaque itération <KatexInline formula={tRange} /> :</li>
+					<ul>
+						<li>
+							a. Entraîner un classifieur faible <KatexInline formula={h_t} /> sur la distribution de
+							poids courante
+							<KatexInline formula={wAt_t} />
+						</li>
+						<li>b. Calculer l'erreur pondérée :<br /><KatexBlock formula={weightedError} /></li>
+						<li>
+							c. Si <KatexInline formula={epsilon_ge_half} /> : arrêter (le classifieur faible ne
+							fait pas mieux que le hasard).
+						</li>
+						<li>d. Calculer le poids du classifieur :<br /><KatexBlock formula={alphaT} /></li>
+						<li>
+							e. Mettre à jour les poids des exemples :<br /><KatexBlock formula={weightUpdate} />
+						</li>
+						<li>
+							où <KatexInline formula={normalizationFactor} /> est le facteur de normalisation.
+						</li>
+					</ul>
+					<li>
+						<strong>Sortie :</strong> Classifieur final :<br /><KatexBlock
+							formula={finalPrediction}
+						/>
+					</li>
+				</ol>
+			</div>
+		</DefinitionBlock>
+
+		<h3>Interprétation des poids αₜ</h3>
+		<p>
+			Le coefficient <KatexInline formula={alphaT} /> encode la fiabilité de chaque classifieur faible
+			:
+		</p>
 		<ul>
 			<li>
-				<strong>Intervalles constants</strong> — simples et robustes, optimaux seulement sous homoscédasticité,
-				car ils ne peuvent approximer une région de densité maximale de largeur variable
+				Si <KatexInline formula={epsilon_t_to_0} />, alors <KatexInline formula={alpha_t_to_inf} /> —
+				le modèle est très fiable.
 			</li>
 			<li>
-				<strong>Intervalles adaptatifs</strong> — ajustent leur largeur à l'incertitude locale via un
-				score normalisé, efficaces pour les données hétéroscédastiques
+				Si <KatexInline formula={epsilon_eq_half} />, alors <KatexInline formula={alpha_eq_zero} /> —
+				le modèle n'apporte rien (hasard).
 			</li>
 			<li>
-				<strong>CQR</strong> — estime directement la forme de l'intervalle oracle par régression quantile,
-				puis corrige la couverture par calibration conforme
-			</li>
-			<li>
-				<strong>Estimation de l'incertitude</strong> — bootstrap, bagging, régression quantile ou
-				méthodes bayésiennes pour estimer <KatexInline formula={F_SIGMA} />
+				Si <KatexInline formula={epsilon_gt_half} />, alors <KatexInline formula={alpha_lt_zero} /> —
+				le modèle est pire que le hasard. Dans l'algorithme des notes, on s'arrête dès que
+				<KatexInline formula={epsilon_ge_half} /> ; certaines variantes ne s'arrêtent pas et
+				inversent le classifieur (<KatexInline formula={alpha_lt_zero} />) — extension au-delà du
+				cours.
 			</li>
 		</ul>
 
+		<h3>Mise à jour adaptative des poids</h3>
 		<p>
-			L'évaluation rigoureuse combine le taux de couverture (respect de la garantie), la largeur
-			moyenne (précision) et l'efficacité conditionnelle (équité). Ensemble, ces indicateurs
-			permettent de choisir entre les approches en fonction de la structure des données et des
-			exigences applicatives. La garantie de couverture demeure <strong
-				>exacte en échantillon fini</strong
-			> sous l'hypothèse d'échangeabilité, indépendamment du modèle sous-jacent — que ce modèle soit un
-			simple régresseur ponctuel ou une paire de régressions quantiles comme en CQR.
+			L'exemple <KatexInline formula={iSym} /> reçoit un facteur multiplicatif <KatexInline
+				formula={expAlphaFactor}
+			/>. Si la prédiction est correcte (<KatexInline formula={yEqHtX} />), ce facteur vaut <KatexInline
+				formula={expMinusAlphaLt1}
+			/> — le poids diminue. Si elle est incorrecte, il vaut <KatexInline
+				formula={expPlusAlphaGt1}
+			/> — le poids augmente. C'est ce mécanisme de rétroaction qui rend l'algorithme
+			<em>adaptatif</em>.
 		</p>
 
+		<TheoremBlock number="7.1" title="Borne supérieure sur l'erreur d'entraînement">
+			<p>
+				L'erreur d'entraînement du classifieur final AdaBoost est bornée par le produit des facteurs
+				de normalisation :
+			</p>
+			<KatexBlock formula={trainingErrorBound} />
+			<p>
+				D'où une borne exponentielle alternative : chaque exemple contribue au plus de <KatexInline
+					formula={expLossBound}
+				/>, et la moyenne sur tous les exemples décroît si les facteurs <KatexInline
+					formula={Z_t}
+				/> sont inférieurs à 1.
+			</p>
+			<p>
+				Aussi longtemps que chaque classifieur faible est <strong>meilleur que le hasard</strong>
+				(<KatexInline formula={epsilon_lt_half} />, on a <KatexInline formula={Z_lt_1} />, et
+				l'erreur d'entraînement décroît exponentiellement avec le nombre d'itérations.
+			</p>
+		</TheoremBlock>
+
+		<Callout type="intuition" title="Pourquoi AdaBoost fonctionne-t-il ?">
+			<p>
+				L'intuition est la suivante : à chaque étape, l'algorithme se concentre davantage sur les
+				exemples « difficiles » — ceux que les classifieurs précédents ont mal traités. Les poids <KatexInline
+					formula={w_i}
+				/> augmentent pour ces exemples, forçant les nouveaux apprenants à s'y ajuster. Le résultat est
+				une frontière de décision qui se complexifie progressivement là où c'est nécessaire.
+			</p>
+		</Callout>
+
 		<InteractiveSection
-			number="11.5"
-			title="Quiz — Intervalles de prédiction et régression conformelle"
+			number="7.1"
+			title="AdaBoost pas à pas"
+			onInteract={tracker.trackInteraction}
+		>
+			<AdaBoostStepByStep />
+		</InteractiveSection>
+	</TheorySection>
+
+	<!-- SECTION 3 : PERTE EXPONENTIELLE ET MARGINS -->
+	<TheorySection>
+		<h2 id="perte-exponentielle">Perte exponentielle et margins</h2>
+		<p>
+			Une interprétation d'AdaBoost est qu'il minimise la <strong>perte exponentielle</strong>. Ce
+			n'est pas un choix arbitraire : cette perte agit comme une surrogate de la perte 0-1 (qui
+			compte les erreurs), mais offre un critère différentiable et convexe.
+		</p>
+
+		<h3>Perte exponentielle</h3>
+		<p>Pour chaque observation, la perte s'écrit :</p>
+		<KatexBlock formula={exponentialLoss} />
+		<p>
+			L'exposant <KatexInline formula={negMarginExp} /> est l'<strong>opposé de la marge</strong>.
+			Plus la marge <KatexInline formula={yfx} /> est grande et positive, plus la perte décroît rapidement
+			vers 0. À l'inverse, un classifieur qui se trompe fortement subit une pénalité exponentielle.
+		</p>
+
+		<h3>Dérivée de la perte</h3>
+		<p>La dérivée par rapport à <KatexInline formula={fSym} /> vaut :</p>
+		<KatexBlock formula={derivExpLoss} />
+		<p>
+			La magnitude du gradient est proportionnelle à <KatexInline formula={expMinusyf} /> — les exemples
+			mal classés génèrent un signal plus fort, exactement comme le font les poids dans AdaBoost. C'est
+			ce lien formel entre la répondération et la descente de gradient qui justifie l'algorithme.
+		</p>
+
+		<DefinitionBlock number="7.2" title="Marge fonctionnelle">
+			<p>Pour chaque observation <KatexInline formula={iSym} />, la marge fonctionnelle est :</p>
+			<KatexBlock formula={functionalMarginDef} />
+			<ul>
+				<li>
+					<KatexInline formula={marginPositive} /> ⟹ classification correcte (plus <KatexInline
+						formula={m_i}
+					/> est grand, plus le classifieur est « confiant »)
+				</li>
+				<li><KatexInline formula={marginNegative} /> ⟹ erreur de classification</li>
+				<li><KatexInline formula={marginZero} /> ⟹ la frontière passe exactement par ce point</li>
+			</ul>
+		</DefinitionBlock>
+
+		<Callout type="insight" title="Pourquoi la perte exponentielle ?">
+			<p>
+				La vraie perte à minimiser est la <strong>perte 0-1</strong> : <KatexInline
+					formula={loss01Indicator}
+				/>. Mais cette fonction est discontinue et non convexe — impossible à optimiser directement.
+				La perte exponentielle est une approximation supérieure lisse qui pénalise sévèrement les
+				erreurs tout en restant différentiable. Elle n'est pas la seule possibilité, mais c'est
+				celle qui émerge naturellement du cadre d'AdaBoost.
+			</p>
+		</Callout>
+
+		<InteractiveSection
+			number="7.2"
+			title="Perte exponentielle"
+			onInteract={tracker.trackInteraction}
+		>
+			<ExponentialLossVisualizer />
+		</InteractiveSection>
+	</TheorySection>
+
+	<!-- SECTION 4 : DISTRIBUTION DES MARGINS ET GÉNÉRALISATION -->
+	<TheorySection>
+		<h2 id="distribution-margins">Distribution des <em>margins</em> et généralisation</h2>
+		<p>
+			Si l'erreur d'entraînement décroît exponentiellement avec AdaBoost, le risque de
+			surapprentissage est réel. La théorie des margins fournit une réponse : la généralisation
+			dépend non pas uniquement du nombre d'itérations mais de la <strong
+				>distribution des margins</strong
+			> dans l'espace des observations.
+		</p>
+
+		<TheoremBlock number="7.2" title="Borne de généralisation par les marges">
+			<p>
+				Soit <KatexInline formula={rhoGt0} /> un seuil de marge et
+				<KatexInline formula={N_rho_T} /> le nombre d'exemples d'entraînement dont la marge fonctionnelle
+				vérifie
+				<KatexInline formula={'y_i F(X_i) \\leq \\rho'} />. Alors, avec grande probabilité :
+			</p>
+
+			<KatexBlock formula={generalizationMarginBound} />
+
+			<p>
+				La borne dépend donc de la proportion d'exemples ayant une petite marge. Schapire et al.
+				(1998) montrent que le boosting améliore la généralisation en déplaçant progressivement la
+				distribution des marges vers des valeurs positives élevées, et pas seulement en réduisant
+				l'erreur d'entraînement.
+			</p>
+		</TheoremBlock>
+
+		<h3>Maximisation des <em>margins</em></h3>
+		<p>
+			Une observation empirique clé : après convergence de l'erreur d'entraînement (celle-ci atteint
+			0), AdaBoost continue à augmenter le minimum et la moyenne des margins. Ce phénomène, appelé <em
+				>margin maximization</em
+			>, rappelle celui du perceptron ou des SVM — la largeur de la séparation entre classes
+			détermine les performances en généralisation.
+		</p>
+
+		<DefinitionBlock number="7.3" title="Marge géométrique">
+			<p>
+				La marge géométrique normalise la marge fonctionnelle par le poids total des classifieurs :
+			</p>
+			<KatexBlock formula={geometricMarginDef} />
+			<p>
+				Dans ce cadre, <KatexInline formula={alphaSumDenom} /> joue le rôle de la norme du vecteur de
+				paramètres. La marge géométrique est analogue à celle des SVM : elle mesure la distance réelle
+				d'un point à la frontière de décision, indépendamment de l'échelle des poids <KatexInline
+					formula={alpha_tSym}
+				/>.
+			</p>
+		</DefinitionBlock>
+
+		<Callout type="summary" title="Pourquoi les margins comptent">
+			<ul>
+				<li>
+					Une grande marge minimale ⟹ meilleure généralisation, même avec erreur d'entraînement
+					nulle
+				</li>
+				<li>AdaBoost maximise naturellement la marge moyenne lors de la phase post-convergence</li>
+				<li>La borne dépend du nombre de « petites margins » — pas seulement de l'erreur brute</li>
+			</ul>
+		</Callout>
+
+		<InteractiveSection
+			number="7.3"
+			title="Histogramme des margins"
+			onInteract={tracker.trackInteraction}
+		>
+			<MarginDistribution />
+		</InteractiveSection>
+
+		<ExercisePanel number="7.1" title="Calcul de margins">
+			{#snippet solution()}
+				<p>
+					Pour chaque point, on calcule <KatexInline formula={F_x_i} /> comme somme pondérée des prédictions
+					des T classifieurs. La marge est alors simplement <KatexInline formula={m_i_formula} />.
+					Les points avec <KatexInline formula={marginLt0} /> sont ceux mal classés par l'ensemble ; plus
+					<KatexInline formula={abs_m_i} /> est grand, plus la prédiction est confiante.
+				</p>
+			{/snippet}
+			<p>
+				Soit un ensemble de 3 stumps avec <KatexInline formula={alpha_1_val} />, <KatexInline
+					formula={alpha_2_val}
+				/> et <KatexInline formula={alpha_3_val} />. Pour un exemple d'étiquette <KatexInline
+					formula={Y_i_eq_plus1}
+				/> dont les prédictions sont respectivement <KatexInline formula={plusOne} />, <KatexInline
+					formula={minusOne}
+				/> et <KatexInline formula={plusOne} />, calculez la marge fonctionnelle. Ce point est-il
+				correctement classé ?
+			</p>
+		</ExercisePanel>
+	</TheorySection>
+
+	<!-- SECTION 5 : GRADIENT BOOSTING -->
+	<TheorySection>
+		<h2 id="gradient-boosting">Gradient Boosting (Friedman, 2001)</h2>
+		<p>
+			Les travaux de Jerome Friedman généralisent le boosting au-delà d'AdaBoost et de la perte
+			exponentielle. Gradient Boosting consiste à voir le problème comme une <strong
+				>descente de gradient dans l'espace des fonctions</strong
+			>. Au lieu d'ajuster des paramètres, on ajuste progressivement une fonction <KatexInline
+				formula={F_x}
+			/> en suivant la direction du gradient négatif d'une perte quelconque.
+		</p>
+
+		<h3>Descente de gradient fonctionnelle</h3>
+		<p>
+			Rappelons que la descente de gradient classique itère sur un vecteur de paramètres <KatexInline
+				formula={thetaSym}
+			/> :
+		</p>
+		<KatexBlock formula={gdUpdateBlock} />
+		<p>
+			Dans le gradient boosting, on remplace <KatexInline formula={thetaSym} /> par une fonction <KatexInline
+				formula={F_x}
+			/> et le gradient analytique par des <strong>pseudo-résidus</strong> que l'on approxime avec des
+			apprenants faibles (généralement des arbres de décision) :
+		</p>
+		<KatexBlock formula={gbGradBlock} />
+		<p>
+			où <KatexInline formula={etaSymbol} /> est le taux d'apprentissage et <KatexInline
+				formula={h_t}
+			/> approxime le gradient de la fonction de perte.
+		</p>
+
+		<DefinitionBlock number="7.4" title="Algorithme Gradient Boosting">
+			<div class="algo-block">
+				<h3>Gradient Boosting Machine</h3>
+				<p>
+					<strong>Initialisation :</strong>
+					<KatexInline formula={gbInit} />
+				</p>
+				<ol>
+					<li>Pour chaque itération <KatexInline formula={tRange} /> :</li>
+					<ul>
+						<li>a. Calculer les pseudo-résidus :<br /><KatexBlock formula={pseudoResiduals} /></li>
+						<li>
+							b. Ajuster un apprenant faible <KatexInline formula={h_t} /> sur <KatexInline
+								formula={r_it}
+							/>
+						</li>
+						<li>c. Optimiser le pas :<br /><KatexBlock formula={gammaOptimization} /></li>
+						<li>d. Mettre à jour le modèle :<br /><KatexBlock formula={gbUpdate} /></li>
+					</ul>
+					<li><strong>Sortie :</strong> <KatexInline formula={gbFinalPrediction} /></li>
+				</ol>
+			</div>
+		</DefinitionBlock>
+
+		<h3>Cas concret : perte quadratique</h3>
+		<p>
+			Pour la régression avec <KatexInline formula={squaredLossDef} />, le pseudo-résidu se
+			simplifie en :
+		</p>
+		<KatexBlock formula={squaredLossResidual} />
+		<p>
+			C'est exactement le résidu classique. Chaque arbre de l'ensemble apprend donc à prédire ce que
+			le modèle actuel n'a pas encore capturé — d'où le nom <em>gradient</em> boosting : on « remonte
+			» vers la fonction cible en suivant la pente des erreurs.
+		</p>
+
+		<Callout type="intuition" title="Paramètres vs Fonctions">
+			<p>
+				Il y a une analogie directe entre descente de gradient ordinaire et boosting : là où on
+				itère sur un vecteur <KatexInline formula={thetaInRd} />, le boosting itère dans l'espace
+				fonctionnel <KatexInline formula={FfuncSpace} />. Les apprenants faibles jouent le rôle de
+				directions de descente, et le taux d'apprentissage <KatexInline formula={etaSymbol} /> contrôle
+				la taille du pas — exactement comme dans SGD. Cette perspective unifie boosting et optimisation
+				numérique.
+			</p>
+		</Callout>
+
+		<InteractiveSection
+			number="7.4"
+			title="Gradient Boosting pas à pas"
+			onInteract={tracker.trackInteraction}
+		>
+			<GradientBoostingDemo />
+		</InteractiveSection>
+	</TheorySection>
+
+	<!-- SECTION 6 : MÉTHODES MODERNES (XGBOOST, LIGHTGBM, CATBOOST) -->
+	<TheorySection>
+		<h2 id="methodes-modernes">Méthodes modernes : XGBoost, LightGBM et CatBoost</h2>
+
+		<h3>Limitations du Gradient Boosting classique</h3>
+		<ul>
+			<li><strong>Lenteur</strong> : construction séquentielle des arbres</li>
+			<li><strong>Mémoire</strong> : stockage de tous les arbres</li>
+			<li><strong>Overfitting</strong> : tendance au surajustement sans régularisation</li>
+		</ul>
+
+		<h3>XGBoost (eXtreme Gradient Boosting)</h3>
+		<p>XGBoost améliore le gradient boosting traditionnel par :</p>
+
+		<DefinitionBlock title="Innovations de XGBoost">
+			<ul>
+				<li><strong>Régularisation L1/L2</strong> sur les poids des feuilles</li>
+				<li><strong>Approximation d'ordre 2</strong> (utilisation de la hessienne)</li>
+				<li><strong>Gestion des valeurs manquantes</strong> native</li>
+				<li><strong>Parallélisation</strong> de la construction des arbres</li>
+				<li><strong>Pré-tri des features</strong> pour l'efficacité</li>
+			</ul>
+		</DefinitionBlock>
+
+		<h3>LightGBM et CatBoost</h3>
+		<ul>
+			<li>
+				<strong>LightGBM</strong> : croissance des arbres en largeur d'abord (<em>leaf-wise</em>) au
+				lieu de niveau par niveau
+			</li>
+			<li>
+				<strong>CatBoost</strong> : gestion native des variables catégorielles sans pré-traitement
+			</li>
+		</ul>
+
+		<h3>Hyperparamètres critiques</h3>
+		<table>
+			<thead>
+				<tr>
+					<th>Paramètre</th>
+					<th>Description</th>
+					<th>Valeurs typiques</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr>
+					<td><code>n_estimators</code></td>
+					<td>Nombre d'arbres</td>
+					<td>100-1000</td>
+				</tr>
+				<tr>
+					<td><code>learning_rate</code></td>
+					<td>Taux d'apprentissage</td>
+					<td>0.01-0.3</td>
+				</tr>
+				<tr>
+					<td><code>max_depth</code></td>
+					<td>Profondeur max des arbres</td>
+					<td>3-8</td>
+				</tr>
+				<tr>
+					<td><code>subsample</code></td>
+					<td>Fraction d'exemples par arbre</td>
+					<td>0.8-1.0</td>
+				</tr>
+				<tr>
+					<td><code>colsample_bytree</code></td>
+					<td>Fraction de features par arbre</td>
+					<td>0.8-1.0</td>
+				</tr>
+				<tr>
+					<td><code>reg_alpha</code></td>
+					<td>Régularisation L1</td>
+					<td>0-10</td>
+				</tr>
+				<tr>
+					<td><code>reg_lambda</code></td>
+					<td>Régularisation L2</td>
+					<td>1-10</td>
+				</tr>
+			</tbody>
+		</table>
+	</TheorySection>
+
+	<!-- SECTION 7 : COMPARAISON ET SYNTHÈSE -->
+	<TheorySection>
+		<h2 id="comparaison-synthese">Comparaison et synthèse</h2>
+		<p>
+			AdaBoost et le Gradient Boosting partagent la même philosophie séquentielle mais diffèrent sur
+			plusieurs points fondamentaux. Comprendre ces différences guide le choix du bon algorithme
+			pour chaque situation.
+		</p>
+
+		<h3>Points de divergence</h3>
+		<ul>
+			<li>
+				<strong>Mécanisme d'adaptation</strong> : AdaBoost répondère les exemples (poids <KatexInline
+					formula={w_i}
+				/>), tandis que le GBM ajuste des résidus. Le premier change la distribution de données, le
+				second change l'objectif à prédire.
+			</li>
+			<li>
+				<strong>Perte optimisée</strong> : AdaBoost minimise implicitement la perte exponentielle (fixe).
+				Le GBM accepte n'importe quelle perte différentiable — quadratique pour la régression, log-loss
+				pour la classification…
+			</li>
+			<li>
+				<strong>Robustesse au bruit</strong> : La pénalité exponentielle d'AdaBoost est très sévère
+				face aux outliers. Un point bruité voit son poids exploser et fausser les itérations
+				suivantes. Le GBM, avec un taux d'apprentissage faible (<KatexInline formula={etaSymbol} /> petit),
+				est plus robuste car chaque pas est limité.
+			</li>
+			<li>
+				<strong>Taux d'apprentissage</strong> : AdaBoost calcule automatiquement <KatexInline
+					formula={alpha_tSym}
+				/> à partir de l'erreur ; il n'y a pas de « learning rate » explicite. Le GBM utilise un <KatexInline
+					formula={etaSymbol}
+				/> fixe ou adaptatif qui contrôle directement la vitesse de convergence et le risque de surapprentissage.
+			</li>
+		</ul>
+
+		<ExercisePanel number="7.2" title="Quel boosting choisir ?">
+			{#snippet solution()}
+				<p>
+					Pour un jeu de données propre avec des classes bien séparées, AdaBoost est simple et
+					efficace. En présence de bruit ou d'outliers, le Gradient Boosting avec <KatexInline
+						formula={etaSymbol}
+					/> faible (par exemple 0.1) offre un contrôle plus fin. Pour la régression, seul le GBM s'applique
+					directement. Si on souhaite une perte personnalisée (quantile loss, Huber…), le cadre du GBM
+					est conçu pour cela.
+				</p>
+			{/snippet}
+			<p>
+				Situation A : classification binaire sur un jeu propre de 10 000 échantillons avec des
+				features textuelles.<br />
+				Situation B : régression sur des données financières bruyantes avec des valeurs aberrantes.<br
+				/>
+				Pour chaque cas, argumentez le choix entre AdaBoost et Gradient Boosting.
+			</p>
+		</ExercisePanel>
+
+		<Callout type="warning" title="Surapprentissage et régularisation">
+			<p>
+				Le boosting est sensible à la <strong>suroptimisation</strong>. Au-delà d'un certain nombre
+				d'itérations, le modèle commence à mémoriser le bruit. Trois techniques principales limitent
+				ce risque :
+			</p>
+			<ol>
+				<li>
+					<strong>Taux d'apprentissage faible</strong> (<KatexInline formula={etaRange} />) — réduit
+					l'impact de chaque itération et nécessite plus d'itérations pour converger, mais produit
+					un modèle plus stable.
+				</li>
+				<li>
+					<strong>Early stopping</strong> — arrêter l'entraînement quand l'erreur sur un ensemble de validation
+					cesse de diminuer.
+				</li>
+				<li>
+					<strong>Subsampling</strong> (Stochastic Gradient Boosting) — utiliser une fraction des données
+					à chaque itération pour induire de la diversité, analogue au bootstrap du bagging.
+				</li>
+			</ol>
+		</Callout>
+
+		<InteractiveSection
+			number="7.5"
+			title="Comparaison AdaBoost vs GBM"
+			onInteract={tracker.trackInteraction}
+		>
+			<BoostingComparison />
+		</InteractiveSection>
+
+		<Callout type="summary" title="Synthèse du cours sur le Boosting">
+			<ul>
+				<li>
+					<strong>AdaBoost</strong> : répondération adaptative, perte exponentielle, borne d'entraînement
+					garantie. Sensible au bruit.
+				</li>
+				<li>
+					<strong>Margins</strong> : la généralisation dépend de la distribution des marges, pas seulement
+					de l'erreur brute. AdaBoost maximise les margins après convergence.
+				</li>
+				<li>
+					<strong>Gradient Boosting</strong> : descente de gradient fonctionnelle, perte flexible
+					(quadratique, log-loss…), robuste avec <KatexInline formula={etaSymbol} /> faible.
+				</li>
+				<li>
+					<strong>Régularisation</strong> : learning rate, early stopping et subsampling sont indispensables
+					pour éviter le surapprentissage.
+				</li>
+			</ul>
+		</Callout>
+	</TheorySection>
+
+	<!-- SECTION 8 : SYNTHÈSE ET COMPARAISON DES MÉTHODES -->
+	<TheorySection>
+		<h2 id="synthese-comparaison">Synthèse et comparaison des méthodes</h2>
+
+		<h3>Tableau comparatif</h3>
+		<table>
+			<thead>
+				<tr>
+					<th>Méthode</th>
+					<th>Parallélisation</th>
+					<th>Stabilité</th>
+					<th>Interprétabilité</th>
+					<th>Performance</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr>
+					<td>Vote majoritaire</td>
+					<td>✓</td>
+					<td>++</td>
+					<td>+++</td>
+					<td>+</td>
+				</tr>
+				<tr>
+					<td>Bagging</td>
+					<td>✓</td>
+					<td>++</td>
+					<td>++</td>
+					<td>++</td>
+				</tr>
+				<tr>
+					<td>Random Forest</td>
+					<td>✓</td>
+					<td>++</td>
+					<td>++</td>
+					<td>+++</td>
+				</tr>
+				<tr>
+					<td>AdaBoost</td>
+					<td>✗</td>
+					<td>+</td>
+					<td>+</td>
+					<td>++</td>
+				</tr>
+				<tr>
+					<td>Gradient Boosting</td>
+					<td>✗</td>
+					<td>+</td>
+					<td>+</td>
+					<td>+++</td>
+				</tr>
+				<tr>
+					<td>XGBoost</td>
+					<td>Partiel</td>
+					<td>+</td>
+					<td>+</td>
+					<td>++++</td>
+				</tr>
+			</tbody>
+		</table>
+
+		<h3>Guide de choix</h3>
+		<Callout type="insight" title="Quand utiliser quoi ?">
+			<p><strong>Random Forest</strong> :</p>
+			<ul>
+				<li>Premier choix pour un modèle robuste et interprétable</li>
+				<li>Données mixtes (catégorielles + numériques)</li>
+				<li>Besoin d'importance des variables</li>
+			</ul>
+			<p><strong>XGBoost / LightGBM</strong> :</p>
+			<ul>
+				<li>Compétitions de machine learning</li>
+				<li>Optimisation fine des performances</li>
+				<li>Grands jeux de données</li>
+			</ul>
+			<p><strong>Bagging</strong> :</p>
+			<ul>
+				<li>Modèles de base instables (arbres profonds, réseaux de neurones)</li>
+				<li>Réduction de variance</li>
+			</ul>
+			<p><strong>AdaBoost</strong> :</p>
+			<ul>
+				<li>Modèles de base simples (stumps)</li>
+				<li>Classification binaire</li>
+				<li>Données avec structure séquentielle</li>
+			</ul>
+		</Callout>
+
+		<h3>Bonnes pratiques</h3>
+		<Callout type="summary" title="Recommandations pratiques">
+			<ol>
+				<li><strong>Commencer simple</strong> : Random Forest avec paramètres par défaut</li>
+				<li><strong>Valider rigoureusement</strong> : cross-validation pour éviter l'overfitting</li>
+				<li><strong>Diversifier les modèles de base</strong> : différents algorithmes, hyperparamètres</li>
+				<li><strong>Surveiller la complexité</strong> : plus de modèles ne garantit pas une amélioration</li>
+				<li><strong>Exploiter l'OOB</strong> : estimation gratuite de l'erreur de généralisation</li>
+			</ol>
+		</Callout>
+
+		<ExercisePanel title="Projet final">
+			<p>Implémentez et comparez sur un jeu de données réel :</p>
+			<ol>
+				<li>Un modèle Random Forest</li>
+				<li>Un modèle XGBoost</li>
+				<li>Un ensemble combinant différents types d'algorithmes</li>
+			</ol>
+			<p>Analysez les trade-offs performance/complexité/interprétabilité.</p>
+		</ExercisePanel>
+
+		<InteractiveSection
+			number="7.6"
+			title="Quiz — Boosting : AdaBoost et gradient boosting"
 			onInteract={tracker.trackInteraction}
 		>
 			<Quiz items={quiz} />
 		</InteractiveSection>
 	</TheorySection>
 
+	<!-- BIBLIOGRAPHY -->
 	<Bibliography>
 		<BibElement
-			authors={['Vovk, V.', 'Gammerman, A.', 'Shafer, G.']}
-			year={2005}
-			title="Algorithmic Learning in a Random World"
-			journal="Springer."
-			link="https://doi.org/10.1007/b106715"
+			authors={['Freund, Y.', 'Schapire, R. E.']}
+			year={1997}
+			title="A Decision-Theoretic Generalization of On-Line Learning and an Application to Boosting"
+			journal="Journal of Computer and System Sciences, Vol. 55, No. 1, pp. 119-139."
+			link="https://doi.org/10.1006/jcss.1997.1504"
 		/>
 		<BibElement
-			authors={['Romano, Y.', 'Patterson, E.', 'Candès, E. J.']}
-			year={2019}
-			title="Conformalized Quantile Regression"
-			journal="Advances in Neural Information Processing Systems (NeurIPS), Vol. 32."
-			link="https://arxiv.org/abs/1905.03222"
+			authors={['Friedman, J. H.']}
+			year={2001}
+			title="Greedy Function Approximation: A Gradient Boosting Machine"
+			journal="The Annals of Statistics, Vol. 29, No. 5, pp. 1189-1232."
+			link="https://www.jstor.org/stable/2699986"
 		/>
 		<BibElement
-			authors={['Barber, R. F.', 'Candès, E. J.', 'Ramdas, A.', 'Tibshirani, R. J.']}
-			year={2021}
-			title="Predictive Inference with the Jackknife+"
-			journal="Annals of Statistics, 49(1), 486–507."
-			link="https://arxiv.org/abs/1905.02928"
+			authors={['Hastie, T.', 'Tibshirani, R.', 'Friedman, J.']}
+			year={2009}
+			title="The Elements of Statistical Learning: Data Mining, Inference, and Prediction"
+			journal="Springer Science & Business Media, Second Edition."
+			link="https://hastie.su.domains/ElemStatLearn/"
 		/>
 	</Bibliography>
 </PageTemplate>
+
+<style>
+	.algo-block {
+		background: var(--color-surface-raised);
+		border-left: 3px solid var(--color-belief);
+		padding: 1rem 1.25rem;
+		margin: 1rem 0;
+		border-radius: 4px;
+	}
+
+	.algo-block h3 {
+		margin-top: 0;
+	}
+
+	.algo-block ol {
+		padding-left: 1.5rem;
+	}
+
+	table {
+		width: 100%;
+		border-collapse: collapse;
+		margin: 1rem 0;
+		border: 1px solid var(--color-border);
+		border-radius: var(--radius-md);
+		overflow: hidden;
+	}
+
+	thead {
+		background: var(--color-surface-2);
+	}
+
+	th {
+		padding: 0.75rem 1rem;
+		text-align: left;
+		font-size: 0.75rem;
+		font-weight: 600;
+		text-transform: uppercase;
+		letter-spacing: 0.05em;
+		color: var(--color-text-muted);
+		border-bottom: 1px solid var(--color-border);
+	}
+
+	td {
+		padding: 0.75rem 1rem;
+		font-size: 0.875rem;
+		border-bottom: 1px solid var(--color-border);
+	}
+
+	tbody tr:last-child td {
+		border-bottom: none;
+	}
+</style>

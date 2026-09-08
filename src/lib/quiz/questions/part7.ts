@@ -4,373 +4,366 @@ export const PART7: QuizQuestion[] = [
 	{
 		id: 'p7-l1-q1',
 		tags: ['p7/l1'],
-		question:
-			'Selon la Définition 1.2, que signifie dire que (h_n) est fortement consistant (consistant presque sûrement) ?',
+		question: "D'après le Théorème 1.1, quel est le classifieur de Bayes pour la perte 0-1 ?",
 		options: [
-			'Que P(R(h_n) - R* > ε) → 0 pour tout ε > 0.',
-			'Que E[(R(h_n) - R*)²] → 0.',
-			'Que P(lim R(h_n) = R*) = 1 : avec probabilité 1, la trajectoire des risques converge vers le risque de Bayes.',
-			'Que R(h_n) = R* pour tout n supérieur à un certain n_0.'
+			'h*(x) = 1 si η(x) > 1/2, h*(x) = 0 si η(x) < 1/2, et tout choix si η(x) = 1/2.',
+			'h*(x) = 1 si η(x) ≥ 1/2, et h*(x) = 0 sinon.',
+			'h*(x) = 1 si η(x) ≥ 1/3, et h*(x) = 0 sinon.',
+			'h*(x) = la classe de plus grande probabilité a priori, indépendamment de x.'
 		],
-		answerIndex: 2,
+		answerIndex: 1,
 		explanation:
-			"La Définition 1.2 distingue trois notions : en probabilité (les grands écarts deviennent rares), en moyenne quadratique (l'amplitude des écarts est contrôlée) et presque sûrement — une affirmation sur une seule trajectoire infinie qui, avec probabilité 1, finit par entrer dans tout voisinage de R* et n'en ressort plus jamais."
+			"Théorème 1.1 : la décision optimale en x minimise le risque conditionnel — on choisit l'action 1 si et seulement si r(1, x) = 1 - η(x) ≤ r(0, x) = η(x), c'est-à-dire si et seulement si η(x) ≥ 1/2 : on prédit la classe majoritaire au point x."
 	},
 	{
 		id: 'p7-l1-q2',
 		tags: ['p7/l1'],
-		question:
-			'Quelle implication entre les trois notions de consistance est garantie par la leçon ?',
+		question: "Quelle est l'expression du risque de Bayes R*, le risque minimal atteint par h* ?",
 		options: [
-			'La consistance en probabilité implique la consistance en moyenne quadratique.',
-			'La consistance presque sûre implique la consistance en probabilité.',
-			'La consistance en probabilité implique la consistance presque sûre.',
-			'La consistance en moyenne quadratique implique la consistance presque sûre.'
+			"L'espérance de η(X) sur X.",
+			"L'espérance de η(X)(1 - η(X)) sur X.",
+			"L'espérance de min(η(X), 1 - η(X)) sur X.",
+			'Le minimum du risque 0-1 restreint aux classifieurs linéaires.'
 		],
-		answerIndex: 1,
+		answerIndex: 2,
 		explanation:
-			"La leçon établit que la consistance presque sûre et la consistance en moyenne quadratique impliquent toutes deux la consistance en probabilité : celle-ci est la notion la plus faible des trois, et n'implique en général ni l'une ni l'autre ; presque sûre et moyenne quadratique ne se comparent pas directement entre elles."
+			"La leçon définit R* = R(h*) = E[min(η(X), 1 - η(X))] : c'est une borne irréductible due au chevauchement intrinsèque des classes — aucun algorithme, même avec une infinité de données, ne peut faire mieux."
 	},
 	{
 		id: 'p7-l1-q3',
 		tags: ['p7/l1'],
-		question:
-			'Un algorithme peut très bien mémoriser ses données sans jamais généraliser. Pourquoi, dans le langage de la décomposition approximation / estimation ?',
+		question: 'Quand le risque de Bayes R* est-il égal à zéro ?',
 		options: [
-			"Parce que si le terme d'approximation — propriété structurelle de la classe H, indépendante des données — ne tend pas vers zéro, la somme des deux termes ne peut tendre vers zéro, quel que soit n.",
-			'Parce que R(h_n) est toujours une fonction croissante de n.',
-			"Parce que le risque de Bayes R* est toujours strictement positif, si bien que l'écart ne peut s'annuler.",
-			"Parce que le terme d'estimation est toujours minoré par 1/n, quelle que soit la classe H."
+			"Quand les classes sont linéairement séparables dans l'espace d'entrée.",
+			"Quand η(x) = 1/2 presque sûrement, c'est-à-dire quand le problème est maximalement bruité.",
+			"Quand la taille d'échantillon n est suffisamment grande.",
+			'Quand η(x) ∈ {0, 1} presque sûrement : le problème est alors séparable.'
 		],
-		answerIndex: 0,
+		answerIndex: 3,
 		explanation:
-			"La décomposition R(h_n) - R* = terme d'estimation + terme d'approximation montre que la consistance exige que la somme des deux termes tende vers 0 : une classe trop pauvre a un terme d'approximation qui ne bougera jamais, quel que soit n, et aucun volume de données ne le supprimera."
+			"Le cartouche « Séparabilité » vérifie que R* = 0 si et seulement si η(x) ∈ {0, 1} presque sûrement, c'est-à-dire quand à chaque point une seule classe est possible avec certitude ; dès que η s'éloigne de {0, 1} vers 1/2, le problème devient bruité et le classifieur optimal se trompe avec une probabilité non nulle."
 	},
 	{
 		id: 'p7-l1-q4',
 		tags: ['p7/l1'],
 		question:
-			"Dans la décomposition R(h_n) - R* = terme d'estimation + terme d'approximation, que mesure le terme d'approximation ?",
+			"Dans la démonstration du Théorème 1.1, pourquoi l'optimalité pointwise de h* suffit-elle à son optimalité globale ?",
 		options: [
-			"L'écart entre le meilleur classifieur théorique de la classe et celui effectivement appris sur l'échantillon ; il s'annule quand n → ∞.",
-			'La variance de R(h_n) autour de son espérance.',
-			"La même quantité que le terme d'estimation, calculée sur un ensemble de validation.",
-			'inf_{h∈H} R(h) - R* : il vaut 0 si h* ∈ H, ne dépend pas des données et mesure la capacité de la classe à approcher le classifieur de Bayes.'
+			"Parce que R(h) - R(h*) = E[r(h(X), X) - r(h*(X), X)] est l'espérance d'un terme non négatif.",
+			"Parce que la perte 0-1 est une perte convexe sur l'espace des classifieurs.",
+			'Parce que η(x) est différentiable en tout point x.',
+			"Parce que l'échantillon est i.i.d., ce qui garantit la convergence uniforme."
 		],
-		answerIndex: 3,
+		answerIndex: 0,
 		explanation:
-			"La leçon définit le terme d'approximation (ou biais) comme inf_{h∈H} R(h) - R* : il vaut 0 si h* ∈ H et est une propriété purement structurelle du choix de H, indépendante des données ; c'est le terme d'estimation qui tend vers 0 quand n → ∞, sous des conditions de régularité sur H."
+			"La loi des espérances totales donne R(h) = E_X[r(h(X), X)]; comme h* minimise r(., x) pour presque tout x, l'écart entre R(h) et R(h*) est l'espérance d'un terme non négatif, donc non négatif — sans aucune hypothèse de régularité sur P (panneau expert « Pourquoi le conditionnement suffit »)."
 	},
 	{
 		id: 'p7-l1-q5',
 		tags: ['p7/l1'],
-		question:
-			"Une suite de classifieurs telle que P(R(h_n) - R* > ε) → 0 pour tout ε > 0, mais dont la trajectoire continue à s'écarter occasionnellement de R* à chaque rang, sans jamais se stabiliser : que peut-on en dire ?",
+		question: 'En un point x où η(x) = 0.3, que fait le classifieur de Bayes ?',
 		options: [
-			'Elle est consistante presque sûrement.',
-			"Elle est consistante en moyenne quadratique, puisque l'amplitude des écarts est bornée.",
-			"Elle est consistante en probabilité mais pas presque sûrement : la réciproque de l'implication « presque sûre ⇒ en probabilité » est fausse.",
-			'Cette situation ne peut pas se produire pour une suite de risques.'
+			'Il prédit 1, puisque 0.3 > 0.',
+			'Il prédit 0, et se trompe avec une probabilité conditionnelle 0.3.',
+			'Il prédit 0, et se trompe avec une probabilité conditionnelle 0.7.',
+			"Sa décision dépend de la taille de l'échantillon disponible."
 		],
-		answerIndex: 2,
+		answerIndex: 1,
 		explanation:
-			"La leçon le souligne dans le cartouche d'insight : la probabilité d'excès peut tendre vers 0 tout en continuant, avec probabilité non nulle à chaque rang, à s'écarter occasionnellement — sans jamais se stabiliser complètement, d'où la fausseté de la réciproque."
+			'Comme η(x) = 0.3 < 1/2, on a h*(x) = 0 ; le risque conditionnel de cette décision vaut r(0, x) = η(x) = 0.3, le plus petit des deux (prédire 1 donnerait r(1, x) = 1 - η(x) = 0.7).'
 	},
 	{
 		id: 'p7-l2-q1',
 		tags: ['p7/l2'],
-		question: "Selon la Définition 1.3, qu'est-ce qu'un algorithme universellement consistant ?",
+		question:
+			'Selon le Théorème 1.2, pour la perte quadratique L2, quel est le prédicteur optimal en x ?',
 		options: [
-			"Un algorithme consistant sur une distribution P fixée, choisie à l'avance.",
-			'Un algorithme qui converge vers le risque de Bayes en moyenne quadratique seulement.',
-			"Un algorithme pour lequel (h_n) est consistant pour toute distribution P sur l'espace d'entrée-sortie, sans hypothèse sur η.",
-			'Un algorithme qui exige une hypothèse de régularité sur η pour converger.'
+			'La médiane conditionnelle de Y sachant X = x.',
+			'Le mode conditionnel de Y sachant X = x.',
+			"La moyenne empirique de l'échantillon d'entraînement.",
+			'La moyenne conditionnelle m(x) = E[Y | X = x].'
 		],
-		answerIndex: 2,
+		answerIndex: 3,
 		explanation:
-			'Définition 1.3 : la consistance universelle doit tenir pour toute distribution P_{X,Y}, quelle que soit la structure du problème — séparable, très bruité, en haute dimension, avec des frontières de décision arbitrairement complexes — et sans aucune hypothèse de régularité sur η.'
+			"Théorème 1.2 : la perte quadratique sélectionne la moyenne conditionnelle. La décomposition E[(Y - c)² | X = x] = E[(Y - m(x))² | X = x] + (m(x) - c)² montre que seul le second terme est pilotable, et qu'il est minimal (nul) uniquement pour c = m(x)."
 	},
 	{
 		id: 'p7-l2-q2',
 		tags: ['p7/l2'],
 		question:
-			'Selon le théorème de Stone (Théorème 2.1), quelles conditions la suite k(n) doit-elle vérifier pour que le classifieur k-NN soit universellement consistant ?',
+			"Dans la preuve du cas L2, pourquoi le terme croisé s'annule-t-il quand on développe (Y - c)² avec Y - c = (Y - m(x)) + (m(x) - c) ?",
 		options: [
-			'k(n) → +∞ et k(n)/n → 0.',
-			"k(n) fixé, plus grand que la dimension d de l'espace.",
-			"k(n)/n → 1, afin que le voisinage recouvre l'espace.",
-			'k(n) → 0 et k(n)/n → +∞.'
+			'Parce que E[Y - m(x) | X = x] = E[Y | X = x] - m(x) = 0, par la définition même de m(x).',
+			'Parce que Y est gaussienne conditionnellement à X.',
+			"Parce que l'échantillon est i.i.d.",
+			'Parce que la perte quadratique est strictement convexe.'
 		],
 		answerIndex: 0,
 		explanation:
-			'Théorème 2.1 (Stone, 1977) : deux conditions purement quantitatives sur une seule suite k(n), sans aucune hypothèse sur la distribution elle-même, suffisent à garantir la convergence vers le risque de Bayes en classification binaire sur ℝ^d.'
+			"m(x) est défini comme E[Y | X = x], donc l'espérance conditionnelle de Y - m(x) s'annule : aucune hypothèse sur la loi de Y n'est nécessaire, en particulier pas de gaussien (preuve du Théorème 1.2, section « Perte quadratique : la moyenne conditionnelle »)."
 	},
 	{
 		id: 'p7-l2-q3',
 		tags: ['p7/l2'],
 		question:
-			'Dans la lecture biais-variance des deux conditions, quel rôle joue la condition k(n)/n → 0 ?',
+			"Dans la preuve du cas L1, la fonction g(c) = E[|Y - c| | X = x] admet la dérivée g'(c) = 2F(c) - 1. Que cela implique-t-il ?",
 		options: [
-			'Elle applique la loi des grands nombres aux étiquettes du voisinage.',
-			"Elle réduit la variance de l'estimation locale de η(x).",
-			"Elle garantit que l'échantillon reste i.i.d. quand n grandit.",
-			"Elle garantit que les k(n) voisins utilisés restent de plus en plus proches de x, si bien que la moyenne locale ne dilue pas η sur un voisinage trop large : c'est le contrôle du biais."
+			"L'optimum est atteint là où F(c) = 1, c'est-à-dire au maximum du support.",
+			"L'optimum est atteint là où la densité f(c) est maximale, c'est-à-dire au mode conditionnel.",
+			"L'optimum est atteint là où F(c) = 1/2, c'est-à-dire à la médiane conditionnelle, et g est convexe car g''(c) = 2f(c) ≥ 0.",
+			"Il n'existe pas d'optimum sauf si Y | X = x est continue."
 		],
-		answerIndex: 3,
+		answerIndex: 2,
 		explanation:
-			"Le cartouche « Lecture biais-variance des deux conditions » attribue à k(n) → +∞ le contrôle de la variance (moyenner sur davantage de voisins lisse le bruit d'échantillonnage) et à k(n)/n → 0 le contrôle du biais : si k croît trop vite relativement à n, les voisins sont trop éloignés et la moyenne locale ne capture plus la valeur de η en x."
+			"La condition g'(c) = 0 donne F(c) = 1/2, définition de la médiane conditionnelle ; la convexité g''(c) = 2f(c) ≥ 0 garantit qu'il s'agit bien d'un minimum global (preuve du Théorème 1.2, section « Perte absolue : la médiane conditionnelle »)."
 	},
 	{
 		id: 'p7-l2-q4',
 		tags: ['p7/l2'],
-		question:
-			'La borne de Cover-Hart (donnée en complément, au-delà du cours) fournit, pour le 1-NN, limsup E[R(h_n)] ≤ 2R*(1 - R*/2). Pour R* = 0.1, que donne-t-elle ?',
+		question: 'Selon la leçon, quand la médiane conditionnelle peut-elle ne pas être unique ?',
 		options: [
-			'Un risque asymptotique égal à 0.1, puisque k = 1 est le cas le plus simple.',
-			'Une borne supérieure de 2 × 0.1 × 0.95 = 0.19, strictement supérieure à R* : un k fixé peut laisser un écart résiduel, quel que soit n.',
-			'Une borne supérieure de 0.05, la moitié du risque de Bayes.',
-			"Rien : la borne ne s'applique que lorsque k(n) → ∞."
+			'Jamais : la médiane est toujours unique pour toute distribution.',
+			'Quand Y | X = x suit une loi discrète : tout un intervalle de valeurs peut vérifier F(c) = 1/2, et toutes atteignent le même risque L1 minimal.',
+			"Uniquement quand la taille d'échantillon est impaire.",
+			'Quand Y | X = x est gaussienne, en raison de la symétrie de la cloche.'
 		],
 		answerIndex: 1,
 		explanation:
-			"L'Exercice 2.1 de la leçon calcule la borne : pour R* = 0.1, on obtient 0.19, « près du double du risque de Bayes » ; la borne est strictement au-dessus de R* pour tout R* ∈ (0, 1), ce qui montre que la condition k(n) → +∞ du Théorème 2.1 est nécessaire et pas seulement une commodité technique de la démonstration."
+			"Le cartouche d'avertissement « La médiane n'est pas toujours unique » le signale pour les lois discrètes : la non-uniqueté ne remet pas en cause l'optimalité, toutes ces valeurs atteignant le même risque minimal (la leçon note au passage que la médiane empirique est souvent non unique quand la taille de l'échantillon est paire)."
 	},
 	{
 		id: 'p7-l2-q5',
 		tags: ['p7/l2'],
 		question:
-			'Selon la leçon, pourquoi un algorithme qui suppose une frontière de décision linéaire (modèle paramétrique) ne peut-il jamais être universellement consistant ?',
+			'Sur une distribution conditionnelle à longue queue, que dit la leçon des deux prédicteurs optimaux ?',
 		options: [
-			"Parce que la taille de l'échantillon est toujours finie en pratique.",
-			'Parce que la perte 0-1 est non convexe et NP-difficile.',
-			"Parce que dès que la vraie frontière est non linéaire, le terme d'approximation de la classe reste strictement positif, quel que soit n : aucune quantité de données ne le supprime.",
-			'Parce que le classifieur de Bayes est toujours linéaire pour des données i.i.d.'
+			'La moyenne et la médiane coïncident, en vertu de la loi des grands nombres.',
+			"La moyenne est sensible aux valeurs extrêmes, tandis que la médiane y est robuste : c'est le prix et le bénéfice du passage de L2 à L1.",
+			'Le prédicteur à perte quadratique est robuste à une observation très éloignée.',
+			'La médiane minimise le risque quadratique, et la moyenne minimise le risque absolu.'
 		],
-		answerIndex: 2,
+		answerIndex: 1,
 		explanation:
-			"Le cartouche « Pourquoi ce n'est pas évident » le souligne : un modèle qui impose une classe restrictive a un terme d'approximation non nul sur les problèmes hors de sa classe, alors que la consistance universelle exige la convergence pour toute distribution — d'où le besoin d'une classe dont la richesse s'adapte elle-même à n, comme le k-NN avec k = k(n)."
+			"La section « Comparer les deux prédicteurs » souligne qu'une seule observation très éloignée peut déplacer la moyenne arbitrairement loin, alors que la médiane y est robuste — différence qui n'est pas anecdotique, mais qui a des conséquences directes sur la robustesse du prédicteur."
 	},
 	{
 		id: 'p7-syn-q1',
 		tags: ['p7/synthese'],
 		question:
-			"Selon la Définition 1.2, quelle est l'expression exacte de la consistance en moyenne quadratique de (h_n) ?",
+			'En classification binaire, pourquoi les risques conditionnels des deux décisions valent-ils respectivement r(1,x) = 1 - η(x) et r(0,x) = η(x) ?',
 		options: [
-			"E[(R(h_n) - R*)²] → 0 quand n → +∞ : c'est l'amplitude moyenne au carré des écarts du risque appris au risque de Bayes qui tend vers zéro.",
-			'E[|R(h_n) - R*|] → 0 : la convergence en moyenne absolue des écarts.',
-			"(E[R(h_n)] - R*)² → 0 : c'est l'espérance du risque, et non le risque lui-même, qui converge vers R*.",
-			"Var(R(h_n)) → 0 : seule la variance du risque autour de son espérance doit s'annuler."
+			"Parce que Y | X = x suit une loi de Bernoulli de paramètre η(x) : prédire 1 se trompe exactement quand Y = 0, avec probabilité 1 - η(x), et prédire 0 se trompe quand Y = 1, avec probabilité η(x).",
+			'Parce que la perte 0-1 est symétrique, les deux risques conditionnels valent η(x) en tout point x.',
+			"Parce que η(x) est la probabilité a priori de la classe 1, qui ne dépend pas de x.",
+			'Parce que le risque conditionnel mesure la probabilité de prédire juste : r(1,x) = η(x) et r(0,x) = 1 - η(x).'
 		],
 		answerIndex: 0,
 		explanation:
-			"Définition 1.2 (part7/lesson1) : la consistance en moyenne quadratique est E[(R(h_n) - R*)²] → 0 ; le cartouche « Trois façons de dire « converge » » note qu'elle contrôle l'amplitude des écarts, pas seulement leur fréquence."
+			"Le bloc « Probabilité a posteriori » de part7/lesson1 note que Y | X = x suit une loi de Bernoulli de paramètre η(x) ; c'est ce qui donne directement r(1,x) = 1 - η(x) et r(0,x) = η(x) (Théorème 1.1)."
 	},
 	{
 		id: 'p7-syn-q2',
 		tags: ['p7/synthese'],
-		question:
-			'Quelle implication entre la consistance en moyenne quadratique et la consistance en probabilité est garantie par la leçon part7/lesson1 ?',
+		question: "Quel enchaînement d'équivalences conduit à la règle de décision du Théorème 1.1 ?",
 		options: [
-			'La consistance en probabilité implique la consistance en moyenne quadratique, qui est la notion la plus forte des trois.',
-			'La consistance en moyenne quadratique implique la consistance en probabilité ; la réciproque ne tient pas en général.',
-			'Les deux notions sont équivalentes dès que R(h_n) est non négative.',
-			'Aucune implication ne tient entre les deux : ce sont des notions indépendantes.'
+			"r(1,x) ≤ r(0,x) si et seulement si η(x) ≤ 1 - η(x), c'est-à-dire η(x) ≤ 1/2 : on prédit 1 quand la classe 1 est minoritaire au point x.",
+			"r(1,x) ≤ r(0,x) si et seulement si 1 - η(x) ≤ η(x), c'est-à-dire η(x) ≥ 1/2 : on prédit 1 exactement quand la classe 1 est la plus probable au point x.",
+			"r(1,x) ≤ r(0,x) si et seulement si 1 - η(x) ≤ η(x), c'est-à-dire η(x) ≥ 1/3 : le seuil 1/3 découle de la perte 0-1.",
+			"r(1,x) < r(0,x) si et seulement si η(x) > 1/2, c'est-à-dire si la classe 1 a la plus grande probabilité a priori, indépendamment de x."
 		],
 		answerIndex: 1,
 		explanation:
-			"Section « Relations entre les notions » (part7/lesson1) : la leçon établit que la consistance en moyenne quadratique implique la consistance en probabilité, et que celle-ci est la notion la plus faible des trois — elle n'implique en général ni l'une ni l'autre des deux autres."
+			"Théorème 1.1, section « Le classifieur de Bayes » : on choisit 1 si et seulement si r(1,x) ≤ r(0,x), soit 1 - η(x) ≤ η(x), c'est-à-dire η(x) ≥ 1/2 — la règle « prédire la classe majoritaire » du cartouche « Interprétation du seuil »."
 	},
 	{
 		id: 'p7-syn-q3',
 		tags: ['p7/synthese'],
-		question:
-			'Que dit exactement la leçon part7/lesson1 du rapport entre la consistance presque sûre et la consistance en moyenne quadratique ?',
+		question: 'Que signifie dire que le risque de Bayes R* est une borne irréductible ?',
 		options: [
-			"Elles ne se comparent pas directement entre elles : chacune contrôle un aspect différent de la convergence — une trajectoire unique contre l'amplitude moyenne des écarts — et l'une peut tenir sans l'autre.",
-			'La consistance presque sûre implique la consistance en moyenne quadratique, par un argument de type Portmanteau.',
-			"La consistance en moyenne quadratique implique la consistance presque sûre, car contrôler l'amplitude contrôle aussi la trajectoire.",
-			'Elles sont équivalentes pour toute suite de classifieurs appris sur un échantillon i.i.d.'
+			"Aucun algorithme, aussi sophistiqué soit-il, même avec une infinité de données, ne peut atteindre un risque inférieur à R* : c'est la part du risque due au chevauchement intrinsèque des classes, pas à un manque de données ni à un mauvais choix de modèle.",
+			'Aucun classifieur appris sur un échantillon fini ne peut atteindre R*, mais un algorithme doté de données illimitées peut le dépasser.',
+			"R* ne peut être amélioré que si on change de perte : c'est la perte 0-1 qui rend le risque irréductible.",
+			"Le risque de Bayes est irréductible car il ne dépend que de l'algorithme utilisé et jamais de la distribution P."
 		],
 		answerIndex: 0,
 		explanation:
-			"Part7/lesson1, section « Relations entre les notions » : « La consistance presque sûre et la consistance en moyenne quadratique, elles, ne se comparent pas directement entre elles — chacune contrôle un aspect différent de la convergence (trajectoire unique contre amplitude moyenne des écarts), et l'une peut tenir sans l'autre »."
+			"Section « Risque de Bayes et séparabilité » de part7/lesson1 : R* est une borne irréductible, due au chevauchement intrinsèque des deux classes, pas à un manque de données ou un mauvais choix de modèle."
 	},
 	{
 		id: 'p7-syn-q4',
 		tags: ['p7/synthese'],
-		question:
-			"Pourquoi la leçon part7/lesson1 introduit-elle trois notions distinctes de consistance plutôt qu'une seule ?",
+		question: "Pourquoi le classifieur de Bayes h* n'est-il pas défini de manière unique ?",
 		options: [
-			"Parce que les mathématiciens n'ont pas réussi à s'accorder sur une définition unique de la convergence.",
-			"Parce que R* dépend de l'échantillon, il faut mesurer la convergence par rapport à chaque réalisation de l'échantillon.",
-			"Parce que h_n dépend de l'échantillon aléatoire S_n, le risque R(h_n) est lui-même une variable aléatoire : « converger vers R* » peut se formaliser de plusieurs façons, plus ou moins exigeantes.",
-			'Parce que la perte 0-1 est non convexe, ce qui rend la notion de convergence ambiguë.'
+			"Parce que pour η(x) = 1/2, les deux décisions sont optimales, si bien qu'il existe toujours plusieurs classifieurs atteignant R*.",
+			"Parce que η(x) n'est pas identifiable sans hypothèse de régularité sur la loi P.",
+			"Parce que h* n'est défini de manière unique que presque sûrement par rapport à P_X : en un point x tel que P(X=x) = 0, modifier h(x) ne change pas le risque.",
+			"Parce que le classifieur optimal dépend de l'ordre des observations de l'échantillon d'entraînement."
 		],
 		answerIndex: 2,
 		explanation:
-			"Section « Trois notions de consistance » (part7/lesson1) : « Puisque h_n dépend de l'échantillon aléatoire S_n, le risque R(h_n) est lui-même une variable aléatoire. « Converger vers R* » peut donc se formaliser de plusieurs façons, plus ou moins exigeantes. »"
+			"Panneau expert « Pourquoi le conditionnement suffit » (part7/lesson1) : la qualification « presque tout » est essentielle — quand P(X=x) = 0, modifier h(x) en ce point ne change rien, et h* n'est donc unique que presque sûrement par rapport à P_X."
 	},
 	{
 		id: 'p7-syn-q5',
 		tags: ['p7/synthese'],
-		question:
-			"Comment la leçon part7/lesson1 interprète-t-elle la consistance presque sûre, P(lim R(h_n) = R*) = 1 ?",
+		question: 'En un point x où η(x) = 1/2 exactement, que dit la leçon des décisions 0 et 1 ?',
 		options: [
-			"Comme une affirmation sur une seule trajectoire infinie de (R(h_n)) : avec probabilité 1, cette trajectoire finit par entrer dans n'importe quel voisinage de R* et n'en ressort plus jamais.",
-			"Comme une affirmation sur la fréquence des grands écarts : la probabilité de s'écarter de R* de plus de ε devient rare.",
-			"Comme une affirmation sur la moyenne : l'écart moyen entre R(h_n) et R* tend vers zéro.",
-			'Comme une affirmation point par point : R(h_n) = R* pour tout n suffisamment grand, avec probabilité 1.'
+			'Les deux risques conditionnels sont égaux, r(1,x) = r(0,x) = 1/2 : les deux décisions sont optimales en x, et la règle énoncée (η(x) ≥ 1/2) fixe la convention en prédisant 1.',
+			'Prédire 1 est strictement meilleur : le risque de prédire 1 vaut 0 en ce point.',
+			"Les deux décisions sont sous-optimales : le risque minimal en x vaut 1/2 et aucun classifieur ne l'atteint.",
+			"Le point x est un point de non-décision : le Théorème 1.1 n'assigne aucune valeur à h*(x) quand η(x) = 1/2."
 		],
 		answerIndex: 0,
 		explanation:
-			"Cartouche « Trois façons de dire « converge » » (part7/lesson1) : la convergence presque sûre est une affirmation sur une seule trajectoire infinie de (R(h_n)) : avec probabilité 1, elle finit par entrer dans n'importe quel voisinage de R* et n'en ressort plus jamais."
+			"À η(x) = 1/2, on a r(1,x) = 1 - η(x) = η(x) = r(0,x) : les deux risques sont égaux, donc les deux actions sont optimales ; l'énoncé du Théorème 1.1 (h*(x) = 1 si η(x) ≥ 1/2) fixe la convention de l'égalité en faveur de 1, sans changer le risque atteint."
 	},
 	{
 		id: 'p7-syn-q6',
 		tags: ['p7/synthese'],
 		question:
-			"Dans le compromis approximation / estimation, quel est le problème d'une classe de modèles trop riche, pour un n donné ?",
+			'Pourquoi minimiser le risque conditionnel r(h(x), x) pour presque tout x suffit-il à minimiser le risque global R(h) ?',
 		options: [
-			"Son terme d'estimation décroît trop lentement pour un n donné : la classe s'adapte trop finement à l'échantillon, et l'écart entre le meilleur classifieur théorique de H et celui effectivement appris reste grand.",
-			"Son terme d'approximation ne atteint jamais 0, car une classe riche ne contient jamais le classifieur de Bayes.",
-			"Le risque R(h_n) devient non mesurable, et le théorème de Stone ne s'applique plus.",
-			"Le risque de Bayes R* devient strictement négatif, si bien que la borne irréductible n'a plus de sens."
+			'Par le théorème de convergence dominée, qui garantit la convergence uniforme de r(h(X), X) vers r(h*(X), X).',
+			"Parce que la perte 0-1 est convexe et que l'ensemble des classifieurs est compact.",
+			"Parce que l'échantillon est i.i.d., ce qui rend R(h) une variable aléatoire de moyenne R(h*).",
+			"Par la loi des espérances totales, R(h) = E_X[r(h(X), X)], et comme r(h(x), x) - r(h*(x), x) ≥ 0 pour presque tout x, l'écart R(h) - R(h*) est l'espérance d'un terme non négatif, donc non négatif."
 		],
-		answerIndex: 0,
+		answerIndex: 3,
 		explanation:
-			"Part7/lesson1, section « Décomposition approximation / estimation » : « une classe trop pauvre a un terme d'approximation qui ne bougera jamais, quel que soit n ; une classe trop riche a un terme d'estimation qui décroît trop lentement pour un n donné »."
+			"Panneau expert « Pourquoi le conditionnement suffit » (part7/lesson1) : par la loi des espérances totales R(h) = E_X[r(h(X), X)], et l'optimalité ponctuelle de h* donne r(h(x), x) - r(h*(x), x) ≥ 0 presque sûrement, si bien que l'écart global est l'espérance d'un terme non négatif — sans hypothèse de régularité sur P."
 	},
 	{
 		id: 'p7-syn-q7',
 		tags: ['p7/synthese'],
 		question:
-			"Quelle est l'identité exacte de la décomposition du risque d'un classifieur appris, telle que la leçon part7/lesson1 l'énonce ?",
+			"Quelle est l'expression exacte de l'écart entre le risque quadratique d'un prédicteur h et le risque optimal R(h*) ?",
 		options: [
-			"R(h_n) - R* = [R(h_n) - inf_{h∈H} R(h)] - [inf_{h∈H} R(h) - R*] : l'écart global est la différence des deux termes.",
-			"R(h_n) - R* = [R(h_n) - R(h*)] + [inf_{h∈H} R(h) - R*] : le terme d'estimation compare directement h_n au classifieur de Bayes.",
-			"R(h_n) - R* = [R(h_n) - inf_{h∈H} R(h)] × [inf_{h∈H} R(h) - R*] : les deux termes se multiplient dans la décomposition.",
-			"R(h_n) - R* = [R(h_n) - inf_{h∈H} R(h)] + [inf_{h∈H} R(h) - R*] : le premier terme est le terme d'estimation, le second le terme d'approximation."
+			'R(h) - R(h*) = E[(m(X) - h(X))²] ≥ 0, avec égalité si et seulement si h(x) = m(x) pour presque tout x.',
+			"R(h) - R(h*) = E[(m(X) - h(X))²] ≥ 0, mais l'écart peut s'annuler pour un h ne coïncidant avec m que sur un ensemble de mesure nulle.",
+			"R(h) - R(h*) = E[(Y - h(X))²] - E[(Y - m(X))²] = E[(h(X) - E[Y])²], l'écart dépendant de la moyenne marginale de Y.",
+			"R(h) - R(h*) = E[(m(X) - h(X))²] + E[Var(Y | X)], avec égalité si et seulement si h = m : le bruit résiduel compte dans l'écart."
 		],
-		answerIndex: 3,
+		answerIndex: 0,
 		explanation:
-			"Part7/lesson1, section « Décomposition approximation / estimation » : R(h_n) - R* = [R(h_n) - inf_{h∈H} R(h)] (terme d'estimation) + [inf_{h∈H} R(h) - R*] (terme d'approximation, ou biais)."
+			"Démonstration du Théorème 1.2, section « Perte quadratique : la moyenne conditionnelle » : en reprenant la décomposition avec c = h(x) puis en prenant l'espérance sur X, on obtient R(h) - R(h*) = E[(m(X) - h(X))²], nul si et seulement si h(x) = m(x) pour presque tout x."
 	},
 	{
 		id: 'p7-syn-q8',
 		tags: ['p7/synthese'],
-		question: 'Comment la Définition 1.2 de part7/lesson1 fait-elle le lien avec la Partie VI ?',
+		question:
+			"Dans la décomposition E[(Y - c)² | X = x] = E[(Y - m(x))² | X = x] + (m(x) - c)², quel terme est irréductible, et pourquoi ?",
 		options: [
-			"Elle redéfinit η(x) comme la moyenne conditionnelle de Y sachant X = x, pour relier la consistance à la régression.",
-			"Elle réécrit explicitement le risque de Bayes comme R* = R(h*) = E_X[min(η(X), 1 - η(X))], le risque caractérisé par le Théorème 1.1 de la Partie VI.",
-			"Elle suppose R* = 0 : la consistance n'aurait de sens que pour des problèmes séparables.",
-			"Elle remplace R* par le risque empirique, la moyenne des erreurs sur l'échantillon : la consistance se mesure sur les données."
+			"Le terme (m(x) - c)² : c'est lui qui encode le bruit résiduel de Y autour de sa moyenne conditionnelle.",
+			"Le terme E[(Y - m(x))² | X = x] : c'est la variance conditionnelle de Y autour de sa moyenne conditionnelle, il ne dépend pas de c et aucun prédicteur ne peut l'éliminer.",
+			'Les deux termes sont irréductibles : la perte quadratique ne peut être annulée en aucun cas.',
+			'Le risque conditionnel E[(Y - c)² | X = x] tout entier, qui est fixe une fois x fixé.'
 		],
 		answerIndex: 1,
 		explanation:
-			"Définition 1.2 (part7/lesson1) se conclut par « où R* = R(h*) = E_X[min(η(X), 1 - η(X))] est le risque de Bayes », renvoyant au Théorème 1.1 de la Partie VI qui caractérise le classifieur de Bayes et son risque minimal."
+			"Section « Perte quadratique : la moyenne conditionnelle » (preuve du Théorème 1.2) : le premier terme, la variance résiduelle de Y autour de sa moyenne conditionnelle, « ne dépend pas de c » — c'est la part irréductible du risque ; seul le second terme (m(x) - c)² est pilotable, et il est nul uniquement pour c = m(x)."
 	},
 	{
 		id: 'p7-syn-q9',
 		tags: ['p7/synthese'],
 		question:
-			"En complément, au-delà du cours (dû à Cover et Hart, 1967) : quelle identité asymptotique la leçon part7/lesson2 attribue-t-elle au risque du 1-NN ?",
+			"Quelle hypothèse la preuve du cas L1 du Théorème 1.2 pose-t-elle pour que l'argument g'(c) = 2F(c) - 1 soit valide ?",
 		options: [
-			'limsup E[R(h_n^{1-NN})] (quand n → +∞) = 2 E[η(X)(1 - η(X))], en supposant que P_X admet une densité.',
-			'limsup E[R(h_n^{1-NN})] (quand n → +∞) = E[η(X)(1 - η(X))] = R* : le 1-NN est universellement consistant.',
-			'lim R(h_n^{1-NN}) (quand n → +∞) = R* presque sûrement : la convergence tient sans hypothèse de densité sur P_X.',
-			"limsup E[R(h_n^{1-NN})] (quand n → +∞) = 2 R*, quel que soit η : l'asymptotique ne dépend que du risque de Bayes."
+			"L'existence d'une densité conditionnelle f_{Y|x} : la preuve écrit g(c) comme intégrale, puis dérive sous le signe intégrale (théorème de Leibniz) pour obtenir g'(c) = 2F(c) - 1.",
+			'La convexité conjointe de la perte |y - c| en (y, c).',
+			'Que Y | X = x ait une moyenne conditionnelle nulle.',
+			'Que la fonction de répartition F_{Y|x} soit strictement croissante en tout point.'
 		],
 		answerIndex: 0,
 		explanation:
-			"Cartouche « Erreur du 1-NN » (part7/lesson2), explicitement donné « comme complément, au-delà du cours » et dû à Cover et Hart (1967) : sous l'hypothèse que P_X admet une densité, limsup E[R(h_n^{1-NN})] (quand n → +∞) = 2 E[η(X)(1 - η(X))]."
+			"Préambule de la preuve du cas L1, section « Perte absolue : la médiane conditionnelle » : « En supposant que Y | X = x admet une densité conditionnelle f_{Y|x} », on sépare l'intégrale et on dérive sous le signe intégrale par le théorème de Leibniz pour obtenir g'(c) = 2F_{Y|x}(c) - 1."
 	},
 	{
 		id: 'p7-syn-q10',
 		tags: ['p7/synthese'],
 		question:
-			"En complément, au-delà du cours : pourquoi la borne de Cover-Hart montre-t-elle que le 1-NN peut laisser un écart résiduel strictement positif, quel que soit n ?",
+			"Selon le cartouche « La médiane n'est pas toujours unique », quelle convention la leçon cite-t-elle pour trancher la non-uniqueté de la médiane quand Y | X = x a une loi discrète ?",
 		options: [
-			'Parce que la borne supérieure est strictement inférieure à R* pour tout R* ∈ (0,1) : le 1-NN sous-estime systématiquement le risque de Bayes.',
-			"Parce que l'écart 2R*(1 - R*/2) - R* s'annule pour tout R* ∈ (0, 1/2), les problèmes peu bruités étant bien gérés.",
-			"Parce que la borne supérieure 2R*(1 - R*/2) est strictement supérieure à R* pour tout R* ∈ (0,1) : l'écart 2R*(1 - R*/2) - R* = R*(1 - R*) est strictement positif et ne s'annule que pour R* ∈ {0, 1}.",
-			'Parce que la borne vaut exactement R* dès que R* ≤ 1/4, ce qui couvre la plupart des problèmes séparables.'
+			"Choisir la moyenne des deux valeurs médianes, comme pour la médiane empirique d'un échantillon de taille paire.",
+			'Choisir la valeur la plus proche de la moyenne conditionnelle m(x).',
+			"Par exemple, choisir la plus petite valeur c atteignant le seuil F_{Y|x}(c) = 1/2 — la non-uniqueté ne remet pas en cause l'optimalité, toutes ces valeurs atteignant le même risque L1 minimal.",
+			'La médiane est toujours unique pour une loi discrète : la question de la convention ne concerne que les lois continues.'
 		],
 		answerIndex: 2,
 		explanation:
-			"Cartouche « Erreur du 1-NN » (part7/lesson2, complément au-delà du cours, Cover et Hart 1967) : « La borne supérieure est strictement supérieure à R* pour tout R* ∈ (0,1) : l'écart 2R*(1 - R*/2) - R* = R*(1 - R*) est strictement positif, et ne s'annule que pour R* ∈ {0,1} »."
+			"Cartouche « La médiane n'est pas toujours unique » (part7/lesson2) : pour une loi discrète, tout un intervalle de c peut vérifier F_{Y|x}(c) = 1/2 exactement, et la médiane n'est définie qu'à un choix de convention près — par exemple la plus petite valeur atteignant le seuil — sans remettre en cause l'optimalité, toutes ces valeurs atteignant le même risque L1 minimal."
 	},
 	{
 		id: 'p7-syn-q11',
 		tags: ['p7/synthese'],
 		question:
-			"En complément, au-delà du cours : quelle distribution la leçon part7/lesson2 donne-t-elle pour montrer que le risque asymptotique du 1-NN peut rester strictement au-dessus du risque de Bayes ?",
+			"Que note la leçon part7/lesson2 à propos de la médiane empirique calculée sur un échantillon de données ?",
 		options: [
-			'η(X) ∈ {c, 1 - c} presque sûrement avec c ∈ (0, 1/2) : alors R* = c, mais le risque asymptotique du 1-NN vaut 2c(1 - c), strictement plus grand que c.',
-			'η(X) ∈ {0, 1} presque sûrement : le problème est séparable (R* = 0), mais le 1-NN conserve un risque asymptotique strictement positif.',
-			"η(X) = 1/2 presque sûrement : le cas le plus bruité, où l'identité de Cover-Hart donne un risque asymptotique strictement supérieur à R* = 1/2.",
-			'Une loi gaussienne centrée de variance 1 : la symétrie de la gaussienne garantit un risque asymptotique strictement supérieur à R*.'
+			"Elle est souvent non unique, notamment lorsque la taille de l'échantillon est paire.",
+			"Elle est toujours unique dès que la taille de l'échantillon dépasse 100.",
+			'Elle coïncide toujours avec la médiane conditionnelle vraie de la population.',
+			"Elle n'est définie que pour les échantillons de taille impaire."
 		],
 		answerIndex: 0,
 		explanation:
-			"Cartouche « Erreur du 1-NN » (part7/lesson2, complément au-delà du cours) : « si η(X) ∈ {c,1-c} presque sûrement avec c ∈ (0,1/2), alors R* = c mais le risque asymptotique vaut 2c(1-c) > c » — une distribution pour laquelle le 1-NN reste strictement au-dessus du risque de Bayes."
+			"Note « Note sur la médiane empirique » (part7/lesson2) : la médiane empirique (calculée sur un échantillon de données) est souvent non unique, notamment lorsque la taille de l'échantillon est paire."
 	},
 	{
 		id: 'p7-syn-q12',
 		tags: ['p7/synthese'],
 		question:
-			"Pourquoi la leçon part7/lesson2 affirme-t-elle que la condition k(n) → +∞ du Théorème 2.1 est « nécessaire, et pas seulement une commodité technique de la démonstration » ?",
+			"Selon la section « Comparer les deux prédicteurs », quelle est la différence de robustesse entre moyenne et médiane conditionnelles ?",
 		options: [
-			"Parce que la borne de Cover-Hart (complément, au-delà du cours) montre qu'un k fixé peut laisser un écart résiduel strictement positif, quel que soit n : c'est cette impossibilité générale — pas seulement l'exemple numérique — qui rend la condition nécessaire.",
-			"Parce que le théorème de Stone l'énonce explicitement comme condition nécessaire dans son énoncé.",
-			"Parce que sans k(n) → +∞, le classifieur k-NN n'est même plus défini.",
-			"Parce que la borne de Cover-Hart fait partie du support du cours et que l'Exercice 2.1 la démontre."
+			'Les deux prédicteurs sont également sensibles aux valeurs extrêmes, la sensibilité étant inhérente au conditionnement sur X.',
+			"Une seule observation très éloignée peut déplacer la moyenne arbitrairement loin, tandis que la médiane y est robuste : c'est le prix et le bénéfice du passage de L2 à L1.",
+			'La médiane est sensible aux valeurs extrêmes car elle dépend de la fonction de répartition, tandis que la moyenne est robuste.',
+			"La moyenne est robuste par la loi des grands nombres, la médiane ne l'étant que pour les lois symétriques."
 		],
-		answerIndex: 0,
+		answerIndex: 1,
 		explanation:
-			"Part7/lesson2 : la borne de Cover-Hart (donnée en complément, au-delà du cours) montre que la borne supérieure est strictement au-dessus de R* dès que R* ∈ (0,1) : « il existe des distributions non séparables pour lesquelles un k fixé laisse un écart résiduel strictement positif, quel que soit n. C'est cette impossibilité générale — pas seulement l'exemple numérique — qui rend la condition k(n) → +∞ du Théorème 2.1 nécessaire, et pas seulement une commodité technique de la démonstration. »"
+			"Section « Comparer les deux prédicteurs » (part7/lesson2) : la moyenne est sensible aux valeurs extrêmes (une seule observation très éloignée peut la déplacer arbitrairement loin), alors que la médiane y est robuste — c'est le prix, et le bénéfice, du passage de L2 à L1."
 	},
 	{
 		id: 'p7-syn-q13',
 		tags: ['p7/synthese'],
 		question:
-			'Quel est, selon la leçon part7/lesson2, le statut du Théorème 2.1 de Stone au sujet des deux conditions sur k(n) ?',
+			'Quel est le principe commun aux trois cas (perte 0-1, L2, L1) traités dans la Partie VII ?',
 		options: [
-			"C'est un résultat de suffisance : k(n) → +∞ et k(n)/n → 0 suffisent à la consistance universelle ; la nécessité de la seconde condition, k(n)/n → 0, n'est pas discutée dans le cours.",
-			"C'est un résultat de nécessité : sans les deux conditions, la consistance universelle est impossible.",
-			'Le théorème établit que les deux conditions sont nécessaires et suffisantes, la nécessité de k(n)/n → 0 étant démontrée via la borne de Cover-Hart.',
-			"C'est un résultat heuristique : Stone n'affirme aucune convergence, il suggère seulement un compromis biais-variance."
+			'Le choix de la perte détermine seul le prédicteur optimal, via la même logique de minimisation ponctuelle du risque conditionnel : la perte 0-1 donne la classe majoritaire, L2 la moyenne conditionnelle, L1 la médiane conditionnelle.',
+			'Les trois pertes conduisent au même prédicteur optimal, la différence entre elles n\'affectant que la vitesse de convergence.',
+			'Chaque perte exige une hypothèse de régularité supplémentaire sur η, de plus en plus forte de la perte 0-1 à L1.',
+			"Le prédicteur optimal dépend de la taille de l'échantillon n, la perte ne jouant qu'un rôle secondaire."
 		],
 		answerIndex: 0,
 		explanation:
-			"Part7/lesson2 présente le Théorème 2.1 comme un résultat de suffisance (« Si le paramètre k = k(n) vérifie ... alors le classifieur k-NN est universellement consistant ») ; la leçon discute la nécessité de la première condition via la borne de Cover-Hart (au-delà du cours), mais ne discute pas la nécessité de la seconde condition k(n)/n → 0."
+			"Cartouche « Retenir » de part7/lesson2 : « Le choix de la perte détermine seul le prédicteur optimal : L2 sélectionne la moyenne conditionnelle (sensible aux valeurs extrêmes), L1 sélectionne la médiane conditionnelle (robuste) », sur la même logique de minimisation ponctuelle du risque conditionnelle déjà vue au Théorème 1.1 pour la perte 0-1."
 	},
 	{
 		id: 'p7-syn-q14',
 		tags: ['p7/synthese'],
-		question: "Sous quelle forme la leçon part7/lesson2 énonce-t-elle la conclusion du Théorème 2.1 de Stone ?",
+		question: 'Quelles sont les deux faces du risque irréductible, en classification et en régression ?',
 		options: [
-			'Presque sûrement, pour toute distribution P : P(lim R(h_n^{k-NN}) (quand n → +∞) = R*) = 1.',
-			'En espérance, pour toute distribution P sur ℝ^d × {0,1} : E[R(h_n^{k-NN})] → R* quand n → +∞.',
-			'En probabilité, et seulement pour les distributions P à densité sur ℝ^d.',
-			"Pour toute distribution P, le risque empirique, la moyenne des erreurs sur l'échantillon, converge vers R* en espérance."
+			"En classification, R* = E[min(η(X), 1 - η(X))], le chevauchement des classes ; en régression, la variance conditionnelle E[(Y - m(x))² | X = x] espérée sur X : aucun prédicteur ne peut éliminer l'un ni l'autre.",
+			"En classification, R* = E[η(X)(1 - η(X))], le produit des deux probabilités ; en régression, la variance marginale Var(Y) de Y.",
+			"En classification, le terme d'approximation de la classe choisie ; en régression, le terme d'estimation de l'algorithme.",
+			'En classification, E[max(η(X), 1 - η(X))], la probabilité de prédire juste ; en régression, la moyenne conditionnelle m(x) elle-même.'
 		],
-		answerIndex: 1,
+		answerIndex: 0,
 		explanation:
-			"Énoncé du Théorème 2.1 (part7/lesson2) : la convergence est énoncée en espérance, « E[R(h_n^{k-NN})] → R* », pour toute distribution P sur ℝ^d × {0,1}, sans hypothèse sur la distribution elle-même."
+			"En classification, R* = E[min(η(X), 1 - η(X))] (part7/lesson1, section « Risque de Bayes et séparabilité ») ; en régression, la décomposition biais-variance conditionnelle (preuve du Théorème 1.2) identifie la variance résiduelle E[(Y - m(x))² | X = x] comme la part irréductible — un bruit qu'aucun prédicteur, aussi bon soit-il, ne peut éliminer (cartouche « Biais-variance, version conditionnelle »)."
 	},
 	{
 		id: 'p7-syn-q15',
 		tags: ['p7/synthese'],
 		question:
-			"Dans la « Lecture biais-variance des deux conditions » (part7/lesson2), quel rôle joue chacune des deux conditions du Théorème 2.1 ?",
+			"Quel « fil conducteur » la leçon part7/lesson2 identifie-t-elle comme reliant classification, régression, consistance et généralisation ?",
 		options: [
-			"k(n) → +∞ contrôle la variance — moyenner sur davantage de voisins lisse le bruit d'échantillonnage par la loi des grands nombres ; k(n)/n → 0 contrôle le biais — les k(n) voisins restent proches de x, si bien que la moyenne locale capture η en x.",
-			"k(n) → +∞ contrôle le biais — plus il y a de voisins, plus la moyenne locale s'approche de la frontière de décision ; k(n)/n → 0 contrôle la variance.",
-			"Les deux conditions contrôlent la même chose : elles sont redondantes et l'une implique l'autre.",
-			"k(n) → +∞ contrôle l'approximation (la classe s'enrichit) ; k(n)/n → 0 contrôle l'estimation (le bruit d'échantillon)."
+			"Conditionner sur X = x réduit un problème global à une minimisation ponctuelle du risque conditionnel en chaque point : cette logique de décomposition par conditionnement est le fil conducteur vers les leçons sur la consistance et la généralisation.",
+			'Le théorème central limite, qui justifie la normalité des estimateurs quand la dimension grandit.',
+			"La convexité de la perte, qui garantit l'existence d'un minimum global pour toute distribution.",
+			"L'hypothèse d'indépendance des observations, sans laquelle aucune des leçons suivantes ne tiendrait."
 		],
 		answerIndex: 0,
 		explanation:
-			"Cartouche « Lecture biais-variance des deux conditions » (part7/lesson2) : k(n) → +∞ réduit la variance de l'estimation locale de η(x) — « en moyennant sur davantage de voisins, la loi des grands nombres lisse le bruit d'échantillonnage » — et k(n)/n → 0 réduit le biais, garantissant que les k(n) voisins restent de plus en plus proches de x."
+			"Cartouche « Retenir » de part7/lesson2 : « Cette logique — décomposer le risque par conditionnement, puis minimiser point par point — est le fil conducteur qui reliera aussi les leçons sur la consistance et la généralisation »."
 	}
 ];

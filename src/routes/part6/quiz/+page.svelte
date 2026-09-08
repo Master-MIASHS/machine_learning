@@ -10,7 +10,7 @@
 	const meta = getPageByPath('/part6/quiz');
 	createPageTracker(meta as PageMeta);
 
-	// Whole part: the curated synthèse questions plus every lesson quiz in Part VI.
+	// Whole part: the curated synthèse questions plus every lesson quiz in Part V.
 	const quiz = getQuizQuestions('p6');
 
 	const { prev: prevMeta, next: nextMeta } = $derived(
@@ -26,7 +26,7 @@
 
 <PageTemplate
 	title={meta?.title ?? 'Quiz de synthèse — Partie VI'}
-	subtitle="Vérifiez vos acquis sur le classifieur de Bayes et les prédicteurs optimaux de régression"
+	subtitle="Vérifiez vos acquis sur la classification Top-K, la prédiction conforme et les intervalles de régression"
 	prev={prevMeta}
 	next={nextMeta}
 >

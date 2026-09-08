@@ -3,14 +3,14 @@
 	import TheorySection from '$lib/components/narrative/TheorySection.svelte';
 	import TableOfContents from '$lib/components/narrative/TableOfContents.svelte';
 	import Callout from '$lib/components/narrative/Callout.svelte';
-	import DefinitionBlock from '$lib/components/narrative/DefinitionBlock.svelte';
-	import ExercisePanel from '$lib/components/narrative/ExercisePanel.svelte';
+	import TheoremBlock from '$lib/components/narrative/TheoremBlock.svelte';
 	import InteractiveSection from '$lib/components/narrative/InteractiveSection.svelte';
 	import KatexInline from '$lib/components/narrative/KatexInline.svelte';
 	import KatexBlock from '$lib/components/narrative/KatexBlock.svelte';
 	import Bibliography from '$lib/components/narrative/bib/Bibliography.svelte';
 	import BibElement from '$lib/components/narrative/bib/BibElement.svelte';
-	import CalibratedLossExplorer from '$lib/components/demos/CalibratedLossExplorer.svelte';
+	import ConcentrationInequalityExplorer from '$lib/components/demos/ConcentrationInequalityExplorer.svelte';
+	import EmpiricalMeanConvergenceDemo from '$lib/components/demos/EmpiricalMeanConvergenceDemo.svelte';
 	import { getPageByPath, getAdjacentPages } from '$lib/navigation.js';
 	import { settings } from '$lib/stores/index.js';
 	import { createPageTracker } from '$lib/stores/progress.svelte';
@@ -35,70 +35,62 @@
 
 	const tocEntries: TocEntry[] = [
 		{
-			id: 'pourquoi-pas-0-1',
-			label: 'Pourquoi ne pas minimiser la perte 0-1 ?',
-			description: 'NP-difficile, discontinue, gradient nul presque partout',
+			id: 'introduction',
+			label: 'Introduction',
+			description: 'Borner l\u2019écart entre risque empirique et risque théorique',
 			color: 'epistemic'
 		},
 		{
-			id: 'formulation-marge',
-			label: 'La formulation par la marge',
-			description: 'ℓφ(f(x), y) = φ(y·f(x)) et le φ-risque',
+			id: 'inegalites-markov-tchebychev',
+			label: 'Markov et Bienaymé-Tchebychev',
+			description: 'Les deux inégalités fondamentales, et comment la seconde dérive de la première',
 			color: 'belief'
 		},
 		{
-			id: 'pertes-usuelles',
-			label: 'Quatre pertes de substitution',
-			description: 'Logistique, charnière, exponentielle, Brier',
+			id: 'convergence-moyenne-empirique',
+			label: 'Convergence de la moyenne empirique',
+			description: 'La loi des grands nombres, version quantitative',
 			color: 'surprise'
 		},
 		{
-			id: 'logistique-cross-entropy',
-			label: 'Logistique et cross-entropy',
-			description: 'La même perte sous deux conventions',
+			id: 'limite-classifieur-fixe',
+			label: 'Les limites du contrôle pour un classifieur fixé',
+			description: 'Pourquoi cette borne ne suffit pas encore pour apprendre',
 			color: 'neutral'
-		},
-		{
-			id: 'vers-calibration',
-			label: 'La question qui reste',
-			description: 'Minimiser un proxy mène-t-il au classifieur de Bayes ?',
-			color: 'agent'
 		}
 	];
 
 	// ── Formula variables (kept in script so Svelte never parses backslashes) ──
 
-	const bayes01Risk = 'R(h) = P(h(X) \\neq Y)';
-	const empirical01Objective =
-		'\\hat h_0 = \\arg\\min_{h \\in \\mathcal H} R_S(h) = \\arg\\min_{h \\in \\mathcal H} \\frac1n \\sum_{i=1}^n \\mathbb{1}_{h(X_i) \\neq Y_i}';
+	const markovStatement =
+		'Z \\ge 0 \\text{ p.s.},\\ t>0 \\implies \\mathbb{P}(Z \\ge t) \\le \\frac{\\mathbb{E}[Z]}{t}';
+	const markovMinoration = 'Z \\ge t\\,\\mathbb{1}_{Z \\ge t} \\quad \\text{p.s.}';
+	const markovExpectation =
+		'\\mathbb{E}[Z] \\ge \\mathbb{E}[t\\,\\mathbb{1}_{Z\\ge t}] = t\\,\\mathbb{P}(Z \\ge t)';
 
-	const deepLearning01 = '\\frac1n \\sum_{i=1}^n \\mathbb{1}_{y_i f_\\theta(x_i) < 0}';
-	const deepLearningLogistic = '\\frac1n \\sum_{i=1}^n \\log(1 + e^{-y_i f_\\theta(x_i)})';
+	const chebyshevStatement =
+		'\\mathrm{Var}(Z) < \\infty,\\ \\varepsilon>0 \\implies \\mathbb{P}(|Z-\\mathbb{E}[Z]| \\ge \\varepsilon) \\le \\frac{\\mathrm{Var}(Z)}{\\varepsilon^2}';
+	const chebyshevViaMarkov =
+		'\\mathbb{P}\\big((Z-\\mathbb{E}[Z])^2 \\ge \\varepsilon^2\\big) \\le \\frac{\\mathbb{E}[(Z-\\mathbb{E}[Z])^2]}{\\varepsilon^2} = \\frac{\\mathrm{Var}(Z)}{\\varepsilon^2}';
+	const chebyshevEventEquality =
+		'\\{(Z-\\mathbb{E}[Z])^2 \\ge \\varepsilon^2\\} = \\{|Z-\\mathbb{E}[Z]| \\ge \\varepsilon\\}';
+	const hoeffdingStatement =
+		'Z_1,\\dots,Z_n\\in[0,1]\\text{ i.i.d.} \\implies \\mathbb{P}\\left(\\left|\\frac1n\\sum_{i=1}^n Z_i-\\mathbb{E}[Z_1]\\right|\\ge\\varepsilon\\right)\\le 2e^{-2n\\varepsilon^2}';
 
-	const marginLoss = '\\ell_\\phi(f(x), y) = \\phi(y f(x))';
-	const phi01Def = '\\phi_{0\\text{-}1}(t) = \\mathbb{1}_{t < 0}';
-	const phi01Check =
-		'\\ell_{\\phi_{0\\text{-}1}}(f(x), y) = \\mathbb{1}_{y f(x) < 0} = \\mathbb{1}_{\\operatorname{sgn}(f(x)) \\neq y}';
-	const phiRiskDef = 'R_\\phi(f) = \\mathbb{E}[\\phi(Y f(X))]';
-	const phiRiskBayes = 'R_\\phi^* = \\inf_{f : \\mathcal X \\to \\mathbb R} R_\\phi(f)';
+	const iidSetup =
+		'Z_1,\\dots,Z_n \\text{ i.i.d.},\\quad \\mu=\\mathbb{E}[Z_1],\\quad \\sigma^2=\\mathrm{Var}(Z_1)<+\\infty';
+	const empiricalMeanDef = '\\bar Z_n = \\frac1n\\sum_{i=1}^n Z_i';
+	const empiricalMeanMoments =
+		'\\mathbb{E}[\\bar Z_n] = \\mu, \\qquad \\mathrm{Var}(\\bar Z_n) = \\frac{\\sigma^2}{n}';
+	const empiricalMeanChebyshev =
+		'\\mathbb{P}(|\\bar Z_n - \\mu| \\ge \\varepsilon) \\le \\frac{\\sigma^2}{n\\varepsilon^2} \\xrightarrow[n\\to+\\infty]{} 0';
 
-	const logisticLoss = '\\ell_{\\log}(y, f(x)) = \\log(1 + e^{-y f(x)})';
-	const crossEntropyLoss =
-		'\\ell_{\\mathrm{CE}}(\\tilde y, f(x)) = -\\tilde y \\log \\sigma(f(x)) - (1-\\tilde y)\\log(1 - \\sigma(f(x)))';
-	const sigmoidDef = '\\sigma(t) = \\frac{1}{1 + e^{-t}}';
-	const sigmoidIdentity =
-		'1 - \\sigma(t) = \\frac{e^{-t}}{1+e^{-t}} = \\frac{1}{1+e^{t}} = \\sigma(-t)';
-	const logSigmoid =
-		'\\log \\sigma(t) = -\\log(1 + e^{-t}) \\quad \\text{et} \\quad \\log(1 - \\sigma(t)) = -\\log(1 + e^{t})';
-	const ceCaseOne =
-		'\\ell_{\\mathrm{CE}}(1, f(x)) = -\\log \\sigma(f(x)) = \\log(1 + e^{-f(x)}) = \\log(1 + e^{-y f(x)}) = \\ell_{\\log}(+1, f(x))';
-	const ceCaseZero =
-		'\\ell_{\\mathrm{CE}}(0, f(x)) = -\\log(1 - \\sigma(f(x))) = -\\log \\sigma(-f(x)) = \\log(1 + e^{f(x)}) = \\log(1 + e^{-(-1) f(x)}) = \\ell_{\\log}(-1, f(x))';
-	const conventionChange =
-		'\\tilde y = \\frac{y+1}{2} \\in \\{0,1\\} \\Longleftrightarrow y = 2\\tilde y - 1 \\in \\{-1,+1\\}';
-	const ceEquivalence =
-		'\\ell_{\\mathrm{CE}}(\\tilde y, f(x)) = \\ell_{\\log}(2\\tilde y - 1, f(x)) = \\log(1 + e^{-(2\\tilde y - 1) f(x)})';
-	const logisticModel = 'P(Y = 1 \\mid X = x) = \\sigma(f(x))';
+	const fixedClassifierZ = 'Z_i = \\mathbb{1}_{h(X_i) \\neq Y_i}';
+	const fixedClassifierVar = '\\mathrm{Var}(Z_i) = R(h)\\big(1-R(h)\\big) \\le \\tfrac14';
+	const fixedClassifierBound =
+		'\\mathbb{P}\\big(|R_n(h) - R(h)| \\ge \\varepsilon\\big) \\le \\frac{R(h)(1-R(h))}{n\\varepsilon^2} \\le \\frac{1}{4n\\varepsilon^2}';
+
+	const supGap = '\\sup_{h\\in\\mathcal H} |R_n(h) - R(h)|';
 </script>
 
 <svelte:head>
@@ -106,297 +98,195 @@
 </svelte:head>
 
 <PageTemplate
-	title={meta?.title ?? 'De la perte 0-1 aux pertes proxy'}
-	subtitle="Pourquoi la perte 0-1 ne s'optimise pas, et comment les pertes de substitution la remplacent"
+	title={meta?.title ?? 'Concentration et risque empirique'}
+	subtitle="Markov, Tchebychev, et pourquoi contrôler un seul classifieur ne suffit pas encore"
 	prev={prevMeta}
 	next={nextMeta}
 >
 	<TheorySection>
 		<TableOfContents entries={tocEntries} />
 
-		<h2 id="pourquoi-pas-0-1">Pourquoi ne pas minimiser la perte 0-1 ?</h2>
+		<h2 id="introduction">Introduction</h2>
 
 		<p>
-			La Partie VI a caractérisé le classifieur de Bayes <KatexInline formula={'h^*'} /> : il minimise
-			le risque 0-1 <KatexInline formula={bayes01Risk} />, la quantité la plus naturelle possible
-			pour évaluer un classifieur. L'idée la plus directe serait donc de minimiser le risque
-			empirique 0-1 sur la classe <KatexInline formula={'\\mathcal H'} /> :
-		</p>
-		<KatexBlock formula={empirical01Objective} />
-
-		<p>
-			Malheureusement, ce problème est <strong>NP-difficile</strong> en général : la perte 0-1 est non
-			convexe, discontinue, et son gradient est nul presque partout. On ne peut tout simplement pas l'optimiser
-			par descente de gradient.
+			La Partie VIII a établi <em>que</em> certains algorithmes convergent vers le risque de Bayes.
+			Cette partie s'attaque à une question complémentaire : <em>à quelle vitesse</em>, et avec
+			quelles garanties quantitatives ? Le point de départ est toujours le même problème :
+			<KatexInline formula={'R_n(h)'} /> (calculable, à partir des données) doit servir de substitut à
+			<KatexInline formula={'R(h)'} /> (inconnu, dépend de <KatexInline formula={'h'} />). Les
+			<strong>inégalités de concentration</strong> quantifient précisément la probabilité que ces deux
+			quantités s'écartent l'une de l'autre — c'est l'outil de base sur lequel reposera toute la suite
+			de cette partie.
 		</p>
 
-		<Callout type="insight" title="Deep learning : la perte logistique en pratique">
+		<h2 id="inegalites-markov-tchebychev">Markov et Bienaymé-Tchebychev</h2>
+
+		<TheoremBlock title="Inégalité de Markov">
 			<p>
-				En pratique, on paramètre <KatexInline formula={'h'} /> par un réseau de neurones
-				<KatexInline formula={'f_\\theta : \\mathcal X \\to \\mathbb R'} /> et on pose
-				<KatexInline formula={'h_\\theta(x) = \\operatorname{sgn}(f_\\theta(x))'} />. On ne minimise
-				pas :
+				Soit <KatexInline formula={'Z\\ge 0'} /> une variable aléatoire réelle positive. Alors :
 			</p>
-			<KatexBlock formula={deepLearning01} />
+			<KatexBlock formula={markovStatement} />
+		</TheoremBlock>
+
+		<div class="proof-block">
+			<p><strong>Démonstration :</strong></p>
 			<p>
-				mais la <strong>perte logistique</strong> (ou cross-entropy) :
+				On minore <KatexInline formula={'Z'} /> par <KatexInline
+					formula={'t\\,\\mathbb{1}_{Z\\ge t}'}
+				/>
+				: <KatexBlock formula={markovMinoration} /> (l'inégalité se vérifie séparément sur les deux événements
+				<KatexInline formula={'Z<t'} /> et <KatexInline formula={'Z\\ge t'} />). En prenant
+				l'espérance, qui préserve l'inégalité :
 			</p>
-			<KatexBlock formula={deepLearningLogistic} />
+			<KatexBlock formula={markovExpectation} />
 			<p>
-				qui est convexe en <KatexInline formula={'f_\\theta(x_i)'} />, différentiable, et dont le
-				gradient donne une direction de descente utile.
+				On divise par <KatexInline formula={'t>0'} />. ∎
+			</p>
+		</div>
+
+		<TheoremBlock title="Inégalité de Bienaymé-Tchebychev">
+			<p>
+				Soit <KatexInline formula={'Z'} /> une variable aléatoire réelle de variance finie. Alors :
+			</p>
+			<KatexBlock formula={chebyshevStatement} />
+		</TheoremBlock>
+
+		<div class="proof-block">
+			<p><strong>Démonstration :</strong></p>
+			<p>
+				On applique Markov à la variable positive <KatexInline formula={'(Z-\\mathbb{E}[Z])^2'} /> avec
+				le seuil
+				<KatexInline formula={'\\varepsilon^2'} /> :
+			</p>
+			<KatexBlock formula={chebyshevViaMarkov} />
+			<p>
+				Or les événements <KatexInline formula={chebyshevEventEquality} /> coïncident (une inégalité au
+				carré équivaut à l'inégalité en valeur absolue), d'où le résultat. ∎
+			</p>
+		</div>
+
+		<Callout type="insight" title="Hoeffding : exploiter le bornage">
+			<p>
+				Lorsque les observations sont indépendantes et bornées, on peut obtenir une décroissance
+				exponentielle de la probabilité d'écart, sans connaître la variance :
+			</p>
+			<KatexBlock formula={hoeffdingStatement} />
+			<p>
+				Pour des variables dans un intervalle général <KatexInline formula={'[a,b]'} />, le terme
+				d'exposant devient <KatexInline formula={'-2n\\varepsilon^2/(b-a)^2'} />. Hoeffding est donc
+				souvent plus informative que Tchebychev pour les grands échantillons, mais elle exige une
+				hypothèse supplémentaire : connaître une borne uniforme sur les observations.
 			</p>
 		</Callout>
 
-		<p>
-			De même, le SVM minimise la perte charnière <KatexInline formula={'\\max(0, 1 - y f(x))'} />,
-			et AdaBoost minimise implicitement la perte exponentielle <KatexInline
-				formula={'e^{-y f(x)}'}
-			/>.
-		</p>
-
-		<p>
-			La question fondamentale est alors : <em>minimiser une perte proxy</em>
-			<KatexInline formula={'\\phi'} />
-			<em> conduit-il bien à un classifieur proche de</em>
-			<KatexInline formula={'h^*'} />
-			<em> ?</em> C'est l'objet de la calibration, étudiée à la leçon suivante.
-		</p>
-
-		<h2 id="formulation-marge">La formulation par la marge</h2>
-
-		<p>
-			On se place en classification binaire <KatexInline formula={'\\mathcal Y = \\{-1, +1\\}'} />.
-			Un modèle est une fonction <KatexInline formula={'f : \\mathcal X \\to \\mathbb R'} />, et la
-			décision associée est <KatexInline formula={'h_f(x) = \\operatorname{sgn}(f(x))'} />. La
-			<strong>marge</strong>
-			<KatexInline formula={'t = y f(x)'} /> mesure la justesse de la prédiction : elle est positive quand
-			le signe est bon, et plus grande en valeur absolue quand la prédiction est plus « confiante ».
-		</p>
-
-		<p>
-			On remplace la perte 0-1 par une <strong>perte de substitution</strong>
-			<KatexInline formula={'\\phi : \\mathbb R \\to \\mathbb R_+'} />
-			appliquée à la marge :
-		</p>
-		<KatexBlock formula={marginLoss} />
-
-		<p>
-			<strong>Vérification sur la perte 0-1.</strong> On pose <KatexInline formula={phi01Def} />.
-			Alors :
-		</p>
-		<KatexBlock formula={phi01Check} />
-		<p>
-			ce qui redonne bien la perte 0-1 usuelle : la marge <KatexInline formula={'y f(x)'} /> est négative
-			si et seulement si <KatexInline formula={'f(x)'} /> et <KatexInline formula={'y'} />
-			sont de signes opposés, c'est-à-dire quand le classifieur se trompe. La perte 0-1 est donc une perte
-			de substitution au sens propre — la seule, hélas, qui ne puisse pas s'optimiser.
-		</p>
-
-		<DefinitionBlock title="φ-risque et φ-risque de Bayes">
-			<p>
-				Le <KatexInline formula={'\\phi'} />-risque d'un modèle <KatexInline formula={'f'} /> est :
-			</p>
-			<KatexBlock formula={phiRiskDef} />
-			<p>et le <KatexInline formula={'\\phi'} />-risque de Bayes est :</p>
-			<KatexBlock formula={phiRiskBayes} />
-		</DefinitionBlock>
-
-		<h2 id="pertes-usuelles">Quatre pertes de substitution usuelles</h2>
-
-		<p>Les exemples standard de pertes de substitution sont les suivants.</p>
-
-		<table>
-			<thead>
-				<tr>
-					<th>Perte</th>
-					<th>Expression φ(t)</th>
-					<th>Usage</th>
-				</tr>
-			</thead>
-			<tbody>
-				<tr>
-					<td>Logistique</td>
-					<td><KatexInline formula={String.raw`\log(1 + e^{-t})`} /></td>
-					<td>Régression logistique, deep learning</td>
-				</tr>
-				<tr>
-					<td>Charnière</td>
-					<td><KatexInline formula={String.raw`\max(0, 1 - t)`} /></td>
-					<td>SVM</td>
-				</tr>
-				<tr>
-					<td>Exponentielle</td>
-					<td><KatexInline formula={String.raw`e^{-t}`} /></td>
-					<td>AdaBoost</td>
-				</tr>
-				<tr>
-					<td>Carrée (Brier)</td>
-					<td><KatexInline formula={String.raw`(1 - t)^2`} /></td>
-					<td>Least-squares classification</td>
-				</tr>
-			</tbody>
-		</table>
-
-		<p>
-			Ces pertes partagent la propriété qui les rend exploitables : elles sont convexes et
-			différentiables (la charnière, non différentiable en <KatexInline formula={'t = 1'} />, l'est
-			néanmoins en <KatexInline formula={'t = 0'} />, où sa pente vaut <KatexInline
-				formula={'-1'}
-			/>) — là où la perte 0-1 est plate presque partout. On vérifie par ailleurs que les quatre
-			sont telles que <KatexInline formula={"\\varphi'(0) < 0"} /> ; cette propriété jouera un rôle central
-			dans le critère de calibration de la leçon suivante.
-		</p>
+		<Callout type="insight" title="Tchebychev, c'est Markov appliqué intelligemment">
+			Il n'y a pas deux outils indépendants ici : Tchebychev <em>est</em> Markov, appliqué à la
+			bonne variable (le carré de l'écart à la moyenne plutôt qu'à la variable elle-même). C'est ce
+			choix qui transforme une borne portant sur <KatexInline formula={'Z'} /> en une borne portant sur
+			la <strong>variance</strong> — une quantité bien plus informative dès que l'on s'intéresse à la
+			dispersion autour d'une moyenne plutôt qu'à la variable brute.
+		</Callout>
 
 		<InteractiveSection
 			number="1.1"
-			title="Pertes de substitution face à la perte 0-1"
+			title="Markov, Tchebychev et Hoeffding en parallèle"
 			onInteract={tracker.trackInteraction}
 		>
 			<p class="demo-guide">
-				<strong>À observer.</strong> Chaque perte de substitution est affichée à côté de la perte
-				0-1, plate et discontinue. Déplacez la marge <KatexInline formula={'t'} /> : la pente locale et
-				le gradient de la perte sélectionnée sont non nuls presque partout, alors que ceux de la 0-1 sont
-				nuls hors de <KatexInline formula={'t = 0'} />. Ramenez <KatexInline formula={'t'} />
-				vers 0 : la pente <KatexInline formula={"\\varphi'(0)"} /> qui s'y lit est précisément la quantité
-				sur laquelle reposera le critère de calibration.
+				<strong>À observer.</strong> La courbe empirique estime la probabilité d'un écart ; les
+				trois autres courbes la majorent. Faites augmenter <KatexInline formula={'n'} /> : Markov reste
+				constante, Tchebychev décroît comme <KatexInline formula={'1/n'} />, tandis que Hoeffding
+				décroît exponentiellement comme <KatexInline formula={'e^{-2n\\varepsilon^2}'} />.
 			</p>
-			<CalibratedLossExplorer />
+			<ConcentrationInequalityExplorer />
 		</InteractiveSection>
 
-		<h2 id="logistique-cross-entropy">Logistique et cross-entropy : la même perte</h2>
+		<h2 id="convergence-moyenne-empirique">Convergence de la moyenne empirique</h2>
 
 		<p>
-			Dans l'exemple du deep learning, la perte logistique était écrite avec la convention
-			<KatexInline formula={'y \\in \\{-1, +1\\}'} /> et la sortie <KatexInline
-				formula={'f(x) \\in \\mathbb R'}
-			/>. Dans la littérature probabiliste, la même perte est appelée
-			<strong>cross-entropy</strong>, avec la convention <KatexInline
-				formula={'\\tilde y \\in \\{0, 1\\}'}
-			/> et la sortie
-			<KatexInline formula={'\\sigma(f(x)) \\in (0,1)'} />. Ces deux formulations sont identiques à
-			un changement de convention près.
+			Ces deux inégalités suffisent à établir la consistance en probabilité de la moyenne empirique
+			— le prototype de la convergence du risque empirique vers le risque théorique.
 		</p>
 
-		<ExercisePanel title="Équivalence entre perte logistique et cross-entropy">
-			<p>
-				En classification binaire, on dispose de deux formulations de la perte : la <em
-					>perte logistique</em
-				>
-				(convention <KatexInline formula={'y \\in \\{-1, +1\\}'} />, sortie
-				<KatexInline formula={'f(x) \\in \\mathbb R'} />) :
-			</p>
-			<KatexBlock formula={logisticLoss} />
-			<p>
-				et la <em>cross-entropy</em> (convention <KatexInline
-					formula={'\\tilde y \\in \\{0, 1\\}'}
-				/>, sortie <KatexInline formula={'\\sigma(f(x)) \\in (0,1)'} />) :
-			</p>
-			<KatexBlock formula={crossEntropyLoss} />
-			<p>
-				où <KatexInline formula={sigmoidDef} /> est la fonction sigmoïde. Montrer que ces deux pertes
-				sont identiques à un changement de convention près.
-			</p>
-			<p>
-				<em>Indication :</em> exprimer <KatexInline formula={'\\sigma(f(x))'} /> et
-				<KatexInline formula={'1 - \\sigma(f(x))'} /> en fonction de <KatexInline
-					formula={'e^{f(x)}'}
-				/>, puis traiter séparément les cas <KatexInline formula={'\\tilde y = 1'} /> et
-				<KatexInline formula={'\\tilde y = 0'} />, correspondant respectivement à
-				<KatexInline formula={'y = +1'} /> et <KatexInline formula={'y = -1'} />.
-			</p>
+		<p>
+			Soit <KatexInline formula={iidSetup} />. On pose <KatexInline formula={empiricalMeanDef} />.
+		</p>
 
-			{#snippet solution()}
-				<p><strong>Solution :</strong></p>
-
-				<p><strong>Étape 1 — Intuition.</strong></p>
-				<p>
-					Les deux formulations encodent la même idée : pénaliser le modèle quand il est confiant
-					dans la mauvaise direction. La perte logistique le fait via la marge
-					<KatexInline formula={'y f(x)'} /> (négative quand <KatexInline formula={'f'} /> et
-					<KatexInline formula={'y'} /> sont de signes opposés), et la cross-entropy via la log-vraisemblance
-					d'un modèle de Bernoulli de paramètre <KatexInline formula={'\\sigma(f(x))'} />.
-				</p>
-
-				<p><strong>Étape 2 — Rappels sur la sigmoïde.</strong></p>
-				<p>On note que :</p>
-				<KatexBlock formula={sigmoidIdentity} />
-				<p>Donc :</p>
-				<KatexBlock formula={logSigmoid} />
-
-				<p>
-					<strong
-						>Étape 3 — Cas <KatexInline formula={'\\tilde y = 1'} /> (correspondant à
-						<KatexInline formula={'y = +1'} />).</strong
-					>
-				</p>
-				<KatexBlock formula={ceCaseOne} />
-
-				<p>
-					<strong
-						>Étape 4 — Cas <KatexInline formula={'\\tilde y = 0'} /> (correspondant à
-						<KatexInline formula={'y = -1'} />).</strong
-					>
-				</p>
-				<KatexBlock formula={ceCaseZero} />
-
-				<p><strong>Conclusion.</strong></p>
-				<p>
-					Les deux pertes sont identiques sous le changement de convention <KatexInline
-						formula={conventionChange}
-					/>
-					:
-				</p>
-				<KatexBlock formula={ceEquivalence} />
-
-				<p><strong>Interprétation probabiliste.</strong></p>
-				<p>La cross-entropy est la log-vraisemblance négative du modèle probabiliste :</p>
-				<KatexBlock formula={logisticModel} />
-				<p>
-					Minimiser la cross-entropy revient donc à maximiser la vraisemblance du modèle logistique,
-					ce qui justifie son usage en deep learning : on cherche les paramètres
-					<KatexInline formula={'\\theta'} /> qui rendent les labels observés les plus probables sous
-					le modèle <KatexInline formula={'\\sigma(f_\\theta)'} />.
-				</p>
-			{/snippet}
-		</ExercisePanel>
-
-		<h2 id="vers-calibration">La question qui reste</h2>
-
-		<Callout type="summary" title="Retenir">
-			La perte 0-1 est le critère théoriquement optimal, mais NP-difficile à minimiser : non
-			convexe, discontinue, gradient nul presque partout. La formulation par la marge
-			<KatexInline formula={marginLoss} /> permet de la remplacer par une perte de substitution
-			<KatexInline formula={'\\phi'} /> convexe et différentiable — logistique, charnière, exponentielle
-			ou Brier — dont le risque <KatexInline formula={'R_\\phi(f)'} /> se minimise par descente de gradient.
-			La perte logistique est exactement la cross-entropy du modèle logistique, à un changement de convention
-			près.
-		</Callout>
-
-		<Callout type="note" title="Que veut dire « calibrée » ?">
-			<p>
-				On dit qu'une perte de substitution <KatexInline formula={'\\varphi'} /> est
-				<strong>calibrée</strong> quand elle « fonctionne » pour la classification : toute suite de
-				modèles qui amène le <KatexInline formula={'\\varphi'} />-risque vers sa borne inférieure
-				amène aussi le risque 0-1 vers la sienne — minimiser le proxy conduit alors bien au
-				classifieur de Bayes. La définition formelle, et le critère <KatexInline
-					formula={"\\varphi'(0) < 0"}
-				/>
-				qui caractérise les pertes convexes calibrées, font l'objet de la leçon suivante.
-			</p>
-		</Callout>
+		<p>Par linéarité de l'espérance et indépendance :</p>
+		<KatexBlock formula={empiricalMeanMoments} />
 
 		<p>
-			Il reste à répondre à la question posée en introduction : minimiser <KatexInline
-				formula={'R_\\phi'}
-			/> conduit-il bien à un classifieur proche du classifieur de Bayes ? La leçon suivante introduit
-			les pertes calibrées et le critère <KatexInline formula={"\\varphi'(0) < 0"} /> qui répond à cette
-			question.
+			Par Bienaymé-Tchebychev, appliqué directement à <KatexInline formula={empiricalMeanDef} /> :
+		</p>
+		<KatexBlock formula={empiricalMeanChebyshev} />
+
+		<p>
+			Donc <KatexInline formula={empiricalMeanDef} /> converge en probabilité vers <KatexInline
+				formula={'\\mu'}
+			/> — c'est la loi des grands nombres, sous sa forme quantitative : non seulement la convergence
+			a lieu, mais on sait <em>à quelle vitesse</em> (en <KatexInline formula={'1/\\sqrt n'} /> sur l'écart
+			typique, puisque la probabilité de dépassement décroît en <KatexInline formula={'1/n'} />).
 		</p>
 
 		<InteractiveSection
 			number="1.2"
-			title="Quiz — Pertes proxy et marge"
+			title="Trajectoires, enveloppe et distribution finale"
+			onInteract={tracker.trackInteraction}
+		>
+			<EmpiricalMeanConvergenceDemo />
+		</InteractiveSection>
+
+		<h2 id="limite-classifieur-fixe">Les limites du contrôle pour un classifieur fixé</h2>
+
+		<p>
+			Appliquons directement ce résultat au risque empirique. Pour <KatexInline formula={'h'} />
+			<strong>fixé</strong>, on pose <KatexInline formula={fixedClassifierZ} />. Alors
+			<KatexInline formula={'R_n(h)=\\frac1n\\sum_i Z_i'} /> et <KatexInline
+				formula={'R(h)=\\mathbb{E}[Z_i]'}
+			/>. Comme
+			<KatexInline formula={'Z_i'} /> est de Bernoulli, sa variance est connue exactement :
+		</p>
+		<KatexBlock formula={fixedClassifierVar} />
+		<p>
+			(le maximum de <KatexInline formula={'R(h)(1-R(h))'} /> sur <KatexInline
+				formula={'R(h)\\in[0,1]'}
+			/> est atteint en <KatexInline formula={'R(h)=1/2'} />, où il vaut <KatexInline
+				formula={'1/4'}
+			/>). En injectant dans le résultat de la section précédente :
+		</p>
+		<KatexBlock formula={fixedClassifierBound} />
+
+		<Callout type="warning" title="Cette borne ne suffit pas encore">
+			Cette borne est valable pour <KatexInline formula={'h'} />
+			<strong>fixé à l'avance</strong>, indépendamment des données. Elle ne contrôle
+			<strong>pas</strong>
+			l'écart
+			<KatexBlock formula={supGap} />
+			sur une classe entière de classifieurs — c'est pourtant précisément ce dont on a besoin en apprentissage,
+			puisqu'on ne choisit jamais un <KatexInline formula={'h'} /> arbitraire à l'avance : on sélectionne
+			<KatexInline formula={'\\hat h_{\\mathcal S_n}'} /> après avoir vu les données, en minimisant <KatexInline
+				formula={'R_n(h)'}
+			/> sur <KatexInline formula={'\\mathcal H'} />. Un contrôle valable pour chaque <KatexInline
+				formula={'h'}
+			/> pris isolément ne dit rien sur celui, potentiellement trompeur, que l'algorithme finit par choisir.
+		</Callout>
+
+		<Callout type="summary" title="Retenir">
+			Markov borne <KatexInline formula={'\\mathbb{P}(Z\\ge t)'} /> pour <KatexInline
+				formula={'Z\\ge 0'}
+			/> positive ; Tchebychev, qui en découle en l'appliquant au carré de l'écart à la moyenne, borne
+			<KatexInline formula={'\\mathbb{P}(|Z-\\mathbb{E}[Z]|\\ge\\varepsilon)'} /> via la variance. Appliquée
+			au risque empirique d'un classifieur fixé, cette dernière donne une borne explicite en <KatexInline
+				formula={'1/(n\\varepsilon^2)'}
+			/> — mais seulement pour <em>un</em>
+			classifieur choisi sans regarder les données. La leçon suivante étend ce contrôle à une classe <KatexInline
+				formula={'\\mathcal H'}
+			/> entière, d'abord finie, via l'union bound.
+		</Callout>
+
+		<InteractiveSection
+			number="1.3"
+			title="Quiz — Concentration : Markov, Tchebychev, Hoeffding"
 			onInteract={tracker.trackInteraction}
 		>
 			<Quiz items={quiz} />
@@ -405,10 +295,11 @@
 
 	<Bibliography>
 		<BibElement
-			authors={['Bartlett, P. L.', 'Jordan, M. I.', 'McAuliffe, J.']}
-			year={2006}
-			title="Convexity, Classification, and Risk Bounds"
-			journal="Journal of the American Statistical Association, 101(473), 138-156."
+			authors={['Boucheron, S.', 'Lugosi, G.', 'Massart, P.']}
+			year={2013}
+			title="Concentration Inequalities: A Nonasymptotic Theory of Independence"
+			journal="Oxford University Press."
+			link="https://global.oup.com/academic/product/concentration-inequalities-9780199535255"
 		/>
 		<BibElement
 			authors={['Shalev-Shwartz, S.', 'Ben-David, S.']}
@@ -418,48 +309,27 @@
 			link="https://www.cs.huji.ac.il/~shais/UnderstandingMachineLearning/"
 		/>
 		<BibElement
-			authors={['Hastie, T.', 'Tibshirani, R.', 'Friedman, J.']}
-			year={2009}
-			title="The Elements of Statistical Learning: Data Mining, Inference, and Prediction"
-			journal="Springer Science & Business Media, Second Edition."
-			link="https://hastie.su.domains/ElemStatLearn/"
+			authors={['Hoeffding, W.']}
+			year={1963}
+			title="Probability inequalities for sums of bounded random variables"
+			journal="Journal of the American Statistical Association, 58(301), 13-30."
 		/>
 	</Bibliography>
 </PageTemplate>
 
 <style>
-	table {
-		width: 100%;
-		border-collapse: collapse;
+	.proof-block {
+		padding: 1rem 1.5rem;
 		margin: 1rem 0;
-		border: 1px solid var(--color-border);
-		border-radius: var(--radius-md, 8px);
-		overflow: hidden;
+		border-left: 3px solid var(--color-positive, #4caf50);
+		background-color: color-mix(in srgb, var(--color-positive, #4caf50) 5%, transparent);
+		border-radius: 0 6px 6px 0;
+		font-size: 0.95em;
+		line-height: 1.7;
 	}
 
-	thead {
-		background: color-mix(in srgb, var(--color-epistemic, #4f7cac) 8%, transparent);
-	}
-
-	th {
-		padding: 0.75rem 1rem;
-		text-align: left;
-		font-size: 0.75rem;
-		font-weight: 600;
-		text-transform: uppercase;
-		letter-spacing: 0.05em;
-		color: var(--color-text-muted);
-		border-bottom: 1px solid var(--color-border);
-	}
-
-	td {
-		padding: 0.75rem 1rem;
-		font-size: 0.875rem;
-		border-bottom: 1px solid var(--color-border);
-	}
-
-	tbody tr:last-child td {
-		border-bottom: none;
+	.proof-block p {
+		margin: 0.4rem 0;
 	}
 
 	.demo-guide {

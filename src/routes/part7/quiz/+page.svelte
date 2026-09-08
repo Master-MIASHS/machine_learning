@@ -10,7 +10,7 @@
 	const meta = getPageByPath('/part7/quiz');
 	createPageTracker(meta as PageMeta);
 
-	// Whole part: the curated synthèse questions plus every lesson quiz in Part VII.
+	// Whole part: the curated synthèse questions plus every lesson quiz in Part VI.
 	const quiz = getQuizQuestions('p7');
 
 	const { prev: prevMeta, next: nextMeta } = $derived(
@@ -26,7 +26,7 @@
 
 <PageTemplate
 	title={meta?.title ?? 'Quiz de synthèse — Partie VII'}
-	subtitle="Vérifiez vos acquis sur les notions de consistance et le théorème de Stone pour le k-NN"
+	subtitle="Vérifiez vos acquis sur le classifieur de Bayes et les prédicteurs optimaux de régression"
 	prev={prevMeta}
 	next={nextMeta}
 >

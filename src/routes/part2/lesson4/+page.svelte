@@ -852,9 +852,9 @@
 			La perte <KatexInline formula={'\\ell^{\\mathrm{hinge}}'} /> et la régularisation L2 ont déjà été
 			rencontrées dans ce cours : fonctions de coût (
 			<a href={resolve('/part1/lesson2')}>Partie I, leçon 2</a>), régularisation L2 (
-			<a href={resolve('/part4/lesson4')}>Partie IV, leçon 4</a>), perte de substitution de la perte 0-1 (
-			<a href={resolve('/part9/lesson1')}>Partie IX, leçon 1</a>) et calibration (
-			<a href={resolve('/part9/lesson2')}>Partie IX, leçon 2</a>).
+			<a href={resolve('/part5/lesson4')}>Partie V, leçon 4</a>), perte de substitution de la perte 0-1 (
+			<a href={resolve('/part10/lesson1')}>Partie X, leçon 1</a>) et calibration (
+			<a href={resolve('/part10/lesson2')}>Partie X, leçon 2</a>).
 		</p>
 
 		<InteractiveSection
@@ -1487,9 +1487,9 @@
 			<p>
 				L'astuce du noyau s'applique aussi à d'autres algorithmes d'apprentissage linéaires, comme
 				la régression ridge (
-				<a href={resolve('/part4/lesson4')}>Partie IV, leçon 4</a>). Quant à l'évaluation théorique de la SVM,
+				<a href={resolve('/part5/lesson4')}>Partie V, leçon 4</a>). Quant à l'évaluation théorique de la SVM,
 				la borne de généralisation via la dimension VC est développée dans la
-				<a href={resolve('/part8/lesson3')}>Partie VIII, leçon 3</a>.
+				<a href={resolve('/part9/lesson3')}>Partie IX, leçon 3</a>.
 			</p>
 			<p>
 				Ce contenu est <strong>au-delà du cours</strong> : il n'est pas développé dans les diapositives.

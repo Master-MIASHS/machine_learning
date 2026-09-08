@@ -425,7 +425,7 @@
 				demi-espaces) au tableau blanc : seules l'introduction et la question
 				« confiance en la prédiction : proche ou pas de la droite » y sont écrites.
 				Le contenu ci-dessous est une reconstruction minimale et fidèle de cette
-				partie, à partir de l'encadrement des diapositives et de la Partie IX.
+				partie, à partir de l'encadrement des diapositives et de la Partie X.
 			</p>
 		</Callout>
 
@@ -479,7 +479,7 @@
 				partout, et la descente de gradient ne peut pas être utilisée. La
 				caractérisation complète de ce problème (NP-difficulté, formulation par la
 				marge) est donnée dans la
-				<a href={resolve('/part9/lesson1')}>Partie IX, leçon 1</a>.
+				<a href={resolve('/part10/lesson1')}>Partie X, leçon 1</a>.
 			</p>
 			<p>
 				C'est précisément la <strong>motivation</strong> de la régression logistique
@@ -563,7 +563,7 @@
 				elles ne diffèrent que quand <KatexInline formula={'\\alpha \\neq 0.5'} />.
 				Le risque logistique empirique (lissé, optimisable) et le risque 0-1
 				(discontinu) sont affichés en continu — c'est l'écart entre ces deux risques
-				que la Partie IX met en perspective.
+				que la Partie X met en perspective.
 			</p>
 			<LinearClassifierExplorer />
 		</InteractiveSection>
@@ -644,7 +644,7 @@
 				<KatexInline formula={'y = -1'} />, allure de la perte), à compléter au
 				tableau. La rédaction ci-dessous est une reconstruction fidèle du
 				déroulé, en réutilisant les identités de la sigmoïde déjà démontrées dans
-				la <a href={resolve('/part9/lesson1')}>Partie IX</a>.
+				la <a href={resolve('/part10/lesson1')}>Partie X</a>.
 			</p>
 		</Callout>
 
@@ -692,7 +692,7 @@
 		<p>
 			où la dernière égalité utilise l'identité
 			<KatexInline formula={sigmoidSymmetry} />
-			(démontrée dans la <a href={resolve('/part9/lesson1')}>Partie IX, leçon 1</a> — section
+			(démontrée dans la <a href={resolve('/part10/lesson1')}>Partie X, leçon 1</a> — section
 			« Logistique et cross-entropy »).
 		</p>
 
@@ -754,11 +754,11 @@
 
 		<p>
 			La perte obtenue est exactement la perte logistique de la
-			<a href={resolve('/part9/lesson1')}>Partie IX</a>, où elle est reliée rigoureusement à
+			<a href={resolve('/part10/lesson1')}>Partie X</a>, où elle est reliée rigoureusement à
 			la cross-entropy et étudiée comme perte de substitution (marge
 			<KatexInline formula={'y f(x)'} />). La question « minimiser cette perte
 			mène-t-elle bien au classifieur de Bayes ? » (calibration) y est traitée dans
-			la <a href={resolve('/part9/lesson2')}>leçon 2 de la Partie IX</a>.
+			la <a href={resolve('/part10/lesson2')}>leçon 2 de la Partie X</a>.
 		</p>
 
 		<Callout type="insight" title="Demi-espaces, régression linéaire seuillée, régression logistique">
@@ -783,7 +783,7 @@
 					<strong>régression linéaire seuillée</strong> :
 					<KatexInline formula={'\\phi = \\mathrm{id}'} /> (sortie réelle) avec
 					coût quadratique (perte « Carrée (Brier) » du tableau de la
-					<a href={resolve('/part9/lesson1')}>Partie IX</a>), puis seuillage de la sortie à
+					<a href={resolve('/part10/lesson1')}>Partie X</a>), puis seuillage de la sortie à
 					0.5 — risque convexe, mais la sortie n'a pas d'interprétation en
 					probabilité ;
 				</li>
@@ -1049,7 +1049,7 @@
 					formula={'\\log(1 + e^{-yz})'}
 				/>
 				, dérivée cas par cas, est convexe et optimisable, et s'unifie avec la
-				cross-entropy (Partie IX).
+				cross-entropy (Partie X).
 			</p>
 			<p>
 				La décision seuille cette probabilité :

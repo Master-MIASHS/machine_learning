@@ -3,13 +3,17 @@
 	import TheorySection from '$lib/components/narrative/TheorySection.svelte';
 	import TableOfContents from '$lib/components/narrative/TableOfContents.svelte';
 	import Callout from '$lib/components/narrative/Callout.svelte';
+	import DefinitionBlock from '$lib/components/narrative/DefinitionBlock.svelte';
 	import TheoremBlock from '$lib/components/narrative/TheoremBlock.svelte';
+	import ExampleBlock from '$lib/components/narrative/ExampleBlock.svelte';
 	import InteractiveSection from '$lib/components/narrative/InteractiveSection.svelte';
 	import KatexInline from '$lib/components/narrative/KatexInline.svelte';
 	import KatexBlock from '$lib/components/narrative/KatexBlock.svelte';
 	import Bibliography from '$lib/components/narrative/bib/Bibliography.svelte';
 	import BibElement from '$lib/components/narrative/bib/BibElement.svelte';
-	import RiskDecompositionDemo from '$lib/components/demos/RiskDecompositionDemo.svelte';
+	import VCShatteringExplorer from '$lib/components/demos/VCShatteringExplorer.svelte';
+	import SauerGrowthDemo from '$lib/components/demos/SauerGrowthDemo.svelte';
+	import MarginVCExplorer from '$lib/components/demos/MarginVCExplorer.svelte';
 	import { getPageByPath, getAdjacentPages } from '$lib/navigation.js';
 	import { settings } from '$lib/stores/index.js';
 	import { createPageTracker } from '$lib/stores/progress.svelte';
@@ -34,47 +38,70 @@
 
 	const tocEntries: TocEntry[] = [
 		{
-			id: 'mise-en-place',
-			label: 'Mise en place',
-			description: 'Trois fonctions à comparer : empirique, meilleure dans F, globale',
+			id: 'introduction',
+			label: 'Introduction',
+			description: 'Quand |H| = +∞, il faut une mesure de complexité plus fine que le cardinal',
 			color: 'epistemic'
 		},
 		{
-			id: 'decomposition',
-			label: 'Théorème 4.2 : trois termes',
-			description: 'Estimation, calibration, approximation',
+			id: 'brisure-dimension-vc',
+			label: 'Brisure et dimension VC',
+			description: 'Seuils, intervalles, hyperplans — trois exemples de VCdim croissante',
 			color: 'belief'
 		},
 		{
-			id: 'signe-termes',
-			label: 'Interprétation de chaque terme',
-			description: "Quand B et C s'annulent-ils ?",
+			id: 'coefficient-brisure-sauer-shelah',
+			label: 'Coefficient de brisure et lemme de Sauer-Shelah',
+			description: 'De la croissance exponentielle à la croissance polynomiale',
 			color: 'surprise'
 		},
 		{
-			id: 'cas-benin',
-			label: 'Le cas favorable',
-			description: 'φ calibrée et f** ∈ F : il ne reste que l’estimation',
+			id: 'theoreme-generalisation-vc',
+			label: 'Théorème de généralisation VC',
+			description: 'Théorème 3.3 — une borne uniforme même pour |H| infini',
 			color: 'neutral'
+		},
+		{
+			id: 'application-svm',
+			label: 'Application : borne VC pour le SVM',
+			description:
+				'Théorème 3.4 — la dimension VC dépend de la marge, pas de la dimension ambiante',
+			color: 'agent'
 		}
 	];
 
 	// ── Formula variables (kept in script so Svelte never parses backslashes) ──
 
-	const hatfDef =
-		'\\hat f_{\\mathcal F}(\\mathcal S_n) = \\arg\\min_{f \\in \\mathcal F} R_{\\varphi,\\, \\mathcal S_n}(f)';
-	const empiricalPhiRisk =
-		'R_{\\varphi,\\, \\mathcal S_n}(f) = \\frac1n \\sum_{i=1}^n \\varphi(Y_i f(X_i))';
-	const fstarDef = 'f^* = \\arg\\min_{f \\in \\mathcal F} R_\\varphi(f)';
-	const fbbDef = 'f^{**} : x \\mapsto \\arg\\min_{\\alpha \\in \\mathbb R} C_\\varphi(\\alpha,\\, \\eta(x))';
-	const phiBayesRisk = 'R_\\varphi^* = R_\\varphi(f^{**})';
+	const shatteringDef =
+		'\\forall (y_1,\\dots,y_m)\\in\\{0,1\\}^m,\\ \\exists h\\in\\mathcal H,\\ h(x_i)=y_i\\ \\forall i';
+	const shatteringCount = '|\\{(h(x_1),\\dots,h(x_m)) : h\\in\\mathcal H\\}| = 2^m';
+	const vcdimDef =
+		'\\mathrm{VCdim}(\\mathcal H) = \\sup\\{m\\in\\mathbb N : \\exists\\, C\\subset\\mathcal X,\\ |C|=m,\\ \\mathcal H \\text{ brise } C\\}';
 
-	const decomposition =
-		'R(h_{\\hat f_S}) - R^* = \\underbrace{R(h_{\\hat f_S}) - R(h_{f^*})}_{A} + \\underbrace{R(h_{f^*}) - R(h_{f^{**}})}_{B} + \\underbrace{R(h_{f^{**}}) - R^*}_{C}';
-	const telescoping =
-		'R(h_{\\hat f_S}) - R^* = R(h_{\\hat f_S}) - R(h_{f^*}) + R(h_{f^*}) - R(h_{f^{**}}) + R(h_{f^{**}}) - R^*';
-	const bInequality = 'R_\\varphi(f^*) \\le R_\\varphi(f^{**})';
-	const cAtBayes = 'R_\\varphi(f^{**}) = R_\\varphi^*';
+	const thresholdsFamily =
+		'\\mathcal H = \\{x\\mapsto\\mathbb{1}_{x\\ge\\theta} : \\theta\\in\\mathbb R\\}';
+	const intervalsFamily = '\\mathcal H = \\{x\\mapsto\\mathbb{1}_{x\\in[a,b]} : a\\le b\\}';
+	const hyperplanesFamily =
+		'\\mathcal H = \\{x\\mapsto\\mathbb{1}_{w^\\top x \\ge b} : w\\in\\mathbb R^d,\\ b\\in\\mathbb R\\}';
+
+	const growthCoeffDef =
+		'\\Pi_{\\mathcal H}(m) = \\max_{C\\subset\\mathcal X,\\ |C|=m} |\\{(h(x_1),\\dots,h(x_m)) : h\\in\\mathcal H\\}| \\quad (\\le 2^m)';
+	const sauerShelahStatement =
+		'\\mathrm{VCdim}(\\mathcal H)=d<+\\infty \\implies \\Pi_{\\mathcal H}(m) \\le \\sum_{i=0}^d \\binom{m}{i}';
+	const sauerShelahEnvelope =
+		'\\Pi_{\\mathcal H}(m) \\le \\left(\\frac{em}{d}\\right)^d \\quad (m\\ge d)';
+
+	const vcBoundStatement =
+		'\\mathbb{P}^n\\Big(\\forall h\\in\\mathcal H,\\ |R(h)-R_{\\mathcal S_n}(h)| \\le \\sqrt{\\frac{8d\\log(2en/d) + 8\\log(4/\\delta)}{n}}\\Big) \\ge 1-\\delta';
+
+	const marginClassifierDef = 'h_{w,b}(x) = \\mathrm{sgn}(w^\\top x - b)';
+	const marginCondition = '\\forall i,\\quad Y_i(w^\\top X_i - b) \\ge \\gamma';
+	const marginFamily =
+		'\\mathcal H_\\gamma = \\{h_{w,b} : \\|w\\|_2=1,\\ h_{w,b} \\text{ sépare avec marge } \\gamma\\}';
+	const svmVCDimBound =
+		'\\|X_i\\|_2 \\le R \\text{ p.s.} \\implies \\mathrm{VCdim}(\\mathcal H_\\gamma) \\le \\left\\lfloor \\frac{R^2}{\\gamma^2} \\right\\rfloor';
+	const svmFullBound =
+		'|R(h)-R_{\\mathcal S_n}(h)| \\le \\sqrt{\\frac{8\\lfloor R^2/\\gamma^2\\rfloor \\log(2en\\gamma^2/R^2) + 8\\log(4/\\delta)}{n}}';
 </script>
 
 <svelte:head>
@@ -82,207 +109,226 @@
 </svelte:head>
 
 <PageTemplate
-	title={meta?.title ?? 'Décomposition de l’erreur'}
-	subtitle="Estimation, calibration, approximation : où va exactement l'excès de risque ?"
+	title={meta?.title ?? 'Dimension VC, Sauer-Shelah et SVM'}
+	subtitle="Mesurer la complexité d'une classe infinie sans jamais compter ses éléments"
 	prev={prevMeta}
 	next={nextMeta}
 >
 	<TheorySection>
 		<TableOfContents entries={tocEntries} />
 
-		<h2 id="mise-en-place">Mise en place</h2>
+		<h2 id="introduction">Introduction</h2>
 
 		<p>
-			On dispose maintenant de tous les outils pour décomposer l'erreur totale d'un algorithme qui
-			minimise un <KatexInline formula={'\\varphi'} />-risque empirique sur une classe
-			<KatexInline formula={'\\mathcal F'} />. Soit <KatexInline formula={hatfDef} /> le minimiseur du
-			<KatexInline formula={'\\varphi'} />-risque empirique, où :
-		</p>
-		<KatexBlock formula={empiricalPhiRisk} />
-
-		<p>On note :</p>
-		<ul>
-			<li>
-				<KatexInline formula={fstarDef} /> : le meilleur modèle dans <KatexInline
-					formula={'\\mathcal F'}
-				/>
-				pour le <KatexInline formula={'\\varphi'} />-risque ;
-			</li>
-			<li>
-				<KatexInline formula={fbbDef} /> : le minimiseur du <KatexInline
-					formula={'\\varphi'}
-				/>-risque global, sans contrainte de classe ;
-			</li>
-			<li>
-				<KatexInline formula={phiBayesRisk} /> : le <KatexInline formula={'\\varphi'} />-risque de
-				Bayes.
-			</li>
-		</ul>
-
-		<p>
-			Trois objets sont donc en compétition : le modèle qu'on <em>apprend</em> sur l'échantillon
-			<KatexInline formula={'\\hat f_S'} />, le meilleur modèle <em>disponible dans la classe</em>
-			<KatexInline formula={'f^*'} />, et le meilleur modèle <em>en absolu</em>
-			<KatexInline formula={'f^{**}'} />. La décomposition suivante répartit l'excès de risque 0-1
-			selon les écartements successifs de ces trois objets.
+			Les bornes de la leçon précédente reposent entièrement sur <KatexInline
+				formula={String.raw`|\mathcal H|`}
+			/> — inutilisable dès que <KatexInline formula={String.raw`|\mathcal H|`} /> est infinie, ce
+			qui est le cas de la quasi-totalité des classes utilisées en pratique : hyperplans de
+			<KatexInline
+				formula={String.raw`\mathbb R^d`}
+			/>, réseaux de neurones, ou plus généralement toute classe paramétrée par des réels. Il faut
+			une notion de complexité qui ne mesure pas le <em>cardinal</em> de <KatexInline
+				formula={String.raw`\mathcal H`}
+			/> mais sa capacité à <strong>discriminer des points</strong> — c'est l'objet de la dimension de
+			Vapnik-Chervonenkis.
 		</p>
 
-		<h2 id="decomposition">Théorème 4.2 : la décomposition en trois termes</h2>
+		<h2 id="brisure-dimension-vc">Brisure et dimension VC</h2>
 
-		<TheoremBlock title="Théorème 4.2 (Décomposition de l'erreur)">
-			<p>L'excès de risque 0-1 se décompose comme :</p>
-			<KatexBlock formula={decomposition} />
+		<DefinitionBlock title="Brisure">
 			<p>
-				où <KatexInline formula={'\\hat f_S = \\arg\\min_{f \\in \\mathcal F} R_{\\varphi, S}(f)'} />
-				est le minimiseur du <KatexInline formula={'\\varphi'} />-risque empirique,
-				<KatexInline formula={fstarDef} /> est le meilleur modèle dans <KatexInline
-					formula={'\\mathcal F'}
-				/> pour le <KatexInline formula={'\\varphi'} />-risque, et <KatexInline
-					formula={'f^{**}'}
-				/>
-				est le minimiseur global du <KatexInline formula={'\\varphi'} />-risque sur toutes les
-				fonctions mesurables. Les trois termes ont les interprétations suivantes :
+				On dit que <KatexInline formula={String.raw`\mathcal H`} /> <strong>brise</strong> un
+				ensemble fini <KatexInline formula={String.raw`C = \{x_1,\dots,x_m\}`} /> si tout
+				étiquetage est réalisable :
 			</p>
-			<ul>
-				<li>
-					<KatexInline formula={'A'} /> : <em>terme d'estimation</em> — écart dû à l'utilisation
-					d'un échantillon fini plutôt que de la vraie distribution ;
-				</li>
-				<li>
-					<KatexInline formula={'B'} /> : <em>terme de calibration</em> — écart entre le meilleur
-					modèle dans <KatexInline formula={'\\mathcal F'} /> pour <KatexInline
-						formula={'\\varphi'}
-					/>
-					et le minimiseur global de <KatexInline formula={'\\varphi'} />, mesuré en risque 0-1 ;
-					il est nul si <KatexInline formula={'f^{**} \\in \\mathcal F'} /> ;
-				</li>
-				<li>
-					<KatexInline formula={'C'} /> : <em>terme d'approximation</em> — écart entre le
-					minimiseur global du <KatexInline formula={'\\varphi'} />-risque et le classifieur de
-					Bayes ; il est nul si <KatexInline formula={'\\varphi'} /> est calibrée.
-				</li>
-			</ul>
-		</TheoremBlock>
+			<KatexBlock formula={shatteringDef} />
+			<p>Autrement dit, <KatexInline formula={String.raw`\mathcal H`} /> réalise toutes les
+			dichotomies :</p>
+			<KatexBlock formula={shatteringCount} />
+		</DefinitionBlock>
+
+		<DefinitionBlock title="Dimension de Vapnik-Chervonenkis">
+			<KatexBlock formula={vcdimDef} />
+			<p>
+				Si <KatexInline formula={String.raw`\mathcal H`} /> brise des ensembles de taille
+				arbitraire, on pose <KatexInline formula={String.raw`\mathrm{VCdim}(\mathcal H) = +\infty`} />.
+			</p>
+		</DefinitionBlock>
+
+		<ExampleBlock title="Trois exemples de dimension VC croissante">
+			<p>
+				<strong>Seuils sur <KatexInline formula={String.raw`\mathbb R`} /></strong> (<KatexInline
+					formula={thresholdsFamily}
+				/>) : tout singleton est brisé, mais aucune paire ordonnée <KatexInline
+					formula={String.raw`\{x_1, x_2\}`}
+				/> ne l'est (l'étiquetage <KatexInline formula={String.raw`(1, 0)`} /> est impossible).
+				<KatexInline formula={String.raw`\mathrm{VCdim}(\mathcal H) = 1`} />.
+			</p>
+			<p>
+				<strong>Intervalles sur <KatexInline formula={String.raw`\mathbb R`} /></strong> (<KatexInline
+					formula={intervalsFamily}
+				/>) : toute paire est brisée, mais aucun triplet ordonné ne l'est (l'étiquetage
+				<KatexInline formula={String.raw`(1, 0, 1)`} /> est impossible). <KatexInline
+					formula={String.raw`\mathrm{VCdim}(\mathcal H) = 2`} />.
+			</p>
+			<p>
+				<strong>Hyperplans de <KatexInline formula={String.raw`\mathbb R^d`} /></strong> (<KatexInline
+					formula={hyperplanesFamily}
+				/>) : <KatexInline formula={String.raw`\mathrm{VCdim}(\mathcal H) = d+1`} />.
+			</p>
+		</ExampleBlock>
 
 		<InteractiveSection
 			number="3.1"
-			title="Les trois termes, visuellement"
+			title="Briser un ensemble de points"
 			onInteract={tracker.trackInteraction}
 		>
-			<p class="demo-guide">
-				<strong>À observer.</strong> La barre empilée montre
-				<KatexInline formula={'R(h_{\\hat f_S}) - R^*'} />
-				décomposée en <KatexInline formula={'A + B + C'} />. Trois leviers, trois termes :
-				augmentez la taille d'échantillon <KatexInline formula={'n'} /> pour faire fondre
-				<KatexInline formula={'A'} /> (au taux <KatexInline formula={'1/\\sqrt n'} /> en moyenne) ;
-				passez la capacité de la classe à 1 pour annuler <KatexInline formula={'B'} />
-				(<KatexInline formula={'f^{**} \\in \\mathcal F'} />) ; choisissez une perte calibrée pour
-				annuler <KatexInline formula={'C'} /> — et regardez ce que fait une perte non calibrée.
-			</p>
-			<RiskDecompositionDemo />
+			<VCShatteringExplorer />
 		</InteractiveSection>
 
-		<h2 id="signe-termes">Interprétation de chaque terme</h2>
-
-		<div class="proof-block">
-			<p><strong>Démonstration :</strong></p>
-			<p>La décomposition est une identité algébrique :</p>
-			<KatexBlock formula={telescoping} />
-			<p>Il reste à vérifier le signe de chaque terme.</p>
-			<ul>
-				<li>
-					<strong>Terme <KatexInline formula={'A'} /> :</strong> pas nécessairement positif terme
-					à terme, mais contrôlé en espérance par les inégalités de concentration uniformes de la
-					partie VI.
-				</li>
-				<li>
-					<strong>Terme <KatexInline formula={'B'} /> :</strong> <KatexInline
-						formula={'f^*'}
-					/>
-					minimise <KatexInline formula={'R_\\varphi'} /> sur <KatexInline
-						formula={'\\mathcal F'}
-					/>, donc <KatexInline formula={bInequality} />. Mais cela ne dit rien directement sur le
-					risque 0-1. Ce terme mesure le <em>coût de la restriction à</em> <KatexInline
-						formula={'\\mathcal F'}
-					/>
-					lorsqu'on optimise <KatexInline formula={'\\varphi'} /> plutôt que la perte 0-1 : même
-					si <KatexInline formula={'f^{**} \\in \\mathcal F'} />, le meilleur modèle pour
-					<KatexInline formula={'\\varphi'} /> dans <KatexInline formula={'\\mathcal F'} /> n'est
-					pas nécessairement le meilleur pour la perte 0-1.
-				</li>
-				<li>
-					<strong>Terme <KatexInline formula={'C'} /> :</strong> <KatexInline
-						formula={'f^{**}'}
-					/>
-					minimise <KatexInline formula={'R_\\varphi'} /> sans contrainte, donc
-					<KatexInline formula={cAtBayes} />. Si <KatexInline formula={'\\varphi'} /> est
-					calibrée, le minimiseur du <KatexInline formula={'\\varphi'} />-risque a le même signe
-					que <KatexInline formula={'\\eta(x) - 1/2'} /> pour presque tout
-					<KatexInline formula={'x'} />, donc <KatexInline
-						formula={'h_{f^{**}} = h^*'}
-					/>
-					p.s. et <KatexInline formula={'C = 0'} />.
-				</li>
-			</ul>
-			<p>
-				En particulier, si <KatexInline formula={'\\varphi'} /> est calibrée et
-				<KatexInline formula={'f^{**} \\in \\mathcal F'} />, le terme <KatexInline
-					formula={'C'}
-				/>
-				et le terme <KatexInline formula={'B'} /> sont tous deux nuls, et l'excès de risque se
-				réduit au seul terme d'estimation <KatexInline formula={'A'} />. ∎
-			</p>
-		</div>
-
-		<h2 id="cas-benin">Le cas favorable</h2>
+		<h2 id="coefficient-brisure-sauer-shelah">Coefficient de brisure et lemme de Sauer-Shelah</h2>
 
 		<p>
-			Les deux clauses du Théorème 4.2 répondent à deux questions différentes, et c'est leur
-			combinaison qui donne le résultat le plus utile en pratique.
+			La dimension VC permet de borner le nombre de dichotomies effectivement réalisables sur un
+			échantillon fini, via le <strong>coefficient de brisure</strong>.
 		</p>
 
-		<Callout type="insight" title="Chaque levier agit sur un seul terme">
-			<ul>
-				<li>
-					Le terme <KatexInline formula={'A'} /> se pilote par la <strong>taille de
-					l'échantillon</strong> : c'est le prix de l'empirisme, contrôlé en espérance au taux
-					<KatexInline formula={'1/\\sqrt n'} /> par les bornes de concentration.
-				</li>
-				<li>
-					Le terme <KatexInline formula={'B'} /> se pilote par le <strong>choix de la classe</strong>
-					<KatexInline formula={'\\mathcal F'} /> : plus la classe est riche, plus
-					<KatexInline formula={'f^*'} /> se rapproche du minimiseur global
-					<KatexInline formula={'f^{**}'} /> ; il s'annule dès que <KatexInline
-						formula={'f^{**} \\in \\mathcal F'}
-					/>.
-				</li>
-				<li>
-					Le terme <KatexInline formula={'C'} /> se pilote par le <strong>choix de la perte</strong>
-					<KatexInline formula={'\\varphi'} /> : il s'annule dès que <KatexInline
-						formula={'\\varphi'}
-					/>
-					est calibrée, c'est-à-dire dès que <KatexInline formula={'\\varphi\'(0) < 0'} />
-					(Théorème 4.1).
-				</li>
-			</ul>
-		</Callout>
+		<DefinitionBlock title="Coefficient de brisure">
+			<KatexBlock formula={growthCoeffDef} />
+			<p>
+				C'est le nombre maximal de dichotomies que <KatexInline
+					formula={String.raw`\mathcal H`} /> peut réaliser sur
+				<KatexInline formula={String.raw`m`} /> points quelconques.
+			</p>
+		</DefinitionBlock>
 
-		<Callout type="summary" title="Retenir">
-			L'excès de risque 0-1 d'un algorithme qui minimise un <KatexInline
-				formula={'\\varphi'}
-			/>-risque empirique sur une classe <KatexInline formula={'\\mathcal F'} /> se décompose en
-			<KatexInline formula={'A + B + C'} /> : estimation (échantillon fini), calibration (restriction
-			à la classe, mesurée en risque 0-1) et approximation (écart du minimiseur global du
-			<KatexInline formula={'\\varphi'} />-risque au classifieur de Bayes). B s'annule si
-			<KatexInline formula={'f^{**} \\in \\mathcal F'} />, C s'annule si <KatexInline
-				formula={'\\varphi'}
+		<TheoremBlock title="Lemme de Sauer-Shelah (1972)">
+			<p>
+				Si <KatexInline formula={String.raw`\mathrm{VCdim}(\mathcal H) = d < +\infty`} />, alors
+				pour tout <KatexInline formula={String.raw`m \in \mathbb N`} /> :
+			</p>
+			<KatexBlock formula={sauerShelahStatement} />
+			<p>En particulier, pour <KatexInline formula={String.raw`m \ge d`} /> :</p>
+			<KatexBlock formula={sauerShelahEnvelope} />
+		</TheoremBlock>
+
+		<Callout type="insight" title="Le point essentiel">
+			Le coefficient de brisure est <strong>polynomial</strong> en <KatexInline
+				formula={String.raw`m`}
 			/>
-			est calibrée ; dans ce cas favorable, seul le terme d'estimation demeure.
+			(de degré <KatexInline formula={String.raw`d`} />) dès que la dimension VC est finie — contre
+			<KatexInline formula={String.raw`2^m`} /> dans le cas général. C'est ce basculement, de la
+			croissance exponentielle à la croissance polynomiale exactement au rang <KatexInline
+				formula={String.raw`d`}
+			/>, qui rend une borne de généralisation possible même pour une classe infinie.
 		</Callout>
 
 		<InteractiveSection
 			number="3.2"
-			title="Quiz — Décomposition de l'erreur"
+			title="De la croissance exponentielle à la croissance polynomiale"
+			onInteract={tracker.trackInteraction}
+		>
+			<SauerGrowthDemo />
+		</InteractiveSection>
+
+		<h2 id="theoreme-generalisation-vc">Théorème de généralisation VC</h2>
+
+		<p>
+			On peut maintenant énoncer une borne de généralisation valable même pour <KatexInline
+				formula={String.raw`\mathcal H`}
+			/>, en remplaçant <KatexInline formula={String.raw`\log|\mathcal H|`} /> par un terme faisant
+			intervenir <KatexInline formula={String.raw`\mathrm{VCdim}(\mathcal H)`} /> — c'est le rôle joué
+			par le lemme de Sauer-Shelah dans la démonstration (omise ici, elle raffine l'argument d'union
+			bound de la leçon précédente en l'appliquant non plus à
+			<KatexInline formula={String.raw`\mathcal H`} /> tout entier mais aux dichotomies effectivement
+			réalisables sur l'échantillon).
+		</p>
+
+		<TheoremBlock number="3.3" title="Borne VC">
+			<p>
+				Soit <KatexInline formula={String.raw`\mathcal H`} /> de dimension VC finie <KatexInline
+					formula={String.raw`d`}
+				/>. Pour tout <KatexInline formula={String.raw`\delta \in (0,1)`} />, avec probabilité
+				<KatexInline formula={String.raw`1-\delta`} /> :
+			</p>
+			<KatexBlock formula={vcBoundStatement} />
+		</TheoremBlock>
+
+		<p>
+			La structure est la même qu'au Théorème 3.2 (racine d'un terme de complexité sur
+			<KatexInline formula={String.raw`n`} />), à ceci près que
+			<KatexInline formula={String.raw`\log|\mathcal H|`} /> a été remplacé par
+			<KatexInline formula={String.raw`d\log(2en/d)`} /> — un terme qui, lui, reste fini même quand
+			<KatexInline formula={String.raw`|\mathcal H|`} /> ne l'est pas.
+		</p>
+
+		<h2 id="application-svm">Application : borne VC pour le SVM</h2>
+
+		<p>
+			Le SVM (Support Vector Machine) cherche l'hyperplan de marge maximale. La théorie VC en donne
+			une borne de généralisation particulièrement élégante, car la dimension VC dépend de la marge
+			— pas de la dimension ambiante <KatexInline formula={String.raw`d`} /> de l'espace d'entrée.
+		</p>
+
+		<DefinitionBlock title="Classifieur à marge">
+			<p>
+				Soit <KatexInline formula={String.raw`\mathcal X = \mathbb R^d`} />. Le classifieur
+				<KatexInline
+					formula={marginClassifierDef}
+				/> classe l'échantillon avec marge <KatexInline formula={String.raw`\gamma > 0`} /> si :
+			</p>
+			<KatexBlock formula={marginCondition} />
+			<p>
+				On note <KatexInline formula={String.raw`\mathcal H_\gamma`} /> la classe des classifieurs
+				linéaires de norme <KatexInline formula={String.raw`\|w\|_2 = 1`} /> qui séparent les
+				données avec marge <KatexInline formula={String.raw`\gamma`} /> :
+			</p>
+			<KatexBlock formula={marginFamily} />
+		</DefinitionBlock>
+
+		<TheoremBlock number="3.4" title="Borne VC pour le SVM (Vapnik, 1995)">
+			<p>
+				Supposons <KatexInline formula={svmVCDimBound} />. En appliquant le Théorème 3.3, pour tout
+				<KatexInline formula={String.raw`\delta \in (0,1)`} />, avec probabilité <KatexInline
+					formula={String.raw`1-\delta`} /> :
+			</p>
+			<KatexBlock formula={svmFullBound} />
+		</TheoremBlock>
+
+		<Callout type="insight" title="Ce que cette borne dit vraiment">
+			La dimension VC de <KatexInline formula={String.raw`\mathcal H_\gamma`} /> ne dépend
+			<strong>pas</strong> de <KatexInline formula={String.raw`d`} />, la dimension de l'espace
+			d'entrée — seulement du rapport <KatexInline formula={String.raw`R^2/\gamma^2`} /> entre le
+			rayon des données et la marge obtenue. Un SVM peut ainsi généraliser correctement même en très
+			grande dimension, à condition d'obtenir une marge suffisamment grande relative à l'échelle des
+			données. L'extension évoquée — dimension infinie via le kernel trick (SVM à noyau) — ne fait pas
+			partie du support du cours : elle est donnée ici comme complément, au-delà du cours. C'est tout
+			l'intérêt de maximiser la marge plutôt que de se contenter d'une séparation quelconque.
+		</Callout>
+
+		<InteractiveSection
+			number="3.3"
+			title="Marge, rayon et dimension VC"
+			onInteract={tracker.trackInteraction}
+		>
+			<MarginVCExplorer />
+		</InteractiveSection>
+
+		<Callout type="summary" title="Retenir">
+			La dimension VC mesure la complexité d'une classe par sa capacité à discriminer des points,
+			pas par son cardinal — elle reste finie pour des classes infinies comme les hyperplans
+			(<KatexInline formula={String.raw`\mathrm{VCdim} = d+1`} />). Le lemme de Sauer-Shelah
+			transforme cette borne combinatoire en une borne polynomiale sur le nombre de dichotomies
+			réalisables, ce qui permet d'étendre le théorème de généralisation à
+			<KatexInline formula={String.raw`\mathcal H`} />. Appliquée aux classifieurs à marge, cette
+			théorie explique pourquoi le SVM généralise bien
+			indépendamment de la dimension ambiante — un résultat qui ne tiendra plus, comme le montrera
+			la leçon suivante, face aux réseaux de neurones modernes.
+		</Callout>
+
+		<InteractiveSection
+			number="3.4"
+			title="Quiz — Dimension VC, Sauer-Shelah et SVM"
 			onInteract={tracker.trackInteraction}
 		>
 			<Quiz items={quiz} />
@@ -291,39 +337,36 @@
 
 	<Bibliography>
 		<BibElement
-			authors={['Bartlett, P. L.', 'Jordan, M. I.', 'McAuliffe, J.']}
-			year={2006}
-			title="Convexity, Classification, and Risk Bounds"
-			journal="Journal of the American Statistical Association, 101(473), 138-156."
+			authors={['Vapnik, V. N.']}
+			year={1998}
+			title="Statistical Learning Theory"
+			journal="Wiley."
+			link="https://www.wiley.com/en-us/Statistical+Learning+Theory-p-9780471152125"
+		/>
+		<BibElement
+			authors={['Shalev-Shwartz, S.', 'Ben-David, S.']}
+			year={2014}
+			title="Understanding Machine Learning: From Theory to Algorithms"
+			journal="Cambridge University Press."
+			link="https://www.cs.huji.ac.il/~shais/UnderstandingMachineLearning/"
+		/>
+		<BibElement
+			authors={['Vapnik, V. N.']}
+			year={1995}
+			title="The Nature of Statistical Learning Theory"
+			journal="Springer-Verlag."
+		/>
+		<BibElement
+			authors={['Sauer, N.']}
+			year={1972}
+			title="On the density of families of sets"
+			journal="Journal of Combinatorial Theory, Series A, 13(1), 145-147."
+		/>
+		<BibElement
+			authors={['Shelah, S.']}
+			year={1972}
+			title="A combinatorial problem; stability and order for models and theories in infinitary languages"
+			journal="Pacific Journal of Mathematics, 41(1), 247-261."
 		/>
 	</Bibliography>
 </PageTemplate>
-
-<style>
-	.proof-block {
-		padding: 1rem 1.5rem;
-		margin: 1rem 0;
-		border-left: 3px solid var(--color-positive, #4caf50);
-		background-color: color-mix(in srgb, var(--color-positive, #4caf50) 5%, transparent);
-		border-radius: 0 6px 6px 0;
-		font-size: 0.95em;
-		line-height: 1.7;
-	}
-
-	.proof-block p {
-		margin: 0.4rem 0;
-	}
-
-	.proof-block ul {
-		margin: 0.4rem 0;
-		padding-left: 1.25rem;
-	}
-
-	.demo-guide {
-		margin: 0.75rem 0;
-		padding: 0.8rem 1rem;
-		border-radius: 6px;
-		background: color-mix(in srgb, var(--color-epistemic, #4f7cac) 8%, transparent);
-		line-height: 1.65;
-	}
-</style>

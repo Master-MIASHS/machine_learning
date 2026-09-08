@@ -10,7 +10,7 @@
 	const meta = getPageByPath('/part5/quiz');
 	createPageTracker(meta as PageMeta);
 
-	// Whole part: the curated synthèse questions plus every lesson quiz in Part V.
+	// Whole part: the curated synthèse questions plus every lesson quiz in Part IV.
 	const quiz = getQuizQuestions('p5');
 
 	const { prev: prevMeta, next: nextMeta } = $derived(
@@ -19,14 +19,12 @@
 </script>
 
 <svelte:head>
-	<title
-		>{meta?.title ?? 'Quiz de synthèse — Partie V'} — Fondations de l'Apprentissage Statistique</title
-	>
+	<title>{meta?.title} — Fondations de l'Apprentissage Statistique</title>
 </svelte:head>
 
 <PageTemplate
 	title={meta?.title ?? 'Quiz de synthèse — Partie V'}
-	subtitle="Vérifiez vos acquis sur la classification Top-K, la prédiction conforme et les intervalles de régression"
+	subtitle="Vérifiez vos acquis sur le Bagging, le Boosting et la Régularisation"
 	prev={prevMeta}
 	next={nextMeta}
 >

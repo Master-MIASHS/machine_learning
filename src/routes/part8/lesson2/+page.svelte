@@ -5,17 +5,17 @@
 	import Callout from '$lib/components/narrative/Callout.svelte';
 	import DefinitionBlock from '$lib/components/narrative/DefinitionBlock.svelte';
 	import TheoremBlock from '$lib/components/narrative/TheoremBlock.svelte';
+	import ExercisePanel from '$lib/components/narrative/ExercisePanel.svelte';
 	import InteractiveSection from '$lib/components/narrative/InteractiveSection.svelte';
 	import KatexInline from '$lib/components/narrative/KatexInline.svelte';
 	import KatexBlock from '$lib/components/narrative/KatexBlock.svelte';
-	import Bibliography from '$lib/components/narrative/bib/Bibliography.svelte';
-	import BibElement from '$lib/components/narrative/bib/BibElement.svelte';
-	import FiniteClassGeneralizationDemo from '$lib/components/demos/FiniteClassGeneralizationDemo.svelte';
-	import UniformConvergenceDemo from '$lib/components/demos/UniformConvergenceDemo.svelte';
+	import KNNConsistencyDemo from '$lib/components/demos/KNNConsistencyDemo.svelte';
 	import { getPageByPath, getAdjacentPages } from '$lib/navigation.js';
 	import { settings } from '$lib/stores/index.js';
 	import { createPageTracker } from '$lib/stores/progress.svelte';
 	import type { PageMeta } from '$lib/navigation.js';
+	import Bibliography from '$lib/components/narrative/bib/Bibliography.svelte';
+	import BibElement from '$lib/components/narrative/bib/BibElement.svelte';
 	import Quiz from '$lib/components/narrative/Quiz.svelte';
 	import { getQuizQuestions } from '$lib/quiz';
 
@@ -38,77 +38,42 @@
 		{
 			id: 'introduction',
 			label: 'Introduction',
-			description: "Passer d'un classifieur fixé à toute une classe H",
+			description: 'Une exigence plus forte : converger quelle que soit la distribution',
 			color: 'epistemic'
 		},
 		{
-			id: 'cas-separable',
-			label: 'Cas séparable',
-			description: 'Théorème 3.1 — union bound, échantillons trompeurs, borne en O(log|H|/n)',
+			id: 'consistance-universelle',
+			label: 'Consistance universelle',
+			description: 'Définition 1.3 — consistant pour toute distribution, sans hypothèse sur η',
+			color: 'neutral'
+		},
+		{
+			id: 'theoreme-stone',
+			label: 'Le théorème de Stone',
+			description: 'Théorème 2.1 — k-NN est universellement consistant si k(n)→∞ et k(n)/n→0',
 			color: 'belief'
 		},
 		{
-			id: 'cas-non-separable',
-			label: 'Cas non séparable',
-			description: 'Rappel de Hoeffding, Théorème 3.2 — borne uniforme sur H',
+			id: 'pourquoi-k-fixe-echoue',
+			label: 'Pourquoi k fixe ne suffit pas',
+			description: "L'exemple du 1-NN",
 			color: 'surprise'
-		},
-		{
-			id: 'comparaison-vitesses',
-			label: 'Comparer les deux régimes',
-			description: 'O(1/n) contre O(1/√n) — pourquoi la différence de vitesse',
-			color: 'neutral'
 		}
 	];
 
 	// ── Formula variables (kept in script so Svelte never parses backslashes) ──
 
-	const supGap = '\\sup_{h\\in\\mathcal H} |R_n(h) - R(h)|';
-	const ermDef = '\\hat h_{\\mathcal S_n} = \\arg\\min_{h\\in\\mathcal H} R_{\\mathcal S_n}(h)';
-	const hypothesisClass = '\\mathcal H';
-	const risk = 'R(h)';
-	const empiricalRisk = 'R_{\\mathcal S_n}(h)';
-	const sample = '\\mathcal S_n';
-	const delta = '\\delta';
-	const confidence = '1-\\delta';
+	const universalConsistDef = 'P_{X,Y} \\text{ sur } \\mathcal{X}\\times\\{0,1\\}';
 
-	// Cas séparable
-	const realizability = '\\exists\\, h^*\\in\\mathcal H,\\ R(h^*)=0';
-	const separableStatement =
-		'\\mathbb{P}^n\\big(R(\\hat h_{\\mathcal S_n}) > \\varepsilon\\big) \\le |\\mathcal H|\\, e^{-n\\varepsilon}';
-	const separableSampleSize = 'n \\ge \\frac{\\log(|\\mathcal H|/\\delta)}{\\varepsilon}';
-	const separableCorollary =
-		'R(\\hat h_{\\mathcal S_n}) \\le \\frac{\\log(|\\mathcal H|/\\delta)}{n}';
+	const stoneSetup =
+		'(X_i,Y_i)_{i=1}^n \\text{ i.i.d. de loi } P_{X,Y} \\text{ sur } \\mathbb{R}^d\\times\\{0,1\\}';
+	const stoneConditions =
+		'k(n) \\xrightarrow[n\\to+\\infty]{} +\\infty \\quad\\text{et}\\quad \\frac{k(n)}{n} \\xrightarrow[n\\to+\\infty]{} 0';
+	const stoneConclusion =
+		'\\forall P_{X,Y}, \\quad \\mathbb{E}\\big[R(h_n^{k\\text{-NN}})\\big] \\xrightarrow[n\\to+\\infty]{} R^*';
 
-	const hBadDef = '\\mathcal H_{\\text{bad}} = \\{h\\in\\mathcal H : R(h) > \\varepsilon\\}';
-	const mDef =
-		'\\mathcal M = \\{\\mathcal S_n : \\exists\\, h\\in\\mathcal H_{\\text{bad}},\\ R_{\\mathcal S_n}(h)=0\\}';
-	const inclusionEvent =
-		'\\{R(\\hat h_{\\mathcal S_n}) > \\varepsilon\\} \\subset \\mathcal M \\implies \\mathbb{P}^n(R(\\hat h_{\\mathcal S_n})>\\varepsilon) \\le \\mathbb{P}^n(\\mathcal M)';
-	const unionBoundStep =
-		'\\mathbb{P}^n(\\mathcal M) \\le \\sum_{h\\in\\mathcal H_{\\text{bad}}} \\mathbb{P}^n\\big(R_{\\mathcal S_n}(h)=0\\big)';
-	const perHypothesisBound =
-		'\\mathbb{P}^n\\big(R_{\\mathcal S_n}(h)=0\\big) = (1-R(h))^n < (1-\\varepsilon)^n \\le e^{-n\\varepsilon}';
-	const finalSum =
-		'\\mathbb{P}^n(R(\\hat h_{\\mathcal S_n})>\\varepsilon) \\le \\sum_{h\\in\\mathcal H_{\\text{bad}}} e^{-n\\varepsilon} \\le |\\mathcal H|\\, e^{-n\\varepsilon}';
-
-	// Cas non séparable
-	const hoeffdingRecall =
-		'Z_i \\in [0,1] \\text{ i.i.d.} \\implies \\mathbb{P}\\Big(\\Big|\\frac1n\\sum_{i=1}^n Z_i - \\mathbb{E}[Z_1]\\Big| \\ge t\\Big) \\le 2e^{-2nt^2}';
-	const hoeffdingOnRisk =
-		'\\mathbb{P}^n\\big(|R_{\\mathcal S_n}(h) - R(h)| \\ge t\\big) \\le 2e^{-2nt^2} \\quad (h \\text{ fixé})';
-
-	const uniformStatement =
-		'\\mathbb{P}^n\\Big(\\forall h\\in\\mathcal H,\\ |R(h)-R_{\\mathcal S_n}(h)| \\le \\sqrt{\\tfrac{\\log|\\mathcal H|+\\log(2/\\delta)}{2n}}\\Big) \\ge 1-\\delta';
-	const uniformRiskBound =
-		'R(\\hat h_{\\mathcal S_n}) \\le R_{\\mathcal S_n}(\\hat h_{\\mathcal S_n}) + \\sqrt{\\frac{\\log|\\mathcal H|+\\log(2/\\delta)}{2n}}';
-
-	const unionOverH =
-		'\\mathbb{P}^n\\big(\\exists h\\in\\mathcal H,\\ |R_{\\mathcal S_n}(h)-R(h)|\\ge t\\big) \\le 2|\\mathcal H|\\,e^{-2nt^2}';
-	const solveForT =
-		'\\delta = 2|\\mathcal H|\\,e^{-2nt^2} \\iff t = \\sqrt{\\frac{\\log|\\mathcal H| + \\log(2/\\delta)}{2n}}';
-	const finalDecomp =
-		'R(\\hat h_{\\mathcal S_n}) = \\underbrace{R(\\hat h_{\\mathcal S_n}) - R_{\\mathcal S_n}(\\hat h_{\\mathcal S_n})}_{\\le\\ t \\text{ (borne uniforme)}} + R_{\\mathcal S_n}(\\hat h_{\\mathcal S_n})';
+	const coverHartIdentity = String.raw`\limsup_{n\to+\infty} \mathbb{E}\big[R(h_n^{1\text{-NN}})\big] \;=\; 2\mathbb{E}\big[\eta(X)(1-\eta(X))\big]`;
+	const coverHartBound = String.raw`R^* \;\le\; \limsup_{n\to+\infty} \mathbb{E}\big[R(h_n^{1\text{-NN}})\big] \;\le\; 2R^*\left(1-\tfrac{R^*}{2}\right) \;<\; 2R^*`;
 </script>
 
 <svelte:head>
@@ -116,8 +81,8 @@
 </svelte:head>
 
 <PageTemplate
-	title={meta?.title ?? 'Généralisation pour une classe finie'}
-	subtitle="De l'union bound au cas non séparable : borner l'erreur du classifieur appris, pas seulement d'un classifieur fixé"
+	title={meta?.title ?? 'Consistance universelle et k-NN'}
+	subtitle="Un algorithme peut-il converger vers le risque de Bayes sans rien supposer sur la distribution ?"
 	prev={prevMeta}
 	next={nextMeta}
 >
@@ -127,314 +92,238 @@
 		<h2 id="introduction">Introduction</h2>
 
 		<p>
-			La leçon précédente s'est arrêtée sur une limitation précise : la borne de Tchebychev contrôle <KatexInline
-				formula={empiricalRisk}
-			/> pour un <KatexInline formula={String.raw`h\in\mathcal{H}`} /> fixé à l'avance, mais rien ne garantit
-			qu'elle s'applique au classifieur
-			<KatexInline formula={ermDef} /> effectivement choisi par minimisation du risque empirique — puisque
-			<KatexInline formula={ermDef} /> dépend précisément des données sur lesquelles on voudrait le contrôler.
-			Il faut donc une garantie
-			<strong>uniforme</strong>, portant sur <KatexInline formula={supGap} /> plutôt que sur l'écart d'un
-			seul <KatexInline formula={risk} />. On commence par le cas le plus simple :
-			<KatexInline formula={hypothesisClass} /> fini.
+			La leçon précédente a montré que la consistance dépend d'un compromis entre le terme
+			d'approximation (fixé par le choix de la classe <KatexInline
+				formula={String.raw`\mathcal{H}`}
+			/>) et le terme d'estimation (qui décroît avec <KatexInline formula={String.raw`n`} />). Mais
+			cette analyse supposait implicitement une classe <KatexInline
+				formula={String.raw`\mathcal{H}`}
+			/> fixée à l'avance. Une question plus ambitieuse se pose : existe-t-il des algorithmes qui convergent
+			vers
+			<KatexInline formula={String.raw`R^*`} />
+			<strong>quelle que soit</strong> la distribution <KatexInline
+				formula={String.raw`P_{(X, Y)}`}
+			/>, sans jamais fixer de classe restrictive au préalable ? C'est la question de la
+			<strong>consistance universelle</strong>, et sa réponse — positive — est l'un des résultats
+			les plus marquants de la théorie de l'apprentissage non paramétrique.
 		</p>
 
-		<h2 id="cas-separable">Cas séparable</h2>
+		<h2 id="consistance-universelle">Consistance universelle</h2>
 
-		<DefinitionBlock title="Réalisabilité">
+		<DefinitionBlock number="1.3" title="Consistance universelle">
 			<p>
-				On dit que <KatexInline formula={hypothesisClass} /> est <strong>réalisable</strong> (ou que
-				le problème est <strong>séparable</strong>) s'il existe <KatexInline
-					formula={'h^*\\in\\mathcal H'}
-				/> tel que <KatexInline formula={realizability} /> : un classifieur sans erreur appartient à
-				<KatexInline formula={hypothesisClass} />.
+				Un algorithme est dit <strong>universellement consistant</strong> si <KatexInline
+					formula={String.raw`(h_n)`}
+				/> est consistant pour <strong>toute</strong> distribution <KatexInline
+					formula={universalConsistDef}
+				/>, sans hypothèse sur <KatexInline formula={String.raw`\eta(x)`} />.
 			</p>
 		</DefinitionBlock>
 
 		<p>
-			Dans ce cas, on n'a pas besoin d'inégalité de concentration : un argument purement
-			combinatoire suffit.
+			C'est une propriété bien plus forte que la consistance simple vue à la leçon précédente : elle
+			garantit que l'algorithme converge vers le risque de Bayes quelle que soit la structure du
+			problème — qu'il soit séparable, très bruité, en haute dimension, avec des frontières de
+			décision arbitrairement complexes. Aucune hypothèse de régularité sur <KatexInline
+				formula={String.raw`\eta`}
+			/> n'est nécessaire.
 		</p>
 
-		<TheoremBlock number="3.1" title="Cas séparable, |H| < +∞">
+		<Callout type="insight" title="Pourquoi ce n'est pas évident">
+			Rien ne garantit a priori qu'un tel algorithme existe. Un algorithme qui suppose, par exemple,
+			que la frontière de décision est linéaire (comme dans un modèle paramétrique) ne peut être
+			universellement consistant : dès que la vraie frontière est non linéaire, son terme
+			d'approximation reste strictement positif, quel que soit <KatexInline
+				formula={String.raw`n`}
+			/>. Il faut donc une classe de modèles dont la richesse s'adapte elle-même à <KatexInline
+				formula={String.raw`n`}
+			/> — c'est exactement l'idée derrière le <KatexInline formula={String.raw`k`} />-NN avec
+			<KatexInline formula={String.raw`k=k(n)`} /> variable.
+		</Callout>
+
+		<h2 id="theoreme-stone">Le théorème de Stone</h2>
+
+		<TheoremBlock number="2.1" title="Consistance universelle de Stone (1977)">
 			<p>
-				On suppose <KatexInline formula={realizability} />. Soit <KatexInline formula={ermDef} />.
-				Alors pour tout <KatexInline formula={'\\varepsilon>0'} /> :
+				Soit <KatexInline formula={stoneSetup} />. Si le paramètre <KatexInline
+					formula={String.raw`k=k(n)`}
+				/> vérifie :
 			</p>
-			<KatexBlock formula={separableStatement} />
+			<KatexBlock formula={stoneConditions} />
 			<p>
-				En particulier, pour une confiance <KatexInline formula={confidence} />, il suffit que :
+				alors le classifieur <KatexInline formula={String.raw`k`} />-NN est universellement
+				consistant :
 			</p>
-			<KatexBlock formula={separableSampleSize} />
+			<KatexBlock formula={stoneConclusion} />
 		</TheoremBlock>
 
-		<div class="proof-block">
-			<p><strong>Démonstration :</strong></p>
-			<p>
-				<strong>Étape 1 — Réduction aux échantillons trompeurs.</strong> Par réalisabilité,
-				<KatexInline formula={'R_{\\mathcal S_n}(h^*)=0'} /> toujours, donc
-				<KatexInline formula={'R_{\\mathcal S_n}(\\hat h_{\\mathcal S_n})=0'} /> aussi (c'est le minimiseur).
-				On introduit <KatexInline formula={hBadDef} /> et l'ensemble des « échantillons trompeurs » <KatexInline
-					formula={mDef}
-				/>. Si
-				<KatexInline formula={'R(\\hat h_{\\mathcal S_n})>\\varepsilon'} />, alors <KatexInline
-					formula={'R_{\\mathcal S_n}(\\hat h_{\\mathcal S_n})=0'}
-				/> a pourtant un risque empirique nul — l'échantillon a « trompé » l'algorithme :
-			</p>
-			<KatexBlock formula={inclusionEvent} />
-			<p>
-				<strong>Étape 2 — Union bound.</strong>
-				<KatexInline formula={mDef} /> se réécrit comme une union sur <KatexInline
-					formula={hBadDef}
-				/>, d'où :
-			</p>
-			<KatexBlock formula={unionBoundStep} />
-			<p>
-				<strong>Étape 3 — Borne par hypothèse.</strong> Pour <KatexInline
-					formula={'h\\in\\mathcal H_{\\mathrm{bad}}'}
-				/> (donc
-				<KatexInline formula={'R(h)>\\varepsilon'} />), les observations étant i.i.d. :
-			</p>
-			<KatexBlock formula={perHypothesisBound} />
-			<p><strong>Étape 4 — Conclusion.</strong> En combinant :</p>
-			<KatexBlock formula={finalSum} />
-			<p>
-				En posant <KatexInline formula={'|\\mathcal H|e^{-n\\varepsilon}=\\delta'} /> et en résolvant
-				pour <KatexInline formula={'n'} />, on obtient la condition sur la taille d'échantillon. ∎
-			</p>
-		</div>
-
 		<p>
-			Un corollaire immédiat reformule cette garantie directement comme une borne sur le risque,
-			plutôt que sur la probabilité de la dépasser :
+			Le résultat est remarquable par sa simplicité : deux conditions purement quantitatives sur la
+			suite <KatexInline formula={String.raw`k(n)`} />, sans aucune hypothèse sur la distribution
+			elle-même, suffisent à garantir la convergence vers le risque de Bayes — dans
+			<strong>n'importe quel</strong>
+			problème de classification binaire sur <KatexInline formula={String.raw`\mathbb{R}^d`} />.
 		</p>
-		<Callout type="intuition" title="Corollaire">
-			Avec probabilité <KatexInline formula={confidence} /> :
-			<KatexBlock formula={separableCorollary} />
+
+		<Callout type="intuition" title="Lecture biais-variance des deux conditions">
+			Les deux conditions du théorème jouent des rôles complémentaires, exactement comme dans la
+			décomposition approximation/estimation de la leçon précédente :
+			<ul>
+				<li>
+					<KatexInline formula={String.raw`k(n) \to +\infty`} /> réduit la <strong>variance</strong>
+					de l'estimation locale de <KatexInline formula={String.raw`\eta(x)`} /> — en moyennant sur davantage
+					de voisins, la loi des grands nombres lisse le bruit d'échantillonnage.
+				</li>
+				<li>
+					<KatexInline formula={String.raw`k(n)/n \to 0`} /> réduit le <strong>biais</strong> — cela
+					garantit que les <KatexInline formula={String.raw`k(n)`} /> voisins utilisés restent de plus
+					en plus proches de <KatexInline formula={String.raw`x`} /> à mesure que <KatexInline
+						formula={String.raw`n`}
+					/> grandit, donc que la moyenne locale capture bien la valeur de <KatexInline
+						formula={String.raw`\eta`}
+					/> en
+					<KatexInline formula={String.raw`x`} /> et non une moyenne diluée sur un voisinage trop large.
+				</li>
+			</ul>
+			Prendre <KatexInline formula={String.raw`k`} /> trop petit laisse trop de variance ; prendre
+			<KatexInline formula={String.raw`k`} /> trop grand (relativement à <KatexInline
+				formula={String.raw`n`}
+			/>) introduit du biais en moyennant sur des voisins trop éloignés. C'est exactement la même
+			tension biais-variance qu'ailleurs dans ce cours, ici exprimée à travers un seul paramètre
+			<KatexInline formula={String.raw`k`} />.
 		</Callout>
 
 		<InteractiveSection
 			number="2.1"
-			title="Hypothèses trompeuses et union bound"
+			title="Voisinage, frontière et compromis biais-variance"
 			onInteract={tracker.trackInteraction}
 		>
-			<p class="demo-guide">
-				<strong>Comment lire la démo.</strong> La bande représente les hypothèses de <KatexInline
-					formula={hypothesisClass}
-				/>. L'hypothèse bleue est parfaite ; une case orange est une hypothèse mauvaise qui n'a
-				pourtant fait aucune erreur sur cet échantillon. Faites varier <KatexInline formula={'n'} /> et
-				<KatexInline formula={'|\\mathcal H|'} /> : cherchez le moment où les cases orange deviennent
-				rares, puis comparez la fréquence observée à <KatexInline
-					formula={'|\\mathcal H|e^{-n\\varepsilon}'}
-				/>.
-			</p>
-			<FiniteClassGeneralizationDemo />
-			<p class="demo-takeaway">
-				<strong>À retenir :</strong> l'ERM échoue ici uniquement lorsqu'une hypothèse mauvaise passe entre
-				les mailles de l'échantillon. L'union bound additionne les probabilités de ces échecs possibles.
-			</p>
+			<KNNConsistencyDemo />
 		</InteractiveSection>
 
-		<Callout type="insight" title="Un coût seulement logarithmique — mais attention">
-			Le terme <KatexInline formula={'\\log|\\mathcal H|'} /> est le prix de la recherche dans
-			<KatexInline formula={hypothesisClass} /> : doubler la taille de la classe ne coûte qu'une observation
-			supplémentaire, à <KatexInline formula={'\\varepsilon'} /> et <KatexInline formula={delta} /> fixés.
-			Mais cette économie est trompeuse en pratique : dès qu'on fait de la sélection de paramètres (une
-			grille d'hyperparamètres, par exemple), <KatexInline formula={'|\\mathcal H|'} /> croît généralement
-			de façon <strong>exponentielle</strong> avec le nombre de paramètres — le coût logarithmique masque
-			une explosion combinatoire en amont.
-		</Callout>
-
-		<h2 id="cas-non-separable">Cas non séparable</h2>
+		<h2 id="pourquoi-k-fixe-echoue">Pourquoi k fixe ne suffit pas</h2>
 
 		<p>
-			Sans hypothèse de réalisabilité, <KatexInline formula={hypothesisClass} /> peut avoir un risque
-			empirique non nul, et l'argument précédent s'effondre : il n'y a plus d'échantillons « trompeurs
-			» au sens strict, puisque même le meilleur classifieur disponible peut légitimement se tromper.
-			Il faut un outil de concentration quantifiant l'écart <KatexInline
-				formula={'|R_{\\mathcal S_n}(h)-R(h)|'}
-			/> pour un <KatexInline formula={'h'} /> quelconque.
+			Les deux conditions du Théorème 2.1 sont-elles vraiment nécessaires, ou une suite plus simple
+			— par exemple <KatexInline formula={String.raw`k(n)=k`} /> constant — suffirait-elle ? La réponse
+			est non.
 		</p>
 
-		<Callout type="intuition" title="Rappel : inégalité de Hoeffding">
+		<Callout type="insight" title="Erreur du 1-NN">
 			<p>
-				Déjà utilisée numériquement dans la démonstration interactive de la leçon précédente, voici
-				son énoncé formel. Pour <KatexInline formula={'Z_1,\\ldots,Z_n'} /> indépendantes et <KatexInline
-					formula={'Z_i\\in[0,1]'}
-				/> :
+				Cette borne n'apparaît pas dans le support du cours (l'Exercice 2.1 du support se limite
+				à un indice) : elle est due à Cover et Hart (1967) et est donnée ici comme complément,
+				au-delà du cours. Pour le classifieur du plus proche voisin (<KatexInline
+					formula={String.raw`1`}
+				/>-NN, <KatexInline formula={String.raw`k=1`} /> fixé), en supposant <KatexInline
+					formula={String.raw`\mathbb{P}_X`}
+				/> à densité (cela garantit que plus n est grand, plus le plus proche voisin est
+				effectivement proche), le risque asymptotique dépend de <KatexInline
+					formula={String.raw`R^*`}
+				/> et est donné par :
 			</p>
-			<KatexBlock formula={hoeffdingRecall} />
+			<KatexBlock formula={coverHartIdentity} />
 			<p>
-				Appliquée au risque empirique d'un <KatexInline formula={'h'} /> fixé (<KatexInline
-					formula={empiricalRisk}
-				/>) :
+				Plus utilement, il est borné en fonction de <KatexInline formula={String.raw`R^*`} /> seul —
+				pour <KatexInline formula={String.raw`0<R^*<1`} /> :
 			</p>
-			<KatexBlock formula={hoeffdingOnRisk} />
+			<KatexBlock formula={coverHartBound} />
 			<p>
-				Comme la borne de Tchebychev de la leçon précédente, celle-ci ne vaut que pour
-				<KatexInline formula={'h'} /> fixé.
+				La borne supérieure est strictement supérieure à <KatexInline
+					formula={String.raw`R^*`}
+				/> pour tout <KatexInline formula={String.raw`R^*\in(0,1)`} /> : l'écart
+				<KatexInline formula={String.raw`2R^*\left(1-\tfrac{R^*}{2}\right)-R^* = R^*(1-R^*)`} /> est
+				strictement positif, et ne s'annule que pour <KatexInline
+					formula={String.raw`R^*\in\{0,1\}`}
+				/>. La borne ne garantit donc pas la convergence vers <KatexInline
+					formula={String.raw`R^*`}
+				/> : il existe des distributions pour lesquelles le risque asymptotique du 1-NN reste
+				strictement au-dessus du risque de Bayes — par exemple, si <KatexInline
+					formula={String.raw`\eta(X)\in\{c,1-c\}`}
+				/> presque sûrement avec <KatexInline formula={String.raw`c\in(0,1/2)`} />, alors
+				<KatexInline formula={String.raw`R^*=c`} /> mais le risque asymptotique vaut
+				<KatexInline formula={String.raw`2c(1-c)>c`} />. C'est pour cela que la condition
+				<KatexInline formula={String.raw`k(n)\to+\infty`} /> du Théorème 2.1 est nécessaire, et pas
+				seulement une commodité technique de la démonstration.
 			</p>
 		</Callout>
 
-		<TheoremBlock number="3.2" title="Cas non séparable, |H| < +∞">
+		<ExercisePanel number="2.1" title="Calcul d'erreur">
+			{#snippet solution()}
+				<p>
+					Avec <KatexInline formula={String.raw`R^*=0.1`} /> par exemple, la borne de Cover-Hart donne
+					<KatexInline
+						formula={String.raw`2R^*\left(1-\tfrac{R^*}{2}\right) = 2\times0.1\times0.95 = 0.19`}
+					/>
+					: le risque asymptotique du 1-NN est ainsi majoré par <KatexInline
+						formula={String.raw`0.19`}
+					/>, soit près du double du risque de Bayes. Plus généralement, la borne
+					<KatexInline formula={coverHartBound} /> montre que la borne supérieure est strictement
+					au-dessus de <KatexInline formula={String.raw`R^*`} /> dès que <KatexInline
+						formula={String.raw`R^*\in(0,1)`}
+					/> : il existe des distributions non séparables pour lesquelles un <KatexInline
+						formula={String.raw`k`}
+					/> fixé laisse un écart résiduel strictement positif, quel que soit <KatexInline
+						formula={String.raw`n`}
+					/>. C'est cette impossibilité générale — pas seulement l'exemple numérique — qui rend la
+					condition <KatexInline formula={String.raw`k(n)\to+\infty`} /> du Théorème 2.1 nécessaire,
+					et pas seulement une commodité technique de la démonstration.
+				</p>
+			{/snippet}
 			<p>
-				Soit <KatexInline formula={hypothesisClass} /> fini et <KatexInline formula={ermDef} />.
-				Pour tout <KatexInline formula={'\\delta\\in(0,1)'} />, avec probabilité <KatexInline
-					formula={confidence}
-				/> :
+				En utilisant le résultat énoncé ci-dessus, calculez la borne supérieure du risque
+				asymptotique du 1-NN pour <KatexInline formula={String.raw`R^*=0.1`} />.
 			</p>
-			<KatexBlock formula={uniformStatement} />
-			<p>En particulier :</p>
-			<KatexBlock formula={uniformRiskBound} />
-		</TheoremBlock>
+		</ExercisePanel>
 
-		<div class="proof-block">
-			<p><strong>Démonstration :</strong></p>
-			<p>
-				<strong>Étape 1 — Concentration pour <KatexInline formula={'h'} /> fixé.</strong> C'est exactement
-				le rappel de Hoeffding ci-dessus.
-			</p>
-			<p>
-				<strong>Étape 2 — Passage à l'uniforme par union bound.</strong> On contrôle non plus un
-				<KatexInline formula={'h'} /> fixé mais le pire cas sur <KatexInline
-					formula={hypothesisClass}
-				/>
-				:
-			</p>
-			<KatexBlock formula={unionOverH} />
-			<p>
-				<strong>Étape 3 — Calibration en <KatexInline formula={'\\delta'} />.</strong> On pose
-				<KatexInline formula={'2|\\mathcal H|e^{-2nt^2}=\\delta'} /> et on résout pour <KatexInline
-					formula={'t'}
-				/> :
-			</p>
-			<KatexBlock formula={solveForT} />
-			<p>
-				<strong>Étape 4 — Application à <KatexInline formula={ermDef} />.</strong> La borne de
-				l'étape 3 est <em>uniforme</em> : elle tient simultanément pour tout <KatexInline
-					formula={hypothesisClass}
-				/>, y compris pour <KatexInline formula={'\\hat h_{\\mathcal S_n}'} /> lui-même, bien qu'il soit
-				une fonction aléatoire de <KatexInline formula={sample} /> :
-			</p>
-			<KatexBlock formula={finalDecomp} />
-			<p>d'où le résultat annoncé. ∎</p>
-		</div>
+		<Callout type="summary" title="Retenir">
+			La consistance universelle est une exigence bien plus forte que la simple consistance : elle
+			doit tenir pour toute distribution, sans hypothèse sur <KatexInline
+				formula={String.raw`\eta`}
+			/>. Le théorème de Stone montre que le <KatexInline formula={String.raw`k`} />-NN l'atteint
+			dès que
+			<KatexInline formula={String.raw`k(n)\to+\infty`} /> (contrôle de la variance) et
+			<KatexInline formula={String.raw`k(n)/n\to0`} /> (contrôle du biais) — deux conditions purement
+			quantitatives sur une seule suite <KatexInline formula={String.raw`k(n)`} />. La borne de
+			Cover-Hart montre que la première condition n'est pas une simple facilité de preuve : sans
+			elle, il peut subsister un écart résiduel strictement positif au risque de Bayes, pour
+			toujours. Ce résultat clôt la partie
+			consacrée à la consistance ; la partie suivante s'attaque à une question complémentaire : non
+			plus
+			<em>si</em>
+			un algorithme converge vers <KatexInline formula={String.raw`R^*`} />, mais
+			<em>à quelle vitesse</em>, via les bornes de généralisation.
+		</Callout>
 
 		<InteractiveSection
 			number="2.2"
-			title="h fixé contre ĥ choisie après coup"
-			onInteract={tracker.trackInteraction}
-		>
-			<p class="demo-guide">
-				<strong>Expérience guidée.</strong> Chaque point compare le risque vrai et le risque
-				empirique d'une hypothèse. Le point bleu est choisi avant l'échantillon ; le point orange
-				est l'ERM, choisi après avoir vu les données. Augmentez <KatexInline
-					formula={'|\\mathcal H|'}
-				/> pour amplifier le biais de sélection, puis augmentez <KatexInline formula={'n'} /> pour resserrer
-				les bandes. La bande étroite est individuelle ; la bande large paie le fait de vouloir couvrir
-				toute la classe.
-			</p>
-			<UniformConvergenceDemo />
-			<p class="demo-takeaway">
-				<strong>Question-test :</strong> pourquoi ne peut-on pas appliquer directement la bande bleue
-				au point orange ? Parce que le choix de ce point dépend précisément des fluctuations de l'échantillon.
-			</p>
-		</InteractiveSection>
-
-		<h2 id="comparaison-vitesses">Comparer les deux régimes</h2>
-
-		<p>
-			Les deux résultats de cette leçon ont des vitesses de convergence différentes, et cet écart
-			n'est pas anodin :
-		</p>
-		<ul>
-			<li>
-				<strong>Cas séparable</strong> : le risque décroît en <KatexInline formula={'1/n'} />.
-			</li>
-			<li>
-				<strong>Cas non séparable</strong> : la borne décroît seulement en
-				<KatexInline formula={'1/\\sqrt n'} />.
-			</li>
-		</ul>
-		<p>
-			C'est précisément le prix de l'absence d'hypothèse de réalisabilité : sans un classifieur
-			parfait dans <KatexInline formula={hypothesisClass} />, on perd l'argument combinatoire des
-			échantillons trompeurs (binaire : trompé ou non) au profit d'une concentration probabiliste
-			plus générale mais plus lente à converger. Dans les deux cas, l'ingrédient commun reste le
-			même : passer d'un contrôle pour <KatexInline formula={'h'} /> fixé à un contrôle
-			<strong>uniforme</strong> sur <KatexInline formula={hypothesisClass} />, via l'union bound.
-		</p>
-
-		<Callout type="summary" title="Retenir">
-			Contrôler l'erreur du classifieur <em>appris</em> — et non d'un classifieur fixé à l'avance —
-			exige une garantie valable simultanément pour toute la classe <KatexInline
-				formula={hypothesisClass}
-			/>. L'union bound est l'outil qui permet ce passage, au prix d'un facteur
-			<KatexInline formula={'\\log|\\mathcal H|'} />. Le cas séparable, plus simple
-			combinatoirement, converge plus vite (<KatexInline formula={'1/n'} />) que le cas général via
-			Hoeffding (<KatexInline formula={'1/\\sqrt n'} />). Mais <KatexInline
-				formula={'|\\mathcal H|'}
-			/> devient inutilisable dès que
-			<KatexInline formula={hypothesisClass} /> est infinie — hyperplans, réseaux de neurones, toute classe
-			paramétrique continue. La leçon suivante introduit l'outil qui prend le relais dans ce cas : la
-			dimension de Vapnik-Chervonenkis.
-		</Callout>
-
-		<InteractiveSection
-			number="2.3"
-			title="Quiz — Généralisation pour une classe finie"
+			title="Quiz — Consistance universelle et k-NN"
 			onInteract={tracker.trackInteraction}
 		>
 			<Quiz items={quiz} />
 		</InteractiveSection>
 	</TheorySection>
-
 	<Bibliography>
 		<BibElement
-			authors={['Shalev-Shwartz, S.', 'Ben-David, S.']}
-			year={2014}
-			title="Understanding Machine Learning: From Theory to Algorithms"
-			journal="Cambridge University Press."
-			link="https://www.cs.huji.ac.il/~shais/UnderstandingMachineLearning/"
+			authors={['Stone, C. J.']}
+			year={1977}
+			title="Consistent Nonparametric Regression"
+			journal="The Annals of Statistics, Vol. 5, No. 4, pp. 595-620."
+			link="https://projecteuclid.org/journals/annals-of-statistics/volume-5/issue-4/Consistent-Nonparametric-Regression/10.1214/aos/1176343886.full"
 		/>
 		<BibElement
-			authors={['Boucheron, S.', 'Lugosi, G.', 'Massart, P.']}
-			year={2013}
-			title="Concentration Inequalities: A Nonasymptotic Theory of Independence"
-			journal="Oxford University Press."
-			link="https://global.oup.com/academic/product/concentration-inequalities-9780199535255"
+			authors={['Cover, T. M.', 'Hart, P. E.']}
+			year={1967}
+			title="Nearest neighbor pattern classification"
+			journal="IEEE Transactions on Information Theory, Vol. 13, No. 1, pp. 21-27."
+			link="https://ieeexplore.ieee.org/document/1053964"
+		/>
+		<BibElement
+			authors={['Devroye, L.', 'Györfi, L.', 'Lugosi, G.']}
+			year={1996}
+			title="A Probabilistic Theory of Pattern Recognition"
+			journal="Springer-Verlag."
+			link="https://doi.org/10.1007/978-1-4612-0711-5"
 		/>
 	</Bibliography>
 </PageTemplate>
-
-<style>
-	.proof-block {
-		padding: 1rem 1.5rem;
-		margin: 1rem 0;
-		border-left: 3px solid var(--color-positive, #4caf50);
-		background-color: color-mix(in srgb, var(--color-positive, #4caf50) 5%, transparent);
-		border-radius: 0 6px 6px 0;
-		font-size: 0.95em;
-		line-height: 1.7;
-	}
-
-	.proof-block p {
-		margin: 0.4rem 0;
-	}
-
-	.demo-guide,
-	.demo-takeaway {
-		margin: 0.75rem 0;
-		line-height: 1.65;
-	}
-
-	.demo-guide {
-		padding: 0.8rem 1rem;
-		border-radius: 6px;
-		background: color-mix(in srgb, var(--color-epistemic, #4f7cac) 8%, transparent);
-	}
-
-	.demo-takeaway {
-		color: var(--color-text-muted);
-	}
-</style>
