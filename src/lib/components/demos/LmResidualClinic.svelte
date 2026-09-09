@@ -39,7 +39,8 @@
 			theo: gaussianQuantile((i + 0.5) / N),
 			emp: v
 		}));
-		const d = Math.max(...pts.map((p) => Math.abs(p.theo)), ...pts.map((p) => Math.abs(p.emp))) + 0.2;
+		const d =
+			Math.max(...pts.map((p) => Math.abs(p.theo)), ...pts.map((p) => Math.abs(p.emp))) + 0.2;
 		return { pts, d };
 	});
 
@@ -78,43 +79,98 @@
 <div class="lm-clinic">
 	<p class="intro">
 		Chaque pathologie des hypothèses d'erreur a sa <strong>signature visuelle</strong>
-		dans les graphes de résidus. Choisissez un scénario : la moyenne des résidus reste
-		nulle par construction, c'est la <em>structure</em> qui change.
+		dans les graphes de résidus. Choisissez un scénario : la moyenne des résidus reste nulle par construction,
+		c'est la <em>structure</em> qui change.
 	</p>
 
 	<div class="controls">
 		{#each scenarios as s (s.key)}
-			<RadioButton value={s.key} label={s.label} groupValue={scenario} />
+			<RadioButton value={s.key} label={s.label} bind:groupValue={scenario} />
 		{/each}
 	</div>
-
 	<p class="reading">{reading}</p>
 
 	<div class="grid4">
 		<div class="panel">
 			<h3>résidus vs valeurs ajustées</h3>
-			<ScatterPlot points={vsFitted} domainX={[Math.min(...fit.yHat), Math.max(...fit.yHat)]} domainY={[Math.min(...fit.residuals) - 0.5, Math.max(...fit.residuals) + 0.5]} height={170} defaultColor="var(--color-belief)" defaultSize={2.5} />
+			<ScatterPlot
+				points={vsFitted}
+				domainX={[Math.min(...fit.yHat), Math.max(...fit.yHat)]}
+				domainY={[Math.min(...fit.residuals) - 0.5, Math.max(...fit.residuals) + 0.5]}
+				height={170}
+				defaultColor="var(--color-belief)"
+				defaultSize={2.5}
+			/>
 		</div>
 		<div class="panel">
 			<h3>résidus vs X</h3>
-			<ScatterPlot points={vsX} domainX={[0, 10]} domainY={[Math.min(...fit.residuals) - 0.5, Math.max(...fit.residuals) + 0.5]} height={170} defaultColor="var(--color-belief)" defaultSize={2.5} />
+			<ScatterPlot
+				points={vsX}
+				domainX={[0, 10]}
+				domainY={[Math.min(...fit.residuals) - 0.5, Math.max(...fit.residuals) + 0.5]}
+				height={170}
+				defaultColor="var(--color-belief)"
+				defaultSize={2.5}
+			/>
 		</div>
 		<div class="panel">
 			<h3>résidus vs temps</h3>
-			<ScatterPlot points={vsTime} domainX={[1, N]} domainY={[Math.min(...fit.residuals) - 0.5, Math.max(...fit.residuals) + 0.5]} height={170} defaultColor="var(--color-belief)" defaultSize={2.5} />
+			<ScatterPlot
+				points={vsTime}
+				domainX={[1, N]}
+				domainY={[Math.min(...fit.residuals) - 0.5, Math.max(...fit.residuals) + 0.5]}
+				height={170}
+				defaultColor="var(--color-belief)"
+				defaultSize={2.5}
+			/>
 		</div>
 		<div class="panel">
 			<h3>Q-Q plot des résidus standardisés</h3>
 			<!-- SVG manuel : fallback tant qu'aucune chart component ne dessine de Q-Q plot. -->
-			<svg viewBox={`0 0 ${W} ${H}`} class="qq" role="img" aria-label="Q-Q plot des résidus standardisés contre la normale">
-				<line x1={qxs(-qq.d)} y1={qys(-qq.d)} x2={qxs(qq.d)} y2={qys(qq.d)} stroke="var(--color-border)" stroke-width="1" stroke-dasharray="4 3" />
-				<line x1={PAD} y1={qys(0)} x2={W - PAD} y2={qys(0)} stroke="var(--color-border)" stroke-width="1" />
-				<line x1={qxs(0)} y1={PAD} x2={qxs(0)} y2={H - PAD} stroke="var(--color-border)" stroke-width="1" />
+			<svg
+				viewBox={`0 0 ${W} ${H}`}
+				class="qq"
+				role="img"
+				aria-label="Q-Q plot des résidus standardisés contre la normale"
+			>
+				<line
+					x1={qxs(-qq.d)}
+					y1={qys(-qq.d)}
+					x2={qxs(qq.d)}
+					y2={qys(qq.d)}
+					stroke="var(--color-border)"
+					stroke-width="1"
+					stroke-dasharray="4 3"
+				/>
+				<line
+					x1={PAD}
+					y1={qys(0)}
+					x2={W - PAD}
+					y2={qys(0)}
+					stroke="var(--color-border)"
+					stroke-width="1"
+				/>
+				<line
+					x1={qxs(0)}
+					y1={PAD}
+					x2={qxs(0)}
+					y2={H - PAD}
+					stroke="var(--color-border)"
+					stroke-width="1"
+				/>
 				{#each qq.pts as p (p.theo + '-' + p.emp)}
-					<circle cx={qxs(p.theo)} cy={qys(p.emp)} r="1.6" fill="var(--color-belief)" opacity="0.65" />
+					<circle
+						cx={qxs(p.theo)}
+						cy={qys(p.emp)}
+						r="1.6"
+						fill="var(--color-belief)"
+						opacity="0.65"
+					/>
 				{/each}
 				<text x={W / 2} y={H - 8} class="ax">quantiles théoriques N(0,1)</text>
-				<text x={12} y={H / 2} class="ax" transform={`rotate(-90 12 ${H / 2})`}>résidus standardisés</text>
+				<text x={12} y={H / 2} class="ax" transform={`rotate(-90 12 ${H / 2})`}
+					>résidus standardisés</text
+				>
 			</svg>
 		</div>
 	</div>
@@ -132,11 +188,11 @@
 	</div>
 
 	<p class="caption">
-		8.validation_du_modele_lineaire_2025.pdf, §8.3–8.4 : un bon graphe de résidus est
-		sans structure apparente (variance constante, indépendance, symétrie, pas de point
-		influent). Les pathologies : asymétrie (populations mélangées / variable manquante),
-		blocs (non-linéarité), hétéroscédasticité, auto-corrélation. Pour n grand : lissage
-		ksmooth()/lowess() + histogramme. n = 120, seedé.
+		8.validation_du_modele_lineaire_2025.pdf, §8.3–8.4 : un bon graphe de résidus est sans structure
+		apparente (variance constante, indépendance, symétrie, pas de point influent). Les pathologies :
+		asymétrie (populations mélangées / variable manquante), blocs (non-linéarité),
+		hétéroscédasticité, auto-corrélation. Pour n grand : lissage ksmooth()/lowess() + histogramme. n
+		= 120, seedé.
 	</p>
 </div>
 

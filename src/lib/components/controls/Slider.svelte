@@ -9,6 +9,7 @@
 		logarithmic?: boolean;
 		disabled?: boolean;
 		onchange?: (value: number) => void;
+		showLabel?: boolean;
 	}
 
 	let {
@@ -20,7 +21,8 @@
 		unit,
 		logarithmic = false,
 		disabled = false,
-		onchange
+		onchange,
+		showLabel = true
 	}: Props = $props();
 
 	// For logarithmic: map slider position [0,1] to [min,max] on log scale
@@ -57,7 +59,9 @@
 
 <div class="slider-container" class:is-disabled={disabled}>
 	<div class="slider-header">
-		<label for={label} class="slider-label">{label}</label>
+		{#if showLabel}
+			<label for={label} class="slider-label">{label}</label>
+		{/if}
 		<span class="slider-value">{displayValue}{unit ? ' ' + unit : ''}</span>
 	</div>
 	<input
