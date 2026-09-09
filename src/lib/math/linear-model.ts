@@ -878,6 +878,46 @@ export function glsSigma2(y: number[], X: number[][], beta: number[], F: number[
 	return s / (n - p - 1);
 }
 
+/**
+ * Variance-covariance of the OLS estimate under (H1) and (H2′) Σε = σ²ℱ:
+ * Var(β̂) = σ²(XᵀX)⁻¹XᵀℱX(XᵀX)⁻¹ (StatM1S1_2025.pdf, §7). OLS stays
+ * unbiased but is no longer BLUE — used by the MCG demo W3.4 to show the
+ * (possibly inflated) variance OLS actually attains when errors are
+ * correlated.
+ */
+export function olsVarianceWithCorrelation(X: number[][], F: number[][], sigma2: number): number[][] {
+	const n = X.length,
+		d = X[0].length;
+	if (F.length !== n || F[0].length !== n) throw new Error(`olsVarianceWithCorrelation: F must be ${n}×${n}`);
+	if (sigma2 <= 0) throw new Error(`olsVarianceWithCorrelation: sigma2 must be positive (got ${sigma2})`);
+	const Xt = transpose(X, n, d);
+	const XtXinv = invert(matMul(Xt, X));
+	const XtFx = matMul(matMul(Xt, F), X);
+	return matMul(
+		matMul(
+			XtXinv,
+			XtFx.map((row) => row.map((v) => v * sigma2))
+		),
+		XtXinv
+	);
+}
+
+/**
+ * Variance-covariance of the MCG estimate under (H1) and (H2′):
+ * Var(β̂MCG) = σ²(Xᵀℱ⁻¹X)⁻¹ (StatM1S1_2025.pdf, §7). Equal to
+ * covarianceBeta on the whitened design; no larger (in Loewner order)
+ * than the OLS variance of olsVarianceWithCorrelation.
+ */
+export function glsVarianceBeta(X: number[][], F: number[][], sigma2: number): number[][] {
+	const n = X.length,
+		d = X[0].length;
+	if (F.length !== n || F[0].length !== n) throw new Error(`glsVarianceBeta: F must be ${n}×${n}`);
+	if (sigma2 <= 0) throw new Error(`glsVarianceBeta: sigma2 must be positive (got ${sigma2})`);
+	const Xt = transpose(X, n, d);
+	const Finv = invert(F);
+	return invert(matMul(matMul(Xt, Finv), X)).map((row) => row.map((v) => v * sigma2));
+}
+
 // ─── Seeded simulators (demos) ────────────────────────────
 
 export type ResidualScenario = 'gaussian' | 'quadratic' | 'fan' | 'asymmetric' | 'autocorrelated';
@@ -964,6 +1004,31 @@ export function repeatedSlopeSamples(opts: { n: number; spread: number; beta0: n
 		const y = x.map((xi) => beta0 + beta1 * xi + sigma * gaussianSample({ mu: 0, sigma2: 1 }, rng));
 		const fit = olsFit(withIntercept(x.map((xi) => [xi])), y);
 		out[b] = fit.beta[1];
+	}
+	return out;
+}
+
+/**
+ * B repeated simple regressions y = β0 + β1x + N(0, σ²) (x on
+ * linspace(0, spread, n)), each with its (1−α)·100 % t-interval of the slope:
+ * β̂1 ± t_{n−3}(1−α/2)·σ̂·√[(XᵀX)⁻¹]₁₁ (StatM1S1_2025.pdf, §6.3).
+ * Sampling demo W3.1 — the empirical coverage over the B samples should be
+ * close to 1−α.
+ */
+export function repeatedSlopeIntervals(opts: { n: number; spread: number; beta0: number; beta1: number; sigma: number; B: number; alpha: number; seed: number }): Array<{ est: number; lo: number; hi: number }> {
+	const { n, spread, beta0, beta1, sigma, B, alpha, seed } = opts;
+	if (!(alpha > 0 && alpha < 1)) throw new Error(`repeatedSlopeIntervals: alpha must be in (0, 1) (got ${alpha})`);
+
+	const x = linspace(0, spread, n);
+	const X = withIntercept(x.map((xi) => [xi]));
+	const out: Array<{ est: number; lo: number; hi: number }> = [];
+	for (let b = 0; b < B; b++) {
+		const rng = mulberry32(combineSeed(seed, b + 1));
+		const y = x.map((xi) => beta0 + beta1 * xi + sigma * gaussianSample({ mu: 0, sigma2: 1 }, rng));
+		const fit = olsFit(X, y);
+		const se = Math.sqrt(covarianceBeta(X, fit.sigma2)[1][1]);
+		const [lo, hi] = tConfidenceInterval(fit.beta[1], se, alpha, n - 3);
+		out.push({ est: fit.beta[1], lo, hi });
 	}
 	return out;
 }

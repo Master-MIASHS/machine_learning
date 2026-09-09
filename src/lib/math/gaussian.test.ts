@@ -5,7 +5,8 @@ import {
 	gaussianSample,
 	gaussianSamples,
 	gaussianEntropy,
-	gaussianProduct
+	gaussianProduct,
+	gaussianQuantile
 } from '../math/gaussian.js';
 
 describe('gaussianPDF', () => {
@@ -152,5 +153,40 @@ describe('gaussianSample', () => {
 		const g = { mu: 0, sigma2: 1 };
 		expect(typeof gaussianSample(g)).toBe('number');
 		expect(isNaN(gaussianSample(g))).toBe(false);
+	});
+});
+
+describe('gaussianQuantile (Acklam inverse CDF)', () => {
+	it('matches the standard normal quantiles', () => {
+		expect(gaussianQuantile(0.5)).toBeCloseTo(0, 9);
+		expect(gaussianQuantile(0.975)).toBeCloseTo(1.959963984540054, 6);
+		expect(gaussianQuantile(0.95)).toBeCloseTo(1.6448536269514722, 6);
+		expect(gaussianQuantile(0.8413447460685429)).toBeCloseTo(1.0, 6);
+		expect(gaussianQuantile(0.025)).toBeCloseTo(-1.959963984540054, 6);
+		expect(gaussianQuantile(0.15865525393145707)).toBeCloseTo(-1.0, 6);
+	});
+
+	it('is symmetric: q(p) = -q(1-p)', () => {
+		for (const p of [0.01, 0.1, 0.33, 0.5, 0.71, 0.9, 0.99]) {
+			expect(gaussianQuantile(p) + gaussianQuantile(1 - p)).toBeCloseTo(0, 10);
+		}
+	});
+
+	it('is strictly increasing on (0,1)', () => {
+		let prev = gaussianQuantile(0.0001);
+		for (let i = 1; i <= 100; i++) {
+			const q = gaussianQuantile(0.0001 + (0.9998 * i) / 100);
+			expect(q).toBeGreaterThan(prev);
+			prev = q;
+		}
+	});
+
+	it('covers the extreme tails and rejects p outside (0,1)', () => {
+		expect(gaussianQuantile(0.999)).toBeCloseTo(3.090232306167813, 4);
+		expect(gaussianQuantile(0.001)).toBeCloseTo(-3.090232306167813, 4);
+		expect(() => gaussianQuantile(0)).toThrow();
+		expect(() => gaussianQuantile(1)).toThrow();
+		expect(() => gaussianQuantile(-0.2)).toThrow();
+		expect(() => gaussianQuantile(1.3)).toThrow();
 	});
 });

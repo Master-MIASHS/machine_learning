@@ -20,18 +20,21 @@ import {
 	forwardSelection,
 	glsClosedForm,
 	glsSigma2,
+	glsVarianceBeta,
 	hatMatrix,
 	leverages,
 	mallowCp,
 	meanResponseInterval,
 	nestedFTest,
 	olsFit,
+	olsVarianceWithCorrelation,
 	partialResiduals,
 	polynomialDesign,
 	polynomialFamily,
 	predictionInterval,
 	predictionLeverage,
 	press,
+	repeatedSlopeIntervals,
 	repeatedSlopeSamples,
 	rSquared,
 	selectionProblem,
@@ -51,7 +54,7 @@ import {
 } from './linear-model';
 import { olsClosedForm } from './regression';
 import { gaussianSample } from './gaussian';
-import { combineSeed, invert, matMul, matVec, mulberry32, transpose } from './util';
+import { combineSeed, invert, linspace, matMul, matVec, mulberry32, transpose } from './util';
 import { bienEtre, longley, prostate, swiss, designMatrix, responseVector } from '../data/linear-regression';
 
 // Helpers to refit leave-one-out models (brute-force ground truth for the
@@ -893,5 +896,87 @@ describe('Demo support functions (Phase C)', () => {
 
 		expect(() => twoFactorData({ nPerCell: 0, iLevels: 2, jLevels: 2, interaction: false, seed: 1 })).toThrow();
 		expect(() => twoFactorData({ nPerCell: 1, iLevels: 1, jLevels: 2, interaction: false, seed: 1 })).toThrow();
+	});
+});
+
+describe('MCG variances & repeated intervals (StatM1S1_2025.pdf §6–7)', () => {
+	const n = 15;
+	const X = withIntercept(linspace(0, 10, n).map((v) => [v]));
+	const d = X[0].length;
+	const I = Array.from({ length: n }, (_, i) => Array.from({ length: n }, (_, j) => (i === j ? 1 : 0)));
+
+	it('olsVarianceWithCorrelation: reduces to σ²(XᵀX)⁻¹ when ℱ = I', () => {
+		const V = olsVarianceWithCorrelation(X, I, 2);
+		const C = covarianceBeta(X, 2);
+		for (let a = 0; a < d; a++) for (let b = 0; b < d; b++) expect(V[a][b]).toBeCloseTo(C[a][b], 10);
+	});
+
+	it('olsVarianceWithCorrelation: symmetric, scales with σ², positive diagonal', () => {
+		const F = ar1Correlation(n, 0.7);
+		const V = olsVarianceWithCorrelation(X, F, 1);
+		for (let a = 0; a < d; a++) for (let b = 0; b < d; b++) expect(V[a][b]).toBeCloseTo(V[b][a], 10);
+		const V4 = olsVarianceWithCorrelation(X, F, 4);
+		for (let a = 0; a < d; a++) for (let b = 0; b < d; b++) expect(V4[a][b]).toBeCloseTo(4 * V[a][b], 8);
+		for (let a = 0; a < d; a++) expect(V[a][a]).toBeGreaterThan(0);
+	});
+
+	it('olsVarianceWithCorrelation: positive AR(1) errors inflate the slope variance (trend)', () => {
+		const F = ar1Correlation(n, 0.7);
+		const slopeVar = olsVarianceWithCorrelation(X, F, 1)[1][1];
+		const iidSlopeVar = covarianceBeta(X, 1)[1][1];
+		expect(slopeVar).toBeGreaterThan(iidSlopeVar);
+	});
+
+	it('glsVarianceBeta: reduces to σ²(XᵀX)⁻¹ when ℱ = I', () => {
+		const V = glsVarianceBeta(X, I, 3);
+		const C = covarianceBeta(X, 3);
+		for (let a = 0; a < d; a++) for (let b = 0; b < d; b++) expect(V[a][b]).toBeCloseTo(C[a][b], 10);
+	});
+
+	it('glsVarianceBeta: symmetric, scales with σ², positive diagonal', () => {
+		const F = ar1Correlation(n, 0.7);
+		const V = glsVarianceBeta(X, F, 1);
+		for (let a = 0; a < d; a++) for (let b = 0; b < d; b++) expect(V[a][b]).toBeCloseTo(V[b][a], 10);
+		const V4 = glsVarianceBeta(X, F, 4);
+		for (let a = 0; a < d; a++) for (let b = 0; b < d; b++) expect(V4[a][b]).toBeCloseTo(4 * V[a][b], 8);
+		for (let a = 0; a < d; a++) expect(V[a][a]).toBeGreaterThan(0);
+	});
+
+	it('glsVarianceBeta ≤ olsVarianceWithCorrelation (BLUE, Loewner) coordinate-wise', () => {
+		const F = ar1Correlation(n, 0.7);
+		const Vols = olsVarianceWithCorrelation(X, F, 1);
+		const Vgls = glsVarianceBeta(X, F, 1);
+		for (let a = 0; a < d; a++) expect(Vols[a][a]).toBeGreaterThanOrEqual(Vgls[a][a] - 1e-12);
+		// the slope (the informative coefficient) is the one most deflated
+		expect(Vols[1][1]).toBeGreaterThan(Vgls[1][1]);
+	});
+
+	it('repeatedSlopeIntervals: intervals are symmetric about est, lo < est < hi, width shrinks with spread', () => {
+		const opts = { n: 12, spread: 5, beta0: 1, beta1: 2, sigma: 1, B: 50, alpha: 0.05, seed: 3 };
+		const ints = repeatedSlopeIntervals(opts);
+		expect(ints.length).toBe(50);
+		for (const { est, lo, hi } of ints) {
+			expect(est).toBeGreaterThan(lo);
+			expect(est).toBeLessThan(hi);
+			expect(est - lo).toBeCloseTo(hi - est, 10);
+		}
+		const wide = repeatedSlopeIntervals({ ...opts, spread: 2 });
+		const narrow = repeatedSlopeIntervals(opts);
+		const meanWidth = (arr: typeof ints) => arr.reduce((a, r) => a + (r.hi - r.lo), 0) / arr.length;
+		expect(meanWidth(wide)).toBeGreaterThan(meanWidth(narrow));
+	});
+
+	it('repeatedSlopeIntervals: est stream matches repeatedSlopeSamples (same seed)', () => {
+		const opts = { n: 10, spread: 6, beta0: 0.5, beta1: -1.5, sigma: 2, B: 40, seed: 11 };
+		const ests = repeatedSlopeIntervals({ ...opts, alpha: 0.1 }).map((r) => r.est);
+		const plain = repeatedSlopeSamples(opts);
+		for (let b = 0; b < opts.B; b++) expect(ests[b]).toBeCloseTo(plain[b], 12);
+	});
+
+	it('repeatedSlopeIntervals: validates alpha in (0,1)', () => {
+		const opts = { n: 8, spread: 4, beta0: 0, beta1: 1, sigma: 1, B: 5, alpha: 0.05, seed: 1 };
+		expect(() => repeatedSlopeIntervals({ ...opts, alpha: 0 })).toThrow();
+		expect(() => repeatedSlopeIntervals({ ...opts, alpha: 1 })).toThrow();
+		expect(() => repeatedSlopeIntervals({ ...opts, alpha: -1 })).toThrow();
 	});
 });
