@@ -1,0 +1,184 @@
+---
+title: "TP 6 : la régression linéaire"
+output: html_document
+date: "2025-2026"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+***
+
+# Exercice 1 — Estimation et diagnostic : le jeu swiss
+
+Les données `swiss` (47 cantons francophones suisses, vers 1888) relient le taux de natalité
+(`BirthRate`, naissances pour 1000 habitants) à quatre indicateurs socio-économiques :
+
+* `Agriculture` : part de la main-d'œuvre occupée dans l'agriculture,
+* `Education` : part occupée dans l'éducation,
+* `Catholic` : part de la population catholique,
+* `InfantMortality` : taux de mortalité infantile (pour 1000 naissances).
+
+**1)** Charger les données (base `datasets` de R, ou fichier .csv disponible sous Moodle) et les
+explorer.
+
+```{r swiss}
+
+```
+
+**2)** Ajuster le modèle multiple
+
+$$\text{BirthRate} = \beta_0 + \beta_1\,\text{Agriculture} + \beta_2\,\text{Education} + \beta_3\,\text{Catholic} + \beta_4\,\text{InfantMortality} + \varepsilon$$
+
+et afficher le résumé de l'ajustement.
+
+```{r swiss-lm}
+
+```
+
+**3)** Calculer les sommes de carrés $\mathrm{SCE}$, $\mathrm{SCR}$, $\mathrm{SCT}$, le $R^2$ et le
+$R^2$ ajusté. Le modèle explique-t-il une part importante de la variation du taux de natalité ?
+
+```{r swiss-sse}
+
+```
+
+**4)** Diagnostic du modèle :
+
+* tester le conditionnement de la matrice de design (calculer l'indice $\kappa$ de la matrice de
+  corrélation des régresseurs, puis comparer au seuil 500) ;
+* calculer les VIF des quatre régresseurs (comparer au seuil 10) ;
+* tracer les graphiques de diagnostic de `plot.lm` et les commenter un à un : résidus vs valeurs
+  ajustées (linéarité, homoscédasticité), Q-Q de Student (gaussianité), leviers, résidus
+  studentisés ;
+* relever la distance de Cook maximale et identifier l'observation la plus influente.
+
+```{r swiss-diag}
+
+```
+
+# Exercice 2 — Inférence : le jeu longley
+
+Les données `longley` (États-Unis, 1955–1962) relient le nombre d'actifs ayant un emploi (`UNEMP`,
+en millions) au PNB (`GNP`, en milliards) et à la population (`POP`, en millions).
+
+**1)** Charger les données (base `datasets` de R, ou fichier .csv disponible sous Moodle) et les
+explorer.
+
+```{r longley}
+
+```
+
+**2)** Ajuster le modèle
+
+$$\text{UNEMP} = \beta_0 + \beta_1\,\text{GNP} + \beta_2\,\text{POP} + \varepsilon$$
+
+et afficher le résumé. À 5 %, quels coefficients sont significatifs (test de Student) ?
+
+```{r longley-lm}
+
+```
+
+**3)** Calculer les intervalles de confiance à 95 % des trois coefficients (`confint`) et les
+interpréter. Pourquoi l'intervalle de $\beta_0$ est-il si large ?
+
+```{r longley-ic}
+
+```
+
+**4)** Construire le tableau d'analyse de la variance et effectuer le test global
+$H_0 : \beta_1 = \beta_2 = 0$ : quelle est la statistique $F$ et sa conclusion à 5 % ?
+
+```{r longley-anova}
+
+```
+
+**5)** Tester $H_0 : \beta_{\mathrm{POP}} = 0$ par un test emboîté
+(`anova` sur les deux modèles emboîtés, ou `drop1`). Que vaut la statistique $F$ obtenue ? Que vaut
+le carré de la statistique de Student du coefficient `POP` ? Que constatez-vous ?
+
+```{r longley-nested}
+
+```
+
+**6)** Ce jeu de données est un cas d'école de colinéarité :
+
+* calculer la corrélation entre `GNP` et `POP` ;
+* calculer les VIF des deux régresseurs et l'indice de conditionnement $\kappa$ ;
+* commenter l'écart entre le $R^2$ élevé du modèle et la (non) signification des coefficients.
+
+```{r longley-collin}
+
+```
+
+# Exercice 3 — Validation et sélection : le jeu prostate
+
+Les données `prostate` (97 patients atteints d'un cancer de la prostate, `ESL` / Hastie, Tibshirani &
+Friedman) : on veut prédire le log de la densité antigénique prostatique (`lpsa`) à partir de huit
+variables mesurées lors de la chirurgie :
+
+* `lcavol` : log du volume de la tumeur,
+* `lweight` : log du poids de la prostate,
+* `age` : âge,
+* `lbph` : log du volume de la prostate bénigne,
+* `svi` : atteinte de la capsule (0/1),
+* `lcp` : log de la densité dans le liquide de perfusion (0 si elle est nulle),
+* `gleason` : score de Gleason (6–10),
+* `pgg45` : pourcentage de glandes mal formées.
+
+**1)** Charger les données (paquet `ESL` : `data(prostate, package = "ESL")`, ou fichier .csv
+disponible sous Moodle) et les explorer.
+
+```{r prostate}
+
+```
+
+**2)** Ajuster le modèle complet `lpsa ~ .` : calculer le $R^2$, tester la signification des
+coefficients à 5 %.
+
+```{r prostate-full}
+
+```
+
+**3)** Avec le paquet `leaps`, explorer la sélection exhaustive par sous-ensemble :
+
+```{r}
+# install.packages("leaps")
+library(leaps)
+```
+
+* calculer `regsubsets(lpsa ~ ., data = prostate, method = "seq", nvmax = 8)` avec les critères de
+  Mallows Cp, $R^2$ et BIC ;
+* afficher les modèles de chaque taille retenus par le critère Cp ;
+* tracer la courbe du Cp (ou du BIC) en fonction de la taille du sous-ensemble ;
+* quel est le modèle de taille 5 qui minimise le Cp ?
+
+```{r prostate-subset}
+
+```
+
+**4)** Effectuer une sélection pas à pas en régression descendante (`step`, direction
+`"backward"`) en partant du modèle complet, avec le critère AIC. Quelles variables sont éliminées,
+et dans quel ordre ? Quel est le modèle final ?
+
+```{r prostate-step-aic}
+
+```
+
+**5)** Récupérer le modèle final d'un `step` avec le critère BIC (rappel : pour un échantillon de
+taille $n$, passer `k = log(n)`). Comparer les modèles retenus par le Cp, par `step` (AIC) et par
+`step` (BIC) : pourquoi le BIC a-t-il tendance à retenir un modèle plus parcimonieux ?
+
+```{r prostate-step-bic}
+
+```
+
+**6)** (bonus) Le PRESS d'un modèle est la somme des carrés des résidus « supprimés »
+$\mathrm{PRESS} = \sum_i \left(\frac{\hat\varepsilon_i}{1 - h_{ii}}\right)^2$ où $h_{ii}$ sont les
+leviers. Calculer le PRESS du modèle complet (on pourra utiliser `hatvalues`) et le comparer à son
+somme des carrés résiduels : que peut-on dire de leur rapport ?
+
+```{r prostate-press}
+
+```

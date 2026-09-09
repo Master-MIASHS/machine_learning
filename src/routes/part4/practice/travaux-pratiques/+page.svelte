@@ -1,13 +1,11 @@
 <script lang="ts">
 	import PageTemplate from '$lib/components/layout/PageTemplate.svelte';
-	import Callout from '$lib/components/narrative/Callout.svelte';
+	import { asset } from '$app/paths';
 	import { getPageByPath, getAdjacentPages } from '$lib/navigation.js';
 	import { settings } from '$lib/stores/index.js';
-	import { createPageTracker } from '$lib/stores/progress.svelte';
-	import type { PageMeta } from '$lib/navigation.js';
 
 	const meta = getPageByPath('/part4/practice/travaux-pratiques');
-	createPageTracker(meta as PageMeta);
+
 	const { prev: prevMeta, next: nextMeta } = $derived(
 		getAdjacentPages(meta?.path ?? '', $settings.expertMode)
 	);
@@ -23,8 +21,15 @@
 	prev={prevMeta}
 	next={nextMeta}
 >
-	<Callout type="note" title="Page en construction">
-		L'énoncé des travaux pratiques (R Markdown : données swiss, longley et prostate)
-		sera ajouté dans <code>static/rmd/</code> lors de la phase D.
-	</Callout>
+	<p>Énoncé des travaux pratiques (R Markdown) :</p>
+	<ul>
+		<li>
+			<a
+				href={asset('/rmd/TP6-RegressionLineaire_enonce.Rmd')}
+				target="_blank"
+				rel="noopener noreferrer"
+				>TP 6 — Régression linéaire (swiss, longley, prostate)</a
+			>
+		</li>
+	</ul>
 </PageTemplate>
