@@ -17,7 +17,9 @@
 
 	const N = 100;
 	const SEED = 5;
-	const rng = mulberry32(combineSeed(SEED, 1));
+	// Flux distinct de correlatedPredictors (qui consomme combineSeed(SEED, 1)) :
+	// avec le même flux, le « bruit » coïnciderait avec x1.
+	const rng = mulberry32(combineSeed(SEED, 2));
 	const noise = Array.from({ length: N }, () => gaussianSample({ mu: 0, sigma2: 1 }, rng));
 
 	let rho = $state(0.5);
@@ -41,11 +43,12 @@
 
 	const corr = $derived(correlationMatrix([correlatedPredictors(N, rho, SEED).x1, correlatedPredictors(N, rho, SEED).x2]));
 
-	// Courbe VIF1(ρ) pour montrer le seuil VIF > 10.
+	// Courbe VIF1(ρ) pour montrer le seuil VIF > 10 : en population
+	// VIF = 1/(1−ρ²), donc VIF = 10 dès ρ = √0,9 ≈ 0,949.
 	const vifCurve = $derived.by(() => {
 		const pts = [];
 		for (let i = 0; i <= 20; i++) {
-			const r = (0.99 * i) / 20;
+			const r = (0.999 * i) / 20;
 			const { x1, x2 } = correlatedPredictors(N, r, SEED);
 			const X = withIntercept(x1.map((v, j) => [v, x2[j]]));
 			pts.push([r, vif(X)[0]] as [number, number]);
@@ -66,7 +69,7 @@
 
 	<div class="control-row">
 		<span class="control-label">corrélation ρ(x1, x2)</span>
-		<Slider min={0} max={0.99} step={0.01} bind:value={rho} label="rho" />
+		<Slider min={0} max={0.999} step={0.001} bind:value={rho} label="rho" />
 	</div>
 
 	<div class="grid2">
@@ -82,8 +85,11 @@
 				curves={[
 					{ points: vifCurve, stroke: 'var(--color-surprise)', curve: 'linear' }
 				]}
-				xDomain={[0, 0.99]}
-				vlines={[{ x: 0.9, stroke: 'var(--color-border)', label: 'ρ = 0.9' }]}
+				xDomain={[0, 0.999]}
+				vlines={[
+					{ x: 0.9, stroke: 'var(--color-border)', label: 'ρ = 0.9' },
+					{ x: Math.sqrt(0.9), stroke: 'var(--color-surprise)', label: 'VIF = 10' }
+				]}
 				height={170}
 			/>
 		</div>

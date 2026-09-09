@@ -133,6 +133,13 @@
 				</div>
 			</div>
 		</div>
+		{#if rq2 >= r2}
+			<p class="clamp-note">
+				Le modèle réduit étant inclus dans le modèle plein, Rq² doit être strictement inférieur à R² : la
+				valeur {rq2.toFixed(2)} saisie est ramenée à juste en dessous de R² = {r2.toFixed(2)} pour le
+				calcul.
+			</p>
+		{/if}
 		<Metrics>
 			<div class="cell">
 				<span class="label">Fq observé</span>
@@ -261,6 +268,16 @@
 		text-transform: uppercase;
 		letter-spacing: 0.03em;
 		color: var(--color-text-muted);
+	}
+
+	.clamp-note {
+		margin: 0.5rem 0 0;
+		padding: 0.5rem 0.75rem;
+		border-left: 3px solid var(--color-surprise);
+		background: color-mix(in srgb, var(--color-surprise) 8%, transparent);
+		color: var(--color-text-muted);
+		font-size: 0.75rem;
+		line-height: 1.5;
 	}
 
 	.caption {

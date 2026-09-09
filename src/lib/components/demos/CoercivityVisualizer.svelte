@@ -31,18 +31,18 @@
 
 	const currentOption = $derived(funcOptions.find((o) => o.key === selectedKey) ?? funcOptions[0]);
 	const currentFunc = $derived(currentOption.func);
-	const domain = $derived<[[number, number], [number, number]]>(
-		currentFunc.domain ?? [
+	const domain = $derived(
+		(currentFunc.domain ?? [
 			[-3, 3],
 			[-3, 3]
-		]
+		]) as [[number, number], [number, number]]
 	);
 
 	// A much larger domain used only to test genuine unboundedness, never rendered.
-	const probeDomain = $derived<[[number, number], [number, number]]>([
+	const probeDomain = $derived([
 		scaleAxis(domain[0]),
 		scaleAxis(domain[1])
-	]);
+	] as [[number, number], [number, number]]);
 	function scaleAxis([lo, hi]: [number, number]): [number, number] {
 		const center = (lo + hi) / 2;
 		const half = ((hi - lo) / 2) * PROBE_SCALE;

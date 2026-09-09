@@ -15,7 +15,7 @@
  *                                   résidus partiels;
  *  - 9.choix_de_modele.pdf        — PRESS, Cp de Mallows, AIC, BIC,
  *                                   best-subset / forward / backward / both;
- *  - ModèleLinéaire_ANOVA_ANCOVA.pdf — codages de facteurs, ANOVA 2 facteurs,
+ *  - ModèleLinéaire_ANOVA_ANCOVA.pdf — codages de facteurs, ANOVA 2 facteurs,
  *                                   ANCOVA.
  *
  * Convention: X is n×d with the intercept as column 0; the sources' "p"
@@ -58,7 +58,7 @@ export type FactorCoding = 'none' | 'treatment' | 'sum';
 
 /**
  * One-way ANOVA design matrix for factor levels (0-indexed per observation).
- * Source: ModèleLinéaire_ANOVA_ANCOVA.pdf, "Contraintes de plein rang":
+ * Source: ModèleLinéaire_ANOVA_ANCOVA.pdf, "Contraintes de plein rang":
  *  - 'none'      : no intercept (β0 = 0), one column per level — βj = mean of the response at level j;
  *  - 'treatment' : R contr.treatment, level 1 is the reference (β1 = 0);
  *  - 'sum'       : R contr.sum, Σj βj = 0 (β0 is the grand mean for balanced
@@ -93,7 +93,7 @@ export function anovaDesign(levels: number[], coding: FactorCoding = 'treatment'
 /**
  * Two-way ANOVA design, reference coding (α1 = 0, β1 = 0), optional
  * interaction γij with γi1 = γ1j = 0.
- * Source: ModèleLinéaire_ANOVA_ANCOVA.pdf, "ANOVA à 2 facteurs"
+ * Source: ModèleLinéaire_ANOVA_ANCOVA.pdf, "ANOVA à 2 facteurs"
  * (R: Y ~ F1 + F2, or Y ~ F1 * F2 with interaction).
  */
 export function twoWayAnovaDesign(iLevels: number[], jLevels: number[], interaction: boolean): number[][] {
@@ -117,7 +117,7 @@ export function twoWayAnovaDesign(iLevels: number[], jLevels: number[], interact
 /**
  * ANCOVA design: factor (reference coding) + quantitative covariate x,
  * optional factor×covariate interaction.
- * Source: ModèleLinéaire_ANOVA_ANCOVA.pdf, "Modèle d'ANCOVA":
+ * Source: ModèleLinéaire_ANOVA_ANCOVA.pdf, "Modèle d'ANCOVA":
  *  - no interaction: Yjk = β0 + βj + δ·xjk (parallel lines, R: Y ~ X + F);
  *  - interaction:    Yjk = β0 + βj + (δ + δj)·xjk (R: Y ~ X * F).
  */
@@ -135,6 +135,50 @@ export function ancovaDesign(levels: number[], x: number[], interaction: boolean
 		if (interaction && level >= 1) row[nMain + (level - 1)] = x[obs];
 		return row;
 	});
+}
+
+/**
+ * Seeded ANCOVA data: `levels` factor levels × `nPerLevel` observations,
+ * xjk ~ U(0, xMax),
+ *   yjk = beta0 + alphas[j] + (slope + deltaSlopes[j])·xjk + N(0, sigma²),
+ * with deltaSlopes all zero by default (no interaction → parallel lines).
+ * Source: ModèleLinéaire_ANOVA_ANCOVA.pdf, "Modèle d'ANCOVA" (slide 11):
+ * Yjk = β0 + βj + δ·xjk (R: Y ~ X + F), or Yjk = β0 + βj + (δ + δj)·xjk
+ * (R: Y ~ X * F). Synthetic data for the demo W2.3 — the slides give no
+ * numeric example.
+ */
+export function ancovaData(opts: {
+	nPerLevel: number;
+	levels: number;
+	xMax: number;
+	beta0: number;
+	alphas: number[];
+	slope: number;
+	deltaSlopes?: number[];
+	sigma: number;
+	seed: number;
+}): { levels: number[]; x: number[]; y: number[] } {
+	const { nPerLevel, levels, xMax, beta0, alphas, slope, sigma, seed } = opts;
+	const delta = opts.deltaSlopes ?? alphas.map(() => 0);
+	if (nPerLevel < 2 || levels < 2) throw new Error(`ancovaData: need at least 2 levels × 2 observations (got ${levels} × ${nPerLevel})`);
+	if (xMax <= 0) throw new Error(`ancovaData: xMax must be positive (got ${xMax})`);
+	if (sigma <= 0) throw new Error(`ancovaData: sigma must be positive (got ${sigma})`);
+	if (alphas.length !== levels || delta.length !== levels)
+		throw new Error(`ancovaData: alphas/deltaSlopes length (${alphas.length}/${delta.length}) must equal levels (${levels})`);
+
+	const rng = mulberry32(combineSeed(seed, 1));
+	const base: Gaussian = { mu: 0, sigma2: 1 };
+	const outLevels: number[] = [];
+	const outX: number[] = [];
+	const outY: number[] = [];
+	for (let j = 0; j < levels; j++)
+		for (let k = 0; k < nPerLevel; k++) {
+			const x = rng() * xMax;
+			outLevels.push(j);
+			outX.push(x);
+			outY.push(beta0 + alphas[j] + (slope + delta[j]) * x + sigma * gaussianSample(base, rng));
+		}
+	return { levels: outLevels, x: outX, y: outY };
 }
 
 // ─── OLS core ─────────────────────────────────────────────
@@ -512,7 +556,7 @@ export function regularizedIncompleteBeta(x: number, a: number, b: number): numb
 /**
  * Quantile of Student's t distribution with `df` degrees of freedom:
  * returns t such that P(T ≤ t) = p, T ~ Student(df)
- * (StatM1S1_2025.pdf, p. 31: t5(97.5 %) = 2.57058).
+ * (StatM1S1_2025.pdf, p. 32: t5(97.5 %) = 2.57058).
  */
 export function tQuantile(p: number, df: number): number {
 	if (p <= 0 || p >= 1) throw new Error(`tQuantile: p must be in (0,1) (got ${p})`);
@@ -672,7 +716,7 @@ export function mallowCp(rss: number, n: number, k: number, sigma2Full: number):
 
 /**
  * AIC = −2 log L + 2k. For the Gaussian linear model this equals
- * n·ln(RSS/n) + 2k up to an additive constant (2n ln(2π) + n) shared by all
+ * n·ln(RSS/n) + 2k up to an additive constant (n ln(2π) + n) shared by all
  * candidate models — the exact form reported by R's AIC.lm / step(), which
  * reproduces the numbers of 9.choix_de_modele.pdf (prostate: AIC nul = 28.84,
  * modèle final = −61.37420). `k` counts coefficients including the intercept.
@@ -967,9 +1011,13 @@ export function ar1Correlation(n: number, rho: number): number[][] {
 }
 
 /**
- * Seeded AR(1) error process: ε0 = z0, εi = ρ·εi−1 + zi with zi ~ N(0,1)
- * i.i.d. (StatM1S1_2025.pdf, §7 — (H2′) Σε = σ²ℱ with ℱ the AR(1) matrix;
- * used by the MCG demo W3.4). Stationary variance 1/(1−ρ²).
+ * Seeded AR(1) error process: ε0 ~ N(0, 1/(1−ρ²)) (stationary draw), then
+ * εi = ρ·εi−1 + zi with zi ~ N(0,1) i.i.d. (StatM1S1_2025.pdf, §7 — (H2′)
+ * Σε = σ²ℱ with ℱ the AR(1) matrix; used by the MCG demo W3.4). Stationary
+ * variance 1/(1−ρ²); starting from the stationary law keeps the simulated
+ * covariance at σ²ℱ even for the short series the demo uses (starting at
+ * ε0 = 0 would drag the simulated variances below the displayed theory at
+ * high ρ).
  */
 export function ar1Samples(n: number, rho: number, seed: number): number[] {
 	if (n < 1) throw new Error(`ar1Samples: n must be positive (got ${n})`);
@@ -977,9 +1025,9 @@ export function ar1Samples(n: number, rho: number, seed: number): number[] {
 	const rng = mulberry32(combineSeed(seed, 1));
 	const base: Gaussian = { mu: 0, sigma2: 1 };
 	const out = new Array<number>(n);
-	let eps = 0;
+	let eps = Math.sqrt(1 / (1 - rho * rho)) * gaussianSample(base, rng);
 	for (let i = 0; i < n; i++) {
-		eps = rho * eps + gaussianSample(base, rng);
+		if (i > 0) eps = rho * eps + gaussianSample(base, rng);
 		out[i] = eps;
 	}
 	return out;
@@ -1144,8 +1192,8 @@ export function correlatedPredictors(n: number, rho: number, seed: number): { x1
 }
 
 /**
- * Seeded two-factor response for the interaction demo W2.2
- * (ModèleLinéaire_ANOVA_ANCOVA.pdf, ANOVA à 2 facteurs):
+ * Seeded two-factor response for the interaction demo 2.7
+ * (ModèleLinéaire_ANOVA_ANCOVA.pdf, ANOVA à 2 facteurs):
  *   Y = αi + βj + γij·1{interaction} + N(0,1),
  * with `nPerCell` observations per (i, j) cell and effects drawn from N(0, 4).
  * `gamma` is all zeros when `interaction` is false (additive model).

@@ -181,8 +181,9 @@
 		le R² croît avec le nombre de paramètres et vaut 1 quand le polynôme interpole ;
 		il ne peut comparer que des modèles de même dimension. Les critères pénalisés
 		estiment de combien l’erreur d’entraînement sous-estime la vraie erreur («
-		optimisme ») ; ici Cp et BIC repèrent un degré proche du vrai, AIC moins
-		parcimonieux. À d = n−1, RSS = 0 : AIC/BIC → −∞ (critères dégénérés, non tracés).
+		optimisme ») ; ici Cp identifie le vrai degré exactement (d* = 2), BIC est
+		parcimonieux (d* = 4) et AIC le moins parcimonieux (d* = 11). À d = n−1,
+		RSS = 0 : AIC/BIC → −∞ (critères dégénérés, non tracés).
 		Reference Cp : σ̂² estimé au modèle d = n−2 (1 ddl). n = 15, σ = 0,8, seedé ; jeu
 		de test : 40 points frais.
 	</p>

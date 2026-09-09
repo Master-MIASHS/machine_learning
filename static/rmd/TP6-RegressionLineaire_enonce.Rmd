@@ -12,11 +12,11 @@ knitr::opts_chunk$set(echo = TRUE)
 
 # Exercice 1 — Estimation et diagnostic : le jeu swiss
 
-Les données `swiss` (47 cantons francophones suisses, vers 1888) relient le taux de natalité
+Les données `swiss` (47 provinces francophones suisses, vers 1888) relient le taux de natalité
 (`BirthRate`, naissances pour 1000 habitants) à quatre indicateurs socio-économiques :
 
-* `Agriculture` : part de la main-d'œuvre occupée dans l'agriculture,
-* `Education` : part occupée dans l'éducation,
+* `Agriculture` : part des hommes occupés dans l'agriculture,
+* `Education` : part des conscrits ayant un niveau d'éducation supérieur à l'école primaire,
 * `Catholic` : part de la population catholique,
 * `InfantMortality` : taux de mortalité infantile (pour 1000 naissances).
 
@@ -50,8 +50,8 @@ $R^2$ ajusté. Le modèle explique-t-il une part importante de la variation du t
   corrélation des régresseurs, puis comparer au seuil 500) ;
 * calculer les VIF des quatre régresseurs (comparer au seuil 10) ;
 * tracer les graphiques de diagnostic de `plot.lm` et les commenter un à un : résidus vs valeurs
-  ajustées (linéarité, homoscédasticité), Q-Q de Student (gaussianité), leviers, résidus
-  studentisés ;
+  ajustées (linéarité, homoscédasticité), Q-Q normal des résidus (gaussianité), scale-location,
+  résidus vs leviers (leviers, résidus studentisés) ;
 * relever la distance de Cook maximale et identifier l'observation la plus influente.
 
 ```{r swiss-diag}
@@ -60,11 +60,17 @@ $R^2$ ajusté. Le modèle explique-t-il une part importante de la variation du t
 
 # Exercice 2 — Inférence : le jeu longley
 
-Les données `longley` (États-Unis, 1955–1962) relient le nombre d'actifs ayant un emploi (`UNEMP`,
-en millions) au PNB (`GNP`, en milliards) et à la population (`POP`, en millions).
+Les données du cours (États-Unis, 1955–1962, tableau de Longley repris dans le cours) relient le
+nombre d'actifs ayant un emploi (`ACTIFS`, en millions) au PNB (`GNP`, en milliards) et à la
+population (`POP`, en millions).
 
-**1)** Charger les données (base `datasets` de R, ou fichier .csv disponible sous Moodle) et les
-explorer.
+**Attention** : le jeu `longley` de la base `datasets` de R utilise des séries différentes (en
+particulier `UNEMP` y désigne le nombre de *chômeurs*, et la série `POP` n'est pas celle du cours).
+Pour cet exercice, utilisez le fichier `longley_actifs.csv` fourni avec le cours (à côté de ce
+Rmd, ou sous Moodle), qui reprend exactement le tableau du cours.
+
+**1)** Charger les données (`read.csv("longley_actifs.csv")`, ou le fichier .csv disponible sous
+Moodle) et les explorer.
 
 ```{r longley}
 
@@ -72,7 +78,7 @@ explorer.
 
 **2)** Ajuster le modèle
 
-$$\text{UNEMP} = \beta_0 + \beta_1\,\text{GNP} + \beta_2\,\text{POP} + \varepsilon$$
+$$\text{ACTIFS} = \beta_0 + \beta_1\,\text{GNP} + \beta_2\,\text{POP} + \varepsilon$$
 
 et afficher le résumé. À 5 %, quels coefficients sont significatifs (test de Student) ?
 
@@ -115,17 +121,17 @@ le carré de la statistique de Student du coefficient `POP` ? Que constatez-vous
 # Exercice 3 — Validation et sélection : le jeu prostate
 
 Les données `prostate` (97 patients atteints d'un cancer de la prostate, `ESL` / Hastie, Tibshirani &
-Friedman) : on veut prédire le log de la densité antigénique prostatique (`lpsa`) à partir de huit
-variables mesurées lors de la chirurgie :
+Friedman) : on veut prédire le log du PSA — l'antigène spécifique prostatique (`lpsa`) — à partir de
+huit variables mesurées lors de la chirurgie :
 
 * `lcavol` : log du volume de la tumeur,
 * `lweight` : log du poids de la prostate,
 * `age` : âge,
 * `lbph` : log du volume de la prostate bénigne,
-* `svi` : atteinte de la capsule (0/1),
-* `lcp` : log de la densité dans le liquide de perfusion (0 si elle est nulle),
+* `svi` : invasion des vésicules séminales (0/1),
+* `lcp` : log du pourcentage de cellules positives dans l'expression prostatique (0 si négatif),
 * `gleason` : score de Gleason (6–10),
-* `pgg45` : pourcentage de glandes mal formées.
+* `pgg45` : pourcentage de glandes de grade 4 ou 5.
 
 **1)** Charger les données (paquet `ESL` : `data(prostate, package = "ESL")`, ou fichier .csv
 disponible sous Moodle) et les explorer.

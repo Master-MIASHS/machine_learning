@@ -62,7 +62,7 @@ export const PART4: QuizQuestion[] = [
 		],
 		answerIndex: 0,
 		explanation:
-			'Les contraintes (sans intercept / de référence / somme) rendent X de plein rang : les paramètres changent avec le codage, pas l’ajustement (ModèleLinéaire_ANOVA_ANCOVA, « Les contraintes dans les modèles d’ANOVA »).'
+			'Les contraintes (sans intercept / de référence / somme) rendent X de plein rang : les paramètres changent avec le codage, pas l’ajustement (ModèleLinéaire_ANOVA_ANCOVA.pdf, « Les contraintes dans les modèles d’ANOVA »).'
 	},
 	{
 		id: 'p4-l2-q2',
@@ -77,7 +77,7 @@ export const PART4: QuizQuestion[] = [
 		],
 		answerIndex: 0,
 		explanation:
-			'« β0 valeur moyenne de la réponse dans le niveau 1 ; βj : écart de la réponse du niveau j au niveau 1 » (ModèleLinéaire_ANOVA_ANCOVA, « Choix d’une référence »).'
+			'« β0 valeur moyenne de la réponse dans le niveau 1 ; βj : écart de la réponse du niveau j au niveau 1 » (ModèleLinéaire_ANOVA_ANCOVA.pdf, « Choix d’une référence »).'
 	},
 	{
 		id: 'p4-l2-q3',
@@ -91,7 +91,7 @@ export const PART4: QuizQuestion[] = [
 		],
 		answerIndex: 0,
 		explanation:
-			'Dans ce codage, « β0 moyenne des paramètres » et « β0 + βj : valeur moyenne de la réponse du niveau j » (ModèleLinéaire_ANOVA_ANCOVA, « Somme des paramètres »).'
+			'Dans ce codage, « β0 moyenne des paramètres » et « β0 + βj : valeur moyenne de la réponse du niveau j » (ModèleLinéaire_ANOVA_ANCOVA.pdf, « Somme des paramètres »).'
 	},
 	{
 		id: 'p4-l2-q4',
@@ -106,7 +106,7 @@ export const PART4: QuizQuestion[] = [
 		],
 		answerIndex: 0,
 		explanation:
-			'Additivité des effets principaux : « αi : effet du niveau i de F1 quelque soit le niveau j de F2 » (ModèleLinéaire_ANOVA_ANCOVA, « ANOVA à 2 facteurs »).'
+			'Additivité des effets principaux : « αi : effet du niveau i de F1 quelque soit le niveau j de F2 » (ModèleLinéaire_ANOVA_ANCOVA.pdf, « ANOVA à 2 facteurs »).'
 	},
 	{
 		id: 'p4-l3-q1',
@@ -181,7 +181,7 @@ export const PART4: QuizQuestion[] = [
 		id: 'p4-l4-q2',
 		tags: ['p4/l4'],
 		question:
-			"L'indice de conditionnement κ mesure le mauvais conditionnement de XᵀX. Règle courante du cours : colinéarité trop forte si",
+			"L'indice de conditionnement κ = λ₁/λₚ de la matrice de corrélation des régresseurs mesure le mauvais conditionnement. Règle courante du cours : colinéarité trop forte si",
 		options: ['κ > 500', 'κ > 50', 'κ > 5000', 'κ < 1'],
 		answerIndex: 0,
 		explanation:
@@ -210,7 +210,7 @@ export const PART4: QuizQuestion[] = [
 		],
 		answerIndex: 0,
 		explanation:
-			'« Attention, un point atypique n’est pas forcément influent ! » (8.validation_du_modele_lineaire_2025) ; Di = hii·ri²/((p+1)(1−hii)²) combine levier et résidu standardisé.'
+			'« Attention, un point atypique n’est pas forcément influent ! » (8.validation_du_modele_lineaire_2025) ; Di = hii·ri²/((p+1)(1−hii)) combine levier et résidu standardisé.'
 	},
 	{
 		id: 'p4-syn-q1',
@@ -265,6 +265,6 @@ export const PART4: QuizQuestion[] = [
 		],
 		answerIndex: 0,
 		explanation:
-			'« σ̂²MV = ‖ε̂‖²/n, qui n’est pas sans biais. On préférera donc plutôt l’estimateur sans biais σ̂² » (StatM1S1_2025 §5.5) : il faut diviser par le nombre de degrés de liberté n−p−1.'
+			'« σ̂²MV = ‖ε̂‖²/n, qui n’est pas sans biais. On préférera donc plutôt l’estimateur sans biais σ̂² » (StatM1S1_2025 §6.1) : il faut diviser par le nombre de degrés de liberté n−p−1.'
 	}
 ];

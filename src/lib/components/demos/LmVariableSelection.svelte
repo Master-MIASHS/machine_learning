@@ -17,7 +17,7 @@
 		type SelectionCriterion
 	} from '$lib/math/linear-model.js';
 
-	const { X, y, trueSupport } = selectionProblem(7);
+	const { X, y, trueSupport } = selectionProblem(16);
 	const n = X.length;
 	const p = X[0].length - 1;
 	const names = ['x1', 'x2', 'x3', 'x4', 'x5', 'x6', 'x7', 'x8'];
@@ -195,11 +195,16 @@
 
 	<p class="caption">
 		9.choix_de_modele.pdf, « Recherche exhaustive » et « Sélection pas à pas » : le best-subset
-		évalue tous les 2^p modèles (algorithme Leaps and Bound, impossible dès p &gt; 30) ; forward /
-		backward / both sont <strong>gloutons</strong> (biais important, variance/complexité contrôlée ; backward
-		ne fonctionne pas si n &lt; p). Les algorithmes gloutons peuvent manquer le meilleur sous-ensemble
-		et la corrélation entre prédicteurs perturbe la sélection (x4 peut être retenue à la place ou en plus
-		de x1) — cf. leçon 4. Seed 7.
+		évalue en principe tous les 2^p modèles — la diapo mentionne un algorithme efficace
+		(« Leaps and Bound », en R <code>regsubsets()</code> du package <code>leaps</code>) — mais
+		l’énumération exhaustive devient impossible dès que p &gt; 30 ; forward / backward / both sont
+		<strong>gloutons</strong> (biais important, variance/complexité contrôlée ; backward ne fonctionne
+		pas si n &lt; p) et n’explorent qu’un petit nombre des 2^p modèles (de l’ordre de p²), sans
+		garantie d’optimum global. Ici les trois algorithmes gloutons retrouvent le même sous-ensemble
+		que le best-subset, mais ce n’est pas garanti en général : c’est surtout l’effet de corrélation
+		qui est visible — la variable nulle x4, corrélée à x1 (ρ ≈ 0,9), est retenue <em>en plus de</em> x1
+		par Cp, AIC et R² ajusté, tandis que le BIC, plus pénalisant, retrouve le vrai support — cf.
+		leçon 5, « L’impact de la corrélation entre prédicteurs ». Seed 16.
 	</p>
 </div>
 

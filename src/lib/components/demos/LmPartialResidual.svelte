@@ -11,15 +11,17 @@
 	} from '$lib/math/linear-model.js';
 	import { combineSeed, linspace, mulberry32 } from '$lib/math/util.js';
 
-	// Vrai modèle : Y = 1 + 0.5·x1 + 0.8·x1² + 0.3·x2 + N(0,1) avec x2
-	// confondu avec x1 (x2 = 0.6·x1 + N(0,1)) — la courbure de x1 est masquée
-	// dans le nuage brut (8.validation…, « Graphes des résidus partiels »).
+	// Vrai modèle : Y = 1 + 0.5·x1 + 0.8·x1² − 1.5·x2 + N(0,1) avec x2
+	// confondu avec x1 (x2 = x1 + N(0,1)) : l'effet linéaire de x2 (coefficient
+	// −1.5) déforme le nuage brut en un « V » asymétrique — la courbure de x1
+	// n'est lisible qu'après retrait de l'effet estimé de x2
+	// (8.validation…, « Graphes des résidus partiels »).
 	const N = 80;
 	const SEED = 23;
 	const rng = mulberry32(combineSeed(SEED, 1));
 	const x1 = linspace(-2, 2, N);
-	const x2 = x1.map((v) => 0.6 * v + gaussianSample({ mu: 0, sigma2: 1 }, rng));
-	const y = x1.map((v, i) => 1 + 0.5 * v + 0.8 * v * v + 0.3 * x2[i] + gaussianSample({ mu: 0, sigma2: 1 }, rng));
+	const x2 = x1.map((v) => v + gaussianSample({ mu: 0, sigma2: 1 }, rng));
+	const y = x1.map((v, i) => 1 + 0.5 * v + 0.8 * v * v - 1.5 * x2[i] + gaussianSample({ mu: 0, sigma2: 1 }, rng));
 
 	let addSquare = $state(false);
 
@@ -36,10 +38,16 @@
 <div class="lm-partial">
 	<p class="intro">
 		Le lien réel entre <KatexInline formula="X1" /> et <KatexInline formula="Y" /> est
-		quadratique, mais la variable confondue <KatexInline formula="X2" /> brouille le
-		nuage brut. Les <strong>résidus partiels</strong>
+		quadratique, mais <KatexInline formula="X2" /> est confondue avec
+		<KatexInline formula="X1" /> et entre dans le modèle avec un coefficient négatif :
+		l'effet linéaire de <KatexInline formula="X2" /> déforme le nuage brut. Les
+		<strong>résidus partiels</strong>
 		<KatexInline formula={String.raw`\hat{\varepsilon}^{\Delta_1}_i = \hat{\beta}_1 x_{1i} + \hat{\varepsilon}_i`} />
-		enlèvent l'effet estimé des <em>autres</em> variables : la courbure réapparaît.
+		enlèvent l'effet estimé des <em>autres</em> variables : la relation quadratique
+		entre <KatexInline formula="X1" /> et <KatexInline formula="Y" /> s'y lit nettement,
+		ce que le nuage brut ne permet pas de conclure. Ajouter
+		<KatexInline formula="X1^2" /> au modèle rend alors le résidu partiel linéaire —
+		c'est le rôle du diagnostic.
 	</p>
 
 	<div class="controls">
@@ -48,7 +56,7 @@
 
 	<div class="grid2">
 		<div class="panel">
-			<h3>nuage brut (X1, Y) — effet masqué</h3>
+			<h3>nuage brut (X1, Y) — déformé par X2</h3>
 			<ScatterPlot
 				points={rawPts}
 				domainX={[-2, 2]}

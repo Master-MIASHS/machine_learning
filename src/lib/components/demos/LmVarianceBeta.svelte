@@ -194,8 +194,9 @@
 	<p class="caption">
 		StatM1S1_2025.pdf, §I.4.3 : σ̂²β̂ = σ̂²(XᵀX)⁻¹ — chaque écart-type de coefficient est
 		σ̂·√((XᵀX)⁻¹ⱼⱼ). Quand ρ → 1, (XᵀX)⁻¹ devient mal conditionné : SE, VIF et κ explosent alors que
-		le modèle explique toujours aussi bien Y (amorce de la leçon 4). Simulations seedées (n = 100, σ
-		= 1).
+		le modèle explique toujours aussi bien Y (les VIF et le conditionnement κ sont les diagnostics de
+		collinéarité de 8.validation_du_modele_lineaire_2025.pdf, amorce de la leçon 4). Simulations seedées :
+		panneau A, n = 20 et 200 tirages ; panneau B, n = 100, σ = 1.
 	</p>
 </div>
 

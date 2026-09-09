@@ -132,7 +132,7 @@
 	</Metrics>
 
 	<p class="caption">
-		ModèleLinéaire_ANOVA_ANCOVA.pdf, « Les contraintes dans les modèles d'ANOVA » : β̂ = (XᵀX)⁻¹XᵀY
+		ModèleLinéaire_ANOVA_ANCOVA.pdf, « Les contraintes dans les modèles d'ANOVA » : β̂ = (XᵀX)⁻¹XᵀY
 		exige rang(X) = p ; les trois codages donnent le même ajustement (mêmes moyennes par niveau)
 		mais des paramètres non uniques — c'est la contrainte qui choisit l'interprétation.
 	</p>

@@ -33,6 +33,12 @@
 			label: 'Facteurs et choix de modèle',
 			description: 'Exercices 4.5–4.6 — encodage d’un facteur (trois codages), AIC vs BIC (données simulées)',
 			color: 'surprise'
+		},
+		{
+			id: 'complements',
+			label: 'Compléments : interactions, ANCOVA, résidus partiels, MCG, pas à pas',
+			description: 'Exercices 4.7–4.11 — test de l’interaction (2 facteurs), ANCOVA, résidus partiels (prostate), MCG (erreurs AR(1)), sélection pas à pas (prostate)',
+			color: 'agent'
 		}
 	];
 
@@ -86,7 +92,7 @@
 
 <PageTemplate
 	title={meta?.title ?? 'Exercices — Partie IV'}
-	subtitle="6 exercices sur la régression linéaire : moindres carrés, inférence, diagnostic, facteurs et choix de modèle (corrigés en mode enseignant)"
+	subtitle="11 exercices sur la régression linéaire : moindres carrés, inférence, diagnostic, facteurs, ANCOVA, MCG et choix de modèle (corrigés en mode enseignant)"
 	prev={prevMeta}
 	next={nextMeta}
 >
@@ -668,7 +674,7 @@
 							<td>96.57</td>
 							<td>63.50</td>
 							<td>6.71</td>
-							<td>7.09</td>
+							<td>7.08</td>
 							<td>5.36</td>
 							<td>7.79</td>
 							<td>9.26</td>
@@ -692,7 +698,16 @@
 				<p>
 					<strong>(c)</strong> Le vrai degré est
 					<KatexInline formula={'d = 2'} />
-					(ici le Cp de Mallows le sélectionne aussi). Avec
+					(ici le Cp de Mallows le sélectionne aussi — avec la convention de la démo 5.3,
+					où
+					<KatexInline formula={'\\hat\\sigma^2'} />
+					est estimé sur le modèle de degré maximal
+					<KatexInline formula={'d = 13'} />
+					, et non sur le modèle de degré 9 ; sur la plage
+					<KatexInline formula={'d \\le 9'} />
+					seule, le Cp minimise en
+					<KatexInline formula={'d = 4'} />
+					). Avec
 					<KatexInline formula={'n = 15'} />
 					,
 					<KatexInline formula={'\\log n = 2.71'} />
@@ -704,13 +719,13 @@
 					<KatexInline formula={'n'} />
 					croît,
 					<KatexInline formula={'k\\log n \\gg 2k'} />
-					et le BIC devient nettement plus parcimonieux (leçon 5, démo W5.3) : c’est la
+					et le BIC devient nettement plus parcimonieux (leçon 5, démo 5.8) : c’est la
 					différence fondamentale entre les deux critères, au-delà de l’aspect numérique
 					particulier à ce petit échantillon.
 				</p>
 			{/snippet}
 			<p>
-				On simule, comme dans la démo W5.1 de la leçon 5, une réponse suivant un vrai polynôme de
+				On simule, comme dans la démo 5.3 de la leçon 5, une réponse suivant un vrai polynôme de
 				degré
 				<KatexInline formula={'d^* = 2'} />
 				avec
@@ -752,6 +767,277 @@
 				<KatexInline formula={'k\\log n'} />
 				).
 			</p>
+		</ExercisePanel>
+
+		<h2 id="complements">
+			Compléments : interactions, ANCOVA, résidus partiels, MCG, pas à pas
+		</h2>
+
+		<ExercisePanel number="4.7" title="ANOVA à deux facteurs : tester l’interaction">
+			<p>
+				On génère un jeu de données à deux facteurs (comme la démo 2.7, <KatexInline formula={'twoFactorData'} />) :
+				F1 = pluie (2 niveaux : non / oui), F2 = vent (3 niveaux : N / S / O), 5 observations par cellule,
+				avec un effet d’interaction non nul. Les moyennes cellulaires observées sont :
+			</p>
+			<div class="data-table">
+				<table>
+					<thead>
+						<tr>
+							<th></th>
+							<th>vent N</th>
+							<th>vent S</th>
+							<th>vent O</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr>
+							<th>pluie non</th>
+							<td>−1,702</td>
+							<td>1,362</td>
+							<td>−1,211</td>
+						</tr>
+						<tr>
+							<th>pluie oui</th>
+							<td>−6,089</td>
+							<td>−2,390</td>
+							<td>−2,972</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+			<p>
+				(a) Ajuster le modèle additif <KatexInline formula={'Y = \\beta_0 + \\alpha_i + \\beta_j'} /> (codage par référence)
+				et le modèle avec interaction <KatexInline formula={'Y = \\beta_0 + \\alpha_i + \\beta_j + \\gamma_{ij}'} /> :
+				on obtient <KatexInline formula={'\\mathrm{SCR}_{\\mathrm{add}} = 29{,}453'} /> et
+				<KatexInline formula={'\\mathrm{SCR}_{\\mathrm{int}} = 20{,}071'} />
+				(<KatexInline formula={'\\mathrm{SCT} = 168{,}391'} />).
+			</p>
+			<p>
+				(b) Effectuer le test du F imbriqué pour l’interaction, avec
+				<KatexInline formula={'q = (2-1)(3-1) = 2'} />, <KatexInline formula={'n = 30'} />,
+				<KatexInline formula={'p = 5'} /> : calculer F et le comparer à la valeur critique
+				<KatexInline formula={'F_{0{,}95\\,;\\,2,\\,24} = 3{,}403'} />.
+			</p>
+			<p>
+				(c) Conclure au seuil de 5 %, et vérifier la conclusion à partir du tableau des moyennes cellulaires.
+			</p>
+			{#snippet solution()}
+				<p>
+					(a) Le modèle additif donne <KatexInline formula={'\\mathrm{SCR}_{\\mathrm{add}} = 29{,}453'} />
+					(<KatexInline formula={'R^2_q = 0{,}8251'} />) et le modèle avec interaction
+					<KatexInline formula={'\\mathrm{SCR}_{\\mathrm{int}} = 20{,}071'} />
+					(<KatexInline formula={'R^2 = 0{,}8808'} />).
+				</p>
+				<p>
+					(b) <KatexInline formula={'F = \\frac{(29{,}453 - 20{,}071)\\, / \\,2}{20{,}071 \\, / \\, 24} = 5{,}610'} />,
+					degrés de liberté <KatexInline formula={'(2,\\,24)'} />, valeur critique 3,403.
+				</p>
+				<p>
+					(c) Comme <KatexInline formula={'5{,}610 > 3{,}403'} />, on rejette l’hypothèse nulle d’absence
+					d’interaction au seuil de 5 % : l’effet de la pluie dépend du vent. Le tableau confirme — la différence
+					entre les lignes « oui » et « non » vaut −4,387 pour N, −3,752 pour S et −1,761 pour O : l’effet de
+					la pluie n’est pas constant d’un vent à l’autre, c’est-à-dire que les moyennes ne sont pas alignées
+					en un réseau parallèle, signature exacte d’une interaction.
+				</p>
+			{/snippet}
+		</ExercisePanel>
+
+		<ExercisePanel number="4.8" title="ANCOVA : droites parallèles et apport de la covariable">
+			<p>
+				Facteur F à 3 niveaux et covariable continue <KatexInline formula={'x \\in [0, 10]'} /> : 10 observations
+				par niveau, générées avec le modèle (vrai) <KatexInline formula={'y = 1 + \\alpha_j + 0{,}8\\,x + \\varepsilon'} />,
+				<KatexInline formula={'\\alpha = (0,\\,1{,}5,\\,-1)'} />, <KatexInline formula={'\\sigma = 0{,}5'} />
+				(<KatexInline formula={'ancovaData'} />, seed 11).
+			</p>
+			<p>
+				(a) Ajuster le modèle ANCOVA sans interaction (R : <KatexInline formula={'Y ~ x + F'} />) : quelle est la
+				pente commune estimée ? Quelles sont les ordonnées à l’origine (<KatexInline formula={'x = 0'} />) des
+				trois droites ajustées ?
+			</p>
+			<p>
+				(b) Quel est l’apport de la covariable après le facteur ? Comparer le modèle à facteur seul
+				(<KatexInline formula={'\\mathrm{SCR} = 195{,}980'} />, <KatexInline formula={'R^2 = 0{,}227'} />)
+				au modèle ANCOVA (<KatexInline formula={'\\mathrm{SCR} = 8{,}361'} />, <KatexInline formula={'R^2 = 0{,}967'} />)
+				par un test du F imbriqué (<KatexInline formula={'q = 1'} />, <KatexInline formula={'n = 30'} />,
+				<KatexInline formula={'p = 3'} />, valeur critique <KatexInline formula={'F_{0{,}95\\,;\\,1,\\,26} = 4{,}225'} />).
+			</p>
+			<p>
+				(c) Le modèle avec interaction (R : <KatexInline formula={'Y ~ x * F'} />) donne
+				<KatexInline formula={'\\mathrm{SCR} = 7{,}434'} />. Effectuer le test du F imbriqué pour l’interaction
+				(<KatexInline formula={'q = 2'} />, <KatexInline formula={'p = 5'} />, valeur critique
+				<KatexInline formula={'F_{0{,}95\\,;\\,2,\\,24} = 3{,}403'} />) et conclure : l’hypothèse de droites
+				parallèles est-elle acceptable ?
+			</p>
+			{#snippet solution()}
+				<p>
+					(a) La pente commune estimée vaut <KatexInline formula={'\\delta\\,\\hat{} = 0{,}841'} />
+					(valeur vraie 0,8). Les ordonnées à l’origine des trois droites sont 0,732, 2,005 et −0,220 pour les
+					niveaux 1, 2, 3 : les trois droites sont affines de pente identique — le facteur agit uniquement sur
+					l’ordonnée à l’origine, ce qui est précisément le modèle ANCOVA à lignes parallèles.
+				</p>
+				<p>
+					(b) <KatexInline formula={'F = \\frac{(195{,}980 - 8{,}361)\\, / \\,1}{8{,}361 \\, / \\, 26} = 583{,}42 > 4{,}225'} /> :
+					après avoir expliqué la part de variance due au facteur, la covariable en explique encore une part très
+					significative. C’est l’intérêt de l’ANCOVA : facteur et covariable sont ajustés l’un par rapport à
+					l’autre, ce qui réduit la variance résiduelle (8,361 contre 195,980).
+				</p>
+				<p>
+					(c) <KatexInline formula={'F = \\frac{(8{,}361 - 7{,}434)\\, / \\,2}{7{,}434 \\, / \\, 24} = 1{,}497 < 3{,}403'} /> :
+					l’interaction n’est pas significative. L’hypothèse de droites parallèles
+					(<KatexInline formula={'Y ~ x + F'} />) est acceptable : le gain de SCR (0,927) n’est pas à la hauteur
+					des deux degrés de liberté dépensés.
+				</p>
+			{/snippet}
+		</ExercisePanel>
+
+		<ExercisePanel number="4.9" title="Résidus partiels : voir la relation masquée (prostate)">
+			<p>
+				Données prostate (<KatexInline formula={'n = 97'} />), modèle complet
+				<KatexInline formula={'lpsa ~ lcavol + lweight + age + lbph + svi + lcp + gleason + pgg45'} /> avec
+				<KatexInline formula={'\\hat{\\boldsymbol{\\beta}} = (0{,}669,\\;0{,}587,\\;0{,}454,\\;-0{,}020,\\;0{,}107,\\;0{,}766,\\;-0{,}105,\\;0{,}045,\\;0{,}005)'} />.
+			</p>
+			<p>
+				(a) Calculer les résidus partiels de <KatexInline formula={'lcavol'} /> :
+				<KatexInline formula={'\\hat{\\varepsilon}_{\\Delta,i} = \\hat{\\beta}_{lcavol}\\,x_{lcavol,i} + \\hat{\\varepsilon}_i = y_i - \\sum_{k \\neq lcavol} \\hat{\\beta}_k\\,x_{k,i}'} />,
+				où la somme porte sur toutes les autres colonnes de la matrice de conception, intercept compris.
+				Donner les cinq premières valeurs et vérifier l’identité
+				<KatexInline formula={'\\hat{\\varepsilon}_{\\Delta,i} = y_i - \\sum_{k \\neq j} \\hat{\\beta}_k x_{k,i}'} />
+				sur l’observation 1 (<KatexInline formula={'(y_1, x_1) = (-0{,}431,\\;-0{,}580,\\;2{,}770,\\;50,\\;-1{,}386,\\;0,\\;-1{,}386,\\;6,\\;0)'} />).
+			</p>
+			<p>
+				(b) Pourquoi le nuage brut <KatexInline formula={'(lcavol,\\, y)'} /> est-il peu fiable pour étudier la
+				relation <KatexInline formula={'lcavol \\to lpsa'} /> ?
+			</p>
+			<p>
+				(c) Qu’indique une courbure systématique du nuage
+				<KatexInline formula={'(lcavol,\\, \\hat{\\varepsilon}_{\\Delta})'} />, et quels sont les remèdes usuels ?
+			</p>
+			{#snippet solution()}
+				<p>
+					(a) Les cinq premiers résidus partiels de <KatexInline formula={'lcavol'} /> valent
+					−1,646 ; −1,470 ; −1,006 ; −1,454 ; −0,909. Pour l’observation 1, la somme des effets estimés des
+					autres prédicteurs vaut
+					<KatexInline formula={'0{,}669 + 0{,}454 \\times 2{,}770 - 0{,}020 \\times 50 - 0{,}107 \\times (-1{,}386) + (-0{,}105) \\times (-1{,}386) + 0{,}045 \\times 6 \\approx 1{,}215'} />
+					(les termes <KatexInline formula={'svi'} /> et <KatexInline formula={'pgg45'} /> sont nuls pour cette
+					observation), donc
+					<KatexInline formula={'\\hat{\\varepsilon}_{\\Delta,1} = -0{,}431 - 1{,}215 \\approx -1{,}646'} />,
+					conforme à la table.
+				</p>
+				<p>
+					(b) Les autres prédicteurs influencent aussi <KatexInline formula={'lpsa'} /> (notamment
+					<KatexInline formula={'lweight'} /> et <KatexInline formula={'svi'} />) et sont corrélés à
+					<KatexInline formula={'lcavol'} /> : le nuage brut mêle l’effet de
+					<KatexInline formula={'lcavol'} /> aux effets de ces variables. Le résidu partiel retire leurs effets
+					estimés et isole la relation conditionnelle entre <KatexInline formula={'lcavol'} /> et
+					<KatexInline formula={'lpsa'} /> (leçon 4, bloc sur les résidus partiels).
+				</p>
+				<p>
+					(c) Une courbure systématique indique que la relation entre
+					<KatexInline formula={'lcavol'} /> et <KatexInline formula={'lpsa'} /> n’est pas linéaire : on cherche
+					alors une transformation de <KatexInline formula={'lcavol'} /> (polynôme
+					<KatexInline formula={'lcavol^2'} />, logarithme, exponentielle…) à ajouter ou substituer dans le
+					modèle (leçon 4, bloc « diagnostic de la linéarité »).
+				</p>
+			{/snippet}
+		</ExercisePanel>
+
+		<ExercisePanel number="4.10" title="MCG à corrélation AR(1) connue">
+			<p>
+				Régression simple <KatexInline formula={'y_i = 2 + 1{,}5\\,x_i + \\varepsilon_i'} /> avec
+				<KatexInline formula={'x_i = 10 i / 29'} /> (<KatexInline formula={'i = 0, \\dots, 29'} />) et des erreurs de
+				moyenne nulle de matrice de covariance <KatexInline formula={'\\Sigma_\\varepsilon = \\mathcal{F}'} /> où
+				<KatexInline formula={'\\mathcal{F}_{ij} = \\rho^{|i-j|}'} />, <KatexInline formula={'\\rho = 0{,}7'} />
+				(variance des innovations <KatexInline formula={'\\sigma^2 = 1'} /> ; la variance stationnaire des
+				<KatexInline formula={'\\varepsilon_i'} /> vaut <KatexInline formula={'1 / (1 - \\rho^2) \\approx 1{,}905'} />).
+			</p>
+			<p>
+				(a) L’estimateur MCO <KatexInline formula={'\\hat{\\beta}_1'} /> reste non biaisé, mais sa variance n’est
+				plus <KatexInline formula={'\\sigma^2 (X^{\\top}X)^{-1}'} /> : c’est
+				<KatexInline formula={'\\sigma^2 (X^{\\top}X)^{-1} X^{\\top} \\mathcal{F} X (X^{\\top}X)^{-1}'} />.
+				La calculer (numériquement).
+			</p>
+			<p>
+				(b) Pour le MCG (le <KatexInline formula={'\\mathcal{F}'} /> est connu) :
+				<KatexInline formula={'\\hat{\\beta}_{\\mathrm{MCG}} = (X^{\\top}\\mathcal{F}^{-1}X)^{-1} X^{\\top}\\mathcal{F}^{-1} Y'} />,
+				<KatexInline formula={'\\mathrm{Var}(\\hat{\\beta}_{\\mathrm{MCG}}) = \\sigma^2 (X^{\\top}\\mathcal{F}^{-1}X)^{-1}'} />.
+				Calculer <KatexInline formula={'\\mathrm{Var}(\\hat{\\beta}_{1,\\mathrm{MCG}})'} />.
+			</p>
+			<p>
+				(c) Comparer les deux variances et recalculer leur rapport pour <KatexInline formula={'\\rho = 0{,}9'} />.
+				Commenter au regard de la propriété BLUE (leçon 3, section MCG).
+			</p>
+			{#snippet solution()}
+				<p>
+					(a) <KatexInline formula={'\\mathrm{Var}_{\\mathrm{MCO}}(\\hat{\\beta}_1) \\approx 0{,}03056'} />.
+				</p>
+				<p>
+					(b) <KatexInline formula={'\\mathrm{Var}_{\\mathrm{MCG}}(\\hat{\\beta}_1) \\approx 0{,}02705'} />.
+				</p>
+				<p>
+					(c) Le rapport vaut ≈ 1,13 : sous l’hypothèse (H2′) d’erreurs autocorrélées, la variance de
+					<KatexInline formula={'\\hat{\\beta}_{1,\\mathrm{MCO}}'} /> est gonflée, tandis que le MCG — estimateur
+					BLEU — a la plus petite variance. Le gain croît avec <KatexInline formula={'\\rho'} /> : pour
+					<KatexInline formula={'\\rho = 0{,}9'} />, <KatexInline formula={'\\mathrm{Var}_{\\mathrm{MCO}} \\approx 0{,}12152'} />
+					contre <KatexInline formula={'\\mathrm{Var}_{\\mathrm{MCG}} \\approx 0{,}09732'} /> (rapport ≈ 1,25).
+					Pratiquement, <KatexInline formula={'\\mathcal{F}'} /> s’inverse numériquement (fonction
+					<KatexInline formula={'solve(F)'} /> de R) ; les matrices <KatexInline formula={'X^{\\top}\\mathcal{F}^{-1}X'} />
+					et <KatexInline formula={'X^{\\top}\\mathcal{F}^{-1}Y'} /> s’assemblent ensuite comme dans le MCO.
+				</p>
+			{/snippet}
+		</ExercisePanel>
+
+		<ExercisePanel number="4.11" title="Sélection pas à pas (prostate) : AIC vs BIC">
+			<p>
+				Données prostate (<KatexInline formula={'n = 97'} />, <KatexInline formula={'p = 8'} /> prédicteurs).
+				Les critères sont ceux de la leçon 5 : <KatexInline formula={'\\mathrm{AIC} = -2 \\log L + 2k'} />
+				(<KatexInline formula={'k'} /> paramètre en plus de la variance) et
+				<KatexInline formula={'\\mathrm{BIC} = -2 \\log L + k \\log n'} />.
+			</p>
+			<p>
+				(a) Sélection pas à pas avant (forward) avec l’AIC : donner la trajectoire (variable ajoutée à chaque pas
+				valeur de l’AIC correspondante) et le modèle final.
+			</p>
+			<p>
+				(b) Sélection pas à pas arrière (backward) avec l’AIC, en partant du modèle complet
+				(<KatexInline formula={'\\mathrm{AIC} = -58{,}322'} />) : quelles variables sont retirées, dans quel
+				ordre ? Quel est le modèle final ?
+			</p>
+			<p>
+				(c) Que donne la stratégie « both » (forward puis backward) avec l’AIC ? Expliquer sa similarité avec
+				l’issue de (a).
+			</p>
+			<p>
+				(d) Refaire la stratégie « both » avec le BIC : donner la trajectoire et le modèle final, et commenter la
+				différence avec l’AIC (rappelez-vous de l’exercice 4.6).
+			</p>
+			{#snippet solution()}
+				<p>
+					(a) <KatexInline formula={'\\mathrm{AIC} = 28{,}837'} /> (modèle constant) ; + lcavol →
+					<KatexInline formula={'-44{,}366'} /> ; + lweight → <KatexInline formula={'-52{,}690'} /> ;
+					+ svi → <KatexInline formula={'-60{,}676'} /> ; + lbph → <KatexInline formula={'-61{,}352'} /> ;
+					+ age → <KatexInline formula={'-61{,}374'} />. Aucun ajout supplémentaire ne diminue l’AIC : le modèle
+					final est <KatexInline formula={'lpsa ~ lcavol + lweight + svi + lbph + age'} /> (5 variables).
+				</p>
+				<p>
+					(b) Depuis <KatexInline formula={'\\mathrm{AIC} = -58{,}322'} /> (modèle complet) : − gleason →
+					<KatexInline formula={'-60{,}231'} /> ; − lcp → <KatexInline formula={'-60{,}789'} /> ;
+					− pgg45 → <KatexInline formula={'-61{,}374'} />. On retrouve exactement le même modèle final que (a) —
+					ici, avant et arrière convergent.
+				</p>
+				<p>
+					(c) La stratégie « both » reproduit d’abord la trajectoire forward à l’identique (elle part du modèle
+					constant), puis n’effectue aucun retrait améliorant le critère : même modèle final que (a).
+				</p>
+				<p>
+					(d) Avec le BIC : <KatexInline formula={'31{,}412'} /> → + lcavol <KatexInline formula={'-39{,}217'} />
+					→ + lweight <KatexInline formula={'-44{,}966'} /> → + svi <KatexInline formula={'-50{,}377'} />, puis
+					arrêt : le modèle final est <KatexInline formula={'lpsa ~ lcavol + lweight + svi'} /> (3 variables).
+					La pénalité du BIC, <KatexInline formula={'k \\log n \\approx 4{,}57'} /> par paramètre, est plus de
+					deux fois celle de l’AIC (<KatexInline formula={'2k = 2'} />) : un paramètre doit apporter un gain de
+					bon ajustement plus important pour être retenu, et le modèle sélectionné est donc plus parcimonieux
+					(leçon 5, bloc sur le BIC ; exercice 4.6).
+				</p>
+			{/snippet}
 		</ExercisePanel>
 	</TheorySection>
 </PageTemplate>

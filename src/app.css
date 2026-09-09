@@ -23,6 +23,7 @@
 	--color-evidence: #f3f3f6; /* White — réalité, distribution p */
 	--color-positive: #34d399; /* Fresh Mint-400 — énergie, ressources */
 	--color-surprise: #fb7185; /* Cheerful Rose-400 — erreur, surprise */
+	--color-negative: #f87171; /* Red-400 — seuils critiques, valeurs hors limites */
 	--color-epistemic: #a78bfa; /* Sunny Violet-400 — incertitude, exploration */
 	--color-neutral: #fbbf24; /* Happy Amber-400 — action, planification */
 	--color-agent: #818cf8; /* Soft Indigo-400 — agent, T-maze */
@@ -58,6 +59,7 @@
 		--color-evidence: #161618; /* Near-black (reality, distribution p) */
 		--color-positive: #059669; /* Emerald 600 */
 		--color-surprise: #e11d48; /* Rose 600 */
+		--color-negative: #dc2626; /* Red 600 */
 		--color-epistemic: #7c3aed; /* Violet 600 */
 		--color-neutral: #ea580c; /* Orange 600 */
 	}

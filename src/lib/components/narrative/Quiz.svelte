@@ -1,5 +1,6 @@
 <script lang="ts">
 	import type { QuizItem } from '$lib/quiz';
+	import { mulberry32 } from '$lib/math/util.js';
 
 	interface Props {
 		items: QuizItem[];
@@ -9,6 +10,31 @@
 	let { items, maxQuestions }: Props = $props();
 	let selectedAnswers = $state<Record<number, number>>({});
 	let visibleIndices = $state<number[]>([]);
+
+	// FNV-1a 32-bit hash — stable seed per question for the option shuffle.
+	function hashString(s: string): number {
+		let h = 0x811c9dc5;
+		for (let i = 0; i < s.length; i++) {
+			h ^= s.charCodeAt(i);
+			h = Math.imul(h, 0x01000193);
+		}
+		return h >>> 0;
+	}
+
+	// Deterministic (SSR-safe) option order per question: a seeded Fisher-Yates
+	// permutation of the original option indices. Without it, every question's
+	// correct answer would always render as the first option ("A").
+	const optionOrder = $derived(
+		items.map((item) => {
+			const idx = item.options.map((_, i) => i);
+			const rng = mulberry32(hashString(item.question + '\u0000' + item.options.join('\u0000')));
+			for (let i = idx.length - 1; i > 0; i--) {
+				const j = Math.floor(rng() * (i + 1));
+				[idx[i], idx[j]] = [idx[j], idx[i]];
+			}
+			return idx;
+		})
+	);
 
 	function getRandomSubset(n: number, k: number): number[] {
 		const indices = Array.from({ length: n }, (_, i) => i);
@@ -104,9 +130,9 @@
 					</legend>
 
 					<div class="options">
-						{#each item.options as option, optionIndex (optionIndex)}
-							{@const selected = selectedAnswers[questionIndex] === optionIndex}
-							{@const right = answered && optionIndex === item.answerIndex}
+						{#each optionOrder[questionIndex] as origIdx, pos (origIdx)}
+							{@const selected = selectedAnswers[questionIndex] === origIdx}
+							{@const right = answered && origIdx === item.answerIndex}
 							{@const wrong = selected && !right}
 
 							<button
@@ -117,12 +143,12 @@
 								class:incorrect={wrong}
 								aria-pressed={selected}
 								aria-describedby={answered ? feedbackId : undefined}
-								onclick={() => selectAnswer(questionIndex, optionIndex)}
+								onclick={() => selectAnswer(questionIndex, origIdx)}
 							>
 								<span class="option-marker" aria-hidden="true">
-									{String.fromCharCode(65 + optionIndex)}
+									{String.fromCharCode(65 + pos)}
 								</span>
-								<span>{option}</span>
+								<span>{item.options[origIdx]}</span>
 							</button>
 						{/each}
 					</div>

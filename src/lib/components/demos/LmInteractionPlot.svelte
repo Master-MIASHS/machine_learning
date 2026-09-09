@@ -6,7 +6,7 @@
 
 	// F1 = pluie (non/oui), F2 = direction du vent (N/S/O) — l'exemple
 	// « l'orientation du vent n'a pas le même effet avec ou sans pluie »
-	// (ModèleLinéaire_ANOVA_ANCOVA.pdf, Interaction).
+	// (ModèleLinéaire_ANOVA_ANCOVA.pdf, Interaction).
 	const N_PER = 15;
 	const SEED = 31;
 	const f1Names = ['pluie : non', 'pluie : oui'];
@@ -71,7 +71,8 @@
 	<p class="intro">
 		Deux facteurs : la pluie (F1) et la direction du vent (F2). Sans interaction, l'effet du vent
 		est le même avec ou sans pluie (droites parallèles) ; avec interaction γij, l'effet de l'un
-		dépend de l'autre (droites qui se croisent).
+		dépend de l'autre : les droites ne sont plus parallèles, l'écart entre elles varie d'un vent
+		à l'autre.
 	</p>
 
 	<div class="controls">
@@ -132,7 +133,7 @@
 	</Metrics>
 
 	<p class="caption">
-		ModèleLinéaire_ANOVA_ANCOVA.pdf : sans interaction Yijk = β0 + αi + βj + εijk (additivité des
+		ModèleLinéaire_ANOVA_ANCOVA.pdf : sans interaction Yijk = β0 + αi + βj + εijk (additivité des
 		effets principaux) ; avec interaction on ajoute γij avec les contraintes γi1 = γ1j = 0 — en R :
 		Y ~ F1*F2. Mêmes seeds pour les deux modes : deux réalisations du modèle, à comparer par la
 		forme des droites.

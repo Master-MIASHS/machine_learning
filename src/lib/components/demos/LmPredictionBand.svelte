@@ -14,7 +14,7 @@
 
 	const N = 15;
 	const SEED = 13;
-	const ALPHA = 0.05;
+	let alpha = $state(0.05);
 	const rng = mulberry32(combineSeed(SEED, 1));
 	const x = Array.from({ length: N }, () => rng() * 10);
 	const y = x.map((xi) => 2 + 1.5 * xi + gaussianSample({ mu: 0, sigma2: 1 }, mulberry32(combineSeed(SEED, xi * 100 + 2))));
@@ -33,8 +33,8 @@
 			const gx = (10 * i) / (GRID - 1);
 			const yhat = fit.beta[0] + fit.beta[1] * gx;
 			const lev = predictionLeverage(X, [1, gx]);
-			const [ciLo, ciHi] = meanResponseInterval(yhat, fit.sigma2, lev, ALPHA, df);
-			const [piLo, piHi] = predictionInterval(yhat, fit.sigma2, lev, ALPHA, df);
+			const [ciLo, ciHi] = meanResponseInterval(yhat, fit.sigma2, lev, alpha, df);
+			const [piLo, piHi] = predictionInterval(yhat, fit.sigma2, lev, alpha, df);
 			out.push({ gx, yhat, ciLo, ciHi, piLo, piHi });
 		}
 		return out;
@@ -43,8 +43,8 @@
 	const atX0 = $derived.by(() => {
 		const yhat = fit.beta[0] + fit.beta[1] * x0;
 		const lev = predictionLeverage(X, [1, x0]);
-		const [ciLo, ciHi] = meanResponseInterval(yhat, fit.sigma2, lev, ALPHA, df);
-		const [piLo, piHi] = predictionInterval(yhat, fit.sigma2, lev, ALPHA, df);
+		const [ciLo, ciHi] = meanResponseInterval(yhat, fit.sigma2, lev, alpha, df);
+		const [piLo, piHi] = predictionInterval(yhat, fit.sigma2, lev, alpha, df);
 		return { yhat, lev, ciLo, ciHi, piLo, piHi };
 	});
 
@@ -87,6 +87,11 @@
 		<Slider min={0} max={10} step={0.1} bind:value={x0} label="x0" />
 	</div>
 
+	<div class="control-row">
+		<span class="control-label">seuil α (bandes à (1−α)·100 %)</span>
+		<Slider min={0.01} max={0.2} step={0.01} bind:value={alpha} label="alpha" />
+	</div>
+
 	<!-- SVG manuel : fallback tant qu'aucune chart component ne supporte les bandes. -->
 	<svg viewBox={`0 0 ${W} ${H}`} class="plot" role="img" aria-label="Bandes de confiance et de prédiction autour de la droite ajustée">
 		<path d={piArea} fill="var(--color-agent)" opacity="0.13" />
@@ -121,8 +126,14 @@
 	</svg>
 
 	<div class="legend">
-		<span><i class="sw" style="background: color-mix(in srgb, var(--color-belief) 45%, transparent)"></i>IC 95 % de la moyenne</span>
-		<span><i class="sw" style="background: color-mix(in srgb, var(--color-agent) 25%, transparent)"></i>Intervalle de prédiction 95 %</span>
+		<span>
+			<i class="sw" style="background: color-mix(in srgb, var(--color-belief) 45%, transparent)"></i>IC
+			{Math.round((1 - alpha) * 100)} % de la moyenne
+		</span>
+		<span>
+			<i class="sw" style="background: color-mix(in srgb, var(--color-agent) 25%, transparent)"></i>Intervalle de
+			prédiction {Math.round((1 - alpha) * 100)} %
+		</span>
 	</div>
 
 	<Metrics>

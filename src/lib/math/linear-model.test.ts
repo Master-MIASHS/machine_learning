@@ -1,8 +1,9 @@
 import { describe, it, expect } from 'vitest';
 import {
 	adjustedRSquared,
-	anovaDesign,
+	ancovaData,
 	ancovaDesign,
+	anovaDesign,
 	ar1Correlation,
 	ar1Samples,
 	aic,
@@ -72,7 +73,7 @@ function looRefit(X: number[][], y: number[], drop: number) {
 	return { beta, yHat: yHatAll, resid: residAll };
 }
 
-describe('Design matrices (ModèleLinéaire_ANOVA_ANCOVA.pdf)', () => {
+describe('Design matrices (ModèleLinéaire_ANOVA_ANCOVA.pdf)', () => {
 	it('withIntercept prepends a column of 1s', () => {
 		const X = withIntercept([
 			[1, 2],
@@ -177,6 +178,41 @@ describe('Design matrices (ModèleLinéaire_ANOVA_ANCOVA.pdf)', () => {
 			[1, 1, 3, 3],
 			[1, 1, 4, 4]
 		]);
+	});
+
+	it('ancovaData: seeded, validates, and the parallel model recovers (slope, level offsets)', () => {
+		const opts = {
+			nPerLevel: 5000,
+			levels: 3,
+			xMax: 10,
+			beta0: 2,
+			alphas: [0, 1.5, -1],
+			slope: 0.8,
+			sigma: 0.6,
+			seed: 11
+		};
+		const a = ancovaData(opts);
+		expect(ancovaData(opts)).toEqual(a);
+		expect(ancovaData({ ...opts, seed: 12 })).not.toEqual(a);
+		expect(a.levels).toHaveLength(15000);
+		expect(a.x).toHaveLength(15000);
+		expect(a.y).toHaveLength(15000);
+		expect(a.x.every((v) => v >= 0 && v <= 10)).toBe(true);
+		expect(() => ancovaData({ ...opts, levels: 1 })).toThrow();
+		expect(() => ancovaData({ ...opts, nPerLevel: 1 })).toThrow();
+		expect(() => ancovaData({ ...opts, xMax: 0 })).toThrow();
+		expect(() => ancovaData({ ...opts, sigma: -1 })).toThrow();
+		expect(() => ancovaData({ ...opts, alphas: [0, 1] })).toThrow();
+
+		// Parallel model Y ~ X + F (slide 11): δ̂ recovers the true slope and
+		// the fitted value gap between levels 0 and 2 at a fixed x is ≈ α0 − α2.
+		const fit = olsFit(ancovaDesign(a.levels, a.x, false), a.y);
+		const k = opts.levels;
+		// columns: [1, α2, …, αk, δ]
+		expect(fit.beta[k]).toBeCloseTo(opts.slope, 1);
+		const atX = 5;
+		const pred = (level: number) => fit.beta[0] + (level >= 1 ? fit.beta[level] : 0) + fit.beta[k] * atX;
+		expect(pred(0) - pred(2)).toBeCloseTo(opts.alphas[0] - opts.alphas[2], 1);
 	});
 });
 
@@ -920,6 +956,38 @@ describe('Demo support functions (Phase C)', () => {
 		const varE = e.reduce((s, v) => s + (v - mean) ** 2, 0) / n;
 		expect(varE).toBeGreaterThan(1 / (1 - 0.49) - 0.5);
 		expect(varE).toBeLessThan(1 / (1 - 0.49) + 0.5);
+	});
+
+	it('ar1Samples: short-series regression variances stay at the §7 theory (stationary init)', () => {
+		// Same pipeline as the W3.4 demo: N = 20, x = linspace(0, 10, 20),
+		// β = (1, 2), ε ~ AR(1). With a non-stationary start (ε0 = 0) the
+		// simulated variance of β̂1 collapsed to ≈ 50 % of the theory at
+		// ρ = 0.9; the stationary start keeps it within MC error.
+		const N = 20;
+		const B = 600;
+		const rho = 0.9;
+		const x = linspace(0, 10, N);
+		const X = withIntercept(x.map((v) => [v]));
+		const F = ar1Correlation(N, rho);
+		const sigma2 = 1 / (1 - rho * rho);
+		const varOlsTheory = olsVarianceWithCorrelation(X, F, sigma2)[1][1];
+		const varGlsTheory = glsVarianceBeta(X, F, sigma2)[1][1];
+		const ols = new Array<number>(B);
+		const gls = new Array<number>(B);
+		for (let b = 0; b < B; b++) {
+			const eps = ar1Samples(N, rho, combineSeed(7, b + 1));
+			const y = x.map((xi, i) => 1 + 2 * xi + eps[i]);
+			ols[b] = olsFit(X, y).beta[1];
+			gls[b] = glsClosedForm(X, y, F)[1];
+		}
+		const varOf = (a: number[]) => {
+			const m = a.reduce((s, v) => s + v, 0) / a.length;
+			return a.reduce((s, v) => s + (v - m) ** 2, 0) / a.length;
+		};
+		expect(varOf(ols)).toBeGreaterThan(0.7 * varOlsTheory);
+		expect(varOf(ols)).toBeLessThan(1.35 * varOlsTheory);
+		expect(varOf(gls)).toBeGreaterThan(0.7 * varGlsTheory);
+		expect(varOf(gls)).toBeLessThan(1.35 * varGlsTheory);
 	});
 
 	it('correlatedPredictors: seeded, sample correlation ≈ ρ, validates', () => {

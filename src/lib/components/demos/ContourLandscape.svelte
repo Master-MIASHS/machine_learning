@@ -21,11 +21,11 @@
 
 	const currentFunc = $derived(funcOptions.find((o) => o.key === selectedKey)?.func ?? paraboloid);
 
-	const domain = $derived<[[number, number], [number, number]]>(
-		currentFunc.domain ?? [
+	const domain = $derived(
+		(currentFunc.domain ?? [
 			[-3, 3],
 			[-3, 3]
-		]
+		]) as [[number, number], [number, number]]
 	);
 
 	const aspect = $derived((domain[1][1] - domain[1][0]) / (domain[0][1] - domain[0][0]));

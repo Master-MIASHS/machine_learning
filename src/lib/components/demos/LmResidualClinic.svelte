@@ -72,7 +72,7 @@
 			return 'Éventail : la variance des résidus croît avec x — hétéroscédasticité, (H2) est brisée (variance non constante).';
 		if (scenario === 'asymmetric')
 			return 'Distribution asymétrique (queue à droite) : plusieurs populations mélangées, ou une variable explicative importante manque.';
-		return 'Résidus alternant positifs/négatifs dans le temps : auto-corrélation — typique des données temporelles (H2 brisée).';
+		return 'Blocs de résidus de même signe successifs dans le temps : auto-corrélation positive — typique des données temporelles (H2 brisée). Si les résidus alternaient positifs/négatifs, ce serait la signature d’une auto-corrélation négative.';
 	});
 </script>
 
@@ -191,8 +191,9 @@
 		8.validation_du_modele_lineaire_2025.pdf, §8.3–8.4 : un bon graphe de résidus est sans structure
 		apparente (variance constante, indépendance, symétrie, pas de point influent). Les pathologies :
 		asymétrie (populations mélangées / variable manquante), blocs (non-linéarité),
-		hétéroscédasticité, auto-corrélation. Pour n grand : lissage ksmooth()/lowess() + histogramme. n
-		= 120, seedé.
+		hétéroscédasticité, auto-corrélation (blocs = auto-corrélation positive, alternance = négative).
+		Pour n grand : lissage ksmooth()/lowess() + histogramme. Le Q-Q plot porte ici sur les résidus
+		standardisés (l’EN BREF §8.6 préconise les résidus studentisés). n = 120, seedé.
 	</p>
 </div>
 

@@ -76,10 +76,9 @@
 		</p>
 
 		<p>
-			Le jeu de données <code>swiss</code> (disponible dans R) concerne les 47 provinces
-			francophones de la Suisse vers 1888. On veut expliquer l'indice de fécondité <KatexInline
-				formula="y_i"
-			/> de la province <KatexInline formula="i" />
+			Le jeu de données <code>swiss</code> (disponible dans R) concerne les 47 cantons francophones
+			de la Suisse vers 1888. On veut expliquer l'indice de fécondité <KatexInline formula="y_i" /> du
+			canton <KatexInline formula="i" />
 			par quatre indicateurs : <em>Agriculture</em> (% d'hommes travaillant dans l'agriculture),
 			<em>Education</em>
 			(% de conscrits ayant un niveau supérieur à l'école primaire), <em>Catholique</em> (% de
@@ -94,12 +93,16 @@
 		</p>
 
 		<p>
-			La qualité de chaque ajustement est mesurée par le <strong>coefficient de
-			détermination</strong> <KatexInline formula={String.raw`R^2`} />, la part de la variation
-			de <KatexInline formula="Y" /> expliquée par le modèle :
-			<KatexInline formula={String.raw`R^2 = 1 - \frac{\mathrm{SCR}}{\mathrm{SCT}} = \frac{\mathrm{SCE}}{\mathrm{SCT}}`} />,
-			où SCR, SCE et SCT sont respectivement les sommes de carrés résiduelle, expliquée
-			et totale, définies plus loin dans cette leçon. Plus <KatexInline formula={String.raw`R^2`} /> est
+			La qualité de chaque ajustement est mesurée par le <strong
+				>coefficient de détermination</strong
+			>
+			<KatexInline formula={String.raw`R^2`} />, la part de la variation de <KatexInline
+				formula="Y"
+			/> expliquée par le modèle :
+			<KatexInline
+				formula={String.raw`R^2 = 1 - \frac{\mathrm{SCR}}{\mathrm{SCT}} = \frac{\mathrm{SCE}}{\mathrm{SCT}}`}
+			/>, où SCR, SCE et SCT sont respectivement les sommes de carrés résiduelle, expliquée et
+			totale, définies plus loin dans cette leçon. Plus <KatexInline formula={String.raw`R^2`} /> est
 			proche de 1, meilleur est l'ajustement.
 		</p>
 
@@ -478,6 +481,9 @@
 				<code>m &lt;- lm(BE ~ NbEnfU + BEU + NSE, data = bienEtre)</code> puis
 				<code>summary(m)</code> — qui renvoie β̂, les écarts-types, les statistiques
 				<em>T</em>, <KatexInline formula={String.raw`R^2`} /> et le R² ajusté.
+				<em>Illustratif</em> : <code>bienEtre</code> désigne ici le tableau de 10 lignes ci-dessus (à
+				saisir dans R) ; sur l'ensemble des données de l'étude d'origine, les coefficients retournés différeraient
+				du calcul à la main.
 			</p>
 		</Callout>
 

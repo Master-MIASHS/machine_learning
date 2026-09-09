@@ -73,10 +73,10 @@
 	let lambda = $state(0); // 0..1
 
 	// ─── Derived: perturbed y ────────────────────────────────────
-	const yPerturbed = $derived<Vec2>([
+	const yPerturbed = $derived([
 		yExact[0] + noiseScale * delta[0],
 		yExact[1] + noiseScale * delta[1]
-	]);
+	] as Vec2);
 	const deltaYNorm = $derived(norm([yPerturbed[0] - yExact[0], yPerturbed[1] - yExact[1]]));
 
 	// ─── Derived: unregularized recovery (direct inverse) ─────────

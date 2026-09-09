@@ -69,10 +69,10 @@
 	const H = 280;
 	const PAD = 34;
 	const xDom: [number, number] = [-1, 11];
-	const yDom = $derived<[number, number]>([
+	const yDom = $derived([
 		Math.min(...y) - 1.5,
 		Math.max(...y) + 1.5
-	]);
+	] as [number, number]);
 	const sx = (v: number) => PAD + ((v - xDom[0]) / (xDom[1] - xDom[0])) * (W - 2 * PAD);
 	const sy = (v: number) => H - PAD - ((v - yDom[0]) / (yDom[1] - yDom[0])) * (H - 2 * PAD);
 
