@@ -8,8 +8,6 @@
 	import { combineSeed, mulberry32 } from '$lib/math/util.js';
 	import { olsFit, sseSimple, withIntercept } from '$lib/math/linear-model.js';
 
-	// Nuage seedé : y ≈ 1 + 1.2x + N(0, 1.5²), 15 points, x ∈ [0, 10]
-	// (illustratif — pas un jeu de données des sources).
 	const N = 15;
 	const SEED = 21;
 	const rng = mulberry32(combineSeed(SEED, 1));
@@ -35,9 +33,13 @@
 
 	const sseCurrent = $derived(sseSimple(x, y, b0, b1));
 
+	// Distance au minimum dans l'espace des paramètres, pour l'effet "wow"
+	const gapToOptimum = $derived(Math.hypot(b0 - beta0Hat, b1 - beta1Hat));
+	const NEAR_EPS = 0.15;
+	const isNearOptimal = $derived(gapToOptimum < NEAR_EPS);
+
 	const W = 380;
 	const H = 250;
-	// Doit rester synchronisé avec le pad interne de ScatterPlot.svelte (pad = 4 px).
 	const PAD = 4;
 	const domainX = $derived.by((): [number, number] => {
 		const lo = Math.min(...x),
@@ -51,10 +53,18 @@
 		const pad = (hi - lo) * 0.15 || 1;
 		return [lo - pad, hi + pad];
 	});
-	const projX = (v: number): number => PAD + ((v - domainX[0]) / (domainX[1] - domainX[0])) * (W - 2 * PAD);
-	const projY = (v: number): number => PAD + ((domainY[1] - v) / (domainY[1] - domainY[0])) * (H - 2 * PAD);
+	const projX = (v: number): number =>
+		PAD + ((v - domainX[0]) / (domainX[1] - domainX[0])) * (W - 2 * PAD);
+	const projY = (v: number): number =>
+		PAD + ((domainY[1] - v) / (domainY[1] - domainY[0])) * (H - 2 * PAD);
 
 	const points = $derived(x.map((xi, i) => ({ x: xi, y: y[i] })));
+
+	// Deux marqueurs distincts : point courant (agent) et optimum MCO (surprise/épistémique)
+	const contourMarkers = $derived([
+		{ x: b0, y: b1, kind: 'current' as const },
+		{ x: beta0Hat, y: beta1Hat, kind: 'optimal' as const }
+	]);
 
 	function snapToOls() {
 		b0 = beta0Hat;
@@ -64,18 +74,21 @@
 
 <div class="lm-ols">
 	<p class="intro">
-		Faites glisser β0 et β1 et observez la somme des carrés des résidus SSE(β0, β1) : la
-		droite qui la minimise est l'ajustement des moindres carrés (Théorème 1).
+		Faites glisser β0 et β1 et observez la somme des carrés des résidus SSE(β0, β1) : la droite qui
+		la minimise est l'ajustement des moindres carrés (Théorème 1). Le point rouge sur le paysage de
+		droite est votre position actuelle ; la cible est l'optimum β̂.
 	</p>
 
 	<div class="controls">
-		<div class="control-row">
-			<span class="control-label">intercept β0</span>
-			<Slider min={B0_MIN} max={B0_MAX} step={0.1} bind:value={b0} label="intercept beta0" />
-		</div>
-		<div class="control-row">
-			<span class="control-label">pente β1</span>
-			<Slider min={B1_MIN} max={B1_MAX} step={0.05} bind:value={b1} label="pente beta1" />
+		<div class="sliders-group">
+			<div class="control-row">
+				<span class="control-label">intercept β0</span>
+				<Slider min={B0_MIN} max={B0_MAX} step={0.1} bind:value={b0} label="intercept beta0" />
+			</div>
+			<div class="control-row">
+				<span class="control-label">pente β1</span>
+				<Slider min={B1_MIN} max={B1_MAX} step={0.05} bind:value={b1} label="pente beta1" />
+			</div>
 		</div>
 		<div class="control-row">
 			<Button onclick={snapToOls}>Moindres carrés (β̂)</Button>
@@ -86,9 +99,9 @@
 		<div class="panel">
 			<h3>nuage et droite β0 + β1·x</h3>
 			<ScatterPlot
-				points={points}
-				domainX={domainX}
-				domainY={domainY}
+				{points}
+				{domainX}
+				{domainY}
 				width={W}
 				height={H}
 				defaultColor="var(--color-belief)"
@@ -121,17 +134,22 @@
 		</div>
 		<div class="panel">
 			<h3>paysage SSE(β0, β1) — minimum unique sous (H1)</h3>
-			<ContourPlot
-				f={(a: number, b: number) => sseSimple(x, y, a, b)}
-				domain={[
-					[B0_MIN, B0_MAX],
-					[B1_MIN, B1_MAX]
-				]}
-				width={W}
-				height={H}
-				markers={[{ x: beta0Hat, y: beta1Hat }]}
-				sublevel={sseCurrent}
-			/>
+			<div class="contour-wrap" class:near={isNearOptimal}>
+				<ContourPlot
+					f={(a: number, b: number) => sseSimple(x, y, a, b)}
+					domain={[
+						[B0_MIN, B0_MAX],
+						[B1_MIN, B1_MAX]
+					]}
+					width={W}
+					height={H}
+					markers={contourMarkers}
+					sublevel={sseCurrent}
+				/>
+				{#if isNearOptimal}
+					<span class="near-badge">🎯 optimum atteint</span>
+				{/if}
+			</div>
 		</div>
 	</div>
 
@@ -152,13 +170,17 @@
 			<span class="label">β̂1</span>
 			<span class="value">{beta1Hat.toFixed(3)}</span>
 		</div>
+		<div class="cell">
+			<span class="label">distance à β̂</span>
+			<span class="value">{gapToOptimum.toFixed(3)}</span>
+		</div>
 	</Metrics>
 
 	<p class="caption">
-		StatM1S1_2025.pdf, §I.4 (Théorème 1) : sous (H1), ‖Y − Xβ‖² est minimisé de façon
-		unique en β̂ = (XᵀX)⁻¹XᵀY. Le bouton « Moindres carrés » snap la droite vers (β̂0, β̂1)
-		et le niveau de contour mis en évidence passe alors au minimum. Nuage illustratif
-		seedé (pas un jeu de données des sources).
+		StatM1S1_2025.pdf, §I.4 (Théorème 1) : sous (H1), ‖Y − Xβ‖² est minimisé de façon unique en β̂ =
+		(XᵀX)⁻¹XᵀY. Le bouton « Moindres carrés » snap la droite vers (β̂0, β̂1) et le niveau de contour
+		mis en évidence passe alors au minimum. Nuage illustratif seedé (pas un jeu de données des
+		sources).
 	</p>
 </div>
 
@@ -178,6 +200,12 @@
 	.controls {
 		display: grid;
 		gap: 0.9rem;
+	}
+
+	.sliders-group {
+		display: grid;
+		grid-template-columns: 1fr 1fr;
+		gap: 1.5rem;
 	}
 
 	.control-row {
@@ -226,5 +254,44 @@
 		color: var(--color-text-muted);
 		font-size: 0.8125rem;
 		line-height: 1.5;
+	}
+
+	.contour-wrap {
+		position: relative;
+	}
+
+	.contour-wrap.near :global(svg) {
+		filter: drop-shadow(0 0 10px color-mix(in srgb, var(--color-agent) 55%, transparent));
+		transition: filter 0.4s ease;
+	}
+
+	.near-badge {
+		position: absolute;
+		top: 0.25rem;
+		right: 0.25rem;
+		padding: 0.15rem 0.5rem;
+		border-radius: 999px;
+		background: color-mix(in srgb, var(--color-agent) 18%, transparent);
+		color: var(--color-agent);
+		font-size: 0.7rem;
+		font-weight: 600;
+		animation: pop-in 0.3s ease;
+	}
+
+	@keyframes pop-in {
+		from {
+			opacity: 0;
+			transform: scale(0.7);
+		}
+		to {
+			opacity: 1;
+			transform: scale(1);
+		}
+	}
+
+	@media (max-width: 650px) {
+		.sliders-group {
+			grid-template-columns: 1fr;
+		}
 	}
 </style>
