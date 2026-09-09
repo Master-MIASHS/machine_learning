@@ -22,6 +22,7 @@ import {
 	glsSigma2,
 	glsVarianceBeta,
 	hatMatrix,
+	interpolatingPolynomialBeta,
 	leverages,
 	mallowCp,
 	meanResponseInterval,
@@ -42,6 +43,7 @@ import {
 	selectionProblem,
 	simulateResidualScenario,
 	sseSimple,
+	standardizedResiduals,
 	studentizedResiduals,
 	stepwiseBoth,
 	sumsOfSquares,
@@ -442,6 +444,24 @@ describe('Influence diagnostics (8.validation_du_modele_lineaire_2025.pdf)', () 
 		}
 	});
 
+	it('standardized residual = ε̂i/(σ̂√(1−hii)) (R: rstandard)', () => {
+		const r = standardizedResiduals(fit.residuals, fit.leverages, fit.sigma2);
+		for (const i of [0, 3, 9]) {
+			expect(r[i]).toBeCloseTo(fit.residuals[i] / (Math.sqrt(fit.sigma2) * Math.sqrt(1 - fit.leverages[i])), 12);
+		}
+		// The inflation factor 1/(σ̂√(1−hii)) is monotone in hii: the
+		// max-leverage point inflates its raw residual at least as much as point 0.
+		const iMax = fit.leverages.indexOf(Math.max(...fit.leverages));
+		expect(Math.abs(r[iMax]) / Math.abs(fit.residuals[iMax])).toBeGreaterThanOrEqual(
+			Math.abs(r[0]) / Math.abs(fit.residuals[0])
+		);
+		// Mean leverage = (p+1)/n < 1.
+		expect(fit.leverages.reduce((a, b) => a + b, 0) / fit.n).toBeLessThan(1);
+		expect(() => standardizedResiduals([1, 2], [0.1], 1)).toThrow(/length mismatch/);
+		expect(() => standardizedResiduals([1], [0.1], -1)).toThrow(/sigma2/);
+		expect(() => standardizedResiduals([1], [1], 1)).toThrow(/< 1/);
+	});
+
 	it('studentized residual ≡ ε̂i/(σ̂(−i)√(1−hii)) by brute force', () => {
 		const t = studentizedResiduals(fit.residuals, fit.leverages, fit.sigma2, fit.n, fit.p);
 		for (const i of [0, 3, 9]) {
@@ -757,6 +777,29 @@ describe('Seeded simulators (demos)', () => {
 
 		expect(() => polynomialTestMSE(fit1, xTest, [1])).toThrow(/length mismatch/);
 		expect(() => polynomialTestMSE(fit1, [], [])).toThrow(/empty/);
+	});
+
+	it('interpolatingPolynomialBeta: RSS = 0 and recovers a known quadratic exactly', () => {
+		// Exact case: the degree n−1 interpolant of n points of a quadratic is
+		// the quadratic itself (uniqueness) — a closed-form check.
+		const x = [0, 1, 2, 3, 4];
+		const y = x.map((xi) => xi * xi);
+		const beta = interpolatingPolynomialBeta(x, y);
+		expect(beta).toHaveLength(5);
+		expect(Math.abs(beta[2] - 1)).toBeLessThan(1e-9);
+		for (const j of [0, 1, 3, 4]) expect(Math.abs(beta[j])).toBeLessThan(1e-9);
+
+		// Demo W5.1 case (n = 15 on [0,10]): RSS ~ 0 to machine precision and
+		// every value finite — the normal equation would miss by O(1) here.
+		const { x: xd, y: yd } = polynomialFamily({ n: 15, degree: 2, sigma: 0.8, seed: 11 });
+		const beta14 = interpolatingPolynomialBeta(xd, yd);
+		expect(beta14.every(Number.isFinite)).toBe(true);
+		const rss = xd.reduce((a, xi, i) => a + (polyValue(beta14, xi) - yd[i]) ** 2, 0);
+		expect(rss).toBeLessThan(1e-6);
+
+		expect(() => interpolatingPolynomialBeta([1, 2], [1])).toThrow(/length mismatch/);
+		expect(() => interpolatingPolynomialBeta([1], [1])).toThrow(/at least 2/);
+		expect(() => interpolatingPolynomialBeta([1, 1], [1, 2])).toThrow(/distinct/);
 	});
 
 	it('selectionProblem: 8 predictors, 3 relevant, x4 null but correlated with x1', () => {

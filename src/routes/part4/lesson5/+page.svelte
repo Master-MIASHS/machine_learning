@@ -8,6 +8,8 @@
 	import KatexInline from '$lib/components/narrative/KatexInline.svelte';
 	import KatexBlock from '$lib/components/narrative/KatexBlock.svelte';
 	import TableOfContents from '$lib/components/narrative/TableOfContents.svelte';
+	import Bibliography from '$lib/components/narrative/bib/Bibliography.svelte';
+	import BibElement from '$lib/components/narrative/bib/BibElement.svelte';
 	import DeferredDemo from '$lib/components/layout/DeferredDemo.svelte';
 	import { getPageByPath, getAdjacentPages, type PageMeta } from '$lib/navigation.js';
 	import { settings } from '$lib/stores/index.js';
@@ -432,6 +434,44 @@
 			</p>
 		</Callout>
 	</TheorySection>
+
+	<Bibliography>
+		<BibElement
+			authors={['Akaike, H.']}
+			year={1974}
+			title="A New Look at the Statistical Model Identification"
+			journal="IEEE Transactions on Automatic Control, 19(6), 716–723."
+			link="https://doi.org/10.1109/TAC.1974.1100705"
+		/>
+		<BibElement
+			authors={['Allen, D. M.']}
+			year={1974}
+			title="The Relationship Between Variable Selection and Data Augmentation and a Method for Prediction"
+			journal="Technometrics, 16(1), 125–127."
+			link="https://doi.org/10.1080/00401706.1974.10489157"
+		/>
+		<BibElement
+			authors={['Hastie, T.', 'Tibshirani, R.', 'Friedman, J.']}
+			year={2009}
+			title="The Elements of Statistical Learning: Data Mining, Inference, and Prediction"
+			journal="Springer (source du jeu de données prostate du package ESL)."
+			link="https://web.stanford.edu/~hastie/ElemStatLearn/"
+		/>
+		<BibElement
+			authors={['Mallows, C. L.']}
+			year={1973}
+			title="Some Comments on Cp"
+			journal="Technometrics, 15(4), 661–675."
+			link="https://doi.org/10.2307/1267380"
+		/>
+		<BibElement
+			authors={['Schwarz, G.']}
+			year={1978}
+			title="Estimating the Dimension of a Model"
+			journal="The Annals of Statistics, 6(2), 461–464."
+			link="https://doi.org/10.1214/aos/1176344136"
+		/>
+	</Bibliography>
 </PageTemplate>
 
 <style>

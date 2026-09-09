@@ -250,10 +250,10 @@
 		<ExampleBlock number="3.7" title="Exemple : longley (États-Unis, 1955–1962)">
 			<p>
 				<KatexInline formula="n" /> = 8 années ; la réponse
-				<KatexInline formula="Y" /> est le nombre de salariés (millions),
-				expliquée par <KatexInline formula={String.raw`X_1`} /> = PNB (milliards
-				de dollars) et <KatexInline formula={String.raw`X_2`} /> = population de
-				16 ans et plus (millions). L’ajustement par moindres carrés renvoie
+				<KatexInline formula="Y" /> est le nombre d’actifs ayant un emploi
+				(millions), expliquée par <KatexInline formula={String.raw`X_1`} /> = PNB
+				(milliards de dollars) et <KatexInline formula={String.raw`X_2`} /> =
+				population du pays (millions). L’ajustement par moindres carrés renvoie
 				<KatexInline formula={String.raw`\hat{\sigma}^2 = 0{,}2563`} /> et
 			</p>
 			<table class="data-table">

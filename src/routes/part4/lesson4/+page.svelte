@@ -9,6 +9,8 @@
 	import KatexInline from '$lib/components/narrative/KatexInline.svelte';
 	import KatexBlock from '$lib/components/narrative/KatexBlock.svelte';
 	import TableOfContents from '$lib/components/narrative/TableOfContents.svelte';
+	import Bibliography from '$lib/components/narrative/bib/Bibliography.svelte';
+	import BibElement from '$lib/components/narrative/bib/BibElement.svelte';
 	import DeferredDemo from '$lib/components/layout/DeferredDemo.svelte';
 	import { getPageByPath, getAdjacentPages, type PageMeta } from '$lib/navigation.js';
 	import { settings } from '$lib/stores/index.js';
@@ -508,4 +510,14 @@
 			</p>
 		</Callout>
 	</TheorySection>
+
+	<Bibliography>
+		<BibElement
+			authors={['Cook, R. D.']}
+			year={1977}
+			title="Detection of Influential Observations in Linear Regression"
+			journal="Technometrics, 19(1), 15–18."
+			link="https://doi.org/10.1080/00401706.1977.10489493"
+		/>
+	</Bibliography>
 </PageTemplate>

@@ -7,12 +7,14 @@
 	import {
 		aic,
 		bic,
+		interpolatingPolynomialBeta,
 		mallowCp,
 		olsFit,
 		polynomialDesign,
 		polynomialFamily,
 		polynomialTestMSE,
-		polyValue
+		polyValue,
+		type LinearModelFit
 	} from '$lib/math/linear-model.js';
 	import { combineSeed, linspace, mulberry32 } from '$lib/math/util.js';
 
@@ -35,10 +37,15 @@
 	const sweep = $derived.by(() => {
 		const rows = [];
 		for (let k = 0; k <= D_MAX; k++) {
-			const fit = olsFit(polynomialDesign(x, k), y);
+			// d = n − 1 : interpolation — olsFit y est indéfini (0 ddl résiduel) :
+			// on résout le Vandermonde carré Xβ = y directement.
+			const fit =
+				k === D_MAX
+					? ({ beta: interpolatingPolynomialBeta(x, y) } as LinearModelFit)
+					: olsFit(polynomialDesign(x, k), y);
 			rows.push({
 				k,
-				r2: fit.rSquared,
+				r2: k === D_MAX ? 1 : fit.rSquared,
 				mse: polynomialTestMSE(fit, xTest, yTest),
 				fit
 			});

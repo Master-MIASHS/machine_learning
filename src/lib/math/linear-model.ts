@@ -1055,6 +1055,22 @@ export function polynomialFamily(opts: { n: number; degree: number; sigma: numbe
 }
 
 /**
+ * Coefficients of the degree n−1 polynomial interpolating the n points
+ * (x_i, y_i) — the RSS = 0 endpoint of the bias/variance illustration
+ * (9.choix_de_modele.pdf, « Illustration : Compromis Biais/Variance »).
+ * `olsFit` refuses this case (n = p + 1, zero residual degrees of freedom)
+ * and the normal equation (XᵀX)⁻¹XᵀY is far too ill-conditioned for a
+ * 15×15 Vandermonde on [0, 10] (residual ~3 instead of ~0), so the square
+ * system Xβ = y is solved directly with partial pivoting.
+ */
+export function interpolatingPolynomialBeta(x: number[], y: number[]): number[] {
+	if (x.length !== y.length) throw new Error(`interpolatingPolynomialBeta: x/y length mismatch (${x.length} vs ${y.length})`);
+	if (x.length < 2) throw new Error(`interpolatingPolynomialBeta: need at least 2 points (got ${x.length})`);
+	if (new Set(x).size !== x.length) throw new Error('interpolatingPolynomialBeta: x values must be distinct');
+	return solveLinearSystem(polynomialDesign(x, x.length - 1), y);
+}
+
+/**
  * Value at x of the polynomial with coefficients `beta` (column j is x^j).
  * Demo W5.1 uses it to build a fresh test set from `polynomialFamily`'s true
  * coefficients (9.choix_de_modele.pdf, « Illustration : Compromis
