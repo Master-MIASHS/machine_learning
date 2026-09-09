@@ -60,15 +60,15 @@
 
 <div class="lm-anova">
 	<p class="intro">
-		Trois façons de coder un facteur à 3 niveaux pour que X soit de plein rang : les
-		moyennes par niveau (et l'ajustement) restent identiques, seules l'interprétation
-		des β̂ et la matrice X changent.
+		Trois façons de coder un facteur à 3 niveaux pour que X soit de plein rang : les moyennes par
+		niveau (et l'ajustement) restent identiques, seules l'interprétation des β̂ et la matrice X
+		changent.
 	</p>
 
 	<div class="controls">
-		<RadioButton value="none" label="sans intercept" groupValue={coding} />
-		<RadioButton value="treatment" label="niveau de référence" groupValue={coding} />
-		<RadioButton value="sum" label="somme des paramètres" groupValue={coding} />
+		<RadioButton value="none" label="sans intercept" bind:groupValue={coding} />
+		<RadioButton value="treatment" label="niveau de référence" bind:groupValue={coding} />
+		<RadioButton value="sum" label="somme des paramètres" bind:groupValue={coding} />
 	</div>
 
 	<p class="interp">{interpretation}</p>
@@ -132,10 +132,9 @@
 	</Metrics>
 
 	<p class="caption">
-		ModèleLinéaire_ANOVA_ANCOVA.pdf, « Les contraintes dans les modèles d'ANOVA » :
-		β̂ = (XᵀX)⁻¹XᵀY exige rang(X) = p ; les trois codages donnent le même ajustement
-		(mêmes moyennes par niveau) mais des paramètres non uniques — c'est la contrainte
-		qui choisit l'interprétation.
+		ModèleLinéaire_ANOVA_ANCOVA.pdf, « Les contraintes dans les modèles d'ANOVA » : β̂ = (XᵀX)⁻¹XᵀY
+		exige rang(X) = p ; les trois codages donnent le même ajustement (mêmes moyennes par niveau)
+		mais des paramètres non uniques — c'est la contrainte qui choisit l'interprétation.
 	</p>
 </div>
 

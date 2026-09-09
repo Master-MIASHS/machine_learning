@@ -14,7 +14,9 @@
 
 	let interaction = $state(true);
 
-	const data = $derived(twoFactorData({ nPerCell: N_PER, iLevels: 2, jLevels: 3, interaction, seed: SEED }));
+	const data = $derived(
+		twoFactorData({ nPerCell: N_PER, iLevels: 2, jLevels: 3, interaction, seed: SEED })
+	);
 
 	// Moyennes par croisement (i = pluie, j = vent).
 	const cellMeans = $derived.by(() => {
@@ -47,10 +49,18 @@
 	// Aperçu de la matrice de design : une ligne par croisement (6 cellules).
 	const designPreview = $derived.by(() => {
 		const rows = twoWayAnovaDesign(data.iLevels, data.jLevels, interaction);
-		return [0, 15, 30, 45, 60, 75].map((k) => ({
-			label: `${f1Names[data.iLevels[k]]} × ${f2Names[data.jLevels[k]]}`,
-			row: rows[k]
-		}));
+		const seen = new Set<string>();
+		const out: { label: string; row: number[] }[] = [];
+		for (let k = 0; k < data.iLevels.length && out.length < 6; k++) {
+			const key = `${data.iLevels[k]}-${data.jLevels[k]}`;
+			if (seen.has(key)) continue;
+			seen.add(key);
+			out.push({
+				label: `${f1Names[data.iLevels[k]]} × ${f2Names[data.jLevels[k]]}`,
+				row: rows[k]
+			});
+		}
+		return out;
 	});
 	const colHeaders = $derived(
 		interaction ? ['β0', 'α₂', 'β₁', 'β₂', 'γ₂₁', 'γ₂₂'] : ['β0', 'α₂', 'β₁', 'β₂']
@@ -59,9 +69,9 @@
 
 <div class="lm-inter">
 	<p class="intro">
-		Deux facteurs : la pluie (F1) et la direction du vent (F2). Sans interaction,
-		l'effet du vent est le même avec ou sans pluie (droites parallèles) ; avec
-		interaction γij, l'effet de l'un dépend de l'autre (droites qui se croisent).
+		Deux facteurs : la pluie (F1) et la direction du vent (F2). Sans interaction, l'effet du vent
+		est le même avec ou sans pluie (droites parallèles) ; avec interaction γij, l'effet de l'un
+		dépend de l'autre (droites qui se croisent).
 	</p>
 
 	<div class="controls">
@@ -72,12 +82,12 @@
 		<div class="panel">
 			<h3>interaction plot — moyenne par croisement</h3>
 			<CurveChart
-				curves={curves}
+				{curves}
 				xDomain={[0, 2]}
 				height={210}
 				yAxis={true}
 				nTicks={3}
-				curveDots={curveDots}
+				{curveDots}
 				legend={[
 					{ label: f1Names[0], color: 'var(--color-belief)' },
 					{ label: f1Names[1], color: 'var(--color-agent)' }
@@ -122,10 +132,10 @@
 	</Metrics>
 
 	<p class="caption">
-		ModèleLinéaire_ANOVA_ANCOVA.pdf : sans interaction Yijk = β0 + αi + βj + εijk
-		(additivité des effets principaux) ; avec interaction on ajoute γij avec les
-		contraintes γi1 = γ1j = 0 — en R : Y ~ F1*F2. Mêmes seeds pour les deux modes :
-		deux réalisations du modèle, à comparer par la forme des droites.
+		ModèleLinéaire_ANOVA_ANCOVA.pdf : sans interaction Yijk = β0 + αi + βj + εijk (additivité des
+		effets principaux) ; avec interaction on ajoute γij avec les contraintes γi1 = γ1j = 0 — en R :
+		Y ~ F1*F2. Mêmes seeds pour les deux modes : deux réalisations du modèle, à comparer par la
+		forme des droites.
 	</p>
 </div>
 
