@@ -68,25 +68,39 @@
 		<h2 id="exemple-swiss">Exemple d'introduction : la fécondité en Suisse en 1888</h2>
 
 		<p>
-			La régression linéaire multiple est l'extension à plusieurs variables explicatives
-			de la régression simple : on cherche l'effet, sur une variable aléatoire
-			quantitative <KatexInline formula="Y" />, de plusieurs régresseurs — et,
-			éventuellement, à prédire <KatexInline formula="Y" /> à partir d'eux.
+			La régression linéaire multiple est l'extension à plusieurs variables explicatives de la
+			régression simple : on cherche l'effet, sur une variable aléatoire quantitative <KatexInline
+				formula="Y"
+			/>, de plusieurs régresseurs — et, éventuellement, à prédire <KatexInline formula="Y" /> à partir
+			d'eux.
 		</p>
 
 		<p>
-			Le jeu de données <code>swiss</code> (disponible dans R) concerne les 47
-			provinces francophones de la Suisse vers 1888. On veut expliquer l'indice de
-			fécondité <KatexInline formula="y_i" /> de la province <KatexInline formula="i" />
-			par quatre indicateurs : <em>Agriculture</em> (% d'hommes travaillant dans
-			l'agriculture), <em>Education</em> (% de conscrits ayant un niveau supérieur à
-			l'école primaire), <em>Catholique</em> (% de catholiques) et <em>Mortalité
-			infantile</em> (% d'enfants dont l'espérance de vie est inférieure à un an).
+			Le jeu de données <code>swiss</code> (disponible dans R) concerne les 47 provinces
+			francophones de la Suisse vers 1888. On veut expliquer l'indice de fécondité <KatexInline
+				formula="y_i"
+			/> de la province <KatexInline formula="i" />
+			par quatre indicateurs : <em>Agriculture</em> (% d'hommes travaillant dans l'agriculture),
+			<em>Education</em>
+			(% de conscrits ayant un niveau supérieur à l'école primaire), <em>Catholique</em> (% de
+			catholiques) et <em>Mortalité infantile</em> (% d'enfants dont l'espérance de vie est inférieure
+			à un an).
 		</p>
 
 		<p>
-			D'abord, quatre régressions <strong>simples</strong>, une par variable — le
-			modèle <KatexInline formula={String.raw`y_i \approx \beta_0 + \beta_1 x_i`} /> :
+			D'abord, quatre régressions <strong>simples</strong>, une par variable — le modèle <KatexInline
+				formula={String.raw`y_i \approx \beta_0 + \beta_1 x_i`}
+			/> :
+		</p>
+
+		<p>
+			La qualité de chaque ajustement est mesurée par le <strong>coefficient de
+			détermination</strong> <KatexInline formula={String.raw`R^2`} />, la part de la variation
+			de <KatexInline formula="Y" /> expliquée par le modèle :
+			<KatexInline formula={String.raw`R^2 = 1 - \frac{\mathrm{SCR}}{\mathrm{SCT}} = \frac{\mathrm{SCE}}{\mathrm{SCT}}`} />,
+			où SCR, SCE et SCT sont respectivement les sommes de carrés résiduelle, expliquée
+			et totale, définies plus loin dans cette leçon. Plus <KatexInline formula={String.raw`R^2`} /> est
+			proche de 1, meilleur est l'ajustement.
 		</p>
 
 		<table class="data-table">
@@ -127,10 +141,11 @@
 		</table>
 
 		<p>
-			Même la meilleure variable seule (<em>Education</em>) n'explique que 44 % de la
-			variation. On fait mieux en prenant les quatre variables <em>en même temps</em> —
-			la régression multiple
-			<KatexInline formula={String.raw`y_i \approx \beta_0 + \beta_1 x_{i1} + \beta_2 x_{i2} + \beta_3 x_{i3} + \beta_4 x_{i4}`} /> :
+			Même la meilleure variable seule (<em>Education</em>) n'explique que 44 % de la variation. On
+			fait mieux en prenant les quatre variables <em>en même temps</em> — la régression multiple
+			<KatexInline
+				formula={String.raw`y_i \approx \beta_0 + \beta_1 x_{i1} + \beta_2 x_{i2} + \beta_3 x_{i3} + \beta_4 x_{i4}`}
+			/> :
 		</p>
 
 		<table class="data-table">
@@ -159,28 +174,28 @@
 		</table>
 
 		<p>
-			Le coefficient de détermination <strong>ajusté</strong> (0.6707), qui tient
-			compte du nombre de régresseurs, montre un ajustement nettement meilleur que
-			toute régression simple. (Le jeu <code>swiss</code> est embarqué dans le cours
-			et vérifié contre ce tableau.)
+			Le coefficient de détermination <strong>ajusté</strong> (0.6707), qui tient compte du nombre
+			de régresseurs, montre un ajustement nettement meilleur que toute régression simple. (Le jeu
+			<code>swiss</code> est embarqué dans le cours et vérifié contre ce tableau.)
 		</p>
 
 		<h2 id="modele">Le modèle de régression linéaire multiple</h2>
 
 		<p>
-			Soit <KatexInline formula="Y" /> la variable aléatoire à expliquer (variable
-			dépendante), et <KatexInline formula={String.raw`x_1, \dots, x_p`} /> <em>p</em>
-			régresseurs (variables explicatives) <strong>déterministes</strong> — connus et
-			non aléatoires. Pour l'individu <KatexInline formula="i" /> :
+			Soit <KatexInline formula="Y" /> la variable aléatoire à expliquer (variable dépendante), et <KatexInline
+				formula={String.raw`x_1, \dots, x_p`}
+			/> <em>p</em>
+			régresseurs (variables explicatives) <strong>déterministes</strong> — connus et non
+			aléatoires. Pour l'individu <KatexInline formula="i" /> :
 		</p>
 
 		<KatexBlock formula={modelEq} />
 
 		<p>
-			où <KatexInline formula={String.raw`\beta_0, \dots, \beta_p`} /> sont des
-			paramètres inconnus à estimer, et <KatexInline formula={String.raw`\varepsilon_i`} />
-			l'erreur aléatoire commise lorsque l'on mesure <KatexInline formula={String.raw`Y_i`} /> —
-			une variable aléatoire d'espérance nulle et de variance inconnue
+			où <KatexInline formula={String.raw`\beta_0, \dots, \beta_p`} /> sont des paramètres inconnus à
+			estimer, et <KatexInline formula={String.raw`\varepsilon_i`} />
+			l'erreur aléatoire commise lorsque l'on mesure <KatexInline formula={String.raw`Y_i`} /> — une variable
+			aléatoire d'espérance nulle et de variance inconnue
 			<KatexInline formula={String.raw`\sigma^2`} />, elle aussi à estimer.
 		</p>
 
@@ -193,8 +208,8 @@
 
 		<DefinitionBlock title="Hypothèse (H2)">
 			<p>
-				Les erreurs <KatexInline formula={String.raw`\varepsilon_i`} /> sont centrées,
-				de même variance et non corrélées entre elles :
+				Les erreurs <KatexInline formula={String.raw`\varepsilon_i`} /> sont centrées, de même variance
+				et non corrélées entre elles :
 			</p>
 			<KatexBlock formula={h2} />
 		</DefinitionBlock>
@@ -202,11 +217,16 @@
 		<p>
 			Comme en régression simple, on estime les paramètres par la méthode des
 			<strong>moindres carrés</strong> : on minimise la somme des carrés
-			<KatexInline formula={String.raw`\sum_{i=1}^{n}\left(Y_i - \beta_0 - \sum_{j=1}^{p}\beta_j x_{ij}\right)^2`} />
-			par rapport à <KatexInline formula={String.raw`\beta_0, \dots, \beta_p`} />. Les
-			paramètres estimés sont notés <KatexInline formula={String.raw`\hat{\beta}_j`} />, la
-			valeur ajustée de <KatexInline formula={String.raw`Y_i`} /> vaut
-			<KatexInline formula={String.raw`\hat{Y}_i = \hat{\beta}_0 + \sum_{j=1}^{p}\hat{\beta}_j x_{ij}`} />, et
+			<KatexInline
+				formula={String.raw`\sum_{i=1}^{n}\left(Y_i - \beta_0 - \sum_{j=1}^{p}\beta_j x_{ij}\right)^2`}
+			/>
+			par rapport à <KatexInline formula={String.raw`\beta_0, \dots, \beta_p`} />. Les paramètres
+			estimés sont notés <KatexInline formula={String.raw`\hat{\beta}_j`} />, la valeur ajustée de <KatexInline
+				formula={String.raw`Y_i`}
+			/> vaut
+			<KatexInline
+				formula={String.raw`\hat{Y}_i = \hat{\beta}_0 + \sum_{j=1}^{p}\hat{\beta}_j x_{ij}`}
+			/>, et
 			<KatexInline formula={String.raw`\hat{\varepsilon}_i = Y_i - \hat{Y}_i`} /> est le
 			<strong>résidu</strong> (erreur de reconstitution) de l'individu
 			<KatexInline formula="i" />.
@@ -215,8 +235,8 @@
 		<h2 id="matriciel">Écriture matricielle et géométrie</h2>
 
 		<p>
-			Notons <KatexInline formula={String.raw`Y = (Y_1, \dots, Y_n)^{\mathrm{T}}`} /> le vecteur colonne des
-			observations. Le modèle s'écrit alors (éq. 2 des sources) :
+			Notons <KatexInline formula={String.raw`Y = (Y_1, \dots, Y_n)^{\mathrm{T}}`} /> le vecteur colonne
+			des observations. Le modèle s'écrit alors (éq. 2 des sources) :
 		</p>
 
 		<KatexBlock formula={matrixEq} />
@@ -226,32 +246,34 @@
 			<li>
 				<KatexInline formula={String.raw`X = (1, x_1, \dots, x_p)`} /> matrice
 				<KatexInline formula={String.raw`n \times (p+1)`} /> de plein rang
-				<KatexInline formula="(H1)" />, dont la première colonne est le vecteur de
-				uns ;
+				<KatexInline formula="(H1)" />, dont la première colonne est le vecteur de uns ;
 			</li>
 			<li>
 				<KatexInline formula={String.raw`\beta = (\beta_0, \dots, \beta_p)^{\mathrm{T}}`} />
-				vecteur des paramètres — <KatexInline formula={String.raw`\beta_0`} /> est la
-				constante (« intercept » des logiciels anglo-saxons) ;
+				vecteur des paramètres — <KatexInline formula={String.raw`\beta_0`} /> est la constante (« intercept
+				» des logiciels anglo-saxons) ;
 			</li>
 			<li>
-				<KatexInline formula={String.raw`\varepsilon = (\varepsilon_1, \dots, \varepsilon_n)^{\mathrm{T}}`} />
+				<KatexInline
+					formula={String.raw`\varepsilon = (\varepsilon_1, \dots, \varepsilon_n)^{\mathrm{T}}`}
+				/>
 				vecteur des erreurs, vérifiant <KatexInline formula="(H2)" />.
 			</li>
 		</ul>
 
 		<p>
 			La matrice
-			<KatexInline formula={hatEq} />, appelée <strong>matrice chapeau</strong>, est la
-			matrice de <strong>projection orthogonale</strong> sur le sous-espace
+			<KatexInline formula={hatEq} />, appelée <strong>matrice chapeau</strong>, est la matrice de
+			<strong>projection orthogonale</strong>
+			sur le sous-espace
 			<KatexInline formula={String.raw`\mathrm{Vect}(X)`} /> engendré par les colonnes de
 			<KatexInline formula="X" /> : la valeur ajustée
 			<KatexInline formula={String.raw`\hat{Y} = P_X Y`} /> est la projection de
 			<KatexInline formula="Y" /> sur ce sous-espace, et le vecteur des résidus
 			<KatexInline formula={residEq} /> est orthogonal à
 			<KatexInline formula={String.raw`\mathrm{Vect}(X)`} /> (
-			<KatexInline formula={String.raw`\hat{\varepsilon} \perp \mathrm{Vect}(X)`} />) —
-			c'est la propriété géométrique derrière les moindres carrés.
+			<KatexInline formula={String.raw`\hat{\varepsilon} \perp \mathrm{Vect}(X)`} />) — c'est la
+			propriété géométrique derrière les moindres carrés.
 		</p>
 
 		<h2 id="mco">Estimateur des moindres carrés</h2>
@@ -259,8 +281,8 @@
 		<TheoremBlock number="1.1" title="Théorème 1 — Estimateur des moindres carrés">
 			<p>
 				Sous l'hypothèse <KatexInline formula="(H1)" />, la matrice
-				<KatexInline formula={String.raw`X^{\mathrm{T}}X`} /> étant inversible,
-				l'estimateur des moindres carrés <KatexInline formula={String.raw`\hat{\beta}`} />
+				<KatexInline formula={String.raw`X^{\mathrm{T}}X`} /> étant inversible, l'estimateur des moindres
+				carrés <KatexInline formula={String.raw`\hat{\beta}`} />
 				de <KatexInline formula={String.raw`\beta`} /> a la forme
 			</p>
 			<KatexBlock formula={olsEq} />
@@ -279,24 +301,35 @@
 			</p>
 		</div>
 
-		<p>Sous <KatexInline formula={String.raw`(\mathrm{H1})\text{–}(\mathrm{H2})`} />, l'estimateur vérifie :</p>
+		<p>
+			Sous <KatexInline formula={String.raw`(\mathrm{H1})\text{–}(\mathrm{H2})`} />, l'estimateur
+			vérifie :
+		</p>
 		<ul>
 			<li>
-				<strong>sans biais</strong> : <KatexInline formula={String.raw`\mathrm{E}(\hat{\beta}) = \beta`} /> ;
+				<strong>sans biais</strong> : <KatexInline
+					formula={String.raw`\mathrm{E}(\hat{\beta}) = \beta`}
+				/> ;
 			</li>
 			<li>
 				matrice de variance-covariance
 				<KatexInline formula={varBetaEq} /> (éq. 3) ;
 			</li>
 			<li>
-				<strong>Gauss–Markov</strong> : parmi les estimateurs sans biais fonctions
-				linéaires des <KatexInline formula={String.raw`Y_i`} />,
-				<KatexInline formula={String.raw`\hat{\beta}`} /> est de variance minimale —
-				il est BLUE (<em>Best Linear Unbiased Estimator</em>).
+				<strong>Gauss–Markov</strong> : parmi les estimateurs sans biais fonctions linéaires des <KatexInline
+					formula={String.raw`Y_i`}
+				/>,
+				<KatexInline formula={String.raw`\hat{\beta}`} /> est de variance minimale — il est BLUE (<em
+					>Best Linear Unbiased Estimator</em
+				>).
 			</li>
 		</ul>
 
-		<InteractiveSection number="1.2" title="Ajuster la droite par moindres carrés" onInteract={tracker.trackInteraction}>
+		<InteractiveSection
+			number="1.2"
+			title="Ajuster la droite par moindres carrés"
+			onInteract={tracker.trackInteraction}
+		>
 			<DeferredDemo load={() => import('$lib/components/demos/LmOlsFit.svelte')} />
 		</InteractiveSection>
 
@@ -304,34 +337,40 @@
 
 		<p>
 			Le vecteur des valeurs ajustées est
-			<KatexInline formula={String.raw`\hat{Y} = X\hat{\beta} = P_XY`} />, et celui des
-			résidus <KatexInline formula={residEq} />. Un estimateur <strong>sans biais</strong>
+			<KatexInline formula={String.raw`\hat{Y} = X\hat{\beta} = P_XY`} />, et celui des résidus <KatexInline
+				formula={residEq}
+			/>. Un estimateur <strong>sans biais</strong>
 			de la variance <KatexInline formula={String.raw`\sigma^2`} /> est
 		</p>
 
 		<KatexBlock formula={sigma2Eq} />
 
 		<p>
-			(les <KatexInline formula={String.raw`n-p-1`} /> degrés de liberté tiennent
-			compte des <KatexInline formula={String.raw`p+1`} /> paramètres estimés). À
-			partir de l'éq. (3), en remplaçant
+			(les <KatexInline formula={String.raw`n-p-1`} /> degrés de liberté tiennent compte des <KatexInline
+				formula={String.raw`p+1`}
+			/> paramètres estimés). À partir de l'éq. (3), en remplaçant
 			<KatexInline formula={String.raw`\sigma^2`} /> par
 			<KatexInline formula={String.raw`\hat{\sigma}^2`} />, on obtient
-			<KatexInline formula={String.raw`\hat{\Sigma}_{\hat{\beta}} = \hat{\sigma}^2 (X^{\mathrm{T}}X)^{-1}`} /> ;
-			pour chaque coefficient, l'écart-type estimé vaut
+			<KatexInline
+				formula={String.raw`\hat{\Sigma}_{\hat{\beta}} = \hat{\sigma}^2 (X^{\mathrm{T}}X)^{-1}`}
+			/> ; pour chaque coefficient, l'écart-type estimé vaut
 		</p>
 
 		<KatexBlock formula={seEq} />
 
 		<p>
-			où <KatexInline formula={String.raw`[(X^{\mathrm{T}}X)^{-1}]_{jj`} /> est
-			l'élément n° <KatexInline formula="j" /> de la diagonale. La précision de chaque
-			coefficient est donc entièrement portée par la matrice
-			<KatexInline formula={String.raw`(X^{\mathrm{T}}X)^{-1}`} /> — en particulier par
-			la dispersion des valeurs des régresseurs.
+			où <KatexInline formula={String.raw`[(X^{\mathrm{T}}X)^{-1}]_{jj}`} /> est l'élément n° <KatexInline
+				formula="j"
+			/> de la diagonale. La précision de chaque coefficient est donc entièrement portée par la matrice
+			<KatexInline formula={String.raw`(X^{\mathrm{T}}X)^{-1}`} /> — en particulier par la dispersion
+			des valeurs des régresseurs.
 		</p>
 
-		<InteractiveSection number="1.3" title="Dispersion de X et variance de β̂" onInteract={tracker.trackInteraction}>
+		<InteractiveSection
+			number="1.3"
+			title="Dispersion de X et variance de β̂"
+			onInteract={tracker.trackInteraction}
+		>
 			<DeferredDemo load={() => import('$lib/components/demos/LmVarianceBeta.svelte')} />
 		</InteractiveSection>
 
@@ -344,8 +383,8 @@
 		<KatexBlock formula={sctEq} />
 
 		<p>
-			c'est-à-dire la variation résiduelle, la variation expliquée par le modèle et la
-			variation totale. On a alors l'identité
+			c'est-à-dire la variation résiduelle, la variation expliquée par le modèle et la variation
+			totale. On a alors l'identité
 			<KatexInline formula={String.raw`\mathrm{SCT} = \mathrm{SCE} + \mathrm{SCR}`} />, et le
 			<strong>coefficient de détermination</strong> est le rapport
 		</p>
@@ -353,15 +392,19 @@
 		<KatexBlock formula={r2Eq} />
 
 		<p>
-			— la part de la variation de <KatexInline formula="Y" /> expliquée par le modèle :
-			plus <KatexInline formula={String.raw`R^2`} /> est proche de 1, meilleur est
-			l'ajustement. Mais <KatexInline formula={String.raw`R^2`} /> ne tient pas compte du
-			nombre de régresseurs : on définit le <strong>R² ajusté</strong>
+			— la part de la variation de <KatexInline formula="Y" /> expliquée par le modèle : plus <KatexInline
+				formula={String.raw`R^2`}
+			/> est proche de 1, meilleur est l'ajustement. Mais <KatexInline formula={String.raw`R^2`} /> ne
+			tient pas compte du nombre de régresseurs : on définit le <strong>R² ajusté</strong>
 		</p>
 
 		<KatexBlock formula={r2adjEq} />
 
-		<InteractiveSection number="1.4" title="Sommes de carrés et R²" onInteract={tracker.trackInteraction}>
+		<InteractiveSection
+			number="1.4"
+			title="Sommes de carrés et R²"
+			onInteract={tracker.trackInteraction}
+		>
 			<DeferredDemo load={() => import('$lib/components/demos/LmSumsOfSquares.svelte')} />
 		</InteractiveSection>
 
@@ -369,11 +412,10 @@
 
 		<ExampleBlock number="1.5" title="Prédiction du bien-être (StatM1S1_2025.pdf, p. 15–19)">
 			<p>
-				Un objectif de l'étude était de prédire le sentiment de bien-être (score « BE »)
-				sept ans après la sortie de l'Université, à partir de variables mesurées
-				pendant la scolarité : nombre d'enfants durant la scolarité (NbEnfU), bien-être
-				à l'Université (BEU) et niveau socio-économique des parents (NSE). Les 10
-				individus :
+				Un objectif de l'étude était de prédire le sentiment de bien-être (score « BE ») sept ans
+				après la sortie de l'Université, à partir de variables mesurées pendant la scolarité :
+				nombre d'enfants durant la scolarité (NbEnfU), bien-être à l'Université (BEU) et niveau
+				socio-économique des parents (NSE). Les 10 individus :
 			</p>
 			<table class="data-table">
 				<thead>
@@ -402,21 +444,31 @@
 				En calculant
 				<KatexInline formula={String.raw`\hat{\beta} = (X^{\mathrm{T}}X)^{-1}X^{\mathrm{T}}y`} />
 				— avec
-				<KatexInline formula={String.raw`X^{\mathrm{T}}X = \begin{pmatrix} 10 & 7 & 242 & 388 \\ 7 & 13 & 204 & 360 \\ 242 & 204 & 6820 & 9679 \\ 388 & 360 & 9679 & 16184 \end{pmatrix}`} />,
-				son inverse
-				<KatexInline formula={String.raw`(X^{\mathrm{T}}X)^{-1} = \begin{pmatrix} 7.9183 & 2.4750 & -0.0493 & -0.2154 \\ 2.4750 & 0.9790 & -0.0132 & -0.0732 \\ -0.0493 & -0.0132 & 0.0013 & 0.0007 \\ -0.2154 & -0.0732 & 0.0007 & 0.0064 \end{pmatrix}`} />
+				<KatexInline
+					formula={String.raw`X^{\mathrm{T}}X = \begin{pmatrix} 10 & 7 & 242 & 388 \\ 7 & 13 & 204 & 360 \\ 242 & 204 & 6820 & 9679 \\ 388 & 360 & 9679 & 16184 \end{pmatrix}`}
+				/>, son inverse
+				<KatexInline
+					formula={String.raw`(X^{\mathrm{T}}X)^{-1} = \begin{pmatrix} 7.9183 & 2.4750 & -0.0493 & -0.2154 \\ 2.4750 & 0.9790 & -0.0132 & -0.0732 \\ -0.0493 & -0.0132 & 0.0013 & 0.0007 \\ -0.2154 & -0.0732 & 0.0007 & 0.0064 \end{pmatrix}`}
+				/>
 				et
-				<KatexInline formula={String.raw`X^{\mathrm{T}}y = (337,\ 215,\ 8483,\ 12902)^{\mathrm{T}}`} /> —
-				on obtient
+				<KatexInline
+					formula={String.raw`X^{\mathrm{T}}y = (337,\ 215,\ 8483,\ 12902)^{\mathrm{T}}`}
+				/> — on obtient
 			</p>
-			<KatexBlock formula={String.raw`\hat{\beta} = \begin{pmatrix} 3.2195 \\ -12.0562 \\ 0.5803 \\ 0.6411 \end{pmatrix}`} />
+			<KatexBlock
+				formula={String.raw`\hat{\beta} = \begin{pmatrix} 3.2195 \\ -12.0562 \\ 0.5803 \\ 0.6411 \end{pmatrix}`}
+			/>
 			<p>
 				d'où
-				<KatexInline formula={String.raw`\hat{\sigma}^2 = \frac{1}{10-4}\|\hat{\varepsilon}\|^2 = 16{,}8852`} />,
-				l'équation de régression
+				<KatexInline
+					formula={String.raw`\hat{\sigma}^2 = \frac{1}{10-4}\|\hat{\varepsilon}\|^2 = 16{,}8852`}
+				/>, l'équation de régression
 			</p>
 			<KatexBlock formula={predEq} />
-			<p>et la prédiction, pour un ancien étudiant ayant eu 1 enfant à l'Université, un BEU de 30 et un NSE de 50 :</p>
+			<p>
+				et la prédiction, pour un ancien étudiant ayant eu 1 enfant à l'Université, un BEU de 30 et
+				un NSE de 50 :
+			</p>
 			<KatexBlock formula={String.raw`\hat{y} = 40{,}6273 \approx 41`} />
 		</ExampleBlock>
 
@@ -431,10 +483,11 @@
 
 		<Callout type="note" title="Vers la suite">
 			<p>
-				Deux questions restent en suspens. <strong>Et si les covariables sont
-				qualitatives</strong> (un facteur à trois niveaux plutôt qu'une mesure) ? C'est
-				l'objet de la <a href="/part4/lesson2">leçon 2</a> (ANOVA et ANCOVA). Et si
-				on veut des <strong>intervalles de confiance</strong> et des <strong>tests</strong>
+				Deux questions restent en suspens. <strong>Et si les covariables sont qualitatives</strong>
+				(un facteur à trois niveaux plutôt qu'une mesure) ? C'est l'objet de la
+				<a href="/part4/lesson2">leçon 2</a>
+				(ANOVA et ANCOVA). Et si on veut des <strong>intervalles de confiance</strong> et des
+				<strong>tests</strong>
 				? Il faudra supposer les erreurs gaussiennes — la <a href="/part4/lesson3">leçon 3</a>.
 			</p>
 		</Callout>
@@ -444,7 +497,6 @@
 <style>
 	.data-table {
 		width: 100%;
-		max-width: 34rem;
 		border-collapse: collapse;
 		font-size: 0.875rem;
 		font-variant-numeric: tabular-nums;
