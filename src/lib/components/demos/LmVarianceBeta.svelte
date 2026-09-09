@@ -18,21 +18,41 @@
 	const N_A = 20;
 	const BETA1_TRUE = 3;
 	const SIGMA = 1;
+	const SPREAD_MIN = 2;
+	const SPREAD_MAX = 20;
 	let spread = $state(10);
 
 	const estimates = $derived(
-		repeatedSlopeSamples({ n: N_A, spread, beta0: 2, beta1: BETA1_TRUE, sigma: SIGMA, B: 200, seed: 9 })
+		repeatedSlopeSamples({
+			n: N_A,
+			spread,
+			beta0: 2,
+			beta1: BETA1_TRUE,
+			sigma: SIGMA,
+			B: 200,
+			seed: 9
+		})
 	);
 	const varAnalytic = $derived(varBetaJ(SIGMA ** 2, linspace(0, spread, N_A), 0));
 	const seAnalytic = $derived(Math.sqrt(varAnalytic));
 
+	// Domaine FIXE, calé sur le pire cas (spread minimal ⇒ variance maximale).
+	// C'est ce qui rend la concentration visible : le cadre ne bouge plus,
+	// seule la distribution à l'intérieur se resserre.
+	const SE_MAX = Math.sqrt(varBetaJ(SIGMA ** 2, linspace(0, SPREAD_MIN, N_A), 0));
+	const DOMAIN_LO = BETA1_TRUE - 4 * SE_MAX;
+	const DOMAIN_HI = BETA1_TRUE + 4 * SE_MAX;
+
 	const N_BINS = 12;
 	const histo = $derived.by(() => {
-		const lo = Math.min(...estimates),
-			hi = Math.max(...estimates);
-		const w = (hi - lo) / N_BINS || 1;
+		const lo = DOMAIN_LO,
+			hi = DOMAIN_HI;
+		const w = (hi - lo) / N_BINS;
 		const counts = new Array<number>(N_BINS).fill(0);
-		for (const e of estimates) counts[Math.min(N_BINS - 1, Math.floor((e - lo) / w))]++;
+		for (const e of estimates) {
+			const idx = Math.min(N_BINS - 1, Math.max(0, Math.floor((e - lo) / w)));
+			counts[idx]++;
+		}
 		return {
 			counts,
 			centers: counts.map((_, i) => lo + (i + 0.5) * w),
@@ -41,14 +61,17 @@
 	});
 
 	const gaussCurve = $derived.by(() => {
-		const se = seAnalytic;
-		const lo = BETA1_TRUE - 4 * se,
-			hi = BETA1_TRUE + 4 * se;
 		return Array.from({ length: 101 }, (_, i) => {
-			const t = lo + ((hi - lo) * i) / 100;
+			const t = DOMAIN_LO + ((DOMAIN_HI - DOMAIN_LO) * i) / 100;
 			return [t, gaussianPDF(t, { mu: BETA1_TRUE, sigma2: varAnalytic })] as [number, number];
 		});
 	});
+
+	// ── Effet "wow" : bracket de concentration (pur CSS, cadre fixe) ──
+	const concentration = $derived(SE_MAX / seAnalytic); // ≥ 1, croît avec spread
+	const concentrationT = $derived(Math.min(1, Math.max(0, (concentration - 1) / 9)));
+	const bracketWidthPct = $derived(((4 * seAnalytic) / (DOMAIN_HI - DOMAIN_LO)) * 100);
+	const isVeryConcentrated = $derived(concentration > 5);
 
 	// ── Panneau B : deux régresseurs corrélés — Var(β̂) = σ²(XᵀX)⁻¹ ──
 	let rho = $state(0.5);
@@ -69,16 +92,36 @@
 
 <div class="lm-vbeta">
 	<p class="intro">
-		La précision de β̂ est portée par (XᵀX)⁻¹ : écartez les valeurs de x (panneau A) ou
-		corrélez deux prédicteurs (panneau B) et observez la variance des estimateurs.
+		La précision de β̂ est portée par (XᵀX)⁻¹ : écartez les valeurs de x (panneau A) ou corrélez deux
+		prédicteurs (panneau B) et observez la variance des estimateurs. Le panneau A est affiché sur
+		une échelle fixe (calée sur le pire cas) pour rendre le resserrement visible.
 	</p>
 
 	<div class="panel">
 		<h3>un régresseur : Var(β̂1) = σ² / Σ(xi − x̄)²</h3>
 		<div class="control-row">
 			<span class="control-label">étalement de x ∈ [0, étalement]</span>
-			<Slider min={2} max={20} step={1} bind:value={spread} label="etalage de x" />
+			<Slider min={SPREAD_MIN} max={SPREAD_MAX} step={1} bind:value={spread} label="etalage de x" />
 		</div>
+
+		<div class="conf-bracket" class:hot={isVeryConcentrated}>
+			<div class="conf-track">
+				<div
+					class="conf-fill"
+					style="width: {bracketWidthPct}%; background: color-mix(in srgb, var(--color-agent) {(
+						concentrationT * 100
+					).toFixed(0)}%, var(--color-surprise));"
+				></div>
+			</div>
+			<div class="conf-meta">
+				<span>β̂1 ± 2·SE, sur cadre fixe [{DOMAIN_LO.toFixed(1)}, {DOMAIN_HI.toFixed(1)}]</span>
+				<span class="conf-ratio">×{concentration.toFixed(1)} plus précis que le pire cas</span>
+			</div>
+			{#if isVeryConcentrated}
+				<span class="hot-badge">🔥 haute précision</span>
+			{/if}
+		</div>
+
 		<div class="grid2">
 			<BarChart
 				values={histo.counts}
@@ -150,9 +193,9 @@
 
 	<p class="caption">
 		StatM1S1_2025.pdf, §I.4.3 : σ̂²β̂ = σ̂²(XᵀX)⁻¹ — chaque écart-type de coefficient est
-		σ̂·√((XᵀX)⁻¹ⱼⱼ). Quand ρ → 1, (XᵀX)⁻¹ devient mal conditionné : SE, VIF et κ
-		explosent alors que le modèle explique toujours aussi bien Y (amorce de la leçon 4).
-		Simulations seedées (n = 100, σ = 1).
+		σ̂·√((XᵀX)⁻¹ⱼⱼ). Quand ρ → 1, (XᵀX)⁻¹ devient mal conditionné : SE, VIF et κ explosent alors que
+		le modèle explique toujours aussi bien Y (amorce de la leçon 4). Simulations seedées (n = 100, σ
+		= 1).
 	</p>
 </div>
 
@@ -195,6 +238,73 @@
 		font-size: 0.875rem;
 		font-weight: 500;
 		color: var(--color-text);
+	}
+
+	.conf-bracket {
+		position: relative;
+		display: grid;
+		gap: 0.35rem;
+		padding: 0.6rem 0.75rem;
+		border-radius: 0.5rem;
+		background: color-mix(in srgb, var(--color-belief) 6%, transparent);
+	}
+
+	.conf-track {
+		position: relative;
+		height: 0.5rem;
+		border-radius: 999px;
+		background: var(--color-border);
+		overflow: hidden;
+	}
+
+	.conf-fill {
+		position: absolute;
+		top: 0;
+		bottom: 0;
+		left: 50%;
+		transform: translateX(-50%);
+		border-radius: 999px;
+		transition:
+			width 0.35s ease,
+			background 0.35s ease;
+	}
+
+	.conf-meta {
+		display: flex;
+		justify-content: space-between;
+		gap: 0.5rem;
+		flex-wrap: wrap;
+		font-size: 0.75rem;
+		color: var(--color-text-muted);
+	}
+
+	.conf-ratio {
+		font-weight: 600;
+		color: var(--color-text);
+	}
+
+	.hot-badge {
+		position: absolute;
+		top: -0.5rem;
+		right: 0.5rem;
+		padding: 0.1rem 0.5rem;
+		border-radius: 999px;
+		font-size: 0.7rem;
+		font-weight: 600;
+		background: color-mix(in srgb, var(--color-agent) 20%, transparent);
+		color: var(--color-agent);
+		animation: pop-in 0.3s ease;
+	}
+
+	@keyframes pop-in {
+		from {
+			opacity: 0;
+			transform: scale(0.7);
+		}
+		to {
+			opacity: 1;
+			transform: scale(1);
+		}
 	}
 
 	.grid2 {
