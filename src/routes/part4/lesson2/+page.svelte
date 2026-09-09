@@ -28,11 +28,11 @@
 	const ancovaInterEq = String.raw`Y_{jk} = \beta_0 + \beta_j + (\delta + \delta_j)\, x_{jk} + \varepsilon_{jk}`;
 
 	const tocEntries: TocEntry[] = [
-		{ id: 'natures', label: '2.1 Deux natures de covariables', color: 'belief' },
-		{ id: 'ecriture-anova', label: "2.2 L'ANOVA : un paramètre par niveau", color: 'neutral' },
-		{ id: 'contraintes', label: '2.3 Les contraintes de plein rang', color: 'positive' },
-		{ id: 'deux-facteurs', label: '2.4 ANOVA à deux facteurs et interaction', color: 'surprise' },
-		{ id: 'ancova', label: '2.5 ANCOVA : facteurs et régresseurs mélangés', color: 'agent' }
+		{ id: 'natures', label: 'Deux natures de covariables', color: 'belief' },
+		{ id: 'ecriture-anova', label: "L'ANOVA : un paramètre par niveau", color: 'neutral' },
+		{ id: 'contraintes', label: 'Les contraintes de plein rang', color: 'positive' },
+		{ id: 'deux-facteurs', label: 'ANOVA à deux facteurs et interaction', color: 'surprise' },
+		{ id: 'ancova', label: 'ANCOVA : facteurs et régresseurs mélangés', color: 'agent' }
 	];
 </script>
 
@@ -49,7 +49,7 @@
 	<TheorySection>
 		<TableOfContents entries={tocEntries} />
 
-		<h2 id="natures">2.1 Deux natures de covariables</h2>
+		<h2 id="natures">Deux natures de covariables</h2>
 
 		<p>
 			Les <strong>modèles linéaires</strong> (LM) englobent deux grandes familles :
@@ -72,10 +72,10 @@
 			<KatexInline formula="Y" /> ne change pas : on cherche dans les deux cas à
 			expliquer une <strong>mesure numérique</strong>. On peut même mélanger les deux
 			natures de covariables — ce sont les modèles d'<strong>analyse de covariance</strong>
-			(ANCOVA), §2.5.
+			(ANCOVA), dans la dernière section de cette leçon.
 		</p>
 
-		<DefinitionBlock number="1" title="Définition (régresseur vs facteur)">
+		<DefinitionBlock number="2.1" title="Régresseur et facteur">
 			<p>
 				Un <strong>régresseur</strong> prend des valeurs numériques : une infinité de
 				valeurs possibles, souvent toutes différentes dans l'échantillon — donc une
@@ -86,7 +86,7 @@
 			</p>
 		</DefinitionBlock>
 
-		<h2 id="ecriture-anova">2.2 L'ANOVA : un paramètre par niveau</h2>
+		<h2 id="ecriture-anova">L'ANOVA : un paramètre par niveau</h2>
 
 		<p>
 			Dans un modèle de régression simple
@@ -124,7 +124,7 @@
 			</li>
 		</ul>
 
-		<h2 id="contraintes">2.3 Les contraintes de plein rang</h2>
+		<h2 id="contraintes">Les contraintes de plein rang</h2>
 
 		<p>
 			L'estimateur des moindres carrés
@@ -139,7 +139,7 @@
 			et il en existe trois usuelles :
 		</p>
 
-		<DefinitionBlock number="2" title="Contrainte : sans intercept">
+		<DefinitionBlock number="2.2" title="Contrainte : sans intercept">
 			<p>
 				<KatexInline formula={String.raw`\beta_0 = 0`} /> (pas de colonne de constantes).
 				Pour tout niveau <KatexInline formula={String.raw`j \in \{1, \dots, J\}`} />,
@@ -148,7 +148,7 @@
 			</p>
 		</DefinitionBlock>
 
-		<DefinitionBlock number="3" title="Contrainte : niveau de référence">
+		<DefinitionBlock number="2.3" title="Contrainte : niveau de référence">
 			<p>
 				<KatexInline formula={String.raw`\beta_1 = 0`} /> — le niveau 1 sert de
 				référence : <KatexInline formula={String.raw`\beta_0`} /> est la moyenne de la
@@ -160,7 +160,7 @@
 			</p>
 		</DefinitionBlock>
 
-		<DefinitionBlock number="4" title="Contrainte : somme des paramètres">
+		<DefinitionBlock number="2.4" title="Contrainte : somme des paramètres">
 			<p>
 				<KatexInline formula={String.raw`\sum_{j=1}^{J}\beta_j = 0`} /> —
 				<KatexInline formula={String.raw`\beta_0`} /> est la <strong>moyenne des
@@ -181,11 +181,11 @@
 			l'interprétation des <KatexInline formula={String.raw`\beta_j`} /> changent.
 		</p>
 
-		<InteractiveSection number="2.1" title="Trois codages d'un facteur" onInteract={tracker.trackInteraction}>
+		<InteractiveSection number="2.5" title="Trois codages d'un facteur" onInteract={tracker.trackInteraction}>
 			<DeferredDemo load={() => import('$lib/components/demos/LmAnovaCoding.svelte')} />
 		</InteractiveSection>
 
-		<h2 id="deux-facteurs">2.4 ANOVA à deux facteurs et interaction</h2>
+		<h2 id="deux-facteurs">ANOVA à deux facteurs et interaction</h2>
 
 		<p>
 			Soit <KatexInline formula={String.raw`F_1`} /> (à <KatexInline formula={String.raw`J_1`} />
@@ -247,7 +247,7 @@
 			<KatexInline formula={String.raw`Y \sim F_1 * F_2`} />.
 		</p>
 
-		<ExampleBlock number="1" title="Exemple (vent × pluie)">
+		<ExampleBlock number="2.6" title="Exemple : vent × pluie">
 			<p>
 				Pour une parcelle, la teneur en ozone dépend de la direction du vent
 				(<KatexInline formula={String.raw`F_1`} />) et de la présence de pluie
@@ -260,11 +260,11 @@
 			</p>
 		</ExampleBlock>
 
-		<InteractiveSection number="2.2" title="Interaction entre deux facteurs" onInteract={tracker.trackInteraction}>
+		<InteractiveSection number="2.7" title="Interaction entre deux facteurs" onInteract={tracker.trackInteraction}>
 			<DeferredDemo load={() => import('$lib/components/demos/LmInteractionPlot.svelte')} />
 		</InteractiveSection>
 
-		<h2 id="ancova">2.5 ANCOVA : facteurs et régresseurs mélangés</h2>
+		<h2 id="ancova">ANCOVA : facteurs et régresseurs mélangés</h2>
 
 		<p>
 			Dans un modèle d'<strong>analyse de covariance</strong>, la partie explicative
@@ -294,7 +294,8 @@
 				<code>contr.treatment</code> (ou <code>contr.sum</code> via
 				<code>options(contrasts = c("contr.sum", "contr.treatment"))</code>) ;
 				<code>summary()</code> d'un <code>lm</code> renvoie un tableau d'ANOVA avec
-				les sommes de carrés par effet — à comparer au §1.6 de la leçon précédente.
+				les sommes de carrés par effet — à comparer à la section « Sommes de
+				carrés et coefficient de détermination » de la leçon précédente.
 			</p>
 		</Callout>
 

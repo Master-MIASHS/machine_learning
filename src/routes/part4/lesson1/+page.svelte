@@ -42,13 +42,13 @@
 	const predEq = String.raw`\hat{y} = 3{,}2195 - 12{,}0562 \times \mathrm{NbEnfU} + 0{,}5803 \times \mathrm{BEU} + 0{,}6411 \times \mathrm{NSE}`;
 
 	const tocEntries: TocEntry[] = [
-		{ id: 'exemple-swiss', label: '1.1 Exemple : fécondité en Suisse (1888)', color: 'belief' },
-		{ id: 'modele', label: '1.2 Le modèle de régression linéaire multiple', color: 'neutral' },
-		{ id: 'matriciel', label: '1.3 Écriture matricielle et géométrie', color: 'neutral' },
-		{ id: 'mco', label: '1.4 Estimateur des moindres carrés', color: 'positive' },
-		{ id: 'residus', label: '1.5 Résidus et estimation de σ²', color: 'neutral' },
-		{ id: 'sommes-carrés', label: '1.6 Sommes de carrés et R²', color: 'surprise' },
-		{ id: 'exemple-bien-etre', label: '1.7 Exemple numérique : le bien-être', color: 'agent' }
+		{ id: 'exemple-swiss', label: 'Exemple : fécondité en Suisse (1888)', color: 'belief' },
+		{ id: 'modele', label: 'Le modèle de régression linéaire multiple', color: 'neutral' },
+		{ id: 'matriciel', label: 'Écriture matricielle et géométrie', color: 'neutral' },
+		{ id: 'mco', label: 'Estimateur des moindres carrés', color: 'positive' },
+		{ id: 'residus', label: 'Résidus et estimation de σ²', color: 'neutral' },
+		{ id: 'sommes-carrés', label: 'Sommes de carrés et R²', color: 'surprise' },
+		{ id: 'exemple-bien-etre', label: 'Exemple numérique : le bien-être', color: 'agent' }
 	];
 </script>
 
@@ -65,7 +65,7 @@
 	<TheorySection>
 		<TableOfContents entries={tocEntries} />
 
-		<h2 id="exemple-swiss">1.1 Exemple d'introduction : la fécondité en Suisse en 1888</h2>
+		<h2 id="exemple-swiss">Exemple d'introduction : la fécondité en Suisse en 1888</h2>
 
 		<p>
 			La régression linéaire multiple est l'extension à plusieurs variables explicatives
@@ -165,7 +165,7 @@
 			et vérifié contre ce tableau.)
 		</p>
 
-		<h2 id="modele">1.2 Le modèle de régression linéaire multiple</h2>
+		<h2 id="modele">Le modèle de régression linéaire multiple</h2>
 
 		<p>
 			Soit <KatexInline formula="Y" /> la variable aléatoire à expliquer (variable
@@ -184,14 +184,14 @@
 			<KatexInline formula={String.raw`\sigma^2`} />, elle aussi à estimer.
 		</p>
 
-		<DefinitionBlock number="(H1)" title="Hypothèse">
+		<DefinitionBlock title="Hypothèse (H1)">
 			<p>
 				La matrice <KatexInline formula="X" /> des covariables est de plein rang :
 				<KatexInline formula={h1} />.
 			</p>
 		</DefinitionBlock>
 
-		<DefinitionBlock number="(H2)" title="Hypothèse">
+		<DefinitionBlock title="Hypothèse (H2)">
 			<p>
 				Les erreurs <KatexInline formula={String.raw`\varepsilon_i`} /> sont centrées,
 				de même variance et non corrélées entre elles :
@@ -212,7 +212,7 @@
 			<KatexInline formula="i" />.
 		</p>
 
-		<h2 id="matriciel">1.3 Écriture matricielle et géométrie</h2>
+		<h2 id="matriciel">Écriture matricielle et géométrie</h2>
 
 		<p>
 			Notons <KatexInline formula={String.raw`Y = (Y_1, \dots, Y_n)^{\mathrm{T}}`} /> le vecteur colonne des
@@ -254,9 +254,9 @@
 			c'est la propriété géométrique derrière les moindres carrés.
 		</p>
 
-		<h2 id="mco">1.4 Estimateur des moindres carrés</h2>
+		<h2 id="mco">Estimateur des moindres carrés</h2>
 
-		<TheoremBlock number="1" title="Théorème (MCO)">
+		<TheoremBlock number="1.1" title="Théorème 1 — Estimateur des moindres carrés">
 			<p>
 				Sous l'hypothèse <KatexInline formula="(H1)" />, la matrice
 				<KatexInline formula={String.raw`X^{\mathrm{T}}X`} /> étant inversible,
@@ -296,11 +296,11 @@
 			</li>
 		</ul>
 
-		<InteractiveSection number="1.1" title="Ajuster la droite par moindres carrés" onInteract={tracker.trackInteraction}>
+		<InteractiveSection number="1.2" title="Ajuster la droite par moindres carrés" onInteract={tracker.trackInteraction}>
 			<DeferredDemo load={() => import('$lib/components/demos/LmOlsFit.svelte')} />
 		</InteractiveSection>
 
-		<h2 id="residus">1.5 Résidus et estimation de σ²</h2>
+		<h2 id="residus">Résidus et estimation de σ²</h2>
 
 		<p>
 			Le vecteur des valeurs ajustées est
@@ -331,11 +331,11 @@
 			la dispersion des valeurs des régresseurs.
 		</p>
 
-		<InteractiveSection number="1.2" title="Dispersion de X et variance de β̂" onInteract={tracker.trackInteraction}>
+		<InteractiveSection number="1.3" title="Dispersion de X et variance de β̂" onInteract={tracker.trackInteraction}>
 			<DeferredDemo load={() => import('$lib/components/demos/LmVarianceBeta.svelte')} />
 		</InteractiveSection>
 
-		<h2 id="sommes-carrés">1.6 Sommes de carrés et coefficient de détermination</h2>
+		<h2 id="sommes-carrés">Sommes de carrés et coefficient de détermination</h2>
 
 		<p>On définit les trois <strong>sommes de carrés</strong> :</p>
 
@@ -361,13 +361,13 @@
 
 		<KatexBlock formula={r2adjEq} />
 
-		<InteractiveSection number="1.3" title="Sommes de carrés et R²" onInteract={tracker.trackInteraction}>
+		<InteractiveSection number="1.4" title="Sommes de carrés et R²" onInteract={tracker.trackInteraction}>
 			<DeferredDemo load={() => import('$lib/components/demos/LmSumsOfSquares.svelte')} />
 		</InteractiveSection>
 
-		<h2 id="exemple-bien-etre">1.7 Exemple numérique : prédire le sentiment de bien-être</h2>
+		<h2 id="exemple-bien-etre">Exemple numérique : prédire le sentiment de bien-être</h2>
 
-		<ExampleBlock number="1" title="Exemple (StatM1S1_2025.pdf, p. 15–19)">
+		<ExampleBlock number="1.5" title="Prédiction du bien-être (StatM1S1_2025.pdf, p. 15–19)">
 			<p>
 				Un objectif de l'étude était de prédire le sentiment de bien-être (score « BE »)
 				sept ans après la sortie de l'Université, à partir de variables mesurées

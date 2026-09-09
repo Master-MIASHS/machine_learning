@@ -89,7 +89,7 @@
 					{#each designPreview as row, i (i)}
 						<tr>
 							<td class="lvl">{levels[i]} · y = {y[i].toFixed(1)}</td>
-							{#each row as v (v + '-' + i)}
+							{#each row as v, ci (i + '-' + ci)}
 								<td>{v}</td>
 							{/each}
 						</tr>

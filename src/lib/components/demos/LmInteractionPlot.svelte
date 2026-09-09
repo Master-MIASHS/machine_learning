@@ -100,7 +100,7 @@
 					{#each designPreview as d, i (i)}
 						<tr>
 							<td class="cellname">{d.label}</td>
-							{#each d.row as v (v + '-' + i)}
+							{#each d.row as v, ci (i + '-' + ci)}
 								<td>{v}</td>
 							{/each}
 						</tr>
