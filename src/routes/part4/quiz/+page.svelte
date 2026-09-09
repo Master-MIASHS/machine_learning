@@ -1,6 +1,7 @@
 <script lang="ts">
 	import PageTemplate from '$lib/components/layout/PageTemplate.svelte';
-	import Callout from '$lib/components/narrative/Callout.svelte';
+	import Quiz from '$lib/components/narrative/Quiz.svelte';
+	import { getQuizQuestions } from '$lib/quiz';
 	import { getPageByPath, getAdjacentPages } from '$lib/navigation.js';
 	import { settings } from '$lib/stores/index.js';
 	import { createPageTracker } from '$lib/stores/progress.svelte';
@@ -8,6 +9,10 @@
 
 	const meta = getPageByPath('/part4/quiz');
 	createPageTracker(meta as PageMeta);
+
+	// Whole part: the curated synthèse questions plus every lesson quiz in Part IV.
+	const quiz = getQuizQuestions('p4');
+
 	const { prev: prevMeta, next: nextMeta } = $derived(
 		getAdjacentPages(meta?.path ?? '', $settings.expertMode)
 	);
@@ -19,13 +24,18 @@
 
 <PageTemplate
 	title={meta?.title ?? 'Quiz de synthèse — Partie IV'}
-	subtitle="Vérifiez vos acquis sur la régression linéaire"
+	subtitle="Vérifiez vos acquis sur la régression linéaire : estimation, ANOVA, inférence, diagnostic et choix de modèle"
 	prev={prevMeta}
 	next={nextMeta}
 >
-	<Callout type="note" title="Page en construction">
-		Les questions du quiz de synthèse de la partie IV (tags
-		<code>p4/synthese</code> et <code>p4/l1</code>–<code>p4/l5</code>) seront ajoutées à
-		la base de quiz lors de la phase D.
-	</Callout>
+	<div class="quiz-container">
+		<Quiz items={quiz} maxQuestions={10} />
+	</div>
 </PageTemplate>
+
+<style>
+	.quiz-container {
+		max-width: 800px;
+		margin: 0 auto;
+	}
+</style>
