@@ -1055,6 +1055,35 @@ export function polynomialFamily(opts: { n: number; degree: number; sigma: numbe
 }
 
 /**
+ * Value at x of the polynomial with coefficients `beta` (column j is x^j).
+ * Demo W5.1 uses it to build a fresh test set from `polynomialFamily`'s true
+ * coefficients (9.choix_de_modele.pdf, « Illustration : Compromis
+ * Biais/Variance »).
+ */
+export function polyValue(beta: number[], x: number): number {
+	let v = 0;
+	for (let j = 0; j < beta.length; j++) v += beta[j] * Math.pow(x, j);
+	return v;
+}
+
+/**
+ * Mean squared prediction error of a polynomial OLS fit on a fresh sample
+ * (demo W5.1, 9.choix_de_modele.pdf, « Illustration : Compromis
+ * Biais/Variance » : l'erreur de test en U, minimale au voisinage du vrai
+ * degré). `fit.beta` has one coefficient per polynomial column (x^0 … x^d).
+ */
+export function polynomialTestMSE(fit: LinearModelFit, xTest: number[], yTest: number[]): number {
+	if (xTest.length !== yTest.length) throw new Error('polynomialTestMSE: xTest/yTest length mismatch');
+	if (xTest.length === 0) throw new Error('polynomialTestMSE: empty test set');
+	let s = 0;
+	for (let i = 0; i < xTest.length; i++) {
+		const err = polyValue(fit.beta, xTest[i]) - yTest[i];
+		s += err * err;
+	}
+	return s / xTest.length;
+}
+
+/**
  * Seeded variable-selection problem for the demos (9.choix_de_modele.pdf,
  * exemple prostate): n = 100, p = 8 predictors — 3 relevant (x1, x2, x3),
  * 1 null but strongly correlated with x1 (x4), 4 pure noise (x5…x8).

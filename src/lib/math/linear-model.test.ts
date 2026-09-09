@@ -31,6 +31,8 @@ import {
 	partialResiduals,
 	polynomialDesign,
 	polynomialFamily,
+	polynomialTestMSE,
+	polyValue,
 	predictionInterval,
 	predictionLeverage,
 	press,
@@ -721,6 +723,40 @@ describe('Seeded simulators (demos)', () => {
 		// is looser than σ; 0.1 (≫ σ=0.1·‖design‖ inflation) still certifies the
 		// correct degree was fitted (a wrong degree would miss by O(1)).
 		fit.beta.forEach((b, j) => expect(Math.abs(b - trueBeta[j])).toBeLessThan(0.1));
+	});
+
+	it('polyValue: evaluates the power basis', () => {
+		// β = (2, 3, 1) → 2 + 3x + x²
+		expect(polyValue([2, 3, 1], 0)).toBe(2);
+		expect(polyValue([2, 3, 1], 2)).toBe(2 + 6 + 4);
+		expect(polyValue([0, 0, 0, 5], -3)).toBe(5 * -27);
+		expect(polyValue([4], 999)).toBe(4);
+	});
+
+	it('polynomialTestMSE: zero on an in-sample perfect fit, U-shaped in degree', () => {
+		// Near-exact line (σ → 0): a degree-1 fit predicts a fresh line sample
+		// with MSE at the noise level.
+		const { x, y } = polynomialFamily({ n: 20, degree: 1, sigma: 1e-6, seed: 3 });
+		const fit1 = olsFit(polynomialDesign(x, 1), y);
+		const xTest = linspace(0, 10, 50);
+		const yTest = xTest.map((xi) => polyValue(fit1.beta, xi));
+		expect(polynomialTestMSE(fit1, xTest, yTest)).toBeLessThan(1e-6);
+
+		// With noise, the test error is U-shaped in the fitted degree: the true
+		// degree (1) beats both underfits (0) and overfits (high degree) on a
+		// fresh sample — the demo W5.1 phenomenon (9.choix_de_modele.pdf).
+		const noisy = polynomialFamily({ n: 15, degree: 1, sigma: 0.8, seed: 11 });
+		const rng = mulberry32(combineSeed(11, 99));
+		const xT = linspace(0, 10, 40);
+		const yT = xT.map((xi) => polyValue(noisy.trueBeta, xi) + 0.8 * gaussianSample({ mu: 0, sigma2: 1 }, rng));
+		const mse0 = polynomialTestMSE(olsFit(polynomialDesign(noisy.x, 0), noisy.y), xT, yT);
+		const mse1 = polynomialTestMSE(olsFit(polynomialDesign(noisy.x, 1), noisy.y), xT, yT);
+		const mse13 = polynomialTestMSE(olsFit(polynomialDesign(noisy.x, 13), noisy.y), xT, yT);
+		expect(mse1).toBeLessThan(mse0);
+		expect(mse1).toBeLessThan(mse13);
+
+		expect(() => polynomialTestMSE(fit1, xTest, [1])).toThrow(/length mismatch/);
+		expect(() => polynomialTestMSE(fit1, [], [])).toThrow(/empty/);
 	});
 
 	it('selectionProblem: 8 predictors, 3 relevant, x4 null but correlated with x1', () => {
