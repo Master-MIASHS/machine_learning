@@ -69,15 +69,15 @@
 		<KatexInline formula={String.raw`n = 100`} />,
 		<KatexInline formula={String.raw`p = 8`} /> prédicteurs —
 		<strong>x1, x2, x3</strong> sont réellement liés à
-		<KatexInline formula="Y" /> ; <strong>x4</strong> est nulle mais corrélée avec
-		x1 (<KatexInline formula={String.raw`\rho \approx 0{,}9`} />) ; x5–x8 sont du bruit
-		pur. Quatre algorithmes cherchent le meilleur sous-ensemble selon le critère
-		choisi.
+		<KatexInline formula="Y" /> ; <strong>x4</strong> est nulle mais corrélée avec x1 (<KatexInline
+			formula={String.raw`\rho \approx 0{,}9`}
+		/>) ; x5–x8 sont du bruit pur. Quatre algorithmes cherchent le meilleur sous-ensemble selon le
+		critère choisi.
 	</p>
 
 	<div class="controls">
 		{#each Object.entries(critLabels) as [key, label] (key)}
-			<RadioButton value={key} label={label} groupValue={critKey} />
+			<RadioButton value={key} {label} bind:groupValue={critKey} />
 		{/each}
 	</div>
 
@@ -96,7 +96,12 @@
 			<h3>best-subset (exhaustif)</h3>
 			<div class="chips">
 				{#each names as name, j (name)}
-					<span class="chip" class:sel={results.bs.best.subset.includes(j)} class:truth={trueSupport.includes(j)} class:corr={j === 3}>{name}</span>
+					<span
+						class="chip"
+						class:sel={results.bs.best.subset.includes(j)}
+						class:truth={trueSupport.includes(j)}
+						class:corr={j === 3}>{name}</span
+					>
 				{/each}
 			</div>
 			<p class="meta">
@@ -107,33 +112,54 @@
 			<h3>avant (forward)</h3>
 			<div class="chips">
 				{#each names as name, j (name)}
-					<span class="chip" class:sel={results.fwd.best.includes(j)} class:truth={trueSupport.includes(j)} class:corr={j === 3}>{name}</span>
+					<span
+						class="chip"
+						class:sel={results.fwd.best.includes(j)}
+						class:truth={trueSupport.includes(j)}
+						class:corr={j === 3}>{name}</span
+					>
 				{/each}
 			</div>
 			<p class="meta">
-				{results.fwd.steps.length} étapes · {critLabels[critKey]} = {fmt(results.fwd.steps[results.fwd.steps.length - 1].value)}
+				{results.fwd.steps.length} étapes · {critLabels[critKey]} = {fmt(
+					results.fwd.steps[results.fwd.steps.length - 1].value
+				)}
 			</p>
 		</div>
 		<div class="algo">
 			<h3>arrière (backward)</h3>
 			<div class="chips">
 				{#each names as name, j (name)}
-					<span class="chip" class:sel={results.bwd.best.includes(j)} class:truth={trueSupport.includes(j)} class:corr={j === 3}>{name}</span>
+					<span
+						class="chip"
+						class:sel={results.bwd.best.includes(j)}
+						class:truth={trueSupport.includes(j)}
+						class:corr={j === 3}>{name}</span
+					>
 				{/each}
 			</div>
 			<p class="meta">
-				{results.bwd.steps.length} étapes · {critLabels[critKey]} = {fmt(results.bwd.steps[results.bwd.steps.length - 1].value)}
+				{results.bwd.steps.length} étapes · {critLabels[critKey]} = {fmt(
+					results.bwd.steps[results.bwd.steps.length - 1].value
+				)}
 			</p>
 		</div>
 		<div class="algo">
 			<h3>both (pas à pas double)</h3>
 			<div class="chips">
 				{#each names as name, j (name)}
-					<span class="chip" class:sel={results.both.best.includes(j)} class:truth={trueSupport.includes(j)} class:corr={j === 3}>{name}</span>
+					<span
+						class="chip"
+						class:sel={results.both.best.includes(j)}
+						class:truth={trueSupport.includes(j)}
+						class:corr={j === 3}>{name}</span
+					>
 				{/each}
 			</div>
 			<p class="meta">
-				{results.both.steps.length} étapes · {critLabels[critKey]} = {fmt(results.both.steps[results.both.steps.length - 1].value)}
+				{results.both.steps.length} étapes · {critLabels[critKey]} = {fmt(
+					results.both.steps[results.both.steps.length - 1].value
+				)}
 			</p>
 		</div>
 	</div>
@@ -168,13 +194,12 @@
 	</Metrics>
 
 	<p class="caption">
-		9.choix_de_modele.pdf, « Recherche exhaustive » et « Sélection pas à pas » : le
-		best-subset évalue tous les 2^p modèles (algorithme Leaps and Bound, impossible
-		dès p &gt; 30) ; forward / backward / both sont <strong>gloutons</strong> (biais
-		important, variance/complexité contrôlée ; backward ne fonctionne pas si n &lt; p).
-		Les algorithmes gloutons peuvent manquer le meilleur sous-ensemble et la
-		corrélation entre prédicteurs perturbe la sélection (x4 peut être retenue à la
-		place ou en plus de x1) — cf. leçon 4. Seed 7.
+		9.choix_de_modele.pdf, « Recherche exhaustive » et « Sélection pas à pas » : le best-subset
+		évalue tous les 2^p modèles (algorithme Leaps and Bound, impossible dès p &gt; 30) ; forward /
+		backward / both sont <strong>gloutons</strong> (biais important, variance/complexité contrôlée ; backward
+		ne fonctionne pas si n &lt; p). Les algorithmes gloutons peuvent manquer le meilleur sous-ensemble
+		et la corrélation entre prédicteurs perturbe la sélection (x4 peut être retenue à la place ou en plus
+		de x1) — cf. leçon 4. Seed 7.
 	</p>
 </div>
 
