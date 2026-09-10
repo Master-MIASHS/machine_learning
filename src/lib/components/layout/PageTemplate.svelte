@@ -38,7 +38,7 @@
 
 <style>
 	.page-template {
-		max-width: 860px;
+		max-width: 1000px;
 		margin: 0 auto;
 		padding: 3rem 2rem 6rem;
 		display: flex;

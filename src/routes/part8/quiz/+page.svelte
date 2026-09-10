@@ -34,10 +34,3 @@
 		<Quiz items={quiz} maxQuestions={10} />
 	</div>
 </PageTemplate>
-
-<style>
-	.quiz-container {
-		max-width: 800px;
-		margin: 0 auto;
-	}
-</style>

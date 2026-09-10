@@ -188,3 +188,9 @@ section.page-interactive p {
 	margin: 0 0 1rem;
 	line-height: 1.6;
 }
+
+/* ── Pages de quiz ──────────────────────────────────────── */
+/* Le quiz occupe toute la largeur du PageTemplate (pas de max-width propre). */
+.quiz-container {
+	margin: 0 auto;
+}
