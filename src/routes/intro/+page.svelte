@@ -348,6 +348,43 @@
 			link="https://fabien.benureau.com/docs/phd_benureau.pdf"
 		/>
 
+		<!-- Régression linéaire (Partie IV) -->
+		<BibElement
+			authors={['Cook, R. D.']}
+			year={1977}
+			title="Detection of Influential Observations in Linear Regression"
+			journal="Technometrics, 19(1), 15–18."
+			link="https://doi.org/10.1080/00401706.1977.10489493"
+		/>
+		<BibElement
+			authors={['Mallows, C. L.']}
+			year={1973}
+			title="Some Comments on Cp"
+			journal="Technometrics, 15(4), 661–675."
+			link="https://doi.org/10.2307/1267380"
+		/>
+		<BibElement
+			authors={['Allen, D. M.']}
+			year={1974}
+			title="The Relationship Between Variable Selection and Data Augmentation and a Method for Prediction"
+			journal="Technometrics, 16(1), 125–127."
+			link="https://doi.org/10.1080/00401706.1974.10489157"
+		/>
+		<BibElement
+			authors={['Akaike, H.']}
+			year={1974}
+			title="A New Look at the Statistical Model Identification"
+			journal="IEEE Transactions on Automatic Control, 19(6), 716–723."
+			link="https://doi.org/10.1109/TAC.1974.1100705"
+		/>
+		<BibElement
+			authors={['Schwarz, G.']}
+			year={1978}
+			title="Estimating the Dimension of a Model"
+			journal="The Annals of Statistics, 6(2), 461–464."
+			link="https://doi.org/10.1214/aos/1176344136"
+		/>
+
 		<!-- Régularisation et Méthodes d'Ensemble -->
 		<BibElement
 			authors={['Hastie, T.', 'Tibshirani, R.', 'Friedman, J.']}
