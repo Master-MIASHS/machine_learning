@@ -38,7 +38,7 @@
 	--radius-sm: 8px;
 	--radius-md: 14px;
 	--radius-lg: 22px;
-	--sidebar-width: 350px;
+	--sidebar-width: 400px;
 }
 
 @media (prefers-color-scheme: light) {
