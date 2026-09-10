@@ -226,7 +226,7 @@
 				stroke-dasharray="1"
 				stroke-dashoffset="1"
 				stroke="var(--color-surprise)"
-				stroke-width="2.5"
+				stroke-width="2"
 				stroke-linecap="round"
 				fill="none"
 			/>
@@ -238,7 +238,7 @@
 				stroke-dasharray="1"
 				stroke-dashoffset="1"
 				stroke="var(--color-belief)"
-				stroke-width="2.5"
+				stroke-width="2"
 				stroke-linecap="round"
 				fill="none"
 				opacity="0"
