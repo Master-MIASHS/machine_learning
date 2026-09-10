@@ -191,9 +191,7 @@ export interface LinearModelFit {
 	yHat: number[];
 	/** ε̂ = Y − Ŷ = (I − H)Y. */
 	residuals: number[];
-	/** Hat matrix H = X(XᵀX)⁻¹Xᵀ. */
-	hat: number[][];
-	/** Leverages hii (diagonal of H). */
+	/** Leverages hii (diagonal of H = X(XᵀX)⁻¹Xᵀ). */
 	leverages: number[];
 	/** Number of observations. */
 	n: number;
@@ -238,8 +236,6 @@ export function olsFit(X: number[][], y: number[]): LinearModelFit {
 	const beta = olsClosedForm(X, y);
 	const yHat = matVec(X, beta);
 	const residuals = y.map((yi, i) => yi - yHat[i]);
-	const hat = hatMatrix(X);
-	const leverages = hat.map((row, i) => row[i]);
 	const p = d - 1;
 
 	const ybar = y.reduce((a, b) => a + b, 0) / n;
@@ -247,10 +243,14 @@ export function olsFit(X: number[][], y: number[]): LinearModelFit {
 	const sse = residuals.reduce((a, r) => a + r * r, 0);
 	const sseExplained = yHat.reduce((a, yi) => a + (yi - ybar) * (yi - ybar), 0);
 
+	// (XᵀX)⁻¹ serves both the standard errors and the leverages. Only the
+	// diagonal hii = xiᵀ(XᵀX)⁻¹xi is kept — materializing the full n×n hat
+	// matrix here would make olsFit O(n²·d) in memory, not O(n·d²).
 	const Xt = transpose(X, n, d);
 	const XtXinv = invert(matMul(Xt, X));
 	const seBeta = new Array<number>(d);
 	for (let j = 0; j < d; j++) seBeta[j] = Math.sqrt(Math.max(0, XtXinv[j][j]));
+	const leverages = leveragesFromInverse(X, XtXinv);
 
 	const sigma2 = sse / (n - d);
 	const rSquared = sst > 0 ? sseExplained / sst : 0;
@@ -259,7 +259,6 @@ export function olsFit(X: number[][], y: number[]): LinearModelFit {
 		beta,
 		yHat,
 		residuals,
-		hat,
 		leverages,
 		n,
 		p,
@@ -276,7 +275,7 @@ export function olsFit(X: number[][], y: number[]): LinearModelFit {
 	};
 }
 
-/** Hat (projection) matrix H = X(XᵀX)⁻¹Xᵀ — symmetric and idempotent (8.validation…, "Leviers hii"). */
+/** Hat (projection) matrix H = X(XᵀX)⁻¹Xᵀ — symmetric and idempotent (8.validation…, "Leviers hii"). O(n²·d): only use on small designs. */
 export function hatMatrix(X: number[][]): number[][] {
 	const n = X.length,
 		d = X[0].length;
@@ -288,10 +287,26 @@ export function hatMatrix(X: number[][]): number[][] {
 	return matMul(X, transpose(s, n, d));
 }
 
-/** Leverages hii = diagonal of the hat matrix (8.validation…, "Leviers hii"). */
+/** Diagonal hii = xiᵀ(XᵀX)⁻¹xi of the hat matrix, given (XᵀX)⁻¹ (8.validation…, "Leviers hii"). */
+function leveragesFromInverse(X: number[][], XtXinv: number[][]): number[] {
+	const d = X[0].length;
+	return X.map((row) => {
+		let h = 0;
+		for (let j = 0; j < d; j++) {
+			let s = 0;
+			for (let m = 0; m < d; m++) s += XtXinv[j][m] * row[m];
+			h += row[j] * s;
+		}
+		return h;
+	});
+}
+
+/** Leverages hii = diagonal of the hat matrix (8.validation…, "Leviers hii"). O(n·d²) — the diagonal is read off (XᵀX)⁻¹ without materializing H. */
 export function leverages(X: number[][]): number[] {
-	const H = hatMatrix(X);
-	return H.map((row, i) => row[i]);
+	const n = X.length,
+		d = X[0].length;
+	const Xt = transpose(X, n, d);
+	return leveragesFromInverse(X, invert(matMul(Xt, X)));
 }
 
 /** Sums of squares: SCR (residuals), SCE (explained), SCT (total) (StatM1S1_2025.pdf, §5). */
