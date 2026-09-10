@@ -12,6 +12,7 @@
 	import Bibliography from '$lib/components/narrative/bib/Bibliography.svelte';
 	import BibElement from '$lib/components/narrative/bib/BibElement.svelte';
 	import VCShatteringExplorer from '$lib/components/demos/VCShatteringExplorer.svelte';
+	import SinusoidVCExplorer from '$lib/components/demos/SinusoidVCExplorer.svelte';
 	import SauerGrowthDemo from '$lib/components/demos/SauerGrowthDemo.svelte';
 	import MarginVCExplorer from '$lib/components/demos/MarginVCExplorer.svelte';
 	import { getPageByPath, getAdjacentPages } from '$lib/navigation.js';
@@ -102,6 +103,9 @@
 		'\\|X_i\\|_2 \\le R \\text{ p.s.} \\implies \\mathrm{VCdim}(\\mathcal H_\\gamma) \\le \\left\\lfloor \\frac{R^2}{\\gamma^2} \\right\\rfloor';
 	const svmFullBound =
 		'|R(h)-R_{\\mathcal S_n}(h)| \\le \\sqrt{\\frac{8\\lfloor R^2/\\gamma^2\\rfloor \\log(2en\\gamma^2/R^2) + 8\\log(4/\\delta)}{n}}';
+
+	const sinusoidFamily =
+		'\\mathcal H_{\\sin} = \\left\\{x \\mapsto \\mathbb{1}_{\\sin(Ax + b) > 0} : A > 0,\\ b \\in \\mathbb R\\right\\}';
 </script>
 
 <svelte:head>
@@ -186,6 +190,43 @@
 			<VCShatteringExplorer />
 		</InteractiveSection>
 
+		<p>
+			La définition de la dimension VC (theorie.typ) prévoit le cas où
+			<KatexInline formula={String.raw`\mathcal H`} /> brise des ensembles de taille arbitraire : on
+			pose alors <KatexInline formula={String.raw`\mathrm{VCdim}(\mathcal H) = +\infty`} />. Une telle
+			classe existe et se rencontre naturellement : la famille des signatures de sinusoïdes
+		</p>
+		<KatexBlock formula={sinusoidFamily} />
+		<p>
+			Elle ne compte que deux paramètres réels, mais la fréquence <KatexInline
+				formula={String.raw`A`}
+			/>
+			n'est bornée par rien : en la faisant croître, on ajoute des oscillations, et chaque
+			oscillation peut être placée pour faire changer de signe la courbe entre deux points choisis ;
+			la phase <KatexInline formula={String.raw`b`} /> règle ensuite le décalage global. L'intuition est
+			qu'aucun étiquetage de points distincts « en position générale » ne résiste à un choix
+			convenable de <KatexInline formula={String.raw`(A, b)`} /> — y compris l'étiquetage alterné, qui
+			exige une sinusoïde très oscillante pour rester à zéro erreur.
+		</p>
+
+		<Callout type="note" title="Au-delà du cours">
+			Cet exemple ne fait pas partie de theorie.typ, qui n'y présente que des familles de dimension
+			VC finie. Deux précisions. D'abord, « dimension VC infinie » signifie qu'il existe, pour toute
+			taille m, un ensemble de m points brisé — pas que tout ensemble de m points l'est : des
+			configurations symétriques, comme des points parfaitement équirépartis, admettent des
+			étiquetages irréalisables. Ensuite, la démo qui suit est numérique : le solveur explore la
+			fréquence de façon exacte jusqu'à un plafond de 300 oscillations, et le signale si rien n'est
+			trouvé pour une configuration particulière.
+		</Callout>
+
+		<InteractiveSection
+			number="3.2"
+			title="Dimension VC infinie : sin(Ax + b)"
+			onInteract={tracker.trackInteraction}
+		>
+			<SinusoidVCExplorer />
+		</InteractiveSection>
+
 		<h2 id="coefficient-brisure-sauer-shelah">Coefficient de brisure et lemme de Sauer-Shelah</h2>
 
 		<p>
@@ -224,7 +265,7 @@
 		</Callout>
 
 		<InteractiveSection
-			number="3.2"
+			number="3.3"
 			title="De la croissance exponentielle à la croissance polynomiale"
 			onInteract={tracker.trackInteraction}
 		>
@@ -307,7 +348,7 @@
 		</Callout>
 
 		<InteractiveSection
-			number="3.3"
+			number="3.4"
 			title="Marge, rayon et dimension VC"
 			onInteract={tracker.trackInteraction}
 		>
@@ -327,7 +368,7 @@
 		</Callout>
 
 		<InteractiveSection
-			number="3.4"
+			number="3.5"
 			title="Quiz — Dimension VC, Sauer-Shelah et SVM"
 			onInteract={tracker.trackInteraction}
 		>

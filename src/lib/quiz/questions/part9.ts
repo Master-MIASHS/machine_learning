@@ -175,6 +175,21 @@ export const PART9: QuizQuestion[] = [
 			"La leçon donne une série d'exemples à dimension VC croissante : seuils sur ℝ (VCdim = 1, l'étiquetage (1, 0) étant impossible sur une paire ordonnée), intervalles sur ℝ (VCdim = 2, l'étiquetage (1, 0, 1) impossible sur un triplet ordonné), hyperplans de ℝ^d (VCdim = d + 1)."
 	},
 	{
+		id: 'p9-l3-q6',
+		tags: ['p9/l3'],
+		question:
+			"Selon l'exemple « au-delà du cours » de la leçon, que peut-on dire de la famille {x ↦ 1[sin(Ax + b) > 0] : A > 0, b ∈ ℝ} ?",
+		options: [
+			'Sa dimension VC est 2, comme le nombre de ses paramètres.',
+			"Sa dimension VC est finie, mais elle dépend de l'espacement des points.",
+			"Sa dimension VC est infinie : pour tout m, il existe un ensemble de m points que la famille brise — la fréquence A n'étant pas bornée, on peut placer une oscillation entre n'importe quels deux points choisis.",
+			'Sa dimension VC est 1, car une sinusoïde ne peut séparer qu’un nuage à la fois.'
+		],
+		answerIndex: 2,
+		explanation:
+			"L'exemple (au-delà du cours, absent de theorie.typ) : la fréquence A n'étant bornée par rien, on peut ajouter des oscillations pour réaliser l'étiquetage de tout ensemble de points en position générale — d'où VCdim = +∞. La leçon précise que cela ne signifie pas que tout ensemble de m points est brisé (des points parfaitement équirépartis admettent des étiquetages irréalisables), et la démo montre la frontière sinusoïdale à zéro erreur, y compris pour l'étiquetage alterné, qui exige une sinusoïde très oscillante."
+	},
+	{
 		id: 'p9-l3-q3',
 		tags: ['p9/l3'],
 		question:

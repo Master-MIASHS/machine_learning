@@ -6,9 +6,9 @@ describe('QUESTIONS (invariants)', () => {
 		expect(QUESTIONS.length).toBeGreaterThan(0);
 	});
 
-	// Exact count guards against a quiz block being silently dropped on re-migration.
-  it('contains exactly 285 questions', () => {
-    expect(QUESTIONS.length).toBe(285);
+  // Exact count guards against a quiz block being silently dropped on re-migration.
+  it('contains exactly 286 questions', () => {
+    expect(QUESTIONS.length).toBe(286);
   });
 
 	it('has a unique id per question', () => {
