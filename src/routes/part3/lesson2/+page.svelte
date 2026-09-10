@@ -534,11 +534,5 @@
 			journal="Springer Science & Business Media, Second Edition."
 			link="https://hastie.su.domains/ElemStatLearn/"
 		/>
-		<BibElement
-			authors={['Demangeot, M.']}
-			year={2022}
-			title="Clustering — diapositives du cours M1 MIASHS « Régularisation et Optimisation »"
-			journal="Université de Provence."
-		/>
 	</Bibliography>
 </PageTemplate>

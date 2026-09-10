@@ -102,15 +102,12 @@
 	const distanceDef = String.raw`d : \mathcal{X} \times \mathcal{X} \to \mathbb{R}_+`;
 	const distanceSymetrie = String.raw`\forall x, y \in \mathcal{X}, \; d(x, y) = d(y, x)`;
 	const distanceSeparation = String.raw`\forall x, y \in \mathcal{X}, \; d(x, y) = 0 \iff x = y`;
-	const distanceTriangulaire =
-		String.raw`\forall x, y, z \in \mathcal{X}, \; d(x, y) \leq d(x, z) + d(z, y)`;
+	const distanceTriangulaire = String.raw`\forall x, y, z \in \mathcal{X}, \; d(x, y) \leq d(x, z) + d(z, y)`;
 
 	// Frame « Distances -- variables quantitatives ».
-	const distanceEuclidienne =
-		String.raw`d(x, y) = \lVert x - y \rVert_2 = \sqrt{\sum_{i=1}^{d} (x_i - y_i)^2}`;
+	const distanceEuclidienne = String.raw`d(x, y) = \lVert x - y \rVert_2 = \sqrt{\sum_{i=1}^{d} (x_i - y_i)^2}`;
 	const distanceManhattan = String.raw`d(x, y) = \lVert x - y \rVert_1 = \sum_{i=1}^{d} |x_i - y_i|`;
-	const distanceMinkowski =
-		String.raw`d(x, y) = \left( \sum_{i=1}^{d} (x_i - y_i)^p \right)^{1/p}`;
+	const distanceMinkowski = String.raw`d(x, y) = \left( \sum_{i=1}^{d} (x_i - y_i)^p \right)^{1/p}`;
 	const distanceChebyshev = String.raw`d(x, y) = \max_{i \in \{1, \dots, d\}} |x_i - y_i|`;
 	const distanceMahalanobis = String.raw`d(x, y) = \sqrt{(x - y)^\top \Sigma^{-1} (x - y)}`;
 
@@ -121,8 +118,7 @@
 
 	// Frame « Séparabilité ».
 	const separabilite = String.raw`S_{k\ell} = d(\mu_k, \mu_\ell)`;
-	const separabiliteGlobale =
-		String.raw`S = \dfrac{2}{K(K - 1)} \sum_{k=1}^{K} \sum_{\ell = k+1}^{K} S_{k\ell}`;
+	const separabiliteGlobale = String.raw`S = \dfrac{2}{K(K - 1)} \sum_{k=1}^{K} \sum_{\ell = k+1}^{K} S_{k\ell}`;
 
 	// Frame « Indice de Davies-Bouldin ».
 	const daviesBouldin = String.raw`D_k = \max_{\ell \neq k} \dfrac{T_k + T_\ell}{S_{k\ell}}`;
@@ -136,14 +132,12 @@
 
 	// Frame « Inertie intra et inter classes ».
 	const muGlobal = String.raw`\mu = \dfrac{1}{n} \sum_{i=1}^{n} x_i`;
-	const inertieDecomposition =
-		String.raw`I = \sum_{i=1}^{n} \lVert x_i - \mu \rVert^2 = \sum_{k=1}^{K} \sum_{x_i \in \mathcal{C}_k} \lVert x_i - \mu_k \rVert^2 + \sum_{k=1}^{K} |\mathcal{C}_k| \, \lVert \mu_k - \mu \rVert^2`;
+	const inertieDecomposition = String.raw`I = \sum_{i=1}^{n} \lVert x_i - \mu \rVert^2 = \sum_{k=1}^{K} \sum_{x_i \in \mathcal{C}_k} \lVert x_i - \mu_k \rVert^2 + \sum_{k=1}^{K} |\mathcal{C}_k| \, \lVert \mu_k - \mu \rVert^2`;
 	const inertieIntra = String.raw`I_W = \sum_{k=1}^{K} \sum_{x_i \in \mathcal{C}_k} \lVert x_i - \mu_k \rVert^2`;
 	const inertieInter = String.raw`I_B = \sum_{k=1}^{K} |\mathcal{C}_k| \, \lVert \mu_k - \mu \rVert^2`;
 
 	// Frame « Choix d'une partition » (argmin, nombre de Bell).
-	const partitionOptimale =
-		String.raw`\mathcal{C}^* = \arg\min_{K \in \{1, \dots, n\}} \; \min_{\mathcal{C}_1, \dots, \mathcal{C}_K} \; R(\mathcal{C}_1, \dots, \mathcal{C}_K)`;
+	const partitionOptimale = String.raw`\mathcal{C}^* = \arg\min_{K \in \{1, \dots, n\}} \; \min_{\mathcal{C}_1, \dots, \mathcal{C}_K} \; R(\mathcal{C}_1, \dots, \mathcal{C}_K)`;
 	const nombreBell = String.raw`B_n = \dfrac{1}{e} \sum_{K \geq 1} \dfrac{K^n}{K !}`;
 
 	// Frames « Distance entre deux clusters » (liens + Ward).
@@ -151,8 +145,7 @@
 	const lienComplet = String.raw`d(\mathcal{C}_k, \mathcal{C}_\ell) = \max_{(x, y) \in \mathcal{C}_k \times \mathcal{C}_\ell} d(x, y)`;
 	const lienMoyen = String.raw`d(\mathcal{C}_k, \mathcal{C}_\ell) = \dfrac{1}{|\mathcal{C}_k|} \, \dfrac{1}{|\mathcal{C}_\ell|} \sum_{x \in \mathcal{C}_k} \sum_{y \in \mathcal{C}_\ell} d(x, y)`;
 	const lienCentroidal = String.raw`d(\mathcal{C}_k, \mathcal{C}_\ell) = d(\mu_k, \mu_\ell)`;
-	const distanceWard =
-		String.raw`d(\mathcal{C}_k, \mathcal{C}_\ell) = \dfrac{|\mathcal{C}_k| \, |\mathcal{C}_\ell|}{|\mathcal{C}_k| + |\mathcal{C}_\ell|} \, \lVert \mu_k - \mu_\ell \rVert^2`;
+	const distanceWard = String.raw`d(\mathcal{C}_k, \mathcal{C}_\ell) = \dfrac{|\mathcal{C}_k| \, |\mathcal{C}_\ell|}{|\mathcal{C}_k| + |\mathcal{C}_\ell|} \, \lVert \mu_k - \mu_\ell \rVert^2`;
 
 	// Frame « Choix du nombre de clusters ».
 	const seuilAlpha = String.raw`r = \alpha \cdot \max_{(x, y) \in \{x_1, \dots, x_n\}} d(x, y)`;
@@ -162,7 +155,9 @@
 </script>
 
 <svelte:head>
-	<title>{meta?.title ?? 'Clustering hiérarchique'} — Fondations de l'Apprentissage Statistique</title>
+	<title
+		>{meta?.title ?? 'Clustering hiérarchique'} — Fondations de l'Apprentissage Statistique</title
+	>
 </svelte:head>
 
 <PageTemplate
@@ -179,8 +174,8 @@
 		<p>
 			<strong>Contexte :</strong> on observe des <strong>données</strong>
 			<KatexInline formula={String.raw`x_1, \dots, x_n \in \mathcal{X}`} /> pour
-			<KatexInline formula="n" /> individus mais <strong>sans étiquettes</strong> associées (on dit
-			qu'elles sont non étiquetées).
+			<KatexInline formula="n" /> individus mais <strong>sans étiquettes</strong> associées (on dit qu'elles
+			sont non étiquetées).
 		</p>
 		<p>
 			<strong>Objectif :</strong> séparer les données en sous-groupes homogènes, appelés
@@ -198,15 +193,14 @@
 			<figure class="lesson-figure">
 				<img src={asset('/images/part3/genesGroupes.png')} alt="Gènes regroupés par clusters" />
 				<figcaption>
-					Identification de gènes similaires : permet de faire des hypothèses sur le rôle des
-					gènes.
+					Identification de gènes similaires : permet de faire des hypothèses sur le rôle des gènes.
 				</figcaption>
 			</figure>
 			<figure class="lesson-figure">
 				<img src={asset('/images/part3/segmentation.png')} alt="Segmentation de marché" />
 				<figcaption>
-					Segmentation de marché : identifier des groupes d'usagers au comportement similaire
-					afin de mieux comprendre leur profil.
+					Segmentation de marché : identifier des groupes d'usagers au comportement similaire afin
+					de mieux comprendre leur profil.
 				</figcaption>
 			</figure>
 		</figure>
@@ -225,17 +219,11 @@
 					<figcaption>Image originale</figcaption>
 				</figure>
 				<figure class="lesson-figure">
-					<img
-						src={asset('/images/part3/compr2.png')}
-						alt="Version compressée (16 couleurs)"
-					/>
+					<img src={asset('/images/part3/compr2.png')} alt="Version compressée (16 couleurs)" />
 					<figcaption>Image compressée (16 couleurs)</figcaption>
 				</figure>
 				<figure class="lesson-figure">
-					<img
-						src={asset('/images/part3/compr3.png')}
-						alt="Version compressée (4 couleurs)"
-					/>
+					<img src={asset('/images/part3/compr3.png')} alt="Version compressée (4 couleurs)" />
 					<figcaption>Image compressée (4 couleurs)</figcaption>
 				</figure>
 			</div>
@@ -250,13 +238,10 @@
 
 		<p><strong>Annotation d'un corpus de texte :</strong></p>
 		<figure class="lesson-figure">
-			<img
-				src={asset('/images/part3/texte.jpg')}
-				alt="Corpus de textes regroupés par sujet"
-			/>
+			<img src={asset('/images/part3/texte.jpg')} alt="Corpus de textes regroupés par sujet" />
 			<figcaption>
-				En regroupant automatiquement les textes par sujet, on détermine les sujets abordés par
-				les textes d'un même cluster en n'en lisant que quelques-uns.
+				En regroupant automatiquement les textes par sujet, on détermine les sujets abordés par les
+				textes d'un même cluster en n'en lisant que quelques-uns.
 			</figcaption>
 		</figure>
 		<p class="attribution">
@@ -269,8 +254,8 @@
 
 		<Callout type="intuition" title="Un problème non supervisé">
 			Pas d'étiquettes : le clustering est un <strong>apprentissage non supervisé</strong>
-			(contrairement à la Partie II). Il n'existe pas de partition « vraie » : c'est le choix de la
-			distance et du critère qui définit la qualité du résultat — le fil rouge de cette leçon.
+			(contrairement à la Partie II). Il n'existe pas de partition « vraie » : c'est le choix de la distance
+			et du critère qui définit la qualité du résultat — le fil rouge de cette leçon.
 		</Callout>
 
 		<h2 id="distances">Choix d'une distance</h2>
@@ -279,9 +264,8 @@
 			<strong>Objectif :</strong> séparer les données en sous-groupes, appelés
 			<strong>clusters</strong>, tels que chaque cluster soit le plus <strong>homogène</strong>
 			possible et que les clusters entre eux soient les plus
-			<strong>distincts</strong>/<strong>séparés</strong> possible : on souhaite que les individus
-			similaires soient dans le même cluster et que les individus dissimilaires soient dans des
-			clusters différents.
+			<strong>distincts</strong>/<strong>séparés</strong> possible : on souhaite que les individus similaires
+			soient dans le même cluster et que les individus dissimilaires soient dans des clusters différents.
 		</p>
 		<p>
 			<strong>Question :</strong> comment mesurer la distance entre deux individus ? On la mesure à
@@ -291,8 +275,8 @@
 		<DefinitionBlock title="Distance">
 			<p>
 				Soit un ensemble <KatexInline formula={String.raw`\mathcal{X}`} />. Une fonction
-				<KatexInline formula={distanceDef} /> est appelée <em>distance</em> si elle vérifie les
-				propriétés suivantes :
+				<KatexInline formula={distanceDef} /> est appelée <em>distance</em> si elle vérifie les propriétés
+				suivantes :
 			</p>
 			<ul>
 				<li>
@@ -311,7 +295,9 @@
 		<h3>Variables quantitatives</h3>
 
 		<p>
-			<KatexInline formula={String.raw`x = (x_1, \dots, x_d), \; y = (y_1, \dots, y_d) \in \mathbb{R}^d`} />
+			<KatexInline
+				formula={String.raw`x = (x_1, \dots, x_d), \; y = (y_1, \dots, y_d) \in \mathbb{R}^d`}
+			/>
 			: variables <strong>quantitatives</strong>. Exemples de distances :
 		</p>
 		<ul>
@@ -341,14 +327,13 @@
 		<h3>Variables qualitatives ou mixtes</h3>
 
 		<p>
-			<KatexInline formula={String.raw`x = (x_1, \dots, x_d), \; y = (y_1, \dots, y_d)`} /> :
-			variables <strong>qualitatives</strong>. Exemple de distances : distance du
+			<KatexInline formula={String.raw`x = (x_1, \dots, x_d), \; y = (y_1, \dots, y_d)`} /> : variables
+			<strong>qualitatives</strong>. Exemple de distances : distance du
 			<KatexInline formula={String.raw`\chi^2`} />, distance de Jaccard, distance de Gower.
 		</p>
 		<Callout type="note" title="Remarque">
 			Ces distances ne sont pas des distances au sens mathématique : la distance du
-			<KatexInline formula={String.raw`\chi^2`} /> ne respecte par exemple pas la propriété de
-			symétrie.
+			<KatexInline formula={String.raw`\chi^2`} /> ne respecte par exemple pas la propriété de symétrie.
 		</Callout>
 		<p>
 			Variables <strong>mixtes</strong> (quantitatives et qualitatives) : stratégies possibles :
@@ -372,15 +357,15 @@
 		</InteractiveSection>
 		<p>
 			Glissez les deux points, changez la norme : la boule unité et la valeur de
-			<KatexInline formula={String.raw`d(x, y)`} /> changent. La distance de Mahalanobis prend en
-			compte la structure de covariance <KatexInline formula={String.raw`\Sigma`} />.
+			<KatexInline formula={String.raw`d(x, y)`} /> changent. La distance de Mahalanobis prend en compte
+			la structure de covariance <KatexInline formula={String.raw`\Sigma`} />.
 		</p>
 
 		<h2 id="criteres">Mesurer une bonne partition</h2>
 
 		<p>
-			<strong>Question :</strong> une fois la distance choisie, quelle partition (clustering)
-			choisir ? Deux stratégies opposées :
+			<strong>Question :</strong> une fois la distance choisie, quelle partition (clustering) choisir
+			? Deux stratégies opposées :
 		</p>
 		<ul>
 			<li>
@@ -399,8 +384,8 @@
 					alt="Clustering hiérarchique à lien simple sur deux lignes de points"
 				/>
 				<figcaption>
-					Stratégie de ne pas séparer les points proches l'un de l'autre (clustering
-					hiérarchique à lien simple).
+					Stratégie de ne pas séparer les points proches l'un de l'autre (clustering hiérarchique à
+					lien simple).
 				</figcaption>
 			</figure>
 			<figure class="lesson-figure">
@@ -409,8 +394,7 @@
 					alt="2-moyennes sur deux lignes de points"
 				/>
 				<figcaption>
-					Stratégie de ne pas avoir des points trop éloignés dans le même cluster
-					(2-moyennes).
+					Stratégie de ne pas avoir des points trop éloignés dans le même cluster (2-moyennes).
 				</figcaption>
 			</figure>
 		</figure>
@@ -425,9 +409,7 @@
 
 		<DefinitionBlock title="Centroïde d'un cluster">
 			<p>
-				On appelle <em>centroïde</em> du cluster <KatexInline
-					formula={String.raw`\mathcal{C}`}
-				/>
+				On appelle <em>centroïde</em> du cluster <KatexInline formula={String.raw`\mathcal{C}`} />
 				le point défini par
 			</p>
 			<KatexBlock formula={centroide} />
@@ -481,16 +463,15 @@
 				On appelle <em>séparabilité</em> des clusters <KatexInline
 					formula={String.raw`\mathcal{C}_k`}
 				/>
-				et <KatexInline formula={String.raw`\mathcal{C}_\ell`} /> la distance entre leurs
-				centroïdes :
+				et <KatexInline formula={String.raw`\mathcal{C}_\ell`} /> la distance entre leurs centroïdes :
 			</p>
 			<KatexBlock formula={separabilite} />
 			<p>
 				La <em>séparabilité globale</em> d'un clustering <KatexInline
 					formula={String.raw`\mathcal{D}`}
 				/>
-				de taille <KatexInline formula="K" /> se calcule comme la moyenne des séparabilités des
-				clusters deux à deux :
+				de taille <KatexInline formula="K" /> se calcule comme la moyenne des séparabilités des clusters
+				deux à deux :
 			</p>
 			<KatexBlock formula={separabiliteGlobale} />
 			<p>
@@ -517,11 +498,11 @@
 			</p>
 			<KatexBlock formula={daviesBouldin} />
 			<p>
-				Cela revient donc à regarder le « pire des cas » en termes d'homogénéité et de
-				séparabilité. L'<em>indice de Davies-Bouldin global</em> d'un clustering
+				Cela revient donc à regarder le « pire des cas » en termes d'homogénéité et de séparabilité.
+				L'<em>indice de Davies-Bouldin global</em> d'un clustering
 				<KatexInline formula={String.raw`\mathcal{D}`} /> de taille
-				<KatexInline formula="K" /> se calcule comme la moyenne des indices de Davies-Bouldin des
-				clusters :
+				<KatexInline formula="K" /> se calcule comme la moyenne des indices de Davies-Bouldin des clusters
+				:
 			</p>
 			<KatexBlock formula={daviesBouldinGlobal} />
 			<p>
@@ -545,9 +526,9 @@
 				<KatexInline formula="x" /> à tous les autres éléments du cluster
 				<KatexInline formula={String.raw`\mathcal{C}_{k(x)}`} /> auquel il appartient, et
 				<KatexInline formula={String.raw`b(x)`} /> est la plus petite valeur que pourrait prendre
-				<KatexInline formula={String.raw`a(x)`} /> si <KatexInline formula="x" /> appartenait à un
-				autre cluster. Le <em>coefficient de silhouette global</em> se calcule comme la moyenne
-				des coefficients de silhouette :
+				<KatexInline formula={String.raw`a(x)`} /> si <KatexInline formula="x" /> appartenait à un autre
+				cluster. Le <em>coefficient de silhouette global</em> se calcule comme la moyenne des coefficients
+				de silhouette :
 			</p>
 			<KatexBlock formula={silhouetteGlobal} />
 			<p>
@@ -580,13 +561,12 @@
 		<p>Aussi, <KatexInline formula="I" /> se décompose en deux parties :</p>
 		<ul>
 			<li>
-				<KatexInline formula={inertieIntra} /> : <strong>inertie intra-classes</strong> qui mesure
-				l'homogénéité au sein des classes ;
+				<KatexInline formula={inertieIntra} /> : <strong>inertie intra-classes</strong> qui mesure l'homogénéité
+				au sein des classes ;
 			</li>
 			<li>
-				<KatexInline formula={inertieInter} /> : <strong>inertie inter-classes</strong> qui mesure
-				l'hétérogénéité entre les classes, c'est-à-dire à quel point les classes sont bien
-				séparées.
+				<KatexInline formula={inertieInter} /> : <strong>inertie inter-classes</strong> qui mesure l'hétérogénéité
+				entre les classes, c'est-à-dire à quel point les classes sont bien séparées.
 			</li>
 		</ul>
 		<p>
@@ -628,14 +608,14 @@
 			<strong>Contexte :</strong> on souhaite partitionner des données
 			<KatexInline formula={String.raw`x_1, \dots, x_n \in \mathcal{X}`} />. On voudrait choisir la
 			partition <KatexInline formula={String.raw`\mathcal{C}^*`} /> qui minimise un certain critère
-			<KatexInline formula="R" /> (à choisir) qui dépend de l'homogénéité et de la séparabilité des
-			clusters :
+			<KatexInline formula="R" /> (à choisir) qui dépend de l'homogénéité et de la séparabilité des clusters
+			:
 		</p>
 		<KatexBlock formula={partitionOptimale} />
 		<p>
-			avec <KatexInline formula={String.raw`R(\mathcal{C}_1, \dots, \mathcal{C}_K)`} /> l'indice de
-			Davies-Bouldin global, le coefficient de silhouette global — que l'on cherchera alors à
-			maximiser — ou la variance intra-classes du clustering
+			avec <KatexInline formula={String.raw`R(\mathcal{C}_1, \dots, \mathcal{C}_K)`} /> l'indice de Davies-Bouldin
+			global, le coefficient de silhouette global — que l'on cherchera alors à maximiser — ou la variance
+			intra-classes du clustering
 			<KatexInline formula={String.raw`\mathcal{D} = \{\mathcal{C}_1, \dots, \mathcal{C}_K\}`} />.
 		</p>
 
@@ -649,8 +629,8 @@
 		</Callout>
 
 		<Callout type="note" title="À propos de B₅₀">
-			Les diapositives indiquent <KatexInline formula={String.raw`B_{50} \geq 10^{48}`} />. La valeur
-			exacte est
+			Les diapositives indiquent <KatexInline formula={String.raw`B_{50} \geq 10^{48}`} />. La
+			valeur exacte est
 			<KatexInline
 				formula={String.raw`B_{50} = 185\,724\,268\,771\,078\,270\,438\,257\,767\,181\,908\,917\,499\,221\,852\,770 \approx 1{,}86 \cdot 10^{47}`}
 			/>
@@ -659,8 +639,8 @@
 		</Callout>
 
 		<p>
-			On va donc utiliser des <strong>algorithmes itératifs</strong> qui visent à explorer un
-			sous-ensemble de partitions dans lequel on espère que se trouve la partition optimale.
+			On va donc utiliser des <strong>algorithmes itératifs</strong> qui visent à explorer un sous-ensemble
+			de partitions dans lequel on espère que se trouve la partition optimale.
 		</p>
 
 		<h3>Stratégies itératives</h3>
@@ -683,9 +663,8 @@
 			<BellNumberGrowth />
 		</InteractiveSection>
 		<p>
-			La croissance de <KatexInline formula={String.raw`B_n`} /> rend l'exploration exhaustive
-			impossible dès <KatexInline formula="n" /> modéré : d'où le recours aux algorithmes
-			itératifs.
+			La croissance de <KatexInline formula={String.raw`B_n`} /> rend l'exploration exhaustive impossible
+			dès <KatexInline formula="n" /> modéré : d'où le recours aux algorithmes itératifs.
 		</p>
 
 		<h2 id="cah">Principe du clustering hiérarchique</h2>
@@ -694,22 +673,22 @@
 			Le <strong>clustering hiérarchique</strong> est un algorithme itératif qui propose une
 			partition des données
 			<KatexInline formula={String.raw`\{x_1, \dots, x_n\}`} /> pour toute taille
-			<KatexInline formula={String.raw`k \in \{1, \dots, n\}`} /> possible de partition. Cet
-			algorithme fonctionne par <strong>récurrence</strong> : chaque nouvelle partition est obtenue
-			à partir de l'ancienne partition.
+			<KatexInline formula={String.raw`k \in \{1, \dots, n\}`} /> possible de partition. Cet algorithme
+			fonctionne par <strong>récurrence</strong> : chaque nouvelle partition est obtenue à partir de l'ancienne
+			partition.
 		</p>
 		<p><strong>Deux stratégies :</strong></p>
 		<ul>
 			<li>
-				<strong>Clustering agglomératif</strong> : initialement, chaque observation forme un
-				cluster de taille 1. À chaque itération de l'algorithme, on trouve les deux clusters les
-				plus proches, et on les agglomère en un seul cluster, et ce jusqu'à ne plus avoir qu'un
-				unique cluster contenant les <KatexInline formula="n" /> observations.
+				<strong>Clustering agglomératif</strong> : initialement, chaque observation forme un cluster
+				de taille 1. À chaque itération de l'algorithme, on trouve les deux clusters les plus
+				proches, et on les agglomère en un seul cluster, et ce jusqu'à ne plus avoir qu'un unique
+				cluster contenant les <KatexInline formula="n" /> observations.
 			</li>
 			<li>
 				<strong>Clustering divisif</strong> : initialement, toutes les observations sont dans un
-				même cluster de taille <KatexInline formula="n" />. À chaque itération, on sépare un
-				cluster en deux jusqu'à ce que chaque cluster ne contienne plus qu'une seule observation.
+				même cluster de taille <KatexInline formula="n" />. À chaque itération, on sépare un cluster
+				en deux jusqu'à ce que chaque cluster ne contienne plus qu'une seule observation.
 			</li>
 		</ul>
 		<Callout type="insight" title="Focus">
@@ -724,35 +703,36 @@
 
 		<p>
 			Soit <KatexInline formula={String.raw`\mathcal{C}_k`} /> et
-			<KatexInline formula={String.raw`\mathcal{C}_\ell`} /> deux clusters. Exemples de
-			distance/dissimilarité entre <KatexInline formula={String.raw`\mathcal{C}_k`} /> et
+			<KatexInline formula={String.raw`\mathcal{C}_\ell`} /> deux clusters. Exemples de distance/dissimilarité
+			entre <KatexInline formula={String.raw`\mathcal{C}_k`} /> et
 			<KatexInline formula={String.raw`\mathcal{C}_\ell`} /> :
 		</p>
 		<ul>
 			<li>
 				<strong>lien simple</strong> : <KatexInline formula={lienSimple} /> —
 				<KatexInline formula={String.raw`\mathcal{C}_k`} /> et
-				<KatexInline formula={String.raw`\mathcal{C}_\ell`} /> sont agglomérés si deux de leurs
-				éléments sont proches ;
+				<KatexInline formula={String.raw`\mathcal{C}_\ell`} /> sont agglomérés si deux de leurs éléments
+				sont proches ;
 			</li>
 			<li>
 				<strong>lien complet</strong> : <KatexInline formula={lienComplet} /> —
 				<KatexInline formula={String.raw`\mathcal{C}_k`} /> et
-				<KatexInline formula={String.raw`\mathcal{C}_\ell`} /> sont agglomérés si tous leurs
-				éléments sont proches ;
+				<KatexInline formula={String.raw`\mathcal{C}_\ell`} /> sont agglomérés si tous leurs éléments
+				sont proches ;
 			</li>
 			<li>
 				<strong>lien moyen</strong> : <KatexInline formula={lienMoyen} /> —
 				<KatexInline formula={String.raw`\mathcal{C}_k`} /> et
-				<KatexInline formula={String.raw`\mathcal{C}_\ell`} /> sont agglomérés si la distance
-				moyenne entre un élément de <KatexInline formula={String.raw`\mathcal{C}_k`} /> et un
-				élément de <KatexInline formula={String.raw`\mathcal{C}_\ell`} /> est faible ;
+				<KatexInline formula={String.raw`\mathcal{C}_\ell`} /> sont agglomérés si la distance moyenne
+				entre un élément de <KatexInline formula={String.raw`\mathcal{C}_k`} /> et un élément de <KatexInline
+					formula={String.raw`\mathcal{C}_\ell`}
+				/> est faible ;
 			</li>
 			<li>
 				<strong>lien centroïdal</strong> : <KatexInline formula={lienCentroidal} /> —
 				<KatexInline formula={String.raw`\mathcal{C}_k`} /> et
-				<KatexInline formula={String.raw`\mathcal{C}_\ell`} /> sont agglomérés si la distance
-				entre leurs centroïdes est faible.
+				<KatexInline formula={String.raw`\mathcal{C}_\ell`} /> sont agglomérés si la distance entre leurs
+				centroïdes est faible.
 			</li>
 		</ul>
 		<Callout type="note" title="Remarque">
@@ -775,15 +755,14 @@
 			</p>
 			<p>
 				Ainsi, <KatexInline formula={String.raw`\mathcal{C}_k`} /> et
-				<KatexInline formula={String.raw`\mathcal{C}_\ell`} /> sont agglomérés si la fusion de ces
-				deux clusters minimise le gain de variance intra-classe de la nouvelle partition : on
-				maximise l'homogénéité.
+				<KatexInline formula={String.raw`\mathcal{C}_\ell`} /> sont agglomérés si la fusion de ces deux
+				clusters minimise le gain de variance intra-classe de la nouvelle partition : on maximise l'homogénéité.
 			</p>
 		</TheoremBlock>
 		<Callout type="note" title="Remarque">
 			<p>
-				La distance de Ward maximise aussi la séparabilité entre les clusters, puisqu'elle
-				minimise la perte de variance inter-classe.
+				La distance de Ward maximise aussi la séparabilité entre les clusters, puisqu'elle minimise
+				la perte de variance inter-classe.
 			</p>
 			<p>
 				La distance de Ward prend en compte les effectifs des groupes : création de groupes
@@ -818,8 +797,8 @@
 			Image tirée de l'ouvrage <em>Introduction au Machine Learning</em> de Chloé-Agathe Azencott.
 		</p>
 		<Callout type="note" title="Remarque">
-			La longueur d'une branche de l'arbre est égale à la distance entre les deux clusters
-			qu'elle connecte.
+			La longueur d'une branche de l'arbre est égale à la distance entre les deux clusters qu'elle
+			connecte.
 		</Callout>
 
 		<h2 id="choix-k">Choix du nombre de clusters</h2>
@@ -872,8 +851,8 @@
 		<Callout type="summary" title="Retenir">
 			<ul>
 				<li>
-					Une distance <KatexInline formula={distanceDef} /> est symétrique, séparante et
-					vérifie l'inégalité triangulaire ; variables quantitatives : euclidienne (souvent notée
+					Une distance <KatexInline formula={distanceDef} /> est symétrique, séparante et vérifie l'inégalité
+					triangulaire ; variables quantitatives : euclidienne (souvent notée
 					<KatexInline formula={String.raw`\lVert \cdot \rVert`} />), manhattan, minkowski,
 					chebyshev, mahalanobis.
 				</li>
@@ -888,24 +867,24 @@
 					<KatexInline formula="I_W" />.
 				</li>
 				<li>
-					Le nombre de partitions <KatexInline formula={String.raw`B_n`} /> (nombre de Bell) est
-					trop grand (<KatexInline formula={String.raw`B_{50} \approx 1{,}86 \cdot 10^{47}`} />)
-					: on utilise des algorithmes itératifs — classification hiérarchique, K-moyennes,
-					modèles de mélange.
+					Le nombre de partitions <KatexInline formula={String.raw`B_n`} /> (nombre de Bell) est trop
+					grand (<KatexInline formula={String.raw`B_{50} \approx 1{,}86 \cdot 10^{47}`} />) : on
+					utilise des algorithmes itératifs — classification hiérarchique, K-moyennes, modèles de
+					mélange.
 				</li>
 				<li>
-					La CAH est agglomérative et fonctionne par récurrence ; liaisons simple, complet,
-					moyen, centroïdal et Ward, cette dernière correspondant au gain de variance
-					intra-classe de la fusion (Proposition).
+					La CAH est agglomérative et fonctionne par récurrence ; liaisons simple, complet, moyen,
+					centroïdal et Ward, cette dernière correspondant au gain de variance intra-classe de la
+					fusion (Proposition).
 				</li>
 				<li>
-					Dendrogramme : la longueur d'une branche est la distance entre les deux clusters
-					fusionnés ; le nombre de clusters se choisit par un seuil
+					Dendrogramme : la longueur d'une branche est la distance entre les deux clusters fusionnés
+					; le nombre de clusters se choisit par un seuil
 					<KatexInline formula="r" /> ou en évaluant les nœuds (ex. coefficient de silhouette).
 				</li>
 				<li>
-					Complexité : <KatexInline formula={String.raw`O(dn^2)`} /> — à chaque itération,
-					distances deux à deux entre toutes les paires possibles.
+					Complexité : <KatexInline formula={String.raw`O(dn^2)`} /> — à chaque itération, distances deux
+					à deux entre toutes les paires possibles.
 				</li>
 			</ul>
 		</Callout>
@@ -940,12 +919,6 @@
 			title="The Elements of Statistical Learning: Data Mining, Inference, and Prediction"
 			journal="Springer Science & Business Media, Second Edition."
 			link="https://hastie.su.domains/ElemStatLearn/"
-		/>
-		<BibElement
-			authors={['Demangeot, M.']}
-			year={2022}
-			title="Clustering — diapositives du cours M1 MIASHS « Régularisation et Optimisation »"
-			journal="Université de Provence."
 		/>
 	</Bibliography>
 </PageTemplate>

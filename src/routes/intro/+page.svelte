@@ -52,16 +52,15 @@
 			</li>
 			<li>
 				<a href={asset('/pdf/theory.pdf')} target="_blank" rel="noopener noreferrer">
-					<strong>Parties 6 à 9 :</strong> Théorie de l'Apprentissage Statistique —
-					optimum de Bayes, consistance, généralisation, fonctions de perte (PDF)
+					<strong>Parties 6 à 9 :</strong> Théorie de l'Apprentissage Statistique — optimum de Bayes,
+					consistance, généralisation, fonctions de perte (PDF)
 				</a>
 			</li>
 		</ul>
 		<p>
-			Les Parties II (classification) et III (clustering), qui ne disposent pas de notes
-			dédiées, s'appuient sur l'ouvrage d'Azencott (<em>Introduction au Machine Learning</em>,
-			Dunod) et sur les diapositives du cours de clustering (Demangeot) — voir la
-			bibliographie en fin de page.
+			Les Parties II (classification) et III (clustering), qui ne disposent pas de notes dédiées,
+			s'appuient sur l'ouvrage d'Azencott (<em>Introduction au Machine Learning</em>, Dunod) et sur
+			les diapositives du cours de clustering (Demangeot) — voir la bibliographie en fin de page.
 		</p>
 
 		<h2>Plan du cours</h2>
@@ -69,38 +68,37 @@
 		<ul>
 			<li>
 				<a href={resolve('/part1/lesson1')}>
-					<strong>Partie I — Optimisation :</strong> conditions d'un minimum, fonctions
-					d'optimisation en ML, descente de gradient et accélération (dont Adam), SGD,
-					descente par coordonnées et méthode de Newton.
+					<strong>Partie I — Optimisation :</strong> conditions d'un minimum, fonctions d'optimisation
+					en ML, descente de gradient et accélération (dont Adam), SGD, descente par coordonnées et méthode
+					de Newton.
 				</a>
 			</li>
 			<li>
 				<a href={resolve('/part2/lesson1')}>
 					<strong>Partie II — Classification supervisée :</strong>
-					cadre de l'apprentissage supervisé et k-NN, classifieurs linéaires et
-					régression logistique, arbres de décision, SVM.
+					cadre de l'apprentissage supervisé et k-NN, classifieurs linéaires et régression logistique,
+					arbres de décision, SVM.
 				</a>
 			</li>
 			<li>
 				<a href={resolve('/part3/lesson1')}>
-					<strong>Partie III — Clustering :</strong> clustering
-					hiérarchique, k-moyennes et évaluation d'un clustering.
+					<strong>Partie III — Clustering :</strong> clustering hiérarchique, k-moyennes et évaluation
+					d'un clustering.
 				</a>
 			</li>
 			<li>
 				<a href={resolve('/part4/lesson1')}>
-					<strong>Partie IV — Régression linéaire :</strong> le modèle linéaire et les
-					moindres carrés (Gauss–Markov), ANOVA et ANCOVA, inférence dans le modèle
-					gaussien (Student, Fisher, intervalles de prédiction), validation et diagnostic
-					du modèle (colinéarité, résidus, observations influentes), choix de modèle et
-					sélection de variables (AIC, BIC, Cp).
+					<strong>Partie IV — Régression linéaire :</strong> le modèle linéaire et les moindres carrés
+					(Gauss–Markov), ANOVA et ANCOVA, inférence dans le modèle gaussien (Student, Fisher, intervalles
+					de prédiction), validation et diagnostic du modèle (colinéarité, résidus, observations influentes),
+					choix de modèle et sélection de variables (AIC, BIC, Cp).
 				</a>
 			</li>
 			<li>
 				<a href={resolve('/part5/lesson1')}>
-					<strong>Partie V — Régularisation :</strong> méthodes ensemblistes et Bagging,
-					Random Forest et sélection de features, Boosting (AdaBoost, Gradient Boosting),
-					régularisation L1/L2/Elastic Net.
+					<strong>Partie V — Régularisation :</strong> méthodes ensemblistes et Bagging, Random Forest
+					et sélection de features, Boosting (AdaBoost, Gradient Boosting), régularisation L1/L2/Elastic
+					Net.
 				</a>
 			</li>
 			<li>
@@ -111,27 +109,27 @@
 			</li>
 			<li>
 				<a href={resolve('/part7/lesson1')}>
-					<strong>Partie VII — Optimum de Bayes :</strong> classifieur de Bayes,
-					régression optimale (L2/L1), risque de Bayes comme borne irréductible.
+					<strong>Partie VII — Optimum de Bayes :</strong> classifieur de Bayes, régression optimale (L2/L1),
+					risque de Bayes comme borne irréductible.
 				</a>
 			</li>
 			<li>
 				<a href={resolve('/part8/lesson1')}>
-					<strong>Partie VIII — Consistance :</strong> convergence des classifieurs appris
-					(en probabilité, en moyenne quadratique, presque sûrement — et au sens universel), consistance du k-NN.
+					<strong>Partie VIII — Consistance :</strong> convergence des classifieurs appris (en probabilité,
+					en moyenne quadratique, presque sûrement — et au sens universel), consistance du k-NN.
 				</a>
 			</li>
 			<li>
 				<a href={resolve('/part9/lesson1')}>
-					<strong>Partie IX — Généralisation :</strong> inégalités de concentration
-					(Markov, Tchebychev), bornes de généralisation pour classes finies, dimension VC
-					et lemme de Sauer–Shelah, SVM, limites de la théorie VC et double descente.
+					<strong>Partie IX — Généralisation :</strong> inégalités de concentration (Markov, Tchebychev),
+					bornes de généralisation pour classes finies, dimension VC et lemme de Sauer–Shelah, SVM, limites
+					de la théorie VC et double descente.
 				</a>
 			</li>
 			<li>
 				<a href={resolve('/part10/lesson1')}>
-					<strong>Partie X — Fonctions de perte :</strong> de la perte 0-1 aux pertes
-					proxy convexes, calibration des pertes, décomposition de l'erreur.
+					<strong>Partie X — Fonctions de perte :</strong> de la perte 0-1 aux pertes proxy convexes,
+					calibration des pertes, décomposition de l'erreur.
 				</a>
 			</li>
 		</ul>
@@ -152,16 +150,15 @@
 				classique, accélérée, stochastique, par coordonnées ou méthode de Newton).
 			</li>
 			<li>
-				<strong>Classer des données supervisées :</strong> Mettre en œuvre et comparer les
-				classifieurs de référence — k plus proches voisins, classifieurs linéaires et régression
-				logistique, arbres de décision (CART) et machines à vecteurs de support (SVM) — et évaluer
-				leur performance à l'aide de métriques adaptées (précision, rappel, F1, AUC) et de la
-				validation croisée.
+				<strong>Classer des données supervisées :</strong> Mettre en œuvre et comparer les classifieurs
+				de référence — k plus proches voisins, classifieurs linéaires et régression logistique, arbres
+				de décision (CART) et machines à vecteurs de support (SVM) — et évaluer leur performance à l'aide
+				de métriques adaptées (précision, rappel, F1, AUC) et de la validation croisée.
 			</li>
 			<li>
-				<strong>Segmenter des données non étiquetées :</strong> Appliquer les méthodes de
-				clustering hiérarchique (CAH) et de k-moyennes (algorithme de Lloyd) pour identifier des
-				groupes dans des données, et juger la qualité d'une partition ainsi que le choix de
+				<strong>Segmenter des données non étiquetées :</strong> Appliquer les méthodes de clustering
+				hiérarchique (CAH) et de k-moyennes (algorithme de Lloyd) pour identifier des groupes dans
+				des données, et juger la qualité d'une partition ainsi que le choix de
 				<em>K</em> à l'aide de critères internes (inertie, critère du coude, silhouette).
 			</li>
 			<li>
@@ -176,27 +173,25 @@
 				garantis à un niveau de confiance choisi, sans hypothèse forte sur la distribution des données.
 			</li>
 			<li>
-				<strong>Caractériser l'optimum :</strong> Dériver le classifieur de Bayes et la
-				régression optimale (espérance conditionnelle pour la perte L2, médiane conditionnelle
-				pour la perte L1) et identifier le risque de Bayes comme borne inférieure
-				irréductible de la performance.
+				<strong>Caractériser l'optimum :</strong> Dériver le classifieur de Bayes et la régression optimale
+				(espérance conditionnelle pour la perte L2, médiane conditionnelle pour la perte L1) et identifier
+				le risque de Bayes comme borne inférieure irréductible de la performance.
 			</li>
 			<li>
-				<strong>Analyser la convergence :</strong> Définir la consistance d'une suite de
-				classifieurs appris (en probabilité, en moyenne quadratique, presque sûrement — et au sens universel) et la vérifier pour
-				des algorithmes standards tels que le k-NN.
+				<strong>Analyser la convergence :</strong> Définir la consistance d'une suite de classifieurs
+				appris (en probabilité, en moyenne quadratique, presque sûrement — et au sens universel) et la
+				vérifier pour des algorithmes standards tels que le k-NN.
 			</li>
 			<li>
-				<strong>Bonder la généralisation :</strong> Appliquer les inégalités de concentration
-				(Markov, Tchebychev) et la théorie VC (dimension VC, lemme de Sauer–Shelah) pour
-				établir des bornes de généralisation (classes finies, SVM), et discuter les limites
-				de la théorie VC en deep learning (double descente).
+				<strong>Bonder la généralisation :</strong> Appliquer les inégalités de concentration (Markov,
+				Tchebychev) et la théorie VC (dimension VC, lemme de Sauer–Shelah) pour établir des bornes de
+				généralisation (classes finies, SVM), et discuter les limites de la théorie VC en deep learning
+				(double descente).
 			</li>
 			<li>
-				<strong>Concevoir des pertes optimisables :</strong> Expliquer pourquoi la perte 0-1
-				ne s'optimise pas, choisir une perte proxy convexe (charnière, logistique), appliquer
-				le théorème de calibration et décomposer l'excès de risque en termes d'estimation,
-				de calibration et d'approximation.
+				<strong>Concevoir des pertes optimisables :</strong> Expliquer pourquoi la perte 0-1 ne s'optimise
+				pas, choisir une perte proxy convexe (charnière, logistique), appliquer le théorème de calibration
+				et décomposer l'excès de risque en termes d'estimation, de calibration et d'approximation.
 			</li>
 		</ul>
 	</TheorySection>
@@ -326,12 +321,6 @@
 			title="Introduction au Machine Learning"
 			journal="Dunod, 2ᵉ édition."
 			link="https://www.dunod.com/sciences-techniques/introduction-au-machine-learning-2"
-		/>
-		<BibElement
-			authors={['Demangeot, M.']}
-			year={2022}
-			title="Clustering — diapositives du cours M1 MIASHS « Régularisation et Optimisation »"
-			journal="Université de Provence."
 		/>
 		<BibElement
 			authors={['Novembre, J.', 'Johnson, T.', 'Bryc, K.', 'et al.']}
