@@ -1,0 +1,158 @@
+@import 'tailwindcss';
+@import '@fontsource/inter/400.css';
+@import '@fontsource/inter/500.css';
+@import '@fontsource/inter/600.css';
+@import '@fontsource/inter/700.css';
+@import '@fontsource/jetbrains-mono/400.css';
+@import 'katex/dist/katex.min.css';
+
+:root {
+	/* Fond — soft charcoal, not near-black; gentler jump between layers */
+	--color-bg: #1a1a22;
+	--color-surface: #23232e;
+	--color-surface-2: #2d2d3a;
+	--color-surface-3: #3a3a4a;
+	--color-border: #45455a;
+
+	/* Texte — soft cream instead of stark white, easier on the eyes */
+	--color-text: #eeeef2;
+	--color-text-muted: #a3a3b8;
+
+	/* Accents sémantiques — same roles, picked for bounce/saturation rather than moodiness */
+	--color-belief: #38bdf8; /* Sky-400 — croyances, distributions q */
+	--color-evidence: #eeeef2; /* Cream — réalité, distribution p */
+	--color-positive: #4ade80; /* Grass-Green-400 — énergie, ressources */
+	--color-surprise: #fb7185; /* Bubblegum-Rose-400 — erreur, surprise */
+	--color-negative: #f87171; /* Red-400 — seuils critiques (softened, not alarm-red) */
+	--color-epistemic: #c084fc; /* Grape-Violet-400 — incertitude, exploration */
+	--color-neutral: #fbbf24; /* Sunny-Amber-400 — action, planification */
+	--color-agent: #818cf8; /* Periwinkle-Indigo-400 — agent, T-maze */
+
+	/* Typographie — bit more air */
+	--font-sans: 'Inter', system-ui, sans-serif;
+	--font-mono: 'JetBrains Mono', monospace;
+	--font-size-base: 16px;
+	--line-height-base: 1.8;
+
+	/* Rayons — the biggest lever for "friendly": much rounder */
+	--radius-sm: 8px;
+	--radius-md: 14px;
+	--radius-lg: 22px;
+	--sidebar-width: 350px;
+}
+
+@media (prefers-color-scheme: light) {
+	:root {
+		--color-bg: #f7f7fb;
+		--color-surface: #ffffff;
+		--color-surface-2: #eef0f8;
+		--color-surface-3: #e2e5f2;
+		--color-border: #d4d8ea;
+
+		--color-text: #23232e;
+		--color-text-muted: #6b6b80;
+
+		--color-belief: #0284c7;
+		--color-evidence: #23232e;
+		--color-positive: #16a34a;
+		--color-surprise: #e11d48;
+		--color-negative: #dc2626;
+		--color-epistemic: #9333ea;
+		--color-neutral: #d97706;
+		--color-agent: #4f46e5;
+	}
+}
+
+*,
+*::before,
+*::after {
+	box-sizing: border-box;
+}
+
+html,
+body {
+	height: 100%;
+	min-height: 100dvh;
+	margin: 0;
+	padding: 0;
+}
+
+html {
+	font-size: var(--font-size-base);
+	line-height: var(--line-height-base);
+	scroll-behavior: smooth;
+}
+
+[id] {
+	scroll-margin-top: 2rem;
+}
+
+body {
+	background-color: var(--color-bg);
+	color: var(--color-text);
+	font-family: var(--font-sans);
+}
+
+code,
+kbd,
+samp,
+pre {
+	font-family: var(--font-mono);
+	border-radius: var(--radius-sm);
+}
+
+h1 {
+	font-size: 2rem;
+	font-weight: 700;
+	line-height: 1.25;
+	margin: 1.5rem 0 0.5rem;
+}
+
+h2 {
+	font-size: 1.5rem;
+	font-weight: 600;
+	color: var(--color-text);
+	margin: 1rem 0 0.5rem;
+}
+
+h3 {
+	font-size: 1.25rem;
+	font-weight: 600;
+	line-height: 1.35;
+	margin: 0 0 0.5rem;
+}
+
+a {
+	color: var(--color-belief);
+	text-decoration: none;
+	border-radius: 2px;
+}
+
+a:hover {
+	text-decoration: underline;
+}
+
+p {
+	margin: 0 0 1.1rem;
+}
+
+ul,
+ol {
+	margin: 0.85rem 0 0.85rem 1.35rem;
+	display: flex;
+	flex-direction: column;
+	gap: 0.6rem;
+}
+
+ol {
+	list-style-type: decimal;
+}
+
+li {
+	font-size: 0.9375rem;
+	line-height: 1.65;
+}
+
+.katex {
+	color: var(--color-text);
+}

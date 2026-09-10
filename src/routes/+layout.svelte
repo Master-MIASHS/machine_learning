@@ -1,5 +1,5 @@
 <script lang="ts">
-	import '../app.css';
+	import '../app_warm.css';
 	import '$lib/styles/page.css';
 	import Sidebar from '$lib/components/layout/Sidebar.svelte';
 	import { page } from '$app/state';
