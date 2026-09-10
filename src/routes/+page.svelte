@@ -20,7 +20,7 @@
 		<Figure
 			type="ghost"
 			caption={heroCaption}
-			style="max-width: 520px; margin: 0.25rem 0 1.25rem;"
+			style="width: min(100%, 700px); margin: 0.25rem 0 1.25rem;"
 		>
 			<HeroFigure />
 		</Figure>

@@ -125,7 +125,10 @@
 			testDot.setAttribute('r', (TEST_R * qT).toFixed(2));
 		}
 		if (dropLine) {
-			dropLine.setAttribute('y1', yPx(lerp(model.memorizingAtTest, model.smoothAtTest, s)).toFixed(2));
+			dropLine.setAttribute(
+				'y1',
+				yPx(lerp(model.memorizingAtTest, model.smoothAtTest, s)).toFixed(2)
+			);
 			dropLine.setAttribute('opacity', (0.8 * qT).toFixed(3));
 		}
 
@@ -134,7 +137,12 @@
 		updateRing(okRing, t, tl.okRingStart, tl.okRingDur);
 	}
 
-	function updateRing(el: SVGCircleElement | undefined, t: number, start: number, dur: number): void {
+	function updateRing(
+		el: SVGCircleElement | undefined,
+		t: number,
+		start: number,
+		dur: number
+	): void {
 		if (!el) return;
 		const u = (t - start) / dur;
 		if (u < 0 || u >= 1) {
