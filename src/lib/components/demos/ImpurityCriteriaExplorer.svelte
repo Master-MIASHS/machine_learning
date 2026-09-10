@@ -3,6 +3,7 @@
 	import Metrics from '$lib/components/layout/Metrics.svelte';
 	import Slider from '$lib/components/controls/Slider.svelte';
 	import RadioButton from '$lib/components/controls/RadioButton.svelte';
+	import RadioGroup from '$lib/components/controls/RadioGroup.svelte';
 	import Button from '$lib/components/controls/Button.svelte';
 	import { impurityOf, type ImpurityCriterion } from '$lib/math/random-forest';
 	import { findBestSplit1D, generateTwoBlobsDataset } from '$lib/math/tree-utils';
@@ -245,22 +246,16 @@
 
 	<!-- Controls -->
 	<div class="controls-panel">
-		<div class="control-row">
-			<span class="control-label">Variable</span>
-			<div class="radio-group">
-				<RadioButton value={0} label="x₁" bind:groupValue={feature} />
-				<RadioButton value={1} label="x₂" bind:groupValue={feature} />
-			</div>
-		</div>
+		<RadioGroup label="Variable">
+			<RadioButton value={0} label="x₁" bind:groupValue={feature} />
+			<RadioButton value={1} label="x₂" bind:groupValue={feature} />
+		</RadioGroup>
 
-		<div class="control-row">
-			<span class="control-label">Critère</span>
-			<div class="radio-group">
-				{#each CRITERIA as c (c.key)}
-					<RadioButton value={c.key} label={c.label} bind:groupValue={activeCriterion} />
-				{/each}
-			</div>
-		</div>
+		<RadioGroup label="Critère">
+			{#each CRITERIA as c (c.key)}
+				<RadioButton value={c.key} label={c.label} bind:groupValue={activeCriterion} />
+			{/each}
+		</RadioGroup>
 
 		<Slider
 			bind:value={threshold}
@@ -456,27 +451,6 @@
 		border: 1px solid var(--color-border);
 		border-radius: var(--radius-md, 8px);
 		background: var(--color-surface-2);
-	}
-
-	.control-row {
-		display: flex;
-		align-items: center;
-		gap: 0.75rem;
-		flex-wrap: wrap;
-	}
-
-	.control-label {
-		font-size: 0.7rem;
-		text-transform: uppercase;
-		letter-spacing: 0.04em;
-		color: var(--color-text-muted);
-		min-width: 4.5rem;
-	}
-
-	.radio-group {
-		display: flex;
-		gap: 0.4rem;
-		flex-wrap: wrap;
 	}
 
 	.actions-row {

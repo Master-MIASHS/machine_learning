@@ -68,6 +68,9 @@ export * from './vc.js';
 // --- Part X – Fonctions de perte
 export * from './calibration.js';
 
+// --- Page d'accueil — figure hero
+export * from './overfitting.js';
+
 // ── Part IX — Généralisation (duplicated barrel exports, pre-existing) ──
 export * from './concentration';
 export * from './generalization';

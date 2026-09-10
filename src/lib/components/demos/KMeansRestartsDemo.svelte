@@ -129,16 +129,13 @@
 	</p>
 
 	<div class="controls">
-		<div class="control-row">
-			<span class="control-label">redémarrages</span>
-			<Slider
-				min={1}
-				max={N_RESTARTS}
-				step={1}
-				bind:value={nstart}
-				label="nombre de redémarrages"
-			/>
-		</div>
+		<Slider
+			min={1}
+			max={N_RESTARTS}
+			step={1}
+			bind:value={nstart}
+			label="nombre de redémarrages"
+		/>
 	</div>
 
 	<div class="panels">
@@ -308,20 +305,6 @@
 	.controls {
 		display: grid;
 		gap: 0.9rem;
-	}
-
-	.control-row {
-		display: flex;
-		align-items: center;
-		gap: 0.75rem;
-		flex-wrap: wrap;
-	}
-
-	.control-label {
-		min-width: 7.5rem;
-		font-size: 0.875rem;
-		font-weight: 500;
-		color: var(--color-text);
 	}
 
 	.panels {

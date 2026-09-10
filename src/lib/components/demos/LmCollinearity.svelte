@@ -67,10 +67,7 @@
 		du modèle reste élevé.
 	</p>
 
-	<div class="control-row">
-		<span class="control-label">corrélation ρ(x1, x2)</span>
-		<Slider min={0} max={0.999} step={0.001} bind:value={rho} label="rho" />
-	</div>
+	<Slider min={0} max={0.999} step={0.001} bind:value={rho} label="corrélation ρ(x1, x2)" />
 
 	<div class="grid2">
 		<div class="panel">
@@ -150,20 +147,6 @@
 		color: var(--color-text-muted);
 		font-size: 0.8125rem;
 		line-height: 1.5;
-	}
-
-	.control-row {
-		display: flex;
-		align-items: center;
-		gap: 0.75rem;
-		flex-wrap: wrap;
-	}
-
-	.control-label {
-		min-width: 11rem;
-		font-size: 0.875rem;
-		font-weight: 500;
-		color: var(--color-text);
 	}
 
 	.grid2 {

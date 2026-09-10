@@ -3,6 +3,7 @@
 	import CurveChart from '$lib/components/charts/CurveChart.svelte';
 	import Slider from '$lib/components/controls/Slider.svelte';
 	import RadioButton from '$lib/components/controls/RadioButton.svelte';
+	import RadioGroup from '$lib/components/controls/RadioGroup.svelte';
 	import Toggle from '$lib/components/controls/Toggle.svelte';
 	import Button from '$lib/components/controls/Button.svelte';
 	import Metrics from '$lib/components/layout/Metrics.svelte';
@@ -176,24 +177,14 @@
 	</p>
 
 	<div class="controls">
-		<div class="control-row">
-			<span class="control-label">jeu de données</span>
-			<div class="radio-group">
-				<RadioButton value="blobs" label="3 nuages" bind:groupValue={dataset} />
-				<RadioButton value="lines" label="2 lignes" bind:groupValue={dataset} />
-			</div>
-		</div>
-		<div class="control-row">
-			<span class="control-label">initialisation</span>
-			<div class="radio-group">
-				<RadioButton
-					value="random"
-					label="aléatoire (points de données)"
-					bind:groupValue={init}
-				/>
-				<RadioButton value="pp" label="k-means++" bind:groupValue={init} />
-			</div>
-		</div>
+		<RadioGroup label="jeu de données">
+			<RadioButton value="blobs" label="3 nuages" bind:groupValue={dataset} />
+			<RadioButton value="lines" label="2 lignes" bind:groupValue={dataset} />
+		</RadioGroup>
+		<RadioGroup label="initialisation">
+			<RadioButton value="random" label="aléatoire (points de données)" bind:groupValue={init} />
+			<RadioButton value="pp" label="k-means++" bind:groupValue={init} />
+		</RadioGroup>
 		<div class="control-row sliders">
 			<Slider min={2} max={5} step={1} bind:value={K} label="nombre de clusters K" />
 			<Slider min={0} max={iterations} step={1} bind:value={t} label="itération t" />
@@ -341,19 +332,6 @@
 		align-items: center;
 		gap: 0.75rem;
 		flex-wrap: wrap;
-	}
-
-	.control-label {
-		min-width: 7.5rem;
-		font-size: 0.875rem;
-		font-weight: 500;
-		color: var(--color-text);
-	}
-
-	.radio-group {
-		display: flex;
-		flex-wrap: wrap;
-		gap: 0.25rem;
 	}
 
 	.sliders {

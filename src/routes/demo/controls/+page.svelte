@@ -1,4 +1,6 @@
 <script lang="ts">
+	import RadioButton from '$lib/components/controls/RadioButton.svelte';
+	import RadioGroup from '$lib/components/controls/RadioGroup.svelte';
 	import Slider from '$lib/components/controls/Slider.svelte';
 	import Toggle from '$lib/components/controls/Toggle.svelte';
 	import Dial from '$lib/components/controls/Dial.svelte';
@@ -10,6 +12,7 @@
 	let logSliderVal = $state(1);
 	let toggleChecked = $state(false);
 	let dialVal = $state(50);
+	let radioVal = $state('a');
 </script>
 
 <svelte:head>
@@ -39,6 +42,16 @@
 		<Toggle label="Activer l'animation" bind:checked={toggleChecked} />
 		<p style="font-size: 0.875rem; color: var(--color-text-muted); margin-top: 0.5rem;">
 			État: <code>{toggleChecked}</code>
+		</p>
+
+		<h2 style="margin-top: 2rem;">RadioButton</h2>
+		<RadioGroup label="Option">
+			<RadioButton value="a" label="Choix A" bind:groupValue={radioVal} />
+			<RadioButton value="b" label="Choix B" bind:groupValue={radioVal} />
+			<RadioButton value="c" label="Choix C" bind:groupValue={radioVal} />
+		</RadioGroup>
+		<p style="font-size: 0.875rem; color: var(--color-text-muted); margin-top: 0.5rem;">
+			Sélection: <code>{radioVal}</code>
 		</p>
 
 		<h2 style="margin-top: 2rem;">Dial</h2>

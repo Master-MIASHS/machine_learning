@@ -1,5 +1,7 @@
 <script lang="ts">
 	import { asset, resolve } from '$app/paths';
+	import Figure from '$lib/components/charts/Figure.svelte';
+	import HeroFigure from '$lib/components/layout/HeroFigure.svelte';
 </script>
 
 <svelte:head>
@@ -10,7 +12,18 @@
 	<div class="hero">
 		<h1>Fondations de l'Apprentissage Statistique</h1>
 		<!-- <p class="tagline">Maximilien Servajean</p> -->
-		<p></p>
+
+		{#snippet heroCaption()}
+			Et les points qu'on n'a pas vus ?
+		{/snippet}
+
+		<Figure
+			type="ghost"
+			caption={heroCaption}
+			style="max-width: 520px; margin: 0.25rem 0 1.25rem;"
+		>
+			<HeroFigure />
+		</Figure>
 
 		<div class="cta-wrapper">
 			<a href={resolve('/intro')} class="start-course-btn">

@@ -1,5 +1,6 @@
 <script lang="ts">
 	import RadioButton from '$lib/components/controls/RadioButton.svelte';
+	import RadioGroup from '$lib/components/controls/RadioGroup.svelte';
 	import Slider from '$lib/components/controls/Slider.svelte';
 	import Metrics from '$lib/components/layout/Metrics.svelte';
 	import {
@@ -181,16 +182,13 @@
 
 <div class="landscape">
 	<div class="controls">
-		<div class="control-row">
-			<span class="control-label">Distance</span>
-			<div class="radio-group">
-				<RadioButton value={'euclidienne'} label="euclidienne" bind:groupValue={norm} />
-				<RadioButton value={'manhattan'} label="manhattan" bind:groupValue={norm} />
-				<RadioButton value={'minkowski'} label="minkowski (p)" bind:groupValue={norm} />
-				<RadioButton value={'chebyshev'} label="chebyshev" bind:groupValue={norm} />
-				<RadioButton value={'mahalanobis'} label="mahalanobis (ρ)" bind:groupValue={norm} />
-			</div>
-		</div>
+		<RadioGroup label="Distance">
+			<RadioButton value={'euclidienne'} label="euclidienne" bind:groupValue={norm} />
+			<RadioButton value={'manhattan'} label="manhattan" bind:groupValue={norm} />
+			<RadioButton value={'minkowski'} label="minkowski (p)" bind:groupValue={norm} />
+			<RadioButton value={'chebyshev'} label="chebyshev" bind:groupValue={norm} />
+			<RadioButton value={'mahalanobis'} label="mahalanobis (ρ)" bind:groupValue={norm} />
+		</RadioGroup>
 		{#if norm === 'minkowski'}
 			<Slider min={1} max={10} step={0.5} bind:value={p} label="exposant p" />
 		{/if}
@@ -312,27 +310,6 @@
 	.controls {
 		display: grid;
 		gap: 0.75rem;
-	}
-
-	.control-row {
-		display: flex;
-		align-items: center;
-		gap: 0.75rem;
-		flex-wrap: wrap;
-	}
-
-	.control-label {
-		font-size: 0.7rem;
-		text-transform: uppercase;
-		letter-spacing: 0.04em;
-		color: var(--color-text-muted);
-		min-width: 4.5rem;
-	}
-
-	.radio-group {
-		display: flex;
-		gap: 0.4rem;
-		flex-wrap: wrap;
 	}
 
 	.plot {

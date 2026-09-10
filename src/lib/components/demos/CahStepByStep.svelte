@@ -2,6 +2,7 @@
 	import ScatterPlot from '$lib/components/charts/ScatterPlot.svelte';
 	import Slider from '$lib/components/controls/Slider.svelte';
 	import RadioButton from '$lib/components/controls/RadioButton.svelte';
+	import RadioGroup from '$lib/components/controls/RadioGroup.svelte';
 	import Button from '$lib/components/controls/Button.svelte';
 	import Metrics from '$lib/components/layout/Metrics.svelte';
 	import KatexInline from '$lib/components/narrative/KatexInline.svelte';
@@ -184,21 +185,15 @@
 
 <div class="cah-demo">
 	<div class="controls">
-		<div class="control-row">
-			<span class="control-label">jeu de données</span>
-			<div class="radio-group">
-				<RadioButton value="blobs" label="3 nuages" bind:groupValue={dataset} />
-				<RadioButton value="lines" label="2 lignes" bind:groupValue={dataset} />
-			</div>
-		</div>
-		<div class="control-row">
-			<span class="control-label">liaison</span>
-			<div class="radio-group">
-				{#each LINKAGES as l (l.key)}
-					<RadioButton value={l.key} label={l.label} bind:groupValue={linkage} />
-				{/each}
-			</div>
-		</div>
+		<RadioGroup label="jeu de données">
+			<RadioButton value="blobs" label="3 nuages" bind:groupValue={dataset} />
+			<RadioButton value="lines" label="2 lignes" bind:groupValue={dataset} />
+		</RadioGroup>
+		<RadioGroup label="liaison">
+			{#each LINKAGES as l (l.key)}
+				<RadioButton value={l.key} label={l.label} bind:groupValue={linkage} />
+			{/each}
+		</RadioGroup>
 		<div class="control-row sliders">
 			<Slider min={0} max={N - 1} step={1} bind:value={t} label="étape t" />
 			<Slider min={2} max={12} step={1} bind:value={K} label="coupe K" />
@@ -447,19 +442,6 @@
 		align-items: center;
 		gap: 0.75rem;
 		flex-wrap: wrap;
-	}
-
-	.control-label {
-		min-width: 7.5rem;
-		font-size: 0.875rem;
-		font-weight: 500;
-		color: var(--color-text);
-	}
-
-	.radio-group {
-		display: flex;
-		flex-wrap: wrap;
-		gap: 0.25rem;
 	}
 
 	.sliders {

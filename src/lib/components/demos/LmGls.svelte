@@ -74,10 +74,7 @@
 		σ²(Xᵀℱ⁻¹X)⁻¹ — plus petite. B = 300 tirages AR(1) seedés, ρ ajustable.
 	</p>
 
-	<div class="control-row">
-		<span class="control-label">corrélation AR(1) ρ</span>
-		<Slider min={0} max={0.9} step={0.05} bind:value={rho} label="rho" />
-	</div>
+	<Slider min={0} max={0.9} step={0.05} bind:value={rho} label="corrélation AR(1) ρ" />
 
 	<div class="grid2">
 		<div class="panel">
@@ -155,20 +152,6 @@
 		color: var(--color-text-muted);
 		font-size: 0.8125rem;
 		line-height: 1.5;
-	}
-
-	.control-row {
-		display: flex;
-		align-items: center;
-		gap: 0.75rem;
-		flex-wrap: wrap;
-	}
-
-	.control-label {
-		min-width: 11rem;
-		font-size: 0.875rem;
-		font-weight: 500;
-		color: var(--color-text);
 	}
 
 	.grid2 {

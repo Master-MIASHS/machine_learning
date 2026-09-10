@@ -1,6 +1,7 @@
 <script lang="ts">
 	import ScatterPlot from '$lib/components/charts/ScatterPlot.svelte';
 	import RadioButton from '$lib/components/controls/RadioButton.svelte';
+	import RadioGroup from '$lib/components/controls/RadioGroup.svelte';
 	import Metrics from '$lib/components/layout/Metrics.svelte';
 	import {
 		generateBlobs,
@@ -107,14 +108,11 @@
 
 <div class="partition">
 	<div class="controls">
-		<div class="control-row">
-			<span class="control-label">Cluster inspecté</span>
-			<div class="radio-group">
-				<RadioButton value={1} label="1" bind:groupValue={inspected} />
-				<RadioButton value={2} label="2" bind:groupValue={inspected} />
-				<RadioButton value={3} label="3" bind:groupValue={inspected} />
-			</div>
-		</div>
+		<RadioGroup label="Cluster inspecté">
+			<RadioButton value={1} label="1" bind:groupValue={inspected} />
+			<RadioButton value={2} label="2" bind:groupValue={inspected} />
+			<RadioButton value={3} label="3" bind:groupValue={inspected} />
+		</RadioGroup>
 		<p class="hint">
 			Cliquez sur un point (ou ciblez-le au clavier avec Tab et validez avec Entrée) pour le
 			passer dans le cluster suivant.
@@ -249,27 +247,6 @@
 	.controls {
 		display: grid;
 		gap: 0.5rem;
-	}
-
-	.control-row {
-		display: flex;
-		align-items: center;
-		gap: 0.75rem;
-		flex-wrap: wrap;
-	}
-
-	.control-label {
-		font-size: 0.7rem;
-		text-transform: uppercase;
-		letter-spacing: 0.04em;
-		color: var(--color-text-muted);
-		min-width: 4.5rem;
-	}
-
-	.radio-group {
-		display: flex;
-		gap: 0.4rem;
-		flex-wrap: wrap;
 	}
 
 	.hint {

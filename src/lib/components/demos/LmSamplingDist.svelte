@@ -77,18 +77,9 @@
 	</p>
 
 	<div class="controls">
-		<div class="control-row">
-			<span class="control-label">n (observations)</span>
-			<Slider min={5} max={40} step={1} bind:value={n} label="n" />
-		</div>
-		<div class="control-row">
-			<span class="control-label">σ (bruit)</span>
-			<Slider min={0.5} max={3} step={0.1} bind:value={sigma} label="sigma" />
-		</div>
-		<div class="control-row">
-			<span class="control-label">étalement de x ∈ [0, s]</span>
-			<Slider min={2} max={20} step={1} bind:value={spread} label="etalage de x" />
-		</div>
+		<Slider min={5} max={40} step={1} bind:value={n} label="n (observations)" />
+		<Slider min={0.5} max={3} step={0.1} bind:value={sigma} label="σ (bruit)" />
+		<Slider min={2} max={20} step={1} bind:value={spread} label="étalement de x ∈ [0, s]" />
 	</div>
 
 	<div class="grid2">
@@ -183,20 +174,6 @@
 		display: grid;
 		grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr));
 		gap: 0.9rem;
-	}
-
-	.control-row {
-		display: flex;
-		align-items: center;
-		gap: 0.75rem;
-		flex-wrap: wrap;
-	}
-
-	.control-label {
-		min-width: 9rem;
-		font-size: 0.875rem;
-		font-weight: 500;
-		color: var(--color-text);
 	}
 
 	.grid2 {

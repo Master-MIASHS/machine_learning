@@ -1,3 +1,11 @@
+<script module lang="ts">
+	// Instance counter: the label text is not a valid HTML id (spaces,
+	// accents, parentheses), so each slider gets a unique id instead.
+	// Incremented in tree order on both server (prerender) and client
+	// (hydration), so ids stay stable across the round-trip.
+	let sliderId = 0;
+</script>
+
 <script lang="ts">
 	interface Props {
 		min: number;
@@ -24,6 +32,8 @@
 		onchange,
 		showLabel = true
 	}: Props = $props();
+
+	const inputId = `slider-${++sliderId}`;
 
 	// For logarithmic: map slider position [0,1] to [min,max] on log scale
 	const sliderPos = $derived(logarithmic ? toLog(value) : value);
@@ -60,12 +70,12 @@
 <div class="slider-container" class:is-disabled={disabled}>
 	<div class="slider-header">
 		{#if showLabel}
-			<label for={label} class="slider-label">{label}</label>
+			<label for={inputId} class="slider-label">{label}</label>
 		{/if}
 		<span class="slider-value">{displayValue}{unit ? ' ' + unit : ''}</span>
 	</div>
 	<input
-		id={label}
+		id={inputId}
 		type="range"
 		min={logarithmic ? 0 : min}
 		max={logarithmic ? 1 : max}

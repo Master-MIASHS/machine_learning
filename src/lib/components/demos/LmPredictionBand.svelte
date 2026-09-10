@@ -82,15 +82,8 @@
 		levier <KatexInline formula={String.raw`v_0^{\mathrm{T}}(X^{\mathrm{T}}X)^{-1}v_0`} />.
 	</p>
 
-	<div class="control-row">
-		<span class="control-label">valeur de prédiction x₀</span>
-		<Slider min={0} max={10} step={0.1} bind:value={x0} label="x0" />
-	</div>
-
-	<div class="control-row">
-		<span class="control-label">seuil α (bandes à (1−α)·100 %)</span>
-		<Slider min={0.01} max={0.2} step={0.01} bind:value={alpha} label="alpha" />
-	</div>
+	<Slider min={0} max={10} step={0.1} bind:value={x0} label="valeur de prédiction x₀" />
+	<Slider min={0.01} max={0.2} step={0.01} bind:value={alpha} label="seuil α (bandes à (1−α)·100 %)" />
 
 	<!-- SVG manuel : fallback tant qu'aucune chart component ne supporte les bandes. -->
 	<svg viewBox={`0 0 ${W} ${H}`} class="plot" role="img" aria-label="Bandes de confiance et de prédiction autour de la droite ajustée">
@@ -177,19 +170,6 @@
 		line-height: 1.5;
 	}
 
-	.control-row {
-		display: flex;
-		align-items: center;
-		gap: 0.75rem;
-		flex-wrap: wrap;
-	}
-
-	.control-label {
-		min-width: 11rem;
-		font-size: 0.875rem;
-		font-weight: 500;
-		color: var(--color-text);
-	}
 
 	.plot {
 		display: block;

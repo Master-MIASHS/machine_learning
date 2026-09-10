@@ -3,6 +3,7 @@
 	import CurveChart from '$lib/components/charts/CurveChart.svelte';
 	import Slider from '$lib/components/controls/Slider.svelte';
 	import RadioButton from '$lib/components/controls/RadioButton.svelte';
+	import RadioGroup from '$lib/components/controls/RadioGroup.svelte';
 	import Metrics from '$lib/components/layout/Metrics.svelte';
 	import {
 		generateBlobs,
@@ -166,13 +167,10 @@
 
 <div class="cc-demo">
 	<div class="controls">
-		<div class="control-row">
-			<span class="control-label">mode</span>
-			<div class="radio-group">
-				<RadioButton value="k" label="fixer K" bind:groupValue={mode} />
-				<RadioButton value="r" label="seuil r" bind:groupValue={mode} />
-			</div>
-		</div>
+		<RadioGroup label="mode">
+			<RadioButton value="k" label="fixer K" bind:groupValue={mode} />
+			<RadioButton value="r" label="seuil r" bind:groupValue={mode} />
+		</RadioGroup>
 		{#if mode === 'k'}
 			<Slider min={K_MIN} max={K_MAX} step={1} bind:value={K} label="nombre de clusters K" />
 		{:else}
@@ -255,26 +253,6 @@
 	.controls {
 		display: grid;
 		gap: 0.9rem;
-	}
-
-	.control-row {
-		display: flex;
-		align-items: center;
-		gap: 0.75rem;
-		flex-wrap: wrap;
-	}
-
-	.control-label {
-		min-width: 7.5rem;
-		font-size: 0.875rem;
-		font-weight: 500;
-		color: var(--color-text);
-	}
-
-	.radio-group {
-		display: flex;
-		flex-wrap: wrap;
-		gap: 0.25rem;
 	}
 
 	.grid {

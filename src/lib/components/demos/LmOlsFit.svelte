@@ -81,14 +81,8 @@
 
 	<div class="controls">
 		<div class="sliders-group">
-			<div class="control-row">
-				<span class="control-label">intercept β0</span>
-				<Slider min={B0_MIN} max={B0_MAX} step={0.1} bind:value={b0} label="intercept beta0" />
-			</div>
-			<div class="control-row">
-				<span class="control-label">pente β1</span>
-				<Slider min={B1_MIN} max={B1_MAX} step={0.05} bind:value={b1} label="pente beta1" />
-			</div>
+			<Slider min={B0_MIN} max={B0_MAX} step={0.1} bind:value={b0} label="intercept β0" />
+			<Slider min={B1_MIN} max={B1_MAX} step={0.05} bind:value={b1} label="pente β1" />
 		</div>
 		<div class="control-row">
 			<Button onclick={snapToOls}>Moindres carrés (β̂)</Button>
@@ -213,13 +207,6 @@
 		align-items: center;
 		gap: 0.75rem;
 		flex-wrap: wrap;
-	}
-
-	.control-label {
-		min-width: 7.5rem;
-		font-size: 0.875rem;
-		font-weight: 500;
-		color: var(--color-text);
 	}
 
 	.grid {

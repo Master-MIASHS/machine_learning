@@ -99,10 +99,7 @@
 
 	<div class="panel">
 		<h3>un régresseur : Var(β̂1) = σ² / Σ(xi − x̄)²</h3>
-		<div class="control-row">
-			<span class="control-label">étalement de x ∈ [0, étalement]</span>
-			<Slider min={SPREAD_MIN} max={SPREAD_MAX} step={1} bind:value={spread} label="etalage de x" />
-		</div>
+		<Slider min={SPREAD_MIN} max={SPREAD_MAX} step={1} bind:value={spread} label="étalement de x ∈ [0, s]" />
 
 		<div class="conf-bracket" class:hot={isVeryConcentrated}>
 			<div class="conf-track">
@@ -163,10 +160,7 @@
 
 	<div class="panel">
 		<h3>deux régresseurs corrélés : SE(β̂j) = σ̂·√((XᵀX)⁻¹ⱼⱼ)</h3>
-		<div class="control-row">
-			<span class="control-label">corrélation ρ(x1, x2)</span>
-			<Slider min={0} max={0.95} step={0.05} bind:value={rho} label="correlation rho" />
-		</div>
+		<Slider min={0} max={0.95} step={0.05} bind:value={rho} label="corrélation ρ(x1, x2)" />
 		<Metrics>
 			<div class="cell">
 				<span class="label">SE(β̂1)</span>
@@ -224,20 +218,6 @@
 	.panel h3 {
 		margin: 0;
 		font-size: 0.875rem;
-		color: var(--color-text);
-	}
-
-	.control-row {
-		display: flex;
-		align-items: center;
-		gap: 0.75rem;
-		flex-wrap: wrap;
-	}
-
-	.control-label {
-		min-width: 11rem;
-		font-size: 0.875rem;
-		font-weight: 500;
 		color: var(--color-text);
 	}
 
