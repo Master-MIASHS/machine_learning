@@ -144,15 +144,15 @@
 	<defs>
 		<!-- Background -->
 		<radialGradient id="bg" cx="50%" cy="45%" r="85%">
-			<stop offset="0%" stop-color="#1e293b" />
-			<stop offset="100%" stop-color="#020617" />
+			<stop offset="0%" stop-color="var(--color-surface-3)" />
+			<stop offset="100%" stop-color="var(--color-bg)" />
 		</radialGradient>
 
 		<!-- Arrow gradient -->
 		<linearGradient id="vectorGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-			<stop offset="0%" stop-color="#38bdf8" />
-			<stop offset="50%" stop-color="#818cf8" />
-			<stop offset="100%" stop-color="#fb7185" />
+			<stop offset="0%" stop-color="var(--color-belief)" />
+			<stop offset="50%" stop-color="var(--color-agent)" />
+			<stop offset="100%" stop-color="var(--color-surprise)" />
 		</linearGradient>
 
 		<!-- Glow -->

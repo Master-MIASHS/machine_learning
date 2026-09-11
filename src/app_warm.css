@@ -52,13 +52,13 @@
 		--color-text: #23232e;
 		--color-text-muted: #6b6b80;
 
-		--color-belief: #0284c7;
+		--color-belief: #0369a1; /* sky-800 — AA 4.5:1 sur fond clair */
 		--color-evidence: #23232e;
-		--color-positive: #16a34a;
+		--color-positive: #166534; /* green-800 — AA 4.5:1 sur fond clair */
 		--color-surprise: #e11d48;
 		--color-negative: #dc2626;
 		--color-epistemic: #9333ea;
-		--color-neutral: #d97706;
+		--color-neutral: #92400e; /* amber-900 — AA 4.5:1 sur fond clair */
 		--color-agent: #4f46e5;
 	}
 }

@@ -33,7 +33,7 @@
 		colorBy,
 		sizeBy,
 		defaultSize = 4,
-		defaultColor = '#3b82f6',
+		defaultColor = 'var(--color-belief)',
 		showAxes = true,
 		showLabels = false,
 		snippetOverlay

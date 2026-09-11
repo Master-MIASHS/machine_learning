@@ -93,8 +93,8 @@
 		border-color: var(--color-belief);
 	}
 	.btn-primary:hover:not(:disabled) {
-		background: #0891b2;
-		border-color: #0891b2;
+		background: color-mix(in srgb, var(--color-belief) 82%, black);
+		border-color: color-mix(in srgb, var(--color-belief) 82%, black);
 	}
 
 	.btn-danger {
@@ -103,8 +103,8 @@
 		border-color: var(--color-surprise);
 	}
 	.btn-danger:hover:not(:disabled) {
-		background: #e11d48;
-		border-color: #e11d48;
+		background: color-mix(in srgb, var(--color-surprise) 82%, black);
+		border-color: color-mix(in srgb, var(--color-surprise) 82%, black);
 	}
 
 	.btn-ghost {

@@ -69,6 +69,7 @@
     aria-valuemin={min}
     aria-valuemax={max}
     aria-valuenow={value}
+    aria-valuetext={displayVal}
     tabindex="0"
     onmousedown={onmousedown}
     onkeydown={onkeydown}
