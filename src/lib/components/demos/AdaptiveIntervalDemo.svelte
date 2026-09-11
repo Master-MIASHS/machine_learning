@@ -3,6 +3,7 @@
 	import SliderGrid from '$lib/components/layout/SliderGrid.svelte';
 	import Slider from '$lib/components/controls/Slider.svelte';
 	import KatexInline from '$lib/components/narrative/KatexInline.svelte';
+	import { mulberry32 } from '$lib/math/util';
 
 	// ─── Constants ──────────────────────────────────────────────
 	const PLOT_W = 420;
@@ -28,16 +29,7 @@
 	const F_COVERAGE = String.raw`P(y \in C(x)) \geq 1 - \alpha`;
 	const F_NORM_SCORE = String.raw`|y_i - \hat{f}(x_i)| / \sigma(x_i)`;
 
-	// ─── Seeded PRNG ────────────────────────────────────────────
-	function mulberry32(seed: number): () => number {
-		return function () {
-			seed |= 0;
-			seed = (seed + 0x6d2b79f5) | 0;
-			let t = Math.imul(seed ^ (seed >>> 15), 1 | seed);
-			t = (t + Math.imul(t ^ (t >>> 7), 61 | seed)) ^ t;
-			return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
-		};
-	}
+
 
 	function boxMuller(rng: () => number): number {
 		let u = 0,
@@ -551,14 +543,14 @@
 				y={PAD.top - 14}
 				font-size="11"
 				font-weight="700"
-				fill="var(--color-accent, #a78bfa)">Adaptatif</text
+				fill="var(--color-epistemic)">Adaptatif</text
 			>
 
 			<g clip-path="url(#adapt-clip)">
 				<!-- Adaptive band -->
-				<path d={adaptBandPath} fill="var(--color-accent, #a78bfa)" opacity="0.13" />
+				<path d={adaptBandPath} fill="var(--color-epistemic)" opacity="0.13" />
 				<!-- True model curve -->
-				<path d={curvePathR} fill="none" stroke="var(--color-accent, #a78bfa)" stroke-width="2" />
+				<path d={curvePathR} fill="none" stroke="var(--color-epistemic)" stroke-width="2" />
 				<!-- Calibration points (offset) -->
 				{#each raw.calX as cx, i}
 					<circle
@@ -875,7 +867,7 @@
 	}
 
 	.metric-method.accent {
-		color: var(--color-accent, #a78bfa);
+		color: var(--color-epistemic);
 	}
 
 	.metric-value {
@@ -1010,7 +1002,7 @@
 	.legend-curve-adapt {
 		width: 20px;
 		height: 3px;
-		background: var(--color-accent, #a78bfa);
+		background: var(--color-epistemic);
 		border-radius: 2px;
 	}
 
@@ -1025,7 +1017,7 @@
 	.legend-band-adapt {
 		width: 20px;
 		height: 10px;
-		background: var(--color-accent, #a78bfa);
+		background: var(--color-epistemic);
 		opacity: 0.18;
 		border-radius: 2px;
 	}

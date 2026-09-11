@@ -1,16 +1,20 @@
 <script lang="ts">
 	import Slider from '$lib/components/controls/Slider.svelte';
 	import Metrics from '$lib/components/layout/Metrics.svelte';
+	import { mulberry32 } from '$lib/math/util';
+
+	// PRNG seedé : tirages reproductibles, et « Regénérer » avance la suite.
+	const rng = mulberry32(42);
 
 	let m = $state(50);
 	const maxM = 200;
 
-	let bias = $state(0.1 + Math.random() * 0.3);
-	let noiseVar = $state(0.2 + Math.random() * 0.4);
+	let bias = $state(0.1 + rng() * 0.3);
+	let noiseVar = $state(0.2 + rng() * 0.4);
 
 	function regenerate() {
-		bias = 0.1 + Math.random() * 0.3;
-		noiseVar = 0.2 + Math.random() * 0.4;
+		bias = 0.1 + rng() * 0.3;
+		noiseVar = 0.2 + rng() * 0.4;
 	}
 
 	const mseValues = $derived.by(() => {

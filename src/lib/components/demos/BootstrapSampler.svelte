@@ -3,6 +3,11 @@
 	import Slider from '$lib/components/controls/Slider.svelte';
 	import Button from '$lib/components/controls/Button.svelte';
 	import Metrics from '$lib/components/layout/Metrics.svelte';
+	import { mulberry32 } from '$lib/math/util';
+
+	// PRNG partagé et seedé : chaque tirage consomme la suite (différent à
+	// chaque clic « Nouveau tirage », reproductible d'une session à l'autre).
+	const rng = mulberry32(42);
 
 	// ── Animation handle (plain, not reactive — it's an implementation detail) ──
 	let animInterval: ReturnType<typeof setInterval> | null = null;
@@ -24,7 +29,7 @@
 	function generateSample(n: number): number[] {
 		const result = new Array(n).fill(0);
 		for (let i = 0; i < n; i++) {
-			const idx = Math.floor(Math.random() * n);
+			const idx = Math.floor(rng() * n);
 			result[idx]++;
 		}
 		return result;
@@ -54,7 +59,7 @@
 			animating = true;
 			const draws: number[] = [];
 			for (let i = 0; i < N; i++) {
-				draws.push(Math.floor(Math.random() * N));
+				draws.push(Math.floor(rng() * N));
 			}
 
 			animInterval = setInterval(
