@@ -6,6 +6,7 @@
 	import Slider from '$lib/components/controls/Slider.svelte';
 	import KatexInline from '$lib/components/narrative/KatexInline.svelte';
 	import { generateSyntheticData } from '$lib/math/bias-variance.js';
+	import { combineSeed, mulberry32 } from '$lib/math/util';
 
 	// ─── Controls ──────────────────────────────────────────────
 	let degree = $state(3);
@@ -18,6 +19,10 @@
 	const maxSamples = 200;
 	const NUM_FITS = 20;
 	const SUBSAMPLE_FRAC = 0.6;
+
+	// PRNG seedé par les paramètres courants : mêmes réglages → même
+	// décomposition (reproductible), réglages changés → nouveau tirage.
+	const bootRng = $derived(mulberry32(combineSeed(combineSeed(degree, numSamples), noiseStd)));
 
 	let synthData = $derived.by(() => generateSyntheticData(numSamples, noiseStd));
 
@@ -120,7 +125,7 @@
 
 		const predAcc: number[][] = evalXs.map(() => new Array(NUM_FITS).fill(0));
 		for (let r = 0; r < NUM_FITS; r++) {
-			const subIdx = Array.from({ length: subSz }, () => Math.floor(Math.random() * nT));
+			const subIdx = Array.from({ length: subSz }, () => Math.floor(bootRng() * nT));
 			const xsS = subIdx.map((i) => xsT[i]);
 			const ysS = subIdx.map((i) => ysT[i]);
 			const coefs = polyFit(xsS, ysS, degree);
@@ -147,7 +152,7 @@
 			subSz = Math.max(degree + 2, Math.floor(SUBSAMPLE_FRAC * nT));
 
 		return Array.from({ length: NUM_FITS }, () => {
-			const subIdx = Array.from({ length: subSz }, () => Math.floor(Math.random() * nT));
+			const subIdx = Array.from({ length: subSz }, () => Math.floor(bootRng() * nT));
 			const xsS = subIdx.map((i) => xsT[i]);
 			const ysS = subIdx.map((i) => ysT[i]);
 			const coefs = polyFit(xsS, ysS, degree);

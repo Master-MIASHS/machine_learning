@@ -10,6 +10,7 @@
 	import SliderGrid from '$lib/components/layout/SliderGrid.svelte';
 	import Slider from '$lib/components/controls/Slider.svelte';
 	import KatexInline from '$lib/components/narrative/KatexInline.svelte';
+	import { mulberry32 } from '$lib/math/util';
 
 	// ─── Constants ──────────────────────────────────────────────
 	const NUM_CLASSES = 3;
@@ -35,16 +36,7 @@
 	const HIST_PLOT_W = HIST_W - HIST_PAD.left - HIST_PAD.right;
 	const HIST_PLOT_H = HIST_H - HIST_PAD.top - HIST_PAD.bottom;
 
-	// ─── Seeded PRNG ────────────────────────────────────────────
-	function mulberry32(seed: number): () => number {
-		return function () {
-			seed |= 0;
-			seed = (seed + 0x6d2b79f5) | 0;
-			let t = Math.imul(seed ^ (seed >>> 15), 1 | seed);
-			t = (t + Math.imul(t ^ (t >>> 7), 61 | seed)) ^ t;
-			return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
-		};
-	}
+
 	const rand = mulberry32(42);
 
 	function boxMuller(rng: () => number): number {
