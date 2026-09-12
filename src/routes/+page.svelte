@@ -16,8 +16,7 @@
 		{#snippet heroCaption()}
 			Et les points qu'on n'a pas vus ?
 			<span class="hero-caption-note">
-				Animation illustrative d'un phénomène de sur-apprentissage — ce n'est pas une simulation
-				exacte d'un modèle du cours.
+				Animation illustrative d'un phénomène de sur-apprentissage.
 			</span>
 		{/snippet}
 
