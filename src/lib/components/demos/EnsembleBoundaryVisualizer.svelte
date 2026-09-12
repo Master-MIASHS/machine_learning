@@ -2,6 +2,11 @@
 	import { onDestroy } from 'svelte';
 	import Figure from '$lib/components/charts/Figure.svelte';
 	import Slider from '$lib/components/controls/Slider.svelte';
+	import { mulberry32 } from '$lib/math/util';
+
+	// PRNG seedé : mêmes tirages à chaque chargement ; « Régénérer » avance
+	// la suite.
+	const rng = mulberry32(42);
 
 	interface DataPoint {
 		x: number;
@@ -61,8 +66,8 @@
 		const half = Math.floor(n / 2);
 
 		for (let i = 0; i < n; i++) {
-			const angle = Math.random() * 2 * Math.PI;
-			const noise = () => (Math.random() - 0.5) * 0.08;
+			const angle = rng() * 2 * Math.PI;
+			const noise = () => (rng() - 0.5) * 0.08;
 			if (i < half) {
 				pts.push({
 					x: 0.5 + 0.28 * Math.cos(angle) + noise(),
@@ -93,7 +98,7 @@
 	function bootstrap(pts: DataPoint[]): DataPoint[] {
 		const sample: DataPoint[] = [];
 		for (let i = 0; i < pts.length; i++) {
-			sample.push(pts[Math.floor(Math.random() * pts.length)]);
+			sample.push(pts[Math.floor(rng() * pts.length)]);
 		}
 		return sample;
 	}
@@ -573,7 +578,7 @@
 			<div class="cell style-operator"></div>
 			<div class="cell">
 				<span class="label">Meilleur Stump</span>
-				<span class="value" style:color="var(--color-warn, #f59e0b)"
+				<span class="value" style:color="var(--color-neutral)"
 					>{(bestIndividualAccuracy * 100).toFixed(0)}%</span
 				>
 			</div>

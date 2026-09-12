@@ -64,6 +64,16 @@
 	const pad = 36; // Export du padding pour l'utiliser dans le clipPath
 
 	let trajectory: { x: number; y: number; fVal: number }[] = $state([]);
+	// Normes ‖∇f(x⁽ᵏ⁾)‖ accumulées pas à pas : mêmes valeurs et même ordre
+	// que l'ancien $derived, mais on n'évalue le gradient que pour le point
+	// nouvellement ajouté (coût O(1) par pas au lieu de recalculer tout
+	// l'historique à O(k), soit O(k²) sur une longue animation).
+	let gradNorms: number[] = $state([]);
+
+	function gradNormAt(x: number, y: number): number {
+		const g = func.grad(x, y);
+		return Math.max(1e-10, Math.hypot(g[0], g[1]));
+	}
 
 	const lastPoint = $derived(trajectory[trajectory.length - 1] ?? null);
 	const lastGrad = $derived.by((): [number, number] => {
@@ -86,6 +96,7 @@
 		diverged = false;
 		const sp = opt.startPoint;
 		trajectory = [{ x: sp[0], y: sp[1], fVal: func.f(sp[0], sp[1]) }];
+		gradNorms = [gradNormAt(sp[0], sp[1])];
 	}
 
 	function step() {
@@ -97,6 +108,7 @@
 
 		// Ajout du point non-clamped pour autoriser l'overflow mathématique et graphique
 		trajectory = [...trajectory, { x: nx, y: ny, fVal }];
+		gradNorms = [...gradNorms, gradNormAt(nx, ny)];
 
 		// On vérifie la divergence si on sort massivement des limites ou si la valeur diverge
 		if (
@@ -187,19 +199,12 @@
 		return segs;
 	});
 
-	const gradNormHistory = $derived.by(() =>
-		trajectory.map((pt) => {
-			const g = func.grad(pt.x, pt.y);
-			return Math.max(1e-10, Math.hypot(g[0], g[1]));
-		})
-	);
-
 	const sparkW = 400;
 	const sparkH = 90;
 	const sparkPad = { l: 34, r: 10, t: 8, b: 18 };
 
 	const sparkPath = $derived.by(() => {
-		const hist = gradNormHistory;
+		const hist = gradNorms;
 		if (hist.length < 2) return '';
 		const logs = hist.map((v) => Math.log10(v));
 		const lo = Math.min(...logs, -6);
@@ -350,11 +355,11 @@
 				stroke-width="1"
 			/>
 			<path d={sparkPath} fill="none" stroke={opt.color} stroke-width="2" />
-			{#if gradNormHistory.length > 0}
-				{@const lastIdx = gradNormHistory.length - 1}
+			{#if gradNorms.length > 0}
+				{@const lastIdx = gradNorms.length - 1}
 				<circle
 					cx={sparkPad.l +
-						(lastIdx / Math.max(1, gradNormHistory.length - 1)) *
+						(lastIdx / Math.max(1, gradNorms.length - 1)) *
 							(sparkW - sparkPad.l - sparkPad.r)}
 					cy={sparkH - sparkPad.b}
 					r="3.5"

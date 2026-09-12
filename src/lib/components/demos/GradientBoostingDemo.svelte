@@ -11,6 +11,7 @@
 	import Slider from '$lib/components/controls/Slider.svelte';
 	import Button from '$lib/components/controls/Button.svelte';
 	import { runGradientBoostingWithHistory, predictRegressionStump } from '$lib/math/boosting.js';
+	import { combineSeed, mulberry32 } from '$lib/math/util';
 
 	// ─── Configuration ──────────────────────────────────────────────
 
@@ -53,11 +54,15 @@
 	const funcOpt = $derived(funcDefs.find((f) => f.key === selectedFunc)!);
 	const targetFn = $derived(funcOpt.fn);
 
-	// Generate noisy y values when function or noise level changes.
+	// Generate noisy y values when function or noise level changes. The noise
+	// is seeded from (fonction, niveau) : mêmes réglages → mêmes données.
+	const funcIdx = $derived(funcDefs.findIndex((f) => f.key === selectedFunc));
 	$effect(() => {
 		const fn = targetFn;
 		const nl = noiseLevel;
-		dataYValues = FIXED_X.map((x) => fn(x) + (Math.random() - 0.5) * 2 * nl);
+		void funcIdx;
+		const rng = mulberry32(combineSeed(funcIdx + 1, Math.round(nl * 100)));
+		dataYValues = FIXED_X.map((x) => fn(x) + (rng() - 0.5) * 2 * nl);
 		currentStep = 0; // reset step when data regenerates
 	});
 

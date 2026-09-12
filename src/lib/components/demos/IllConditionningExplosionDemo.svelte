@@ -435,8 +435,8 @@
 	}
 
 	.setup-card.highlight {
-		border-color: var(--color-accent, #a78bfa);
-		background: color-mix(in srgb, var(--color-accent, #a78bfa) 8%, transparent);
+		border-color: var(--color-epistemic);
+		background: color-mix(in srgb, var(--color-epistemic) 8%, transparent);
 	}
 
 	.setup-label {
