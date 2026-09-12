@@ -1,0 +1,1 @@
+import{b as s,j as r}from"./DQFnlUmn.js";import{bh as i,_ as n,aW as c}from"./C9BqPIaa.js";import{j as m,s as p}from"./GySCNG03.js";var f=r('<section class="page-theory svelte-zvtbyt"><!></section>');function v(a,e){var t=f(),o=n(t);m(o,()=>e.children),c(t),i(()=>p(t,"id",e.id)),s(a,t)}export{v as T};
