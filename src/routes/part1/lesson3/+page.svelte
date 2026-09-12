@@ -1,5 +1,6 @@
 <script lang="ts">
 	import PageTemplate from '$lib/components/layout/PageTemplate.svelte';
+	import DeferredDemo from '$lib/components/layout/DeferredDemo.svelte';
 	import TheorySection from '$lib/components/narrative/TheorySection.svelte';
 	import InteractiveSection from '$lib/components/narrative/InteractiveSection.svelte';
 	import TheoremBlock from '$lib/components/narrative/TheoremBlock.svelte';
@@ -13,13 +14,8 @@
 	import BibElement from '$lib/components/narrative/bib/BibElement.svelte';
 	import { getPageByPath, getAdjacentPages } from '$lib/navigation.js';
 	import { settings } from '$lib/stores/index.js';
-
 	// Demo components
-	import GradientDescentAnimator from '$lib/components/demos/GradientDescentAnimator.svelte';
-	import LearningRateComparison from '$lib/components/demos/LearningRateComparison.svelte';
-	import MomentumVisualizer from '$lib/components/demos/MomentumVisualizer.svelte';
-	import NesterovExplorer from '$lib/components/demos/NesterovExplorer.svelte';
-	import TaylorStepVisualizer from '$lib/components/demos/TaylorStepVisualizer.svelte';
+
 	import { createPageTracker } from '$lib/stores/progress.svelte';
 	import type { PageMeta } from '$lib/navigation.js';
 	import Quiz from '$lib/components/narrative/Quiz.svelte';
@@ -224,7 +220,7 @@
 			title="Animation de la descente de gradient"
 			onInteract={tracker.trackInteraction}
 		>
-			<GradientDescentAnimator />
+			<DeferredDemo load={() => import('$lib/components/demos/GradientDescentAnimator.svelte')} />
 		</InteractiveSection>
 	</TheorySection>
 
@@ -288,7 +284,7 @@
 			title="Visualisation du pas de Taylor"
 			onInteract={tracker.trackInteraction}
 		>
-			<TaylorStepVisualizer />
+			<DeferredDemo load={() => import('$lib/components/demos/TaylorStepVisualizer.svelte')} />
 		</InteractiveSection>
 	</TheorySection>
 
@@ -336,7 +332,7 @@
 			title="Comparaison des pas d'apprentissage"
 			onInteract={tracker.trackInteraction}
 		>
-			<LearningRateComparison />
+			<DeferredDemo load={() => import('$lib/components/demos/LearningRateComparison.svelte')} />
 		</InteractiveSection>
 	</TheorySection>
 
@@ -411,7 +407,7 @@
 			title="Effet du momentum"
 			onInteract={tracker.trackInteraction}
 		>
-			<MomentumVisualizer />
+			<DeferredDemo load={() => import('$lib/components/demos/MomentumVisualizer.svelte')} />
 		</InteractiveSection>
 	</TheorySection>
 
@@ -445,7 +441,7 @@
 			title="Comparaison Nesterov vs Classique"
 			onInteract={tracker.trackInteraction}
 		>
-			<NesterovExplorer />
+			<DeferredDemo load={() => import('$lib/components/demos/NesterovExplorer.svelte')} />
 		</InteractiveSection>
 
 		<div class="synthesis-table">

@@ -1,17 +1,16 @@
 <script lang="ts">
 	import PageTemplate from '$lib/components/layout/PageTemplate.svelte';
+	import DeferredDemo from '$lib/components/layout/DeferredDemo.svelte';
 	import TheorySection from '$lib/components/narrative/TheorySection.svelte';
 	import InteractiveSection from '$lib/components/narrative/InteractiveSection.svelte';
 	import Callout from '$lib/components/narrative/Callout.svelte';
 	import ExpertPanel from '$lib/components/narrative/ExpertPanel.svelte';
 	import DefinitionBlock from '$lib/components/narrative/DefinitionBlock.svelte';
+	import TheoremBlock from '$lib/components/narrative/TheoremBlock.svelte';
 	import Bibliography from '$lib/components/narrative/bib/Bibliography.svelte';
 	import BibElement from '$lib/components/narrative/bib/BibElement.svelte';
 	import KatexBlock from '$lib/components/narrative/KatexBlock.svelte';
 	import KatexInline from '$lib/components/narrative/KatexInline.svelte';
-	import ConformalPredictionDemo from '$lib/components/demos/ConformalPredictionDemo.svelte';
-	import ConformityScoreComparison from '$lib/components/demos/ConformityScoreComparison.svelte';
-	import QuantileThresholdVisualizer from '$lib/components/demos/QuantileThresholdVisualizer.svelte';
 	import TableOfContents from '$lib/components/narrative/TableOfContents.svelte';
 	import { getPageByPath, getAdjacentPages, type PageMeta } from '$lib/navigation.js';
 	import { settings } from '$lib/stores/index.js';
@@ -144,14 +143,14 @@
 			général légèrement plus larges.
 		</p>
 
-		<Callout type="definition" title="Score de non-conformité">
+		<DefinitionBlock number="6.3" title="Score de non-conformité">
 			Un <strong>score de non-conformité</strong> (le terme standard de la littérature, cf. Vovk et
 			al. 2005 — on parle parfois improprement de « score de conformité ») est une fonction
 			<KatexInline formula={F_SCORE_DEF} />
 			qui mesure à quel point une paire <KatexInline formula="(x, y)" /> est <em>atypique</em> pour
 			le modèle appris. Plus le score est <em>faible</em>, plus la paire est conforme — le nom du
 			score porte sur ce qu'il mesure (l'atypicité), pas sur le sens de l'échelle.
-		</Callout>
+		</DefinitionBlock>
 	</TheorySection>
 
 	<!-- ═══════════ Algorithme ═══════════ -->
@@ -164,7 +163,7 @@
 			<KatexInline formula={F_DCAL} />.
 		</p>
 
-		<ExpertPanel title="Algorithme pas à pas">
+		<ExpertPanel title="Algorithme 6.2 — Prédiction conformelle, pas à pas">
 			<p>
 				<strong>Étape 1 — Entraînement :</strong> Apprendre un classificateur
 				<KatexInline formula={F_HAT_F} /> sur <KatexInline formula={F_DTRAIN} />.
@@ -186,24 +185,24 @@
 		</ExpertPanel>
 	</TheorySection>
 
-	<!-- ═══════════ Démo 10.1 — Pipeline animé ═══════════ -->
+	<!-- ═══════════ Démo 2.1 — Pipeline animé ═══════════ -->
 	<InteractiveSection
-		number="10.1"
+		number="2.1"
 		title="Construction conforme pas à pas"
 		onInteract={tracker.trackInteraction}
 	>
-		<ConformalPredictionDemo />
+		<DeferredDemo load={() => import('$lib/components/demos/ConformalPredictionDemo.svelte')} />
 	</InteractiveSection>
 
 	<!-- ═══════════ Garantie théorique ═══════════ -->
 	<TheorySection>
 		<h2 id="garantie-couverture">Garantie de couverture</h2>
 
-		<Callout type="definition" title="Théorème — Garantie de couverture">
+		<TheoremBlock number="6.1" title="Garantie de couverture">
 			Sous l'hypothèse
 			<strong>d'échangeabilité</strong> (plus faible que i.i.d.) des données
 			<KatexInline formula={F_EXCH_DATA} />, la prédiction conformelle garantit :
-		</Callout>
+		</TheoremBlock>
 
 		<KatexBlock formula={F_COVERAGE_THEOREM} />
 
@@ -229,7 +228,7 @@
 			grandit.
 		</p>
 
-		<DefinitionBlock number="10.1" title="Couverture marginale vs. couverture conditionnelle">
+		<DefinitionBlock title="Couverture marginale vs. couverture conditionnelle">
 			<p>
 				Il faut lire <KatexInline formula={F_COVERAGE_THEOREM} /> précisément : la probabilité est prise
 				sur le tirage conjoint de <KatexInline formula="(X, Y)" /> — c'est une garantie
@@ -266,8 +265,8 @@
 		</Callout>
 	</TheorySection>
 
-	<!-- ═══════════ Démo 10.3 — Vérification de la couverture ═══════════ -->
-	<!-- <InteractiveSection tag="Démo 10.3">
+	<!-- ═══════════ Vérification de la couverture (désactivée) ═══════════ -->
+	<!-- <InteractiveSection>
 		<CoverageVerifier />
 	</InteractiveSection> -->
 
@@ -400,7 +399,7 @@
 			prédiction d'ensembles conformes — cet article n'est pas traité dans les notes. Dans cette
 			littérature, ce type de score vise à approcher la couverture conditionnelle par rapport au score
 			<KatexInline formula={F_1MINUSP} /> — sans l'atteindre exactement, pour la raison donnée plus haut
-			(10.1).
+			(section « Couverture marginale vs conditionnelle »).
 		</Callout>
 
 		<p>
@@ -410,13 +409,13 @@
 		</p>
 	</TheorySection>
 
-	<!-- ═══════════ Démo 10.2 — Comparaison des scores ═══════════ -->
+	<!-- ═══════════ Démo 2.2 — Comparaison des scores ═══════════ -->
 	<InteractiveSection
-		number="10.2"
+		number="2.2"
 		title="Séries de confiance"
 		onInteract={tracker.trackInteraction}
 	>
-		<ConformityScoreComparison />
+		<DeferredDemo load={() => import('$lib/components/demos/ConformityScoreComparison.svelte')} />
 	</InteractiveSection>
 
 	<!-- ═══════════ Le quantile ═══════════ -->
@@ -447,13 +446,13 @@
 		</Callout>
 	</TheorySection>
 
-	<!-- ═══════════ Démo 10.4 — Visualisation du quantile ═══════════ -->
+	<!-- ═══════════ Démo 2.3 — Visualisation du quantile ═══════════ -->
 	<InteractiveSection
-		number="10.4"
+		number="2.3"
 		title="L'effet du niveau de confiance"
 		onInteract={tracker.trackInteraction}
 	>
-		<QuantileThresholdVisualizer />
+		<DeferredDemo load={() => import('$lib/components/demos/QuantileThresholdVisualizer.svelte')} />
 	</InteractiveSection>
 
 	<!-- ═══════════ Synthèse ═══════════ -->
@@ -489,7 +488,7 @@
 		</p>
 
 		<InteractiveSection
-			number="10.5"
+			number="2.4"
 			title="Quiz — Prédiction conformelle"
 			onInteract={tracker.trackInteraction}
 		>

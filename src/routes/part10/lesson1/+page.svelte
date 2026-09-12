@@ -1,5 +1,6 @@
 <script lang="ts">
 	import PageTemplate from '$lib/components/layout/PageTemplate.svelte';
+	import DeferredDemo from '$lib/components/layout/DeferredDemo.svelte';
 	import TheorySection from '$lib/components/narrative/TheorySection.svelte';
 	import TableOfContents from '$lib/components/narrative/TableOfContents.svelte';
 	import Callout from '$lib/components/narrative/Callout.svelte';
@@ -10,7 +11,6 @@
 	import KatexBlock from '$lib/components/narrative/KatexBlock.svelte';
 	import Bibliography from '$lib/components/narrative/bib/Bibliography.svelte';
 	import BibElement from '$lib/components/narrative/bib/BibElement.svelte';
-	import CalibratedLossExplorer from '$lib/components/demos/CalibratedLossExplorer.svelte';
 	import { getPageByPath, getAdjacentPages } from '$lib/navigation.js';
 	import { settings } from '$lib/stores/index.js';
 	import { createPageTracker } from '$lib/stores/progress.svelte';
@@ -261,7 +261,7 @@
 				vers 0 : la pente <KatexInline formula={"\\varphi'(0)"} /> qui s'y lit est précisément la quantité
 				sur laquelle reposera le critère de calibration.
 			</p>
-			<CalibratedLossExplorer />
+			<DeferredDemo load={() => import('$lib/components/demos/CalibratedLossExplorer.svelte')} />
 		</InteractiveSection>
 
 		<h2 id="logistique-cross-entropy">Logistique et cross-entropy : la même perte</h2>

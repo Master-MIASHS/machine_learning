@@ -1,5 +1,6 @@
 <script lang="ts">
 	import PageTemplate from '$lib/components/layout/PageTemplate.svelte';
+	import DeferredDemo from '$lib/components/layout/DeferredDemo.svelte';
 	import TheorySection from '$lib/components/narrative/TheorySection.svelte';
 	import InteractiveSection from '$lib/components/narrative/InteractiveSection.svelte';
 	import DefinitionBlock from '$lib/components/narrative/DefinitionBlock.svelte';
@@ -10,14 +11,7 @@
 	import KatexInline from '$lib/components/narrative/KatexInline.svelte';
 	import Bibliography from '$lib/components/narrative/bib/Bibliography.svelte';
 	import BibElement from '$lib/components/narrative/bib/BibElement.svelte';
-
 	// Demo components
-	import BiasVarianceDecomposition from '$lib/components/demos/BiasVarianceDecomposition.svelte';
-	import RegularizationContour from '$lib/components/demos/RegularizationContour.svelte';
-	import LassoPathExplorer from '$lib/components/demos/LassoPathExplorer.svelte';
-	import ElasticNetBlend from '$lib/components/demos/ElasticNetBlend.svelte';
-	import ShrinkageFactorDemo from '$lib/components/demos/ShrinkageFactorDemo.svelte';
-	import IllConditionningExplosionDemo from '$lib/components/demos/IllConditionningExplosionDemo.svelte';
 
 	import TableOfContents from '$lib/components/narrative/TableOfContents.svelte';
 	import { getPageByPath, getAdjacentPages, type PageMeta } from '$lib/navigation.js';
@@ -247,7 +241,7 @@
 
 		<KatexBlock formula={negLogLik} />
 
-		<DefinitionBlock number="8.0" title="Moindres carrés = maximum de vraisemblance">
+		<DefinitionBlock title="Moindres carrés = maximum de vraisemblance">
 			<p>
 				Minimiser <KatexInline formula={'\\|y - Xw\\|_2^2'} /> n'est donc pas un choix arbitraire de distance
 				: c'est exactement le <strong>maximum de vraisemblance (MLE)</strong> sous le modèle
@@ -338,11 +332,11 @@
 		</ExpertPanel>
 
 		<InteractiveSection
-			number="8.1"
+			number="4.1"
 			title="Décomposition biais-variance"
 			onInteract={tracker.trackInteraction}
 		>
-			<BiasVarianceDecomposition />
+			<DeferredDemo load={() => import('$lib/components/demos/BiasVarianceDecomposition.svelte')} />
 		</InteractiveSection>
 	</TheorySection>
 
@@ -359,7 +353,7 @@
 			d'une solution fermée élégante.
 		</p>
 
-		<DefinitionBlock number="8.1" title="Ridge Regression">
+		<DefinitionBlock number="5.1" title="Ridge Regression">
 			<p>
 				Soit <KatexInline formula={'y \\in \\mathbb{R}^n'} /> le vecteur réponse et
 				<KatexInline formula={'X \\in \\mathbb{R}^{n \\times p}'} /> la matrice de design, dont les colonnes
@@ -405,11 +399,11 @@
 		</p>
 
 		<InteractiveSection
-			number="8.2"
+			number="4.2"
 			title="Contours de régularisation"
 			onInteract={tracker.trackInteraction}
 		>
-			<RegularizationContour />
+			<DeferredDemo load={() => import('$lib/components/demos/RegularizationContour.svelte')} />
 		</InteractiveSection>
 
 		<h3>Réduction dans les directions propres</h3>
@@ -436,11 +430,11 @@
 		</p>
 
 		<InteractiveSection
-			number="8.5"
+			number="4.3"
 			title="Facteurs de rétrécissement"
 			onInteract={tracker.trackInteraction}
 		>
-			<ShrinkageFactorDemo />
+			<DeferredDemo load={() => import('$lib/components/demos/ShrinkageFactorDemo.svelte')} />
 		</InteractiveSection>
 
 		<h3>Degrés de liberté effectifs</h3>
@@ -520,7 +514,7 @@
 				formula={String.raw`\kappa(A)`}
 			/> :
 		</p>
-		<DefinitionBlock number="8.4" title="Conditionnement d'une matrice (norme L2)">
+		<DefinitionBlock title="Conditionnement d'une matrice (norme L2)">
 			<KatexBlock
 				formula={String.raw`\kappa(A) = \|A\|_2 \cdot \|A^{-1}\|_2 = \frac{\sigma_{\max}(A)}{\sigma_{\min}(A)}`}
 			/>
@@ -634,11 +628,11 @@
 		</Callout>
 
 		<InteractiveSection
-			number="8.5.bis"
+			number="4.4"
 			title="Conditionnement"
 			onInteract={tracker.trackInteraction}
 		>
-			<IllConditionningExplosionDemo />
+			<DeferredDemo load={() => import('$lib/components/demos/IllConditionningExplosionDemo.svelte')} />
 		</InteractiveSection>
 	</ExpertPanel>
 
@@ -659,7 +653,7 @@
 			<strong>sélection automatique de variables</strong>.
 		</p>
 
-		<DefinitionBlock number="8.2" title="Lasso Regression">
+		<DefinitionBlock number="5.2" title="Lasso Regression">
 			<p>Le solveur Lasso minimise l'objectif suivant :</p>
 			<KatexBlock formula={lassoObjective} />
 			<p>La contrainte équivalente en formulation bornée est :</p>
@@ -725,21 +719,18 @@
 		</p>
 
 		<InteractiveSection
-			number="8.3"
+			number="4.5"
 			title="Parcours des coefficients Lasso"
 			onInteract={tracker.trackInteraction}
 		>
-			<LassoPathExplorer />
+			<DeferredDemo load={() => import('$lib/components/demos/LassoPathExplorer.svelte')} />
 		</InteractiveSection>
 
 		<h3>Algorithme LARS (Least Angle Regression)</h3>
 
 		<p>L'algorithme LARS calcule efficacement tout le lasso path :</p>
 
-		<DefinitionBlock
-			number="8.3.bis"
-			title="Algorithme LARS (Least Angle Regression, Algorithme 5.1 des notes)"
-		>
+		<DefinitionBlock number="5.1" title="Algorithme LARS (Least Angle Regression)">
 			<ol>
 				<li>
 					<strong>Initialisation</strong> : tous les coefficients à zéro, résidu
@@ -794,7 +785,7 @@
 			instable face à des variables corrélées, et la limitation à n variables quand p > n.
 		</p>
 
-		<DefinitionBlock number="8.3" title="Elastic Net">
+		<DefinitionBlock number="5.3" title="Elastic Net">
 			<p>L'objectif Elastic Net est :</p>
 			<KatexBlock formula={elasticNetObjective} />
 			<p>
@@ -834,11 +825,11 @@
 		</p>
 
 		<InteractiveSection
-			number="8.4"
+			number="4.6"
 			title="Mélange Elastic Net"
 			onInteract={tracker.trackInteraction}
 		>
-			<ElasticNetBlend />
+			<DeferredDemo load={() => import('$lib/components/demos/ElasticNetBlend.svelte')} />
 		</InteractiveSection>
 	</TheorySection>
 
@@ -943,7 +934,7 @@
 	<TheorySection>
 		<h2>Exercice d'application</h2>
 
-		<ExercisePanel number="8.1" title="Calcul de facteurs de rétrécissement et seuillage">
+		<ExercisePanel number="4.1" title="Calcul de facteurs de rétrécissement et seuillage">
 			{#snippet solution()}
 				<p>
 					Pour Ridge : le facteur <KatexInline formula={shrinkageFactor} /> donne les valeurs suivantes
@@ -1053,7 +1044,7 @@
 
 		<KatexBlock formula={weightDecayUpdate} />
 
-		<DefinitionBlock number="8.6" title="Weight decay">
+		<DefinitionBlock title="Weight decay">
 			<p>
 				À chaque pas d'optimisation, le poids <KatexInline formula={'w_t'} /> est d'abord
 				<strong>multiplié</strong> par un facteur <KatexInline
@@ -1149,7 +1140,7 @@
 		</Callout>
 
 		<InteractiveSection
-			number="8.6"
+			number="4.7"
 			title="Quiz — Régularisation L1/L2, Elastic Net et weight decay"
 			onInteract={tracker.trackInteraction}
 		>

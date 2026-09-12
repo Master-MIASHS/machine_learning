@@ -1,5 +1,6 @@
 <script lang="ts">
 	import PageTemplate from '$lib/components/layout/PageTemplate.svelte';
+	import DeferredDemo from '$lib/components/layout/DeferredDemo.svelte';
 	import TheorySection from '$lib/components/narrative/TheorySection.svelte';
 	import TableOfContents from '$lib/components/narrative/TableOfContents.svelte';
 	import Callout from '$lib/components/narrative/Callout.svelte';
@@ -10,11 +11,6 @@
 	import InteractiveSection from '$lib/components/narrative/InteractiveSection.svelte';
 	import KatexInline from '$lib/components/narrative/KatexInline.svelte';
 	import KatexBlock from '$lib/components/narrative/KatexBlock.svelte';
-	import ContourLandscape from '$lib/components/demos/ContourLandscape.svelte';
-	import GradientField from '$lib/components/demos/GradientField.svelte';
-	import HessianExplorer from '$lib/components/demos/HessianExplorer.svelte';
-	import ConvexityDemo from '$lib/components/demos/ConvexityDemo.svelte';
-	import CoercivityVisualizer from '$lib/components/demos/CoercivityVisualizer.svelte';
 	import { getPageByPath, getAdjacentPages } from '$lib/navigation.js';
 	import { settings } from '$lib/stores/index.js';
 	import { createPageTracker } from '$lib/stores/progress.svelte';
@@ -295,7 +291,7 @@
 			title="Paysage d'optimisation"
 			onInteract={tracker.trackInteraction}
 		>
-			<ContourLandscape />
+			<DeferredDemo load={() => import('$lib/components/demos/ContourLandscape.svelte')} />
 		</InteractiveSection>
 
 		<h2 id="conditions-necessaires">Conditions nécessaires d'optimalité</h2>
@@ -393,7 +389,7 @@
 			title="Champ de gradient"
 			onInteract={tracker.trackInteraction}
 		>
-			<GradientField />
+			<DeferredDemo load={() => import('$lib/components/demos/GradientField.svelte')} />
 		</InteractiveSection>
 
 		<h2 id="conditions-suffisantes">Conditions suffisantes d'optimalité</h2>
@@ -466,7 +462,7 @@
 			title="Courbure du Hessien"
 			onInteract={tracker.trackInteraction}
 		>
-			<HessianExplorer />
+			<DeferredDemo load={() => import('$lib/components/demos/HessianExplorer.svelte')} />
 		</InteractiveSection>
 
 		<h2 id="convexite-minimum-global">Convexité et minimum global</h2>
@@ -508,7 +504,7 @@
 			title="Visualiser la convexité"
 			onInteract={tracker.trackInteraction}
 		>
-			<ConvexityDemo />
+			<DeferredDemo load={() => import('$lib/components/demos/ConvexityDemo.svelte')} />
 		</InteractiveSection>
 
 		<TheoremBlock
@@ -756,7 +752,7 @@
 			title="Visualiser la coercivité"
 			onInteract={tracker.trackInteraction}
 		>
-			<CoercivityVisualizer />
+			<DeferredDemo load={() => import('$lib/components/demos/CoercivityVisualizer.svelte')} />
 		</InteractiveSection>
 
 		<TheoremBlock number="1.12" title="Théorème de Weierstrass généralisé">
@@ -946,7 +942,7 @@
 	}
 
 	tbody tr:hover {
-		background: var(--color-surface-1, transparent);
+		background: transparent;
 	}
 
 	.proof-block {

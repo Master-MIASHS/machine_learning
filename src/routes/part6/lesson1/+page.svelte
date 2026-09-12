@@ -1,16 +1,15 @@
 <script lang="ts">
 	import PageTemplate from '$lib/components/layout/PageTemplate.svelte';
+	import DeferredDemo from '$lib/components/layout/DeferredDemo.svelte';
 	import TheorySection from '$lib/components/narrative/TheorySection.svelte';
 	import InteractiveSection from '$lib/components/narrative/InteractiveSection.svelte';
 	import Callout from '$lib/components/narrative/Callout.svelte';
+	import DefinitionBlock from '$lib/components/narrative/DefinitionBlock.svelte';
 	import ExpertPanel from '$lib/components/narrative/ExpertPanel.svelte';
 	import Bibliography from '$lib/components/narrative/bib/Bibliography.svelte';
 	import BibElement from '$lib/components/narrative/bib/BibElement.svelte';
 	import KatexBlock from '$lib/components/narrative/KatexBlock.svelte';
 	import KatexInline from '$lib/components/narrative/KatexInline.svelte';
-	import TopKExplorer from '$lib/components/demos/TopKExplorer.svelte';
-	import AccuracyKCutoff from '$lib/components/demos/AccuracyKCutoff.svelte';
-	import ConfidenceCalibration from '$lib/components/demos/ConfidenceCalibration.svelte';
 	import ExampleBlock from '$lib/components/narrative/ExampleBlock.svelte';
 	import TableOfContents from '$lib/components/narrative/TableOfContents.svelte';
 	import { getPageByPath, getAdjacentPages, type PageMeta } from '$lib/navigation.js';
@@ -115,10 +114,10 @@
 			<KatexInline formula={String.raw`y \in \text{Top}_K(\hat{p}(x))`} />.
 		</p>
 
-		<Callout type="definition" title="Exactitude Top-K (Accuracy@K)">
+		<DefinitionBlock number="6.2" title="Exactitude Top-K (Accuracy@K)">
 			L'exactitude Top-K est la fraction d'échantillons dont la vraie classe figure dans le Top-K
 			prédit :
-		</Callout>
+		</DefinitionBlock>
 
 		<KatexBlock
 			formula={String.raw`\text{Acc@}K = \frac{1}{N} \sum_{i=1}^{N} \mathbb{1}\big(y_i \in \text{Top}_K(\hat{p}(x_i))\big)`}
@@ -276,11 +275,11 @@
 	</TheorySection>
 
 	<InteractiveSection
-		number="9.1"
+		number="1.1"
 		title="Classification Top-K"
 		onInteract={tracker.trackInteraction}
 	>
-		<TopKExplorer />
+		<DeferredDemo load={() => import('$lib/components/demos/TopKExplorer.svelte')} />
 	</InteractiveSection>
 
 	<TheorySection>
@@ -346,11 +345,11 @@
 	</TheorySection>
 
 	<InteractiveSection
-		number="9.2"
+		number="1.2"
 		title="Choix adaptatif de K"
 		onInteract={tracker.trackInteraction}
 	>
-		<AccuracyKCutoff />
+		<DeferredDemo load={() => import('$lib/components/demos/AccuracyKCutoff.svelte')} />
 	</InteractiveSection>
 
 	<TheorySection>
@@ -430,11 +429,11 @@
 	</TheorySection>
 
 	<InteractiveSection
-		number="9.3"
+		number="1.3"
 		title="Calibration de la confiance"
 		onInteract={tracker.trackInteraction}
 	>
-		<ConfidenceCalibration />
+		<DeferredDemo load={() => import('$lib/components/demos/ConfidenceCalibration.svelte')} />
 	</InteractiveSection>
 
 	<TheorySection>
@@ -456,7 +455,7 @@
 		</p>
 
 		<InteractiveSection
-			number="9.4"
+			number="1.4"
 			title="Quiz — Classification Top-K"
 			onInteract={tracker.trackInteraction}
 		>

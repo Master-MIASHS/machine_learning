@@ -119,10 +119,10 @@
 		<h2 id="motivation">Motivation du Random Forest</h2>
 
 		<p>
-			Dans la leçon précédente, nous avons établi le résultat central du bagging (Théorème 5.6) :
+			Dans la leçon précédente, nous avons établi le résultat central du bagging (Théorème 4.2) :
 			agréger <KatexInline formula={mTreesSym} /> modèles <strong>décorrélés</strong> réduit la
 			variance d'un facteur <KatexInline formula={mTreesSym} />. Mais nous avons aussi vu, dans
-			l'Exemple 5.1.1, que cette réduction n'est jamais parfaite en pratique : si les modèles
+			l'exemple des erreurs corrélées, que cette réduction n'est jamais parfaite en pratique : si les modèles
 			partagent une corrélation résiduelle <KatexInline formula={rhoBar} />, la variance de
 			l'ensemble ne peut pas descendre en dessous de <KatexInline
 				formula={String.raw`\bar\rho\,\sigma^2`}
@@ -148,7 +148,7 @@
 			</ul>
 			<p>
 				Dans ce cas, <KatexInline formula={rhoBar} /> reste élevé malgré le bootstrap, et d'après le résultat
-				de l'Exemple 5.1.1, ajouter davantage d'arbres n'apporte qu'un gain marginal.
+				de l'exemple des erreurs corrélées, ajouter davantage d'arbres n'apporte qu'un gain marginal.
 			</p>
 		</Callout>
 
@@ -165,12 +165,13 @@
 		<h3>Formalisation : la variance en fonction de la corrélation</h3>
 
 		<p>
-			Reprenons et généralisons l'Exemple 5.1.1 de la leçon précédente pour un ensemble d'arbres, en
+			Reprenons et généralisons l'exemple des erreurs corrélées de la leçon précédente pour un ensemble
+			d'arbres, en
 			autorisant chaque paire d'arbres à avoir sa propre corrélation plutôt qu'une valeur unique
 			supposée.
 		</p>
 
-		<TheoremBlock number="6.1" title="Variance d'un ensemble en fonction de la corrélation moyenne">
+		<TheoremBlock title="Variance d'un ensemble en fonction de la corrélation moyenne">
 			<p>
 				Soit <KatexInline formula={treesFamily} /> une famille d'arbres, chacun vérifiant <KatexInline
 					formula={treeErrModel}
@@ -187,7 +188,7 @@
 		<div class="proof-block">
 			<p><strong>Démonstration :</strong></p>
 			<p>
-				Comme dans la preuve du Théorème 5.1, l'écart entre l'agrégation et la vraie fonction se
+				Comme dans la preuve du Théorème 4.1, l'écart entre l'agrégation et la vraie fonction se
 				réduit au bruit moyen, dont on développe le carré :
 			</p>
 			<KatexBlock formula={varExpandForest} />
@@ -209,7 +210,8 @@
 		</div>
 
 		<p>
-			Ce théorème rend explicite ce que l'Exemple 5.1.1 laissait entrevoir : en faisant tendre <KatexInline
+			Ce résultat rend explicite ce que l'exemple des erreurs corrélées laissait entrevoir : en faisant
+			tendre <KatexInline
 				formula={String.raw`M \to \infty`}
 			/>, le second terme s'annule mais le premier persiste :
 		</p>
@@ -222,7 +224,7 @@
 		</p>
 	</TheorySection>
 
-	<InteractiveSection number="6.1" title="Stump de décision" onInteract={tracker.trackInteraction}>
+	<InteractiveSection number="2.1" title="Stump de décision" onInteract={tracker.trackInteraction}>
 		<DeferredDemo load={() => import('$lib/components/demos/DecisionTreeStump.svelte')} />
 	</InteractiveSection>
 
@@ -237,7 +239,7 @@
 			choisit ses divisions, car c'est précisément ce mécanisme que le Random Forest va contraindre.
 		</p>
 
-		<DefinitionBlock number="6.2" title="Impureté de Gini et division optimale">
+		<DefinitionBlock title="Impureté de Gini et division optimale">
 			<p>
 				Pour un nœud <KatexInline formula="t" /> contenant <KatexInline formula="n_t" /> points, l'impureté
 				de Gini est :
@@ -263,11 +265,11 @@
 		<p>
 			C'est cette dernière étape (maximisation) que le Random Forest modifie. Le Random Forest
 			combine deux mécanismes aléatoires : le
-			<strong>bootstrap des données</strong> (comme le bagging classique, Définition 5.5) et la
+			<strong>bootstrap des données</strong> (comme le bagging classique, Définition 4.5) et la
 			<strong>sélection aléatoire de features</strong> à chaque nœud.
 		</p>
 
-		<DefinitionBlock number="6.3" title="Division optimale restreinte (Random Forest)">
+		<DefinitionBlock title="Division optimale restreinte (Random Forest)">
 			<p>
 				À chaque nœud <KatexInline formula="t" />, on tire d'abord un sous-ensemble aléatoire de
 				features <KatexInline formula={fTDef} />, puis on maximise le gain d'impureté uniquement sur
@@ -276,14 +278,14 @@
 			<KatexBlock formula={bestSplitDef} />
 			<p>
 				Quand <KatexInline formula="m = d" />, cette définition coïncide exactement avec la division
-				classique de la Définition 6.2 : on retrouve le bagging pur appliqué aux arbres. C'est la
-				valeur <KatexInline formula="m < d" /> qui introduit la décorrélation structurelle étudiée au
-				Théorème 6.1.
+				classique (impureté de Gini) : on retrouve le bagging pur appliqué aux arbres. C'est la
+				valeur <KatexInline formula="m < d" /> qui introduit la décorrélation structurelle étudiée
+				dans le résultat de la section Variance.
 			</p>
 		</DefinitionBlock>
 
 		<div class="algo-block">
-			<h3>Algorithme 6.1 — Random Forest</h3>
+			<h3>Algorithme 4.2 — Random Forest</h3>
 			<p>
 				<strong>Paramètres :</strong>
 				<KatexInline formula={mTreesSym} /> = nombre d'arbres,
@@ -294,8 +296,8 @@
 				<ul>
 					<li>Générer un échantillon bootstrap de taille <KatexInline formula={nSamples} /></li>
 					<li>
-						Construire un arbre en appliquant la Définition 6.3 à chaque nœud (division optimale
-						restreinte à <KatexInline formula={mSym} /> features tirées aléatoirement)
+						Construire un arbre en appliquant la division optimale restreinte à chaque nœud
+						(<KatexInline formula={mSym} /> features tirées aléatoirement)
 					</li>
 				</ul>
 				<li>
@@ -325,33 +327,33 @@
 			</p>
 		</Callout>
 
-		<ExercisePanel number="6.1" title="Impact de la sélection aléatoire">
+		<ExercisePanel number="2.1" title="Impact de la sélection aléatoire">
 			{#snippet solution()}
 				<p>
 					Avec <KatexInline formula={mSym} /> = 1, chaque division ne considère qu'une seule feature choisie
-					au hasard — d'après la Définition 6.3, la « division optimale » est alors juste le meilleur
-					seuil sur cette unique feature, qui n'a aucune raison d'être informative. Les arbres sont donc
-					très divers (car chacun explore une direction différente), mais individuellement faibles. Avec
-					<KatexInline formula={mSym} /> =
-					<KatexInline formula={dSym} />, la Définition 6.3 coïncide exactement avec la division
-					classique (Définition 6.2) : on retrouve le bagging pur, où toutes les features sont
+					au hasard — pour la division optimale restreinte, la « division optimale » est alors juste le
+					meilleur seuil sur cette unique feature, qui n'a aucune raison d'être informative. Les arbres
+					sont donc très divers (car chacun explore une direction différente), mais individuellement
+					faibles. Avec <KatexInline formula={mSym} /> =
+					<KatexInline formula={dSym} />, la division restreinte coïncide exactement avec la division
+					classique (impureté de Gini) : on retrouve le bagging pur, où toutes les features sont
 					visibles à chaque nœud — et donc le problème de corrélation élevée identifié en
 					introduction. La valeur optimale se situe entre les deux, typiquement autour de <KatexInline
 						formula={sqrtD}
-					/> (Définition 6.4 ci-dessous) : assez de features pour que chaque division reste informative,
-					assez peu pour forcer une réelle diversité entre arbres.
+					/> (règles empiriques ci-dessous) : assez de features pour que chaque division reste
+					informative, assez peu pour forcer une réelle diversité entre arbres.
 				</p>
 			{/snippet}
 			<p>
 				Que se passe-t-il si on prend <KatexInline formula={mSym} /> = 1 (une seule feature par division)
 				? Et si <KatexInline formula={mSym} /> = <KatexInline formula={dSym} /> (toutes les features)
-				? Justifiez à l'aide des Définitions 6.2 et 6.3.
+				? Justifiez à l'aide du critère de Gini et de la division optimale restreinte.
 			</p>
 		</ExercisePanel>
 	</TheorySection>
 
 	<InteractiveSection
-		number="6.2"
+		number="2.2"
 		title="Croissance d'une forêt"
 		onInteract={tracker.trackInteraction}
 	>
@@ -365,8 +367,8 @@
 		<h2 id="choix-features">Choix du nombre de features par division</h2>
 
 		<p>
-			L'hyperparamètre <KatexInline formula={mSym} /> est le levier principal du Random Forest. Le Théorème
-			6.1 nous dit que réduire <KatexInline formula={mSym} /> réduit <KatexInline
+			L'hyperparamètre <KatexInline formula={mSym} /> est le levier principal du Random Forest. Le résultat
+			de la section Variance nous dit que réduire <KatexInline formula={mSym} /> réduit <KatexInline
 				formula={rhoBar}
 			/>, et donc la variance asymptotique de l'ensemble — mais cette relation n'est pas gratuite :
 			un <KatexInline formula={mSym} /> trop petit prive chaque division de features réellement informatives,
@@ -374,7 +376,7 @@
 			reflètent cet arbitrage biais/décorrélation, et sont largement adoptées :
 		</p>
 
-		<DefinitionBlock number="6.4" title="Règles empiriques pour m">
+		<DefinitionBlock title="Règles empiriques pour m">
 			<ul>
 				<li>
 					<strong>Classification :</strong>
@@ -410,7 +412,8 @@
 					formula={mSym}
 				/> amplifie encore plus l'effet de décorrélation entre arbres (au sens du <KatexInline
 					formula={rhoBar}
-				/> du Théorème 6.1) : sélectionner un petit sous-ensemble augmente la probabilité que différentes
+				/> du résultat de la section Variance) : sélectionner un petit sous-ensemble augmente la
+				probabilité que différentes
 				combinaisons de features corrélées soient retenues d'un arbre à l'autre.
 			</p>
 		</Callout>
@@ -422,7 +425,7 @@
 
 		<KatexBlock formula={errTestFormula} />
 
-		<ExampleBlock number="6.4.1" title="Cas extrême : une seule feature vraiment informative">
+		<ExampleBlock title="Cas extrême : une seule feature vraiment informative">
 			<p>
 				Supposons que, parmi <KatexInline formula="d = 100" /> features, une seule, disons <KatexInline
 					formula="x_1"
@@ -439,7 +442,8 @@
 				/> de chances de voir <KatexInline formula="x_1" /> parmi les features candidates. Dans les 90%
 				de nœuds restants, l'arbre est forcé de diviser sur une combinaison des 99 features bruitées restantes
 				— ce qui semble à première vue dégrader chaque arbre individuellement, mais décorrèle fortement
-				les arbres entre eux. C'est un cas où le compromis biais/décorrélation du Théorème 6.1 penche
+				les arbres entre eux. C'est un cas où le compromis biais/décorrélation du résultat de la section
+				Variance penche
 				très fortement en faveur d'un petit <KatexInline formula={mSym} /> : la perte de qualité individuelle
 				est largement compensée par la chute de <KatexInline formula={rhoBar} />.
 			</p>
@@ -469,7 +473,7 @@
 		<p>
 			Pour chaque arbre, on enregistre la réduction d'impureté <KatexInline
 				formula={String.raw`\Delta\text{Impureté}_t`}
-			/> (Définition 6.2) apportée par chaque division. En moyennant cette contribution sur tous les arbres
+			/> (impureté de Gini) apportée par chaque division. En moyennant cette contribution sur tous les arbres
 			de la forêt et en la regroupant par feature, on obtient un score :
 		</p>
 
@@ -504,7 +508,7 @@
 		<Callout type="warning" title="Attention au biais">
 			<p>
 				L'importance par impureté surévalue systématiquement les features continues et celles avec
-				de nombreuses modalités — un artefact du critère de Gini lui-même (Définition 6.2), pas une
+				de nombreuses modalités — un artefact du critère de Gini lui-même, pas une
 				propriété des données. L'importance par permutation est plus fiable statistiquement mais
 				coûteuse en calcul (elle nécessite <KatexInline formula={pSym} /> réévaluations complètes du modèle
 				par feature) — privilégiez-la pour la sélection de features critique, où un biais systématique
@@ -514,7 +518,7 @@
 	</TheorySection>
 
 	<InteractiveSection
-		number="6.3"
+		number="2.3"
 		title="Importance des features"
 		onInteract={tracker.trackInteraction}
 	>
@@ -538,11 +542,12 @@
 				<strong>✓ Performance prête à l'emploi</strong>
 				Peu d'hyperparamètres à tuner. La valeur par défaut <KatexInline formula={mSym} /> = <KatexInline
 					formula={sqrtD}
-				/> (Définition 6.4) fonctionne bien dans la plupart des cas.
+				/> (règle empirique) fonctionne bien dans la plupart des cas.
 			</div>
 			<div class="advantage-card">
 				<strong>✓ Robuste au surajustement</strong>
-				L'agrégation de nombreux arbres décorrélés (Théorème 6.1) rend le modèle naturellement régularisé,
+				L'agrégation de nombreux arbres décorrélés, comme l'établit la section Variance, rend le modèle
+				naturellement régularisé,
 				même avec des arbres profonds non-élagués.
 			</div>
 			<div class="advantage-card">
@@ -563,12 +568,12 @@
 			</div>
 			<div class="advantage-card">
 				<strong>✓ Parallélisation naturelle</strong>
-				Chaque arbre s'entraîne indépendamment (Algorithme 6.1) — l'entraînement se parallélise parfaitement
+				Chaque arbre s'entraîne indépendamment (Algorithme 4.2) — l'entraînement se parallélise parfaitement
 				sur plusieurs cœurs.
 			</div>
 		</div>
 
-		<TheoremBlock number="6.5" title="Convergence asymptotique du Random Forest">
+		<TheoremBlock title="Convergence asymptotique du Random Forest">
 			<p>
 				Sous des hypothèses raisonnables (arbres complètement développés, <KatexInline
 					formula="m < d"
@@ -580,25 +585,25 @@
 				Ce résultat, démontré par Breiman (2001), repose sur deux propriétés complémentaires : la
 				consistance des estimateurs individuels (chaque arbre, pris seul, converge vers une bonne
 				approximation locale à mesure que la taille des données croît), et la décorrélation induite
-				par la sélection aléatoire de features — formalisée précisément par le Théorème 6.1
-				ci-dessus, qui garantit que la variance de l'ensemble reste bornée par <KatexInline
+				par la sélection aléatoire de features — formalisée précisément par le résultat de la section
+				Variance ci-dessus, qui garantit que la variance de l'ensemble reste bornée par <KatexInline
 					formula="\bar\rho\,\sigma^2"
 				/> plutôt que de stagner à la variance individuelle <KatexInline formula={sigmaSq} />.
 			</p>
 		</TheoremBlock>
 
-		<ExercisePanel number="6.2" title="Random Forest vs Bagging pur">
+		<ExercisePanel number="2.2" title="Random Forest vs Bagging pur">
 			{#snippet solution()}
 				<p>
 					Avec <KatexInline formula="m = 3" /> (≈ <KatexInline formula="\sqrt{9}" />), chaque
-					division ne voit que 3 features parmi 9 (Définition 6.3) — la diversité entre arbres est
-					maximale, réduisant fortement <KatexInline formula={rhoBar} />. D'après le Théorème 6.1,
-					la variance asymptotique de l'ensemble, <KatexInline formula="\bar\rho\,\sigma^2" />, est
-					donc elle aussi fortement réduite. Avec <KatexInline formula="m = 9" />, on retrouve
-					exactement le bagging pur (Définition 6.3 coïncide avec la Définition 6.2 quand <KatexInline
-						formula="m=d"
-					/>) : les features les plus prédictives dominent systématiquement, comme illustré dans
-					l'Exemple 6.4.1, et les arbres restent corrélés comme en bagging classique — la variance
+					division ne voit que 3 features parmi 9 (division optimale restreinte) — la diversité
+					entre arbres est maximale, réduisant fortement <KatexInline formula={rhoBar} />. D'après le
+					résultat de la section Variance, la variance asymptotique de l'ensemble,
+					<KatexInline formula="\bar\rho\,\sigma^2" />, est donc elle aussi fortement réduite. Avec
+					<KatexInline formula="m = 9" />, on retrouve exactement le bagging pur (la division
+					restricte coïncide avec la division classique quand <KatexInline formula="m=d" />) : les
+					features les plus prédictives dominent systématiquement, comme illustré dans l'exemple
+					extrême ci-dessus, et les arbres restent corrélés comme en bagging classique — la variance
 					asymptotique reste alors proche de <KatexInline formula={sigmaSq} /> tout entier, avec un gain
 					d'agrégation beaucoup plus limité.
 				</p>
@@ -606,7 +611,7 @@
 			<p>
 				On dispose d'un jeu de données avec 9 features. Pourquoi <KatexInline formula={mSym} /> = 3 est-il
 				préférable à <KatexInline formula={mSym} /> = 9 ? Que se passe-t-il pour la corrélation entre
-				arbres dans les deux cas ? Appuyez-vous sur le Théorème 6.1.
+				arbres dans les deux cas ? Appuyez-vous sur le résultat de la section Variance.
 			</p>
 		</ExercisePanel>
 
@@ -615,25 +620,27 @@
 				<li>
 					<strong>Motivation :</strong> Le bagging pur laisse les arbres corrélés (<KatexInline
 						formula={rhoBar}
-					/> élevé) — la sélection aléatoire de features à chaque nœud (Définition 6.3) résout ce problème
+					/> élevé) — la sélection aléatoire de features à chaque nœud (division optimale restreinte)
+					résout ce problème
 					en réduisant directement <KatexInline formula={rhoBar} />.
 				</li>
 				<li>
 					<strong>Résultat clé :</strong> La variance de l'ensemble vaut <KatexInline
 						formula="\bar\rho\sigma^2 + (1-\bar\rho)\sigma^2/M"
-					/> (Théorème 6.1) — elle ne peut jamais descendre en dessous de <KatexInline
+					/> (résultat de la section Variance) — elle ne peut jamais descendre en dessous de
+					<KatexInline
 						formula="\bar\rho\sigma^2"
 					/>, d'où l'intérêt de réduire <KatexInline formula={rhoBar} /> directement plutôt que de se
 					reposer uniquement sur <KatexInline formula={mTreesSym} />.
 				</li>
 				<li>
 					<strong>Algorithme :</strong> Bootstrap + sélection de <KatexInline formula={mSym} /> features
-					aléatoires à chaque nœud (Algorithme 6.1) → agrégation par vote/moyenne.
+					aléatoires à chaque nœud (Algorithme 4.2) → agrégation par vote/moyenne.
 				</li>
 				<li>
 					<strong>Règle pratique :</strong>
 					<KatexInline formula={sqrtD} /> pour la classification, <KatexInline formula={dOver3} /> pour
-					la régression (Définition 6.4) — un compromis entre biais individuel et décorrélation.
+					la régression (règle empirique) — un compromis entre biais individuel et décorrélation.
 				</li>
 				<li>
 					<strong>Valeur ajoutée :</strong> Importance des features (impureté ou permutation, Section
@@ -643,7 +650,7 @@
 		</Callout>
 
 		<InteractiveSection
-			number="6.4"
+			number="2.4"
 			title="Quiz — Random Forest et sélection de features"
 			onInteract={tracker.trackInteraction}
 		>

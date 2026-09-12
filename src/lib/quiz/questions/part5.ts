@@ -14,7 +14,7 @@ export const PART5: QuizQuestion[] = [
 		],
 		answerIndex: 3,
 		explanation:
-			"Théorème 5.1 : sous l'indépendance, les termes croisés E[ε_j ε_k] (j ≠ k) s'annulent et il reste (1/m) E[ε²] : la variance est réduite d'un facteur m. Le callout « Remarque cruciale » rappelle que cela ne fonctionne que si les modèles font des erreurs complémentaires."
+			"Théorème 4.1 : sous l'indépendance, les termes croisés E[ε_j ε_k] (j ≠ k) s'annulent et il reste (1/m) E[ε²] : la variance est réduite d'un facteur m. Le callout « Remarque cruciale » rappelle que cela ne fonctionne que si les modèles font des erreurs complémentaires."
 	},
 	{
 		id: 'p5-l1-q2',
@@ -44,7 +44,7 @@ export const PART5: QuizQuestion[] = [
 		],
 		answerIndex: 0,
 		explanation:
-			"Définition 5.5 et callout « Pourquoi 63.2 % ? » : la probabilité qu'un point ne soit pas sélectionné lors d'un tirage est 1 − 1/n ; après n tirages indépendants, (1 − 1/n)ⁿ → e^(−1) ≈ 0,368. Environ 36,8 % des points sont donc out-of-bag et environ 63,2 % sont présents au moins une fois."
+			"Définition 4.5 et callout « Pourquoi 63.2 % ? » : la probabilité qu'un point ne soit pas sélectionné lors d'un tirage est 1 − 1/n ; après n tirages indépendants, (1 − 1/n)ⁿ → e^(−1) ≈ 0,368. Environ 36,8 % des points sont donc out-of-bag et environ 63,2 % sont présents au moins une fois."
 	},
 	{
 		id: 'p5-l1-q4',
@@ -83,7 +83,7 @@ export const PART5: QuizQuestion[] = [
 		options: ['ρ̄σ²', '0', 'σ²', '(1−ρ̄)σ²/M'],
 		answerIndex: 0,
 		explanation:
-			"Théorème 6.1 : Var(agrégé) = ρ̄σ² + (1−ρ̄)σ²/M ; quand M → ∞, le second terme s'annule et la variance reste bornée inférieurement par ρ̄σ², quel que soit le nombre d'arbres. C'est donc la corrélation, et non M, qui borne le gain — d'où l'intérêt de réduire ρ̄ directement."
+			"Le résultat de la section Variance : Var(agrégé) = ρ̄σ² + (1−ρ̄)σ²/M ; quand M → ∞, le second terme s'annule et la variance reste bornée inférieurement par ρ̄σ², quel que soit le nombre d'arbres. C'est donc la corrélation, et non M, qui borne le gain — d'où l'intérêt de réduire ρ̄ directement."
 	},
 	{
 		id: 'p5-l2-q2',
@@ -97,7 +97,7 @@ export const PART5: QuizQuestion[] = [
 		],
 		answerIndex: 1,
 		explanation:
-			"Définition 6.3 (division optimale restreinte) : à chaque nœud, on tire un sous-ensemble aléatoire F_t de m features et on maximise le gain d'impureté uniquement sur ce sous-ensemble. Cette contrainte structurelle force les arbres à explorer des partitions différentes et réduit directement la corrélation ρ̄ ; le bagging pur (m = d) ne réduit que le terme (1−ρ̄)σ²/M."
+			"La division optimale restreinte : à chaque nœud, on tire un sous-ensemble aléatoire F_t de m features et on maximise le gain d'impureté uniquement sur ce sous-ensemble. Cette contrainte structurelle force les arbres à explorer des partitions différentes et réduit directement la corrélation ρ̄ ; le bagging pur (m = d) ne réduit que le terme (1−ρ̄)σ²/M."
 	},
 	{
 		id: 'p5-l2-q3',
@@ -107,7 +107,7 @@ export const PART5: QuizQuestion[] = [
 		options: ['m ≈ d/3', 'm = d', 'm = 1', 'm = √d'],
 		answerIndex: 3,
 		explanation:
-			'Définition 6.4 : m = √d pour la classification et m ≈ d/3 pour la régression. Ces valeurs offrent un compromis entre la qualité individuelle des divisions (m grand → biais faible) et la diversité entre arbres (m petit → corrélation ρ̄ faible).'
+			'Règles empiriques : m = √d pour la classification et m ≈ d/3 pour la régression. Ces valeurs offrent un compromis entre la qualité individuelle des divisions (m grand → biais faible) et la diversité entre arbres (m petit → corrélation ρ̄ faible).'
 	},
 	{
 		id: 'p5-l2-q4',
@@ -122,7 +122,7 @@ export const PART5: QuizQuestion[] = [
 		],
 		answerIndex: 2,
 		explanation:
-			"Exemple 6.4.1 : avec m = √100 = 10, x_1 est vue par un nœud avec une probabilité de 10/100 ; dans les 90 % de nœuds restants, l'arbre divise sur les 99 features bruitées. Chaque arbre est individuellement plus faible, mais ρ̄ chute fortement : dans ce cas, le compromis biais/décorrélation du théorème 6.1 penche très en faveur d'un petit m."
+			"Exemple extrême : avec m = √100 = 10, x_1 est vue par un nœud avec une probabilité de 10/100 ; dans les 90 % de nœuds restants, l'arbre divise sur les 99 features bruitées. Chaque arbre est individuellement plus faible, mais ρ̄ chute fortement : dans ce cas, le compromis biais/décorrélation du résultat de la section Variance penche très en faveur d'un petit m."
 	},
 	{
 		id: 'p5-l2-q5',
@@ -182,7 +182,7 @@ export const PART5: QuizQuestion[] = [
 		],
 		answerIndex: 2,
 		explanation:
-			"Théorème 7.1 : l'erreur d'entraînement du classifieur final est bornée par Π Z_t ; aussi longtemps que ε_t < 1/2, on a Z_t < 1, et le produit décroît exponentiellement avec le nombre d'itérations. C'est ce qui justifie qu'il suffit d'apprenants faibles, légèrement meilleurs que le hasard (erreur < 50 %), pour construire un apprenant fort."
+			"Théorème 4.3 : l'erreur d'entraînement du classifieur final est bornée par Π Z_t ; aussi longtemps que ε_t < 1/2, on a Z_t < 1, et le produit décroît exponentiellement avec le nombre d'itérations. C'est ce qui justifie qu'il suffit d'apprenants faibles, légèrement meilleurs que le hasard (erreur < 50 %), pour construire un apprenant fort."
 	},
 	{
 		id: 'p5-l3-q4',
@@ -212,7 +212,7 @@ export const PART5: QuizQuestion[] = [
 		],
 		answerIndex: 3,
 		explanation:
-			"Définition 7.3 : la marge géométrique m̄_i = Y_i F(X_i) / Σ|α_t| divise la marge fonctionnelle par le poids total des classifieurs ; dans ce cadre, Σ|α_t| joue le rôle de la norme du vecteur de paramètres. Elle mesure la distance réelle d'un point à la frontière de décision, indépendamment de l'échelle des α_t — par analogie avec les SVM."
+			"La marge géométrique : m̄_i = Y_i F(X_i) / Σ|α_t| divise la marge fonctionnelle par le poids total des classifieurs ; dans ce cadre, Σ|α_t| joue le rôle de la norme du vecteur de paramètres. Elle mesure la distance réelle d'un point à la frontière de décision, indépendamment de l'échelle des α_t — par analogie avec les SVM."
 	},
 	{
 		id: 'p5-l4-q1',

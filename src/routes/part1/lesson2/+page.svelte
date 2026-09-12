@@ -1,5 +1,6 @@
 <script lang="ts">
 	import PageTemplate from '$lib/components/layout/PageTemplate.svelte';
+	import DeferredDemo from '$lib/components/layout/DeferredDemo.svelte';
 	import TheorySection from '$lib/components/narrative/TheorySection.svelte';
 	import InteractiveSection from '$lib/components/narrative/InteractiveSection.svelte';
 	import TheoremBlock from '$lib/components/narrative/TheoremBlock.svelte';
@@ -13,17 +14,10 @@
 	import BibElement from '$lib/components/narrative/bib/BibElement.svelte';
 	import KatexInline from '$lib/components/narrative/KatexInline.svelte';
 	import KatexBlock from '$lib/components/narrative/KatexBlock.svelte';
-
 	import { type PageMeta, getPageByPath, getAdjacentPages } from '$lib/navigation.js';
 	import { settings } from '$lib/stores/index.js';
 	import { createPageTracker } from '$lib/stores/progress.svelte';
 
-	import LossFunctionExplorer from '$lib/components/demos/LossFunctionExplorer.svelte';
-	import ConvexSumVisualizer from '$lib/components/demos/ConvexSumVisualizer.svelte';
-	import LinearRegressionFit from '$lib/components/demos/LinearRegressionFit.svelte';
-	import RidgePathExplorer from '$lib/components/demos/RidgePathExplorer.svelte';
-	import HessianConditionNumber from '$lib/components/demos/HessianConditionNumber.svelte';
-	import LassoPathExplorer from '$lib/components/demos/LassoPathExplorer.svelte';
 	import Quiz from '$lib/components/narrative/Quiz.svelte';
 	import { getQuizQuestions } from '$lib/quiz';
 
@@ -247,7 +241,7 @@
 			title="Exploration des fonctions de perte"
 			onInteract={tracker.trackInteraction}
 		>
-			<LossFunctionExplorer />
+			<DeferredDemo load={() => import('$lib/components/demos/LossFunctionExplorer.svelte')} />
 		</InteractiveSection>
 	</TheorySection>
 
@@ -296,7 +290,7 @@
 			title="Sommes de fonctions convexes"
 			onInteract={tracker.trackInteraction}
 		>
-			<ConvexSumVisualizer />
+			<DeferredDemo load={() => import('$lib/components/demos/ConvexSumVisualizer.svelte')} />
 		</InteractiveSection>
 
 		<ExercisePanel number="2.1" title="Convexité via la Hessienne">
@@ -523,7 +517,7 @@
 			title="Ajustement linéaire"
 			onInteract={tracker.trackInteraction}
 		>
-			<LinearRegressionFit />
+			<DeferredDemo load={() => import('$lib/components/demos/LinearRegressionFit.svelte')} />
 		</InteractiveSection>
 
 		<!-- Ajouter après le Callout "Quand la matrice n'est pas inversible" -->
@@ -671,7 +665,7 @@
 			title="Chemin de régularisation Ridge"
 			onInteract={tracker.trackInteraction}
 		>
-			<RidgePathExplorer />
+			<DeferredDemo load={() => import('$lib/components/demos/RidgePathExplorer.svelte')} />
 		</InteractiveSection>
 
 		<p>
@@ -687,7 +681,7 @@
 			title="Conditionnement du Hessien"
 			onInteract={tracker.trackInteraction}
 		>
-			<HessianConditionNumber />
+			<DeferredDemo load={() => import('$lib/components/demos/HessianConditionNumber.svelte')} />
 		</InteractiveSection>
 
 		<ExercisePanel number="2.2" title="Comportement asymptotique du Ridge">
@@ -780,7 +774,7 @@ w_j^*(\lambda)
 			title="Chemin de régularisation Lasso"
 			onInteract={tracker.trackInteraction}
 		>
-			<LassoPathExplorer />
+			<DeferredDemo load={() => import('$lib/components/demos/LassoPathExplorer.svelte')} />
 		</InteractiveSection>
 
 		<h3>Régression logistique</h3>
@@ -1178,17 +1172,15 @@ w_j^*(\lambda)
 	td {
 		padding: 0.75rem 1rem;
 		text-align: left;
-		border-bottom: 1px solid var(--border-color, #e0e0e0);
+		border-bottom: 1px solid var(--color-border);
 	}
 
 	th {
-		background-color: color-mix(in srgb, var(--color-positive, #4caf50) 8%, transparent);
+		background-color: color-mix(in srgb, var(--color-positive) 8%, transparent);
 		font-weight: 600;
-		position: sticky;
-		top: 0;
 	}
 
 	tbody tr:hover {
-		background-color: color-mix(in srgb, var(--border-color, #e0e0e0) 30%, transparent);
+		background-color: color-mix(in srgb, var(--color-border) 30%, transparent);
 	}
 </style>

@@ -19,28 +19,28 @@
 			id: 'classification-top-k-etalonnage',
 			label: 'Classification Top-K & Étalonnage',
 			description:
-				'Exercices 9.1 à 9.20 : Évaluation Top-K, ECE/MCE, Platt Scaling, régression isotonique et limites des métriques.',
+				'Exercices 1.1 à 1.20 : Évaluation Top-K, ECE/MCE, Platt Scaling, régression isotonique et limites des métriques.',
 			color: 'epistemic'
 		},
 		{
 			id: 'prediction-conforme-classification',
 			label: 'Prédiction Conforme en Classification',
 			description:
-				'Exercices 10.1 à 10.20 : Échangeabilité, validité en échantillon fini, scores APS/SAPS et couverture conditionnelle.',
+				'Exercices 2.1 à 2.20 : Échangeabilité, validité en échantillon fini, scores APS/SAPS et couverture conditionnelle.',
 			color: 'surprise'
 		},
 		{
 			id: 'prediction-conforme-regression',
 			label: 'Régression Conforme',
 			description:
-				'Exercices 11.1 à 11.20 : Intervalles constants et adaptatifs, CQR, bootstrap et métriques d’évaluation.',
+				'Exercices 3.1 à 3.20 : Intervalles constants et adaptatifs, CQR, bootstrap et métriques d’évaluation.',
 			color: 'agent'
 		},
 		{
 			id: 'classification-average-k',
 			label: 'Classification Average-K (Conception)',
 			description:
-				'Exercices 12.1 à 12.5 : Optimisation de la taille moyenne contrainte, Lagrangien, règle de seuil et inversion de CDF.',
+				'Exercices E.1 à E.5 : Optimisation de la taille moyenne contrainte, Lagrangien, règle de seuil et inversion de CDF.',
 			color: 'neutral'
 		}
 	];
@@ -67,7 +67,7 @@
 			d'ajustement classiques.
 		</p>
 
-		<ExercisePanel number="9.1" title="Définition formelle de l'erreur Top-K">
+		<ExercisePanel number="1.1" title="Définition formelle de l'erreur Top-K">
 			{#snippet solution()}
 				<p>
 					Par définition, la prédiction <KatexInline
@@ -99,7 +99,7 @@
 			</p>
 		</ExercisePanel>
 
-		<ExercisePanel number="9.2" title="L'Oracle Top-K bayésien">
+		<ExercisePanel number="1.2" title="L'Oracle Top-K bayésien">
 			{#snippet solution()}
 				<p>
 					Le classifieur optimal (l'oracle) cherche à maximiser la probabilité de couverture <KatexInline
@@ -131,7 +131,7 @@
 			</p>
 		</ExercisePanel>
 
-		<ExercisePanel number="9.3" title="Calcul numérique du risque conditionnel Top-2">
+		<ExercisePanel number="1.3" title="Calcul numérique du risque conditionnel Top-2">
 			{#snippet solution()}
 				<p>
 					L'oracle Top-2 sélectionne les deux classes ayant les probabilités les plus élevées : <KatexInline
@@ -155,7 +155,7 @@
 			</p>
 		</ExercisePanel>
 
-		<ExercisePanel number="9.4" title="Croissance monotone de l'exactitude Top-K">
+		<ExercisePanel number="1.4" title="Croissance monotone de l'exactitude Top-K">
 			{#snippet solution()}
 				<p>
 					Par définition, pour tout vecteur de probabilités <KatexInline
@@ -181,7 +181,7 @@
 			</p>
 		</ExercisePanel>
 
-		<ExercisePanel number="9.5" title="Cas limite de l'exactitude Top-C">
+		<ExercisePanel number="1.5" title="Cas limite de l'exactitude Top-C">
 			{#snippet solution()}
 				<p>
 					Puisque l'espace des étiquettes <KatexInline formula={String.raw`\mathcal{Y}`} /> contient exactement
@@ -204,7 +204,7 @@
 			</p>
 		</ExercisePanel>
 
-		<ExercisePanel number="9.6" title="L'exactitude Top-1 minore-t-elle l'exactitude Top-K ?">
+		<ExercisePanel number="1.6" title="L'exactitude Top-1 minore-t-elle l'exactitude Top-K ?">
 			{#snippet solution()}
 				<p>
 					<strong>Non.</strong> Contre-exemple : <KatexInline formula={String.raw`C = 2`} /> classes,
@@ -236,7 +236,7 @@
 			</p>
 		</ExercisePanel>
 
-		<ExercisePanel number="9.7" title="Étalonnage fort vs étalonnage faible">
+		<ExercisePanel number="1.7" title="Étalonnage fort vs étalonnage faible">
 			{#snippet solution()}
 				<p>
 					Un classifieur est <strong>fortement étalonné</strong> si <KatexInline
@@ -260,7 +260,7 @@
 			</p>
 		</ExercisePanel>
 
-		<ExercisePanel number="9.8" title="Calcul de l'ECE (Expected Calibration Error)">
+		<ExercisePanel number="1.8" title="Calcul de l'ECE (Expected Calibration Error)">
 			{#snippet solution()}
 				<p>
 					La formule de l'ECE est la moyenne pondérée des écarts absolus entre confiance et
@@ -311,7 +311,7 @@
 			<p>Calculez l'ECE de ce modèle.</p>
 		</ExercisePanel>
 
-		<ExercisePanel number="9.9" title="Maximum Calibration Error (MCE)">
+		<ExercisePanel number="1.9" title="Maximum Calibration Error (MCE)">
 			{#snippet solution()}
 				<p>La MCE se concentre sur le pire écart observé à l'échelle des bins d'étalonnage :</p>
 				<KatexBlock
@@ -327,12 +327,12 @@
 			{/snippet}
 			<p>
 				Définissez la métrique de la MCE (Maximum Calibration Error), calculez-la sur les données de
-				l'exercice 9.8 et expliquez sa pertinence par rapport à l'ECE dans les cas d'usage à haute
+				l'exercice 1.8 et expliquez sa pertinence par rapport à l'ECE dans les cas d'usage à haute
 				sécurité.
 			</p>
 		</ExercisePanel>
 
-		<ExercisePanel number="9.10" title="Propriété de préservation du Temperature Scaling">
+		<ExercisePanel number="1.10" title="Propriété de préservation du Temperature Scaling">
 			{#snippet solution()}
 				<p>
 					Soit <KatexInline formula={String.raw`z_i(x)`} /> les logits d'entrée. Le modèle étalonné par
@@ -364,7 +364,7 @@
 			</p>
 		</ExercisePanel>
 
-		<ExercisePanel number="9.11" title="Platt Scaling sous forme de régression logistique">
+		<ExercisePanel number="1.11" title="Platt Scaling sous forme de régression logistique">
 			{#snippet solution()}
 				<p>
 					La méthode historique de Platt s'applique aux sorties brutes <KatexInline
@@ -390,7 +390,7 @@
 			</p>
 		</ExercisePanel>
 
-		<ExercisePanel number="9.12" title="Généralisations multiclasses : Vector vs Matrix Scaling">
+		<ExercisePanel number="1.12" title="Généralisations multiclasses : Vector vs Matrix Scaling">
 			{#snippet solution()}
 				<p>
 					En multiclasse, le Platt Scaling se généralise aux logits <KatexInline
@@ -426,7 +426,7 @@
 			</p>
 		</ExercisePanel>
 
-		<ExercisePanel number="9.13" title="Calibration non paramétrique : Histogram Binning">
+		<ExercisePanel number="1.13" title="Calibration non paramétrique : Histogram Binning">
 			{#snippet solution()}
 				<p>
 					L'intervalle de confiance considéré <KatexInline formula={String.raw`[0.4, 0.6[`} /> constitue
@@ -453,7 +453,7 @@
 			</p>
 		</ExercisePanel>
 
-		<ExercisePanel number="9.14" title="Optimisation par Régression Isotonique">
+		<ExercisePanel number="1.14" title="Optimisation par Régression Isotonique">
 			{#snippet solution()}
 				<p>La régression isotonique cherche à résoudre le problème d'optimisation suivant :</p>
 				<KatexBlock
@@ -472,7 +472,7 @@
 			</p>
 		</ExercisePanel>
 
-		<ExercisePanel number="9.15" title="ECE vs Perte Logarithmique">
+		<ExercisePanel number="1.15" title="ECE vs Perte Logarithmique">
 			{#snippet solution()}
 				<p>
 					Considérons un problème binaire avec une probabilité a posteriori vraie <KatexInline
@@ -507,7 +507,7 @@
 			</p>
 		</ExercisePanel>
 
-		<ExercisePanel number="9.16" title="Biais statistique de l'estimateur de l'ECE">
+		<ExercisePanel number="1.16" title="Biais statistique de l'estimateur de l'ECE">
 			{#snippet solution()}
 				<p>
 					L'estimateur standard de l'ECE utilise un partitionnement en bins fixes. À cause de la
@@ -530,7 +530,7 @@
 			</p>
 		</ExercisePanel>
 
-		<ExercisePanel number="9.17" title="Top-K Softmax pour l'entraînement">
+		<ExercisePanel number="1.17" title="Top-K Softmax pour l'entraînement">
 			{#snippet solution()}
 				<p>
 					Pendant l'entraînement standard par Cross-Entropy, le gradient pousse à maximiser la
@@ -550,7 +550,7 @@
 			</p>
 		</ExercisePanel>
 
-		<ExercisePanel number="9.18" title="Le phénomène de sur-confiance des réseaux profonds">
+		<ExercisePanel number="1.18" title="Le phénomène de sur-confiance des réseaux profonds">
 			{#snippet solution()}
 				<p>
 					Les architectures profondes modernes (comme les ResNets ou les Transformers) atteignent
@@ -570,7 +570,7 @@
 			</p>
 		</ExercisePanel>
 
-		<ExercisePanel number="9.19" title="Décomposition du score de Brier">
+		<ExercisePanel number="1.19" title="Décomposition du score de Brier">
 			{#snippet solution()}
 				<p>
 					Le score de Brier (erreur quadratique moyenne des probabilités) se décompose de manière
@@ -600,7 +600,7 @@
 			</p>
 		</ExercisePanel>
 
-		<ExercisePanel number="9.20" title="Vrai ou Faux : Étalonnage">
+		<ExercisePanel number="1.20" title="Vrai ou Faux : Étalonnage">
 			{#snippet solution()}
 				<ol>
 					<li>
@@ -653,7 +653,7 @@
 			à échantillon fini.
 		</p>
 
-		<ExercisePanel number="10.1" title="La notion d'échangeabilité">
+		<ExercisePanel number="2.1" title="La notion d'échangeabilité">
 			{#snippet solution()}
 				<p>
 					Une suite de variables aléatoires <KatexInline formula={String.raw`Z_1, \dots, Z_N`} /> est
@@ -679,7 +679,7 @@
 			</p>
 		</ExercisePanel>
 
-		<ExercisePanel number="10.2" title="Score de conformité de base">
+		<ExercisePanel number="2.2" title="Score de conformité de base">
 			{#snippet solution()}
 				<p>
 					Le score est défini par <KatexInline formula={String.raw`s(x,y) = 1 - \hat{p}_y(x)`} />.
@@ -722,7 +722,7 @@
 			</p>
 		</ExercisePanel>
 
-		<ExercisePanel number="10.3" title="Preuve de la garantie de couverture (Borne inférieure)">
+		<ExercisePanel number="2.3" title="Preuve de la garantie de couverture (Borne inférieure)">
 			{#snippet solution()}
 				<p>
 					Soit <KatexInline formula={String.raw`S_1, \dots, S_n`} /> les scores calculés sur l'ensemble
@@ -752,7 +752,7 @@
 			</p>
 		</ExercisePanel>
 
-		<ExercisePanel number="10.4" title="Borne supérieure de couverture">
+		<ExercisePanel number="2.4" title="Borne supérieure de couverture">
 			{#snippet solution()}
 				<p>
 					Si les scores de non-conformité proviennent d'une distribution continue, la probabilité
@@ -780,7 +780,7 @@
 			</p>
 		</ExercisePanel>
 
-		<ExercisePanel number="10.5" title="Score cumulatif APS (Adaptive Prediction Sets)">
+		<ExercisePanel number="2.5" title="Score cumulatif APS (Adaptive Prediction Sets)">
 			{#snippet solution()}
 				<p>
 					Le score cumulatif est le complément à 1 de la somme des probabilités de <strong>toutes</strong>
@@ -807,7 +807,7 @@
 			</p>
 		</ExercisePanel>
 
-		<ExercisePanel number="10.6" title="Score SAPS (Sorted Adaptive Prediction Sets)">
+		<ExercisePanel number="2.6" title="Score SAPS (Sorted Adaptive Prediction Sets)">
 			{#snippet solution()}
 				<p>
 					On part du score cumulatif des notes — le complément à 1 de la somme des probabilités des
@@ -837,7 +837,7 @@
 			</p>
 		</ExercisePanel>
 
-		<ExercisePanel number="10.7" title="Cas limite de la taille de calibration">
+		<ExercisePanel number="2.7" title="Cas limite de la taille de calibration">
 			{#snippet solution()}
 				<p>
 					Le rang du quantile empirique est donné par <KatexInline
@@ -862,7 +862,7 @@
 			</p>
 		</ExercisePanel>
 
-		<ExercisePanel number="10.8" title="Comportement limite par rapport à alpha">
+		<ExercisePanel number="2.8" title="Comportement limite par rapport à alpha">
 			{#snippet solution()}
 				<p>
 					Analysons les deux limites physiques de l'erreur autorisée <KatexInline
@@ -900,7 +900,7 @@
 			</p>
 		</ExercisePanel>
 
-		<ExercisePanel number="10.9" title="Couverture marginale vs couverture conditionnelle">
+		<ExercisePanel number="2.9" title="Couverture marginale vs couverture conditionnelle">
 			{#snippet solution()}
 				<p>
 					La <strong>couverture marginale</strong> garantit que :
@@ -932,7 +932,7 @@
 			</p>
 		</ExercisePanel>
 
-		<ExercisePanel number="10.10" title="Split Conformal vs Full Conformal">
+		<ExercisePanel number="2.10" title="Split Conformal vs Full Conformal">
 			{#snippet solution()}
 				<p>Comparatif entre les deux approches :</p>
 				<ul>
@@ -961,7 +961,7 @@
 			</p>
 		</ExercisePanel>
 
-		<ExercisePanel number="10.11" title="Invariance par transformation monotone">
+		<ExercisePanel number="2.11" title="Invariance par transformation monotone">
 			{#snippet solution()}
 				<p>
 					Soit <KatexInline formula={String.raw`g`} /> une transformation strictement croissante appliquée
@@ -990,7 +990,7 @@
 			</p>
 		</ExercisePanel>
 
-		<ExercisePanel number="10.12" title="Garantie sous décalage de covariables (Covariate Shift)">
+		<ExercisePanel number="2.12" title="Garantie sous décalage de covariables (Covariate Shift)">
 			{#snippet solution()}
 				<p>
 					En cas de décalage de covariables (la distribution marginale <KatexInline
@@ -1011,7 +1011,7 @@
 			</p>
 		</ExercisePanel>
 
-		<ExercisePanel number="10.13" title="Exercice numérique pas à pas">
+		<ExercisePanel number="2.13" title="Exercice numérique pas à pas">
 			{#snippet solution()}
 				<p>Suivons rigoureusement les étapes de l'algorithme :</p>
 				<ol>
@@ -1066,7 +1066,7 @@
 			</p>
 		</ExercisePanel>
 
-		<ExercisePanel number="10.14" title="Interprétation d'un ensemble de prédiction vide">
+		<ExercisePanel number="2.14" title="Interprétation d'un ensemble de prédiction vide">
 			{#snippet solution()}
 				<p>
 					L'ensemble conforme <KatexInline formula={String.raw`\mathcal{C}(x)`} /> est vide si et seulement
@@ -1087,7 +1087,7 @@
 			</p>
 		</ExercisePanel>
 
-		<ExercisePanel number="10.15" title="Interprétation d'un ensemble contenant toutes les classes">
+		<ExercisePanel number="2.15" title="Interprétation d'un ensemble contenant toutes les classes">
 			{#snippet solution()}
 				<p>
 					À l'inverse de l'exercice précédent, l'ensemble contient toutes les classes si tous les
@@ -1106,7 +1106,7 @@
 			</p>
 		</ExercisePanel>
 
-		<ExercisePanel number="10.16" title="Relation directe entre calibration et efficacité">
+		<ExercisePanel number="2.16" title="Relation directe entre calibration et efficacité">
 			{#snippet solution()}
 				<p>
 					Le théorème de couverture conforme garantit la validité (le taux de couverture de 95% est
@@ -1128,7 +1128,7 @@
 			</p>
 		</ExercisePanel>
 
-		<ExercisePanel number="10.17" title="Évaluation : Métriques de taille">
+		<ExercisePanel number="2.17" title="Évaluation : Métriques de taille">
 			{#snippet solution()}
 				<p>
 					Pour évaluer un système de prédiction conforme, on utilise principalement deux indicateurs
@@ -1155,7 +1155,7 @@
 			</p>
 		</ExercisePanel>
 
-		<ExercisePanel number="10.18" title="Gestion des égalités (scores identiques)">
+		<ExercisePanel number="2.18" title="Gestion des égalités (scores identiques)">
 			{#snippet solution()}
 				<p>
 					Lorsque les scores de conformité prennent des valeurs discrètes ou identiques, de
@@ -1178,7 +1178,7 @@
 			</p>
 		</ExercisePanel>
 
-		<ExercisePanel number="10.19" title="Vrai ou Faux : Prédiction Conforme">
+		<ExercisePanel number="2.19" title="Vrai ou Faux : Prédiction Conforme">
 			{#snippet solution()}
 				<ol>
 					<li>
@@ -1223,7 +1223,7 @@
 			</ol>
 		</ExercisePanel>
 
-		<ExercisePanel number="10.20" title="Synthèse : Choix du score de conformité">
+		<ExercisePanel number="2.20" title="Synthèse : Choix du score de conformité">
 			{#snippet solution()}
 				<table class="w-full text-center border my-2 text-sm">
 					<thead>
@@ -1269,7 +1269,7 @@
 			par normalisation, ou CQR).
 		</p>
 
-		<ExercisePanel number="11.1" title="Dérivation de l'intervalle de largeur constante">
+		<ExercisePanel number="3.1" title="Dérivation de l'intervalle de largeur constante">
 			{#snippet solution()}
 				<p>
 					Le score de conformité est le résidu absolu : <KatexInline
@@ -1296,7 +1296,7 @@
 			</p>
 		</ExercisePanel>
 
-		<ExercisePanel number="11.2" title="Garantie formelle en régression conforme">
+		<ExercisePanel number="3.2" title="Garantie formelle en régression conforme">
 			{#snippet solution()}
 				<p>
 					La garantie de couverture est identique au cas discret de la classification. Si les
@@ -1314,11 +1314,11 @@
 			{/snippet}
 			<p>
 				Énoncez formellement la garantie théorique de couverture obtenue pour l'intervalle de
-				régression conforme de l'exercice 11.1 et précisez les hypothèses statistiques requises.
+				régression conforme de l'exercice 3.1 et précisez les hypothèses statistiques requises.
 			</p>
 		</ExercisePanel>
 
-		<ExercisePanel number="11.3" title="Régression Quantile Conforme (CQR)">
+		<ExercisePanel number="3.3" title="Régression Quantile Conforme (CQR)">
 			{#snippet solution()}
 				<p>
 					La CQR (Conformalized Quantile Regression) combine la régression quantile et la prédiction
@@ -1344,13 +1344,13 @@
 			</p>
 		</ExercisePanel>
 
-		<ExercisePanel number="11.4" title="CQR symétrique vs asymétrique">
+		<ExercisePanel number="3.4" title="CQR symétrique vs asymétrique">
 			{#snippet solution()}
 				<p>La CQR peut utiliser deux approches pour la calibration :</p>
 				<ul>
 					<li>
 						<strong>Sémantique symétrique :</strong> Utilise un seul et unique score de
-						non-conformité (défini à l'exercice 11.3) et applique le même décalage <KatexInline
+						non-conformité (défini à l'exercice 3.3) et applique le même décalage <KatexInline
 							formula={String.raw`\hat{q}`}
 						/> aux deux bornes.
 					</li>
@@ -1373,7 +1373,7 @@
 			</p>
 		</ExercisePanel>
 
-		<ExercisePanel number="11.5" title="Score normalisé localement (Intervalle adaptatif)">
+		<ExercisePanel number="3.5" title="Score normalisé localement (Intervalle adaptatif)">
 			{#snippet solution()}
 				<p>
 					Le score normalisé est <KatexInline
@@ -1405,7 +1405,7 @@
 			</p>
 		</ExercisePanel>
 
-		<ExercisePanel number="11.6" title="Estimation de l'incertitude locale par Bootstrap">
+		<ExercisePanel number="3.6" title="Estimation de l'incertitude locale par Bootstrap">
 			{#snippet solution()}
 				<p>
 					Pour estimer <KatexInline formula={String.raw`\sigma(x)`} />, on peut utiliser le
@@ -1438,7 +1438,7 @@
 			</p>
 		</ExercisePanel>
 
-		<ExercisePanel number="11.7" title="Robustesse face à un mauvais estimateur d'incertitude">
+		<ExercisePanel number="3.7" title="Robustesse face à un mauvais estimateur d'incertitude">
 			{#snippet solution()}
 				<p>
 					C'est une propriété majeure de la prédiction conforme : <strong
@@ -1457,11 +1457,11 @@
 			<p>
 				Si notre estimateur de l'incertitude locale <KatexInline formula={String.raw`\sigma(x)`} /> est
 				de très mauvaise qualité, la garantie de couverture de l'intervalle conforme adaptatif de l'exercice
-				11.5 est-elle compromise ? Qu'est-ce qui est affecté en pratique ?
+				3.5 est-elle compromise ? Qu'est-ce qui est affecté en pratique ?
 			</p>
 		</ExercisePanel>
 
-		<ExercisePanel number="11.8" title="Évaluation : Largeur moyenne de l'intervalle">
+		<ExercisePanel number="3.8" title="Évaluation : Largeur moyenne de l'intervalle">
 			{#snippet solution()}
 				<p>
 					L'efficacité de l'intervalle sur un échantillon de test de taille <KatexInline
@@ -1486,7 +1486,7 @@
 			</p>
 		</ExercisePanel>
 
-		<ExercisePanel number="11.9" title="Évaluation : Indice de couverture conditionnelle">
+		<ExercisePanel number="3.9" title="Évaluation : Indice de couverture conditionnelle">
 			{#snippet solution()}
 				<p>
 					Pour mesurer empiriquement si un intervalle adaptatif approche la couverture
@@ -1522,7 +1522,7 @@
 			</p>
 		</ExercisePanel>
 
-		<ExercisePanel number="11.10" title="La méthode Jackknife+">
+		<ExercisePanel number="3.10" title="La méthode Jackknife+">
 			{#snippet solution()}
 				<p>
 					Le Jackknife+ évite de scinder les données en entraînement et calibration en utilisant une
@@ -1551,7 +1551,7 @@
 			</p>
 		</ExercisePanel>
 
-		<ExercisePanel number="11.11" title="Comparaison : Jackknife-minmax vs Jackknife+">
+		<ExercisePanel number="3.11" title="Comparaison : Jackknife-minmax vs Jackknife+">
 			{#snippet solution()}
 				<p>
 					Le Jackknife-minmax est une version plus conservatrice du Jackknife+. L'intervalle se
@@ -1573,7 +1573,7 @@
 			</p>
 		</ExercisePanel>
 
-		<ExercisePanel number="11.12" title="CV+ (Validation Croisée Conforme)">
+		<ExercisePanel number="3.12" title="CV+ (Validation Croisée Conforme)">
 			{#snippet solution()}
 				<p>
 					La méthode CV+ généralise le Jackknife+ au cadre du K-fold cross-validation pour réduire
@@ -1600,7 +1600,7 @@
 		</ExercisePanel>
 
 		<ExercisePanel
-			number="11.13"
+			number="3.13"
 			title="Impact d'un unique point aberrant (outlier) en calibration"
 		>
 			{#snippet solution()}
@@ -1626,7 +1626,7 @@
 			</p>
 		</ExercisePanel>
 
-		<ExercisePanel number="11.14" title="Régression conforme multidimensionnelle">
+		<ExercisePanel number="3.14" title="Régression conforme multidimensionnelle">
 			{#snippet solution()}
 				<p>
 					Si la cible <KatexInline formula={String.raw`Y \in \mathbb{R}^d`} />, l'ensemble conforme
@@ -1657,7 +1657,7 @@
 			</p>
 		</ExercisePanel>
 
-		<ExercisePanel number="11.15" title="Calibration locale par partitionnement (Binning)">
+		<ExercisePanel number="3.15" title="Calibration locale par partitionnement (Binning)">
 			{#snippet solution()}
 				<p>
 					La calibration locale par partitionnement (Binning Conformal Regression) procède ainsi :
@@ -1690,7 +1690,7 @@
 			</p>
 		</ExercisePanel>
 
-		<ExercisePanel number="11.16" title="Rôle de la constante de lissage epsilon">
+		<ExercisePanel number="3.16" title="Rôle de la constante de lissage epsilon">
 			{#snippet solution()}
 				<p>
 					Le score normalisé s'écrit <KatexInline
@@ -1725,7 +1725,7 @@
 			</p>
 		</ExercisePanel>
 
-		<ExercisePanel number="11.17" title="La métrique combinée CWC">
+		<ExercisePanel number="3.17" title="La métrique combinée CWC">
 			{#snippet solution()}
 				<p>
 					La métrique CWC (Coverage Width-based Criterion) pénalise à la fois une mauvaise
@@ -1749,7 +1749,7 @@
 			</p>
 		</ExercisePanel>
 
-		<ExercisePanel number="11.18" title="Construction d'intervalles unilatéraux">
+		<ExercisePanel number="3.18" title="Construction d'intervalles unilatéraux">
 			{#snippet solution()}
 				<p>
 					Pour construire un intervalle unilatéral inférieur (par exemple pour garantir que la vraie
@@ -1781,7 +1781,7 @@
 			</p>
 		</ExercisePanel>
 
-		<ExercisePanel number="11.19" title="Vrai ou Faux : Régression Conforme">
+		<ExercisePanel number="3.19" title="Vrai ou Faux : Régression Conforme">
 			{#snippet solution()}
 				<ol>
 					<li>
@@ -1832,7 +1832,7 @@
 			</ol>
 		</ExercisePanel>
 
-		<ExercisePanel number="11.20" title="Bilan : Comparatif des méthodes de régression">
+		<ExercisePanel number="3.20" title="Bilan : Comparatif des méthodes de régression">
 			{#snippet solution()}
 				<table class="w-full text-center border my-2 text-xs">
 					<thead>
@@ -1901,7 +1901,7 @@
 			suggérées.
 		</Callout>
 
-		<ExercisePanel number="12.1" title="Formalisation théorique et Lagrangien">
+		<ExercisePanel number="E.1" title="Formalisation théorique et Lagrangien">
 			{#snippet solution()}
 				<p>
 					La contrainte de taille s'écrit <KatexInline
@@ -1945,10 +1945,10 @@
 			</p>
 		</ExercisePanel>
 
-		<ExercisePanel number="12.2" title="Dérivation du classifieur optimal (Seuil)">
+		<ExercisePanel number="E.2" title="Dérivation du classifieur optimal (Seuil)">
 			{#snippet solution()}
 				<p>
-					L'expression trouvée à l'exercice 12.1 s'optimise en minimisant le terme à l'intérieur de
+					L'expression trouvée à l'exercice E.1 s'optimise en minimisant le terme à l'intérieur de
 					l'espérance pour chaque réalisation de <KatexInline formula={String.raw`X=x`} /> de manière
 					indépendante. Pour un <KatexInline formula={String.raw`x`} /> donné, nous voulons choisir l'état
 					de chaque variable d'inclusion <KatexInline
@@ -1981,7 +1981,7 @@
 				</p>
 			{/snippet}
 			<p>
-				En minimisant point par point l'espérance obtenue à l'exercice 12.1, démontrez que le
+				En minimisant point par point l'espérance obtenue à l'exercice E.1, démontrez que le
 				classifieur d'ensemble optimal <KatexInline
 					formula={String.raw`\mathcal{C}^*_\lambda(x)`}
 				/> est un classifieur basé sur un seuillage des probabilités conditionnelles réelles, où le seuil
@@ -1989,7 +1989,7 @@
 			</p>
 		</ExercisePanel>
 
-		<ExercisePanel number="12.3" title="Définition de la fonction de taille attendue">
+		<ExercisePanel number="E.3" title="Définition de la fonction de taille attendue">
 			{#snippet solution()}
 				<p>
 					Soit la fonction <KatexInline
@@ -2027,7 +2027,7 @@
 			</p>
 		</ExercisePanel>
 
-		<ExercisePanel number="12.4" title="Optimalité de lambda via fonction de répartition inverse">
+		<ExercisePanel number="E.4" title="Optimalité de lambda via fonction de répartition inverse">
 			{#snippet solution()}
 				<p>
 					Pour respecter exactement la contrainte de budget <KatexInline
@@ -2060,7 +2060,7 @@
 			</p>
 		</ExercisePanel>
 
-		<ExercisePanel number="12.5" title="Comparaison philosophique : Conforme vs Average-K">
+		<ExercisePanel number="E.5" title="Comparaison philosophique : Conforme vs Average-K">
 			{#snippet solution()}
 				<p>Comparaison des deux approches :</p>
 				<table class="w-full text-center border my-2 text-xs">
@@ -2114,7 +2114,7 @@
 	}
 	th,
 	td {
-		border: 1px solid var(--state-error-border, #ddd);
+		border: 1px solid var(--color-negative);
 		padding: 8px;
 	}
 </style>

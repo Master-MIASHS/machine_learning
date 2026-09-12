@@ -1,5 +1,6 @@
 <script lang="ts">
 	import PageTemplate from '$lib/components/layout/PageTemplate.svelte';
+	import DeferredDemo from '$lib/components/layout/DeferredDemo.svelte';
 	import TheorySection from '$lib/components/narrative/TheorySection.svelte';
 	import TableOfContents from '$lib/components/narrative/TableOfContents.svelte';
 	import Callout from '$lib/components/narrative/Callout.svelte';
@@ -9,7 +10,6 @@
 	import InteractiveSection from '$lib/components/narrative/InteractiveSection.svelte';
 	import KatexInline from '$lib/components/narrative/KatexInline.svelte';
 	import KatexBlock from '$lib/components/narrative/KatexBlock.svelte';
-	import KNNConsistencyDemo from '$lib/components/demos/KNNConsistencyDemo.svelte';
 	import { getPageByPath, getAdjacentPages } from '$lib/navigation.js';
 	import { settings } from '$lib/stores/index.js';
 	import { createPageTracker } from '$lib/stores/progress.svelte';
@@ -198,7 +198,7 @@
 			title="Voisinage, frontière et compromis biais-variance"
 			onInteract={tracker.trackInteraction}
 		>
-			<KNNConsistencyDemo />
+			<DeferredDemo load={() => import('$lib/components/demos/KNNConsistencyDemo.svelte')} />
 		</InteractiveSection>
 
 		<h2 id="pourquoi-k-fixe-echoue">Pourquoi k fixe ne suffit pas</h2>

@@ -1,5 +1,6 @@
 <script lang="ts">
 	import PageTemplate from '$lib/components/layout/PageTemplate.svelte';
+	import DeferredDemo from '$lib/components/layout/DeferredDemo.svelte';
 	import TheorySection from '$lib/components/narrative/TheorySection.svelte';
 	import TableOfContents from '$lib/components/narrative/TableOfContents.svelte';
 	import Callout from '$lib/components/narrative/Callout.svelte';
@@ -10,8 +11,6 @@
 	import KatexBlock from '$lib/components/narrative/KatexBlock.svelte';
 	import Bibliography from '$lib/components/narrative/bib/Bibliography.svelte';
 	import BibElement from '$lib/components/narrative/bib/BibElement.svelte';
-	import FiniteClassGeneralizationDemo from '$lib/components/demos/FiniteClassGeneralizationDemo.svelte';
-	import UniformConvergenceDemo from '$lib/components/demos/UniformConvergenceDemo.svelte';
 	import { getPageByPath, getAdjacentPages } from '$lib/navigation.js';
 	import { settings } from '$lib/stores/index.js';
 	import { createPageTracker } from '$lib/stores/progress.svelte';
@@ -228,7 +227,7 @@
 					formula={'|\\mathcal H|e^{-n\\varepsilon}'}
 				/>.
 			</p>
-			<FiniteClassGeneralizationDemo />
+			<DeferredDemo load={() => import('$lib/components/demos/FiniteClassGeneralizationDemo.svelte')} />
 			<p class="demo-takeaway">
 				<strong>À retenir :</strong> l'ERM échoue ici uniquement lorsqu'une hypothèse mauvaise passe entre
 				les mailles de l'échantillon. L'union bound additionne les probabilités de ces échecs possibles.
@@ -334,7 +333,7 @@
 				les bandes. La bande étroite est individuelle ; la bande large paie le fait de vouloir couvrir
 				toute la classe.
 			</p>
-			<UniformConvergenceDemo />
+			<DeferredDemo load={() => import('$lib/components/demos/UniformConvergenceDemo.svelte')} />
 			<p class="demo-takeaway">
 				<strong>Question-test :</strong> pourquoi ne peut-on pas appliquer directement la bande bleue
 				au point orange ? Parce que le choix de ce point dépend précisément des fluctuations de l'échantillon.

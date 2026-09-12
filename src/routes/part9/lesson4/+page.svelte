@@ -1,5 +1,6 @@
 <script lang="ts">
 	import PageTemplate from '$lib/components/layout/PageTemplate.svelte';
+	import DeferredDemo from '$lib/components/layout/DeferredDemo.svelte';
 	import TheorySection from '$lib/components/narrative/TheorySection.svelte';
 	import TableOfContents, { type TocEntry } from '$lib/components/narrative/TableOfContents.svelte';
 	import Callout from '$lib/components/narrative/Callout.svelte';
@@ -11,8 +12,6 @@
 	import KatexBlock from '$lib/components/narrative/KatexBlock.svelte';
 	import Bibliography from '$lib/components/narrative/bib/Bibliography.svelte';
 	import BibElement from '$lib/components/narrative/bib/BibElement.svelte';
-	import DoubleDescentDemo from '$lib/components/demos/DoubleDescentDemo.svelte';
-	import NeuralGeneralizationExplorer from '$lib/components/demos/NeuralGeneralizationExplorer.svelte';
 	import { getPageByPath, getAdjacentPages } from '$lib/navigation.js';
 	import { settings } from '$lib/stores/index.js';
 	import { createPageTracker } from '$lib/stores/progress.svelte';
@@ -253,7 +252,7 @@
 			title="Double descente par pseudo-inverse"
 			onInteract={tracker.trackInteraction}
 		>
-			<DoubleDescentDemo />
+			<DeferredDemo load={() => import('$lib/components/demos/DoubleDescentDemo.svelte')} />
 		</InteractiveSection>
 
 		<h2 id="pourquoi-ils-generalisent">Pourquoi les réseaux généralisent-ils malgré tout ?</h2>
@@ -319,7 +318,7 @@
 			title="Borne VC contre borne par normes"
 			onInteract={tracker.trackInteraction}
 		>
-			<NeuralGeneralizationExplorer />
+			<DeferredDemo load={() => import('$lib/components/demos/NeuralGeneralizationExplorer.svelte')} />
 		</InteractiveSection>
 
 		<h3>Complexité de Rademacher</h3>

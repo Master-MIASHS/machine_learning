@@ -1,23 +1,17 @@
 <script lang="ts">
 	import PageTemplate from '$lib/components/layout/PageTemplate.svelte';
+	import DeferredDemo from '$lib/components/layout/DeferredDemo.svelte';
 	import TheorySection from '$lib/components/narrative/TheorySection.svelte';
 	import InteractiveSection from '$lib/components/narrative/InteractiveSection.svelte';
 	import DefinitionBlock from '$lib/components/narrative/DefinitionBlock.svelte';
 	import TheoremBlock from '$lib/components/narrative/TheoremBlock.svelte';
-
 	import ExercisePanel from '$lib/components/narrative/ExercisePanel.svelte';
 	import Callout from '$lib/components/narrative/Callout.svelte';
 	import KatexBlock from '$lib/components/narrative/KatexBlock.svelte';
 	import KatexInline from '$lib/components/narrative/KatexInline.svelte';
 	import Bibliography from '$lib/components/narrative/bib/Bibliography.svelte';
 	import BibElement from '$lib/components/narrative/bib/BibElement.svelte';
-
 	// Demo components
-	import AdaBoostStepByStep from '$lib/components/demos/AdaBoostStepByStep.svelte';
-	import ExponentialLossVisualizer from '$lib/components/demos/ExponentialLossVisualizer.svelte';
-	import MarginDistribution from '$lib/components/demos/MarginDistribution.svelte';
-	import GradientBoostingDemo from '$lib/components/demos/GradientBoostingDemo.svelte';
-	import BoostingComparison from '$lib/components/demos/BoostingComparison.svelte';
 
 	import TableOfContents from '$lib/components/narrative/TableOfContents.svelte';
 	import { getPageByPath, getAdjacentPages, type PageMeta } from '$lib/navigation.js';
@@ -108,7 +102,7 @@
 		'H(x) = \\operatorname{sign}\\!\\left(\\sum_{t=1}^{T} \\alpha_t h_t(x)\\right)';
 	const tRange = 't = 1, \\dots, T';
 
-	// AdaBoost training error bound — Theorem 7.1
+	// AdaBoost training error bound — Theorem 4.3 (regularization.typ)
 	const trainingErrorBound =
 		'\\frac{1}{n}\\sum_{i=1}^{n} 1\\{H(X_i) \\neq Y_i\\} \\leq \\prod_{t=1}^{T} Z_t';
 	const expLossBound = '\\exp\\bigl(-Y_i F(X_i)\\bigr)';
@@ -144,7 +138,7 @@
 	const fSym = 'f';
 	const expMinusyf = '\\exp(-y\\,f)';
 
-	// Functional margin — Definition 7.2
+	// Functional margin — Definition 4.7 (regularization.typ)
 	const functionalMarginDef =
 		'm_i = Y_i F(X_i) \\quad\\text{où}\\quad F(x) = \\sum_{t=1}^{T} \\alpha_t h_t(x)';
 	const m_i = 'm_i';
@@ -155,18 +149,18 @@
 	// Callout — loss 0-1 indicator
 	const loss01Indicator = '\\mathbb{1}\\{y\\,f(x) < 0\\}';
 
-	// Generalization bound by margins — Theorem 7.2
+	// Generalization bound by margins (not numbered in regularization.typ)
 	const generalizationMarginBound =
 		'\\mathrm{err}_{gen}(H) \\leq \\frac{N_{\\rho}(T)}{n} + O\\left(\\sqrt{\\frac{d\\log(n/d)+\\log(1/\\delta)}{n\\rho^2}}\\right)';
 	const rhoGt0 = '\\rho > 0';
 	const N_rho_T = 'N_{\\rho}(T)';
 
-	// Geometric margin — Definition 7.3
+	// Geometric margin (not in regularization.typ)
 	const geometricMarginDef = '\\bar{m}_i = \\frac{Y_i F(X_i)}{\\sum_{t=1}^{T} |\\alpha_t|}';
 	const alphaSumDenom = '\\sum_{t=1}^{T} |\\alpha_t|';
 	const alpha_tSym = '\\alpha_t';
 
-	// Exercise 7.1 — margin computation helpers
+	// Exercise 3.1 — margin computation helpers
 	const F_x_i = 'F(x_i)';
 	const m_i_formula = 'm_i = Y_i \\cdot F(x_i)';
 	const marginLt0 = 'm_i < 0';
@@ -287,7 +281,7 @@
 			préoccuper davantage.
 		</p>
 
-		<DefinitionBlock number="7.1" title="AdaBoost (Adaptive Boosting)">
+		<DefinitionBlock number="4.3" title="AdaBoost (Adaptive Boosting)">
 			<p>
 				Soit un jeu de données étiqueté <KatexInline formula={dataLabelled} /> avec <KatexInline
 					formula={yInLabels}
@@ -364,7 +358,7 @@
 			<em>adaptatif</em>.
 		</p>
 
-		<TheoremBlock number="7.1" title="Borne supérieure sur l'erreur d'entraînement">
+		<TheoremBlock number="4.3" title="Borne supérieure sur l'erreur d'entraînement">
 			<p>
 				L'erreur d'entraînement du classifieur final AdaBoost est bornée par le produit des facteurs
 				de normalisation :
@@ -395,11 +389,11 @@
 		</Callout>
 
 		<InteractiveSection
-			number="7.1"
+			number="3.1"
 			title="AdaBoost pas à pas"
 			onInteract={tracker.trackInteraction}
 		>
-			<AdaBoostStepByStep />
+			<DeferredDemo load={() => import('$lib/components/demos/AdaBoostStepByStep.svelte')} />
 		</InteractiveSection>
 	</TheorySection>
 
@@ -430,7 +424,7 @@
 			ce lien formel entre la répondération et la descente de gradient qui justifie l'algorithme.
 		</p>
 
-		<DefinitionBlock number="7.2" title="Marge fonctionnelle">
+		<DefinitionBlock number="4.7" title="Marge fonctionnelle">
 			<p>Pour chaque observation <KatexInline formula={iSym} />, la marge fonctionnelle est :</p>
 			<KatexBlock formula={functionalMarginDef} />
 			<ul>
@@ -456,11 +450,11 @@
 		</Callout>
 
 		<InteractiveSection
-			number="7.2"
+			number="3.2"
 			title="Perte exponentielle"
 			onInteract={tracker.trackInteraction}
 		>
-			<ExponentialLossVisualizer />
+			<DeferredDemo load={() => import('$lib/components/demos/ExponentialLossVisualizer.svelte')} />
 		</InteractiveSection>
 	</TheorySection>
 
@@ -475,7 +469,7 @@
 			> dans l'espace des observations.
 		</p>
 
-		<TheoremBlock number="7.2" title="Borne de généralisation par les marges">
+		<TheoremBlock title="Borne de généralisation par les marges">
 			<p>
 				Soit <KatexInline formula={rhoGt0} /> un seuil de marge et
 				<KatexInline formula={N_rho_T} /> le nombre d'exemples d'entraînement dont la marge fonctionnelle
@@ -502,7 +496,7 @@
 			détermine les performances en généralisation.
 		</p>
 
-		<DefinitionBlock number="7.3" title="Marge géométrique">
+		<DefinitionBlock title="Marge géométrique">
 			<p>
 				La marge géométrique normalise la marge fonctionnelle par le poids total des classifieurs :
 			</p>
@@ -528,14 +522,14 @@
 		</Callout>
 
 		<InteractiveSection
-			number="7.3"
+			number="3.3"
 			title="Histogramme des margins"
 			onInteract={tracker.trackInteraction}
 		>
-			<MarginDistribution />
+			<DeferredDemo load={() => import('$lib/components/demos/MarginDistribution.svelte')} />
 		</InteractiveSection>
 
-		<ExercisePanel number="7.1" title="Calcul de margins">
+		<ExercisePanel number="3.1" title="Calcul de margins">
 			{#snippet solution()}
 				<p>
 					Pour chaque point, on calcule <KatexInline formula={F_x_i} /> comme somme pondérée des prédictions
@@ -589,7 +583,7 @@
 			/> approxime le gradient de la fonction de perte.
 		</p>
 
-		<DefinitionBlock number="7.4" title="Algorithme Gradient Boosting">
+		<DefinitionBlock title="Algorithme Gradient Boosting">
 			<div class="algo-block">
 				<h3>Gradient Boosting Machine</h3>
 				<p>
@@ -637,11 +631,11 @@
 		</Callout>
 
 		<InteractiveSection
-			number="7.4"
+			number="3.4"
 			title="Gradient Boosting pas à pas"
 			onInteract={tracker.trackInteraction}
 		>
-			<GradientBoostingDemo />
+			<DeferredDemo load={() => import('$lib/components/demos/GradientBoostingDemo.svelte')} />
 		</InteractiveSection>
 	</TheorySection>
 
@@ -766,7 +760,7 @@
 			</li>
 		</ul>
 
-		<ExercisePanel number="7.2" title="Quel boosting choisir ?">
+		<ExercisePanel number="3.2" title="Quel boosting choisir ?">
 			{#snippet solution()}
 				<p>
 					Pour un jeu de données propre avec des classes bien séparées, AdaBoost est simple et
@@ -810,11 +804,11 @@
 		</Callout>
 
 		<InteractiveSection
-			number="7.5"
+			number="3.5"
 			title="Comparaison AdaBoost vs GBM"
 			onInteract={tracker.trackInteraction}
 		>
-			<BoostingComparison />
+			<DeferredDemo load={() => import('$lib/components/demos/BoostingComparison.svelte')} />
 		</InteractiveSection>
 
 		<Callout type="summary" title="Synthèse du cours sur le Boosting">
@@ -949,7 +943,7 @@
 		</ExercisePanel>
 
 		<InteractiveSection
-			number="7.6"
+			number="3.6"
 			title="Quiz — Boosting : AdaBoost et gradient boosting"
 			onInteract={tracker.trackInteraction}
 		>
@@ -985,7 +979,7 @@
 
 <style>
 	.algo-block {
-		background: var(--color-surface-raised);
+		background: var(--color-surface-2);
 		border-left: 3px solid var(--color-belief);
 		padding: 1rem 1.25rem;
 		margin: 1rem 0;

@@ -1,5 +1,6 @@
 <script lang="ts">
 	import PageTemplate from '$lib/components/layout/PageTemplate.svelte';
+	import DeferredDemo from '$lib/components/layout/DeferredDemo.svelte';
 	import TheorySection from '$lib/components/narrative/TheorySection.svelte';
 	import InteractiveSection from '$lib/components/narrative/InteractiveSection.svelte';
 	import Callout from '$lib/components/narrative/Callout.svelte';
@@ -8,10 +9,6 @@
 	import BibElement from '$lib/components/narrative/bib/BibElement.svelte';
 	import KatexBlock from '$lib/components/narrative/KatexBlock.svelte';
 	import KatexInline from '$lib/components/narrative/KatexInline.svelte';
-	import PredictionIntervalVisualizer from '$lib/components/demos/PredictionIntervalVisualizer.svelte';
-	import AdaptiveIntervalDemo from '$lib/components/demos/AdaptiveIntervalDemo.svelte';
-	import BootstrapUncertainty from '$lib/components/demos/BootstrapUncertainty.svelte';
-	import IntervalQualityDashboard from '$lib/components/demos/IntervalQualityDashboard.svelte';
 	import { getPageByPath, getAdjacentPages, type PageMeta } from '$lib/navigation.js';
 	import { settings } from '$lib/stores/index.js';
 	import { createPageTracker } from '$lib/stores/progress.svelte';
@@ -189,13 +186,13 @@
 		</Callout>
 	</TheorySection>
 
-	<!-- ═══════════ Démo 11.1 — Visualisation des intervalles ═══════════ -->
+	<!-- ═══════════ Démo 3.1 — Visualisation des intervalles ═══════════ -->
 	<InteractiveSection
-		number="11.1"
+		number="3.1"
 		title="Visualisation des intervalles"
 		onInteract={tracker.trackInteraction}
 	>
-		<PredictionIntervalVisualizer />
+		<DeferredDemo load={() => import('$lib/components/demos/PredictionIntervalVisualizer.svelte')} />
 	</InteractiveSection>
 
 	<!-- ═══════════ Implémentation des intervalles constants ═══════════ -->
@@ -339,13 +336,13 @@
 		</Callout>
 	</TheorySection>
 
-	<!-- ═══════════ Démo 11.2 — Comparaison constant vs adaptatif ═══════════ -->
+	<!-- ═══════════ Démo 3.2 — Comparaison constant vs adaptatif ═══════════ -->
 	<InteractiveSection
-		number="11.2"
+		number="3.2"
 		title="Comparaison constant vs adaptatif"
 		onInteract={tracker.trackInteraction}
 	>
-		<AdaptiveIntervalDemo />
+		<DeferredDemo load={() => import('$lib/components/demos/AdaptiveIntervalDemo.svelte')} />
 	</InteractiveSection>
 
 	<!-- ═══════════ Estimation de l'incertitude locale ═══════════ -->
@@ -387,13 +384,13 @@
 		</p>
 	</TheorySection>
 
-	<!-- ═══════════ Démo 11.3 — Bootstrap ═══════════ -->
+	<!-- ═══════════ Démo 3.3 — Bootstrap ═══════════ -->
 	<InteractiveSection
-		number="11.3"
+		number="3.3"
 		title="Incertitude par Bootstrap"
 		onInteract={tracker.trackInteraction}
 	>
-		<BootstrapUncertainty />
+		<DeferredDemo load={() => import('$lib/components/demos/BootstrapUncertainty.svelte')} />
 	</InteractiveSection>
 
 	<!-- ═══════════ Régression quantile conforme (CQR) ═══════════ -->
@@ -504,13 +501,13 @@
 		</Callout>
 	</TheorySection>
 
-	<!-- ═══════════ Démo 11.4 — Dashboard qualité ═══════════ -->
+	<!-- ═══════════ Démo 3.4 — Dashboard qualité ═══════════ -->
 	<InteractiveSection
-		number="11.4"
+		number="3.4"
 		title="Dashboard de qualité des intervalles"
 		onInteract={tracker.trackInteraction}
 	>
-		<IntervalQualityDashboard />
+		<DeferredDemo load={() => import('$lib/components/demos/IntervalQualityDashboard.svelte')} />
 	</InteractiveSection>
 
 	<!-- ═══════════ Synthèse ═══════════ -->
@@ -555,7 +552,7 @@
 		</p>
 
 		<InteractiveSection
-			number="11.5"
+			number="3.5"
 			title="Quiz — Intervalles de prédiction et régression conformelle"
 			onInteract={tracker.trackInteraction}
 		>

@@ -1,5 +1,6 @@
 <script lang="ts">
 	import PageTemplate from '$lib/components/layout/PageTemplate.svelte';
+	import DeferredDemo from '$lib/components/layout/DeferredDemo.svelte';
 	import TheorySection from '$lib/components/narrative/TheorySection.svelte';
 	import TableOfContents from '$lib/components/narrative/TableOfContents.svelte';
 	import Callout from '$lib/components/narrative/Callout.svelte';
@@ -9,8 +10,6 @@
 	import KatexBlock from '$lib/components/narrative/KatexBlock.svelte';
 	import Bibliography from '$lib/components/narrative/bib/Bibliography.svelte';
 	import BibElement from '$lib/components/narrative/bib/BibElement.svelte';
-	import ConcentrationInequalityExplorer from '$lib/components/demos/ConcentrationInequalityExplorer.svelte';
-	import EmpiricalMeanConvergenceDemo from '$lib/components/demos/EmpiricalMeanConvergenceDemo.svelte';
 	import { getPageByPath, getAdjacentPages } from '$lib/navigation.js';
 	import { settings } from '$lib/stores/index.js';
 	import { createPageTracker } from '$lib/stores/progress.svelte';
@@ -198,7 +197,7 @@
 				constante, Tchebychev décroît comme <KatexInline formula={'1/n'} />, tandis que Hoeffding
 				décroît exponentiellement comme <KatexInline formula={'e^{-2n\\varepsilon^2}'} />.
 			</p>
-			<ConcentrationInequalityExplorer />
+			<DeferredDemo load={() => import('$lib/components/demos/ConcentrationInequalityExplorer.svelte')} />
 		</InteractiveSection>
 
 		<h2 id="convergence-moyenne-empirique">Convergence de la moyenne empirique</h2>
@@ -233,7 +232,7 @@
 			title="Trajectoires, enveloppe et distribution finale"
 			onInteract={tracker.trackInteraction}
 		>
-			<EmpiricalMeanConvergenceDemo />
+			<DeferredDemo load={() => import('$lib/components/demos/EmpiricalMeanConvergenceDemo.svelte')} />
 		</InteractiveSection>
 
 		<h2 id="limite-classifieur-fixe">Les limites du contrôle pour un classifieur fixé</h2>

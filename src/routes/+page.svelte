@@ -15,6 +15,10 @@
 
 		{#snippet heroCaption()}
 			Et les points qu'on n'a pas vus ?
+			<span class="hero-caption-note">
+				Animation illustrative d'un phénomène de sur-apprentissage — ce n'est pas une simulation
+				exacte d'un modèle du cours.
+			</span>
 		{/snippet}
 
 		<Figure
@@ -55,6 +59,14 @@
 		align-items: center;
 		min-height: 100dvh;
 		padding: 2rem;
+	}
+
+	.hero-caption-note {
+		display: block;
+		margin-top: 0.25rem;
+		font-size: 0.75rem;
+		font-weight: 400;
+		color: var(--color-text-muted);
 	}
 
 	.hero {

@@ -4,6 +4,7 @@
 	 * Partie I : Optimisation (Leçon 4/4)
 	 */
 	import PageTemplate from '$lib/components/layout/PageTemplate.svelte';
+	import DeferredDemo from '$lib/components/layout/DeferredDemo.svelte';
 	import TheorySection from '$lib/components/narrative/TheorySection.svelte';
 	import InteractiveSection from '$lib/components/narrative/InteractiveSection.svelte';
 	import Callout from '$lib/components/narrative/Callout.svelte';
@@ -15,13 +16,7 @@
 	import KatexBlock from '$lib/components/narrative/KatexBlock.svelte';
 	import KatexInline from '$lib/components/narrative/KatexInline.svelte';
 	import TableOfContents from '$lib/components/narrative/TableOfContents.svelte';
-
 	// ── Demos ──
-	import SGDvsGDComparison from '$lib/components/demos/SGDvsGDComparison.svelte';
-	import GradientVarianceDemo from '$lib/components/demos/GradientVarianceDemo.svelte';
-	import CoordinateDescentAnim from '$lib/components/demos/CoordinateDescentAnim.svelte';
-	import NewtonAnimator from '$lib/components/demos/NewtonAnimator.svelte';
-	import ConvergenceRace from '$lib/components/demos/ConvergenceRace.svelte';
 
 	// ── Navigation ──
 	import { getPageByPath, getAdjacentPages } from '$lib/navigation.js';
@@ -258,7 +253,7 @@
 		</p>
 		<KatexBlock formula={sgdCostCompare} />
 
-		<DefinitionBlock number="4.1" title="Descente de gradient stochastique (SGD)">
+		<DefinitionBlock number="3.9" title="Descente de gradient stochastique (SGD)">
 			<p>
 				Soit <KatexInline formula={fMeanForm} /> avec chaque <KatexInline
 					formula={String.raw`f_i`}
@@ -281,7 +276,7 @@
 			valable en moyenne sur de nombreuses itérations.
 		</p>
 
-		<TheoremBlock number="4.2" title="L'estimateur SGD est sans biais">
+		<TheoremBlock number="3.10" title="L'estimateur SGD est sans biais">
 			<p>
 				Pour tout <KatexInline formula={xSym} />, l'espérance du gradient stochastique coïncide avec
 				le gradient exact :
@@ -320,7 +315,7 @@
 			title="Comparaison SGD vs GD"
 			onInteract={tracker.trackInteraction}
 		>
-			<SGDvsGDComparison />
+			<DeferredDemo load={() => import('$lib/components/demos/SGDvsGDComparison.svelte')} />
 		</InteractiveSection>
 
 		<!-- ═══════════════════════════════════════ -->
@@ -336,7 +331,7 @@
 			<strong>mini-lot</strong> (mini-batch) de taille intermédiaire.
 		</p>
 
-		<DefinitionBlock number="4.3" title="Mini-batch Gradient Descent">
+		<DefinitionBlock number="3.12" title="Mini-batch Gradient Descent">
 			<p>
 				Soit <KatexInline formula={BkSym} /> un sous-ensemble aléatoire de taille <KatexInline
 					formula={BSym}
@@ -348,7 +343,7 @@
 		<p>
 			C'est la formule interpole exactement entre les deux cas extrêmes : en posant <KatexInline
 				formula={String.raw`B=1`}
-			/>, on retrouve le SGD pur (Définition 4.1) ; en posant <KatexInline
+			/>, on retrouve le SGD pur (Algorithme 3.9) ; en posant <KatexInline
 				formula={String.raw`B=n`}
 			/>, on retrouve le gradient exact. Le paramètre <KatexInline formula={BSym} /> permet donc de choisir
 			continûment un point sur ce spectre.
@@ -371,7 +366,7 @@
 			title="Variance du gradient stochastique"
 			onInteract={tracker.trackInteraction}
 		>
-			<GradientVarianceDemo />
+			<DeferredDemo load={() => import('$lib/components/demos/GradientVarianceDemo.svelte')} />
 		</InteractiveSection>
 
 		<!-- ═══════════════════════════════════════ -->
@@ -381,7 +376,7 @@
 		<h3>1.3 Convergence asymptotique du SGD</h3>
 
 		<p>
-			Le caractère sans biais de l'estimateur (Théorème 4.2) ne suffit pas, à lui seul, à garantir
+			Le caractère sans biais de l'estimateur (Proposition 3.10) ne suffit pas, à lui seul, à garantir
 			la convergence de l'algorithme : un estimateur non biaisé mais dont le bruit ne diminue jamais
 			peut très bien osciller indéfiniment autour du minimum sans jamais s'en approcher. C'est le
 			rôle de la suite de pas <KatexInline formula={alphakSym} /> : elle doit décroître suffisamment vite
@@ -389,7 +384,7 @@
 			permettre à l'algorithme d'explorer l'espace et de ne pas se figer prématurément loin de l'optimum.
 		</p>
 
-		<TheoremBlock number="4.4" title="Convergence du SGD — conditions de Robbins-Monro">
+		<TheoremBlock title="Convergence du SGD — conditions de Robbins-Monro">
 			<p>
 				Soit <KatexInline formula={fSym} /> convexe et <KatexInline formula={LSym} />
 				-lipschitzienne. Si la suite de pas satisfait :
@@ -411,7 +406,7 @@
 			du bruit stochastique ne s'amortirait jamais et empêcherait toute convergence précise.
 		</p>
 
-		<ExampleBlock number="4.5" title="Plans de décroissance classiques">
+		<ExampleBlock title="Plans de décroissance classiques">
 			<ul>
 				<li>
 					<strong>Pas constant :</strong>
@@ -437,7 +432,7 @@
 			</ul>
 		</ExampleBlock>
 
-		<TheoremBlock number="4.11" title="Convergence du SGD (Proposition 3.11 des notes)">
+		<TheoremBlock number="3.11" title="Convergence du SGD">
 			<p>
 				Pour une fonction convexe et <KatexInline formula={LSym} />-lisse, avec pas décroissant
 				<KatexInline formula={sgdPropStep} /> :
@@ -478,11 +473,11 @@
 			</li>
 			<li>
 				La régularisation L1 (Lasso) induit des solutions creuses — CD exploite cette structure
-				explicitement, comme le montre l'Exemple 4.6.1 ci-dessous.
+				explicitement, comme le montre l'exemple ci-dessous.
 			</li>
 		</ul>
 
-		<DefinitionBlock number="4.6" title="Coordinate Descent cyclique">
+		<DefinitionBlock number="3.13" title="Coordinate Descent cyclique">
 			<p>
 				Soit <KatexInline formula={fRdToR} />. À chaque itération <KatexInline
 					formula={String.raw`k`}
@@ -536,12 +531,12 @@
 			title="Animation du Coordinate Descent"
 			onInteract={tracker.trackInteraction}
 		>
-			<CoordinateDescentAnim />
+			<DeferredDemo load={() => import('$lib/components/demos/CoordinateDescentAnim.svelte')} />
 		</InteractiveSection>
 
 		<h3>2.1 Analyse théorique</h3>
 
-		<TheoremBlock number="4.7" title="Convergence du CD cyclique">
+		<TheoremBlock number="3.16" title="Convergence du CD cyclique">
 			<p>
 				Soit <KatexInline formula={fSym} /> convexe, <KatexInline formula="C^1" />-lipschitzienne
 				par coordonnée avec constante <KatexInline formula="L_j" /> pour chaque coordonnée <KatexInline
@@ -557,7 +552,7 @@
 			</p>
 		</TheoremBlock>
 
-		<ExampleBlock number="4.7.1" title="Coordinate descent pour le Lasso">
+		<ExampleBlock title="Coordinate descent pour le Lasso">
 			<p>
 				Considérons l'objectif Lasso : <KatexInline formula={lassoObjective} />, avec <KatexInline
 					formula="\lambda > 0"
@@ -621,7 +616,7 @@
 			la direction de Newton :
 		</p>
 
-		<DefinitionBlock number="4.8" title="Méthode de Newton (sans amortissement)">
+		<DefinitionBlock number="3.13" title="Méthode de Newton (sans amortissement)">
 			<p>
 				Soit <KatexInline formula="f \in C^2" />, strictement convexe, avec Hessienne inversible.
 				L'itération est :
@@ -648,7 +643,7 @@
 			title="Animation de la méthode de Newton"
 			onInteract={tracker.trackInteraction}
 		>
-			<NewtonAnimator />
+			<DeferredDemo load={() => import('$lib/components/demos/NewtonAnimator.svelte')} />
 		</InteractiveSection>
 
 		<h3>3.1 Propriété fondamentale : convergence quadratique</h3>
@@ -659,7 +654,7 @@
 			ordre.
 		</p>
 
-		<TheoremBlock number="4.9" title="Convergence quadratique locale">
+		<TheoremBlock number="3.14" title="Convergence quadratique locale">
 			<p>
 				Soit <KatexInline formula="f \in C^2" />, strictement convexe, avec <KatexInline
 					formula={xStarSym}
@@ -698,7 +693,7 @@
 		<h3>3.2 Amortissement et recherche de ligne</h3>
 
 		<p>
-			Le Théorème 4.9 est un résultat <strong>local</strong> : il ne s'applique que "pour tout point initial
+			Le Théorème 3.14 est un résultat <strong>local</strong> : il ne s'applique que "pour tout point initial
 			suffisamment proche" du minimum. Loin de l'optimum, la direction de Newton peut être mal conditionnée,
 			voire pointer dans une direction qui n'est pas du tout une direction de descente — en particulier
 			si l'Hessienne n'est pas définie positive en ce point (un point-selle, par exemple, comme ceux rencontrés
@@ -706,7 +701,7 @@
 			pas seulement près du minimum, on introduit un pas amorti :
 		</p>
 
-		<DefinitionBlock number="4.10" title="Newton amorti (Damped Newton)">
+		<DefinitionBlock title="Newton amorti (Damped Newton)">
 			<p>
 				Calculer la direction de Newton <KatexInline formula={newtonDir} />, puis chercher un pas
 				<KatexInline formula="\alpha_k > 0" /> satisfaisant la condition d'Armijo :
@@ -717,8 +712,8 @@
 					formula="10^{-4}"
 				/>). Cette condition garantit que le pas choisi produit une décroissance suffisante de <KatexInline
 					formula={fSym}
-				/>, même quand le pas complet <KatexInline formula="\alpha_k = 1" /> (celui utilisé dans la Définition
-				4.8) ne le ferait pas.
+				/>, même quand le pas complet <KatexInline formula="\alpha_k = 1" /> (celui utilisé dans la méthode de
+				Newton ci-dessus) ne le ferait pas.
 			</p>
 		</DefinitionBlock>
 
@@ -802,14 +797,14 @@
 			title="Course de convergence"
 			onInteract={tracker.trackInteraction}
 		>
-			<ConvergenceRace />
+			<DeferredDemo load={() => import('$lib/components/demos/ConvergenceRace.svelte')} />
 		</InteractiveSection>
 
 		<div class="synthesis-note">
 			<h3>Note sur le compromis coût/précision</h3>
 			<p>
 				Dans la course ci-dessus, Newton atteint l'optimum en très peu d'itérations — c'est la
-				convergence quadratique du Théorème 4.9 à l'œuvre. Mais chaque itération coûte
+				convergence quadratique du Théorème 3.14 à l'œuvre. Mais chaque itération coûte
 				<KatexInline formula={hessianCostCubic} />. Pour <KatexInline formula="d = 10^6" />
 				variables (un ordre de grandeur courant en deep learning), GD ou SGD sont les seuls choix viables,
 				même s'ils nécessitent objectivement beaucoup plus d'itérations pour converger : le produit (coût
@@ -823,7 +818,7 @@
 				<li>
 					<strong>SGD</strong> remplace un gradient exact coûteux par une estimation sans biais (Théorème
 					4.2) — idéal pour les grands datasets, au prix d'une trajectoire bruitée dont l'amplitude doit
-					être contrôlée par le choix du pas (conditions de Robbins-Monro, Théorème 4.4).
+					être contrôlée par le choix du pas (conditions de Robbins-Monro).
 				</li>
 				<li>
 					<strong>Mini-batch SGD</strong> réduit la variance du bruit (approximativement en
@@ -837,7 +832,7 @@
 				</li>
 				<li>
 					<strong>Méthode de Newton</strong> exploite l'information de courbure (Hessienne) pour une
-					convergence quadratique locale (Théorème 4.9), mais coûte
+					convergence quadratique locale (Théorème 3.14), mais coûte
 					<KatexInline formula={hessianCostCubic} /> par itération — impraticable en très grande dimension
 					sans approximation (Quasi-Newton, L-BFGS).
 				</li>

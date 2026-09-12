@@ -97,7 +97,7 @@ export const PART6: QuizQuestion[] = [
 		],
 		answerIndex: 2,
 		explanation:
-			"La probabilité est prise sur le tirage conjoint de (X, Y) : c'est une garantie moyenne sur toute la population de x. La garantie conditionnelle P(Y ∈ C(X) | X = x) ≥ 1 - alpha n'est pas fournie et ne peut en général pas être obtenue de façon distribution-free (la leçon cite Barber et al., 2021, dans la Définition 10.1)."
+			"La probabilité est prise sur le tirage conjoint de (X, Y) : c'est une garantie moyenne sur toute la population de x. La garantie conditionnelle P(Y ∈ C(X) | X = x) ≥ 1 - alpha n'est pas fournie et ne peut en général pas être obtenue de façon distribution-free (la leçon cite Barber et al., 2021, dans la définition « Couverture marginale vs. couverture conditionnelle »)."
 	},
 	{
 		id: 'p6-l2-q3',

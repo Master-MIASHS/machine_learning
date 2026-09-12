@@ -192,7 +192,7 @@ export const PART1: QuizQuestion[] = [
 		],
 		answerIndex: 0,
 		explanation:
-			"Théorème 3.4 : avec α = 1/L, l'écart à l'optimum décroît comme 1/k. Le taux exponentiel e^(−μk/L) est réservé aux fonctions fortement convexes (μ paramètre de forte convexité, L constante de Lipschitz du gradient), et O(1/k²) est le taux accéléré de Nesterov (définition 3.8)."
+			"Théorème 3.4 : avec α = 1/L, l'écart à l'optimum décroît comme 1/k. Le taux exponentiel e^(−μk/L) est réservé aux fonctions fortement convexes (μ paramètre de forte convexité, L constante de Lipschitz du gradient), et O(1/k²) est le taux accéléré de Nesterov (Algorithme 3.8)."
 	},
 	{
 		id: 'p1-l3-q4',
@@ -207,7 +207,7 @@ export const PART1: QuizQuestion[] = [
 		],
 		answerIndex: 3,
 		explanation:
-			"Définition 3.8 (NAG) : on pose x̃_k = x_k + β(x_k − x_{k−1}) puis on évalue le gradient en ce point « anticipé » plutôt qu'en x_k. Le tableau de synthèse indique O(1/k²) pour Nesterov contre O(1/k) pour le GD et le momentum en théorie : un gain quadratique dans le taux."
+			"Algorithme 3.8 (NAG) : on pose x̃_k = x_k + β(x_k − x_{k−1}) puis on évalue le gradient en ce point « anticipé » plutôt qu'en x_k. Le tableau de synthèse indique O(1/k²) pour Nesterov contre O(1/k) pour le GD et le momentum en théorie : un gain quadratique dans le taux."
 	},
 	{
 		id: 'p1-l3-q5',
@@ -312,13 +312,13 @@ export const PART1: QuizQuestion[] = [
 		],
 		answerIndex: 0,
 		explanation:
-			"Théorème 4.2 : si l'indice i_k est tiré uniformément dans {1, …, n}, l'espérance du gradient stochastique coïncide avec le gradient exact — chaque pas est bruité, mais le bruit s'annule en moyenne sans biaiser la trajectoire. Le coût d'une itération passe de O(n) (GD) à O(1) (SGD)."
+			"Proposition 3.10 : si l'indice i_k est tiré uniformément dans {1, …, n}, l'espérance du gradient stochastique coïncide avec le gradient exact — chaque pas est bruité, mais le bruit s'annule en moyenne sans biaiser la trajectoire. Le coût d'une itération passe de O(n) (GD) à O(1) (SGD)."
 	},
 	{
 		id: 'p1-l4-q2',
 		tags: ['p1/l4'],
 		question:
-			'Dans le théorème 4.4 (conditions de Robbins–Monro), quel est le rôle de la seconde condition, Σ α_k² < +∞ ?',
+			'Dans le résultat de convergence du SGD (conditions de Robbins–Monro), quel est le rôle de la seconde condition, Σ α_k² < +∞ ?',
 		options: [
 			"garantir que la somme des pas est assez grande pour parcourir n'importe quelle distance finie",
 			'garantir que le bruit accumulé au fil des itérations reste borné',
@@ -327,13 +327,13 @@ export const PART1: QuizQuestion[] = [
 		],
 		answerIndex: 1,
 		explanation:
-			"La leçon dissocie les deux rôles : Σ α_k = +∞ permet à l'algorithme de parcourir n'importe quelle distance finie depuis son point de départ ; Σ α_k² < +∞ garantit que le bruit stochastique accumulé reste borné et s'amortit. Le pas constant ne satisfait pas la seconde condition (la somme des carrés diverge) et converge seulement vers un voisinage de l'optimum (exemple 4.5)."
+			"La leçon dissocie les deux rôles : Σ α_k = +∞ permet à l'algorithme de parcourir n'importe quelle distance finie depuis son point de départ ; Σ α_k² < +∞ garantit que le bruit stochastique accumulé reste borné et s'amortit. Le pas constant ne satisfait pas la seconde condition (la somme des carrés diverge) et converge seulement vers un voisinage de l'optimum (exemple des plans de décroissance)."
 	},
 	{
 		id: 'p1-l4-q3',
 		tags: ['p1/l4'],
 		question:
-			'La descente coordonnée cyclique converge en O(d/k) (théorème 4.7). Pourquoi le taux dépend-il de la dimension d ?',
+			'La descente coordonnée cyclique converge en O(d/k) (théorème 3.16). Pourquoi le taux dépend-il de la dimension d ?',
 		options: [
 			'parce que le gradient complet est calculé d fois à chaque itération',
 			"parce que la pénalité L1 n'est pas différentiable en 0",
@@ -342,7 +342,7 @@ export const PART1: QuizQuestion[] = [
 		],
 		answerIndex: 3,
 		explanation:
-			"Théorème 4.7 : la dépendance linéaire en d est le prix à payer pour n'optimiser qu'une coordonnée à la fois. La CD est particulièrement naturelle quand la fonction se décompose en somme séparable ou quand la régularisation a une forme explicite par coordonnée — pour le Lasso, la mise à jour est le seuillage doux, de coût minime (exemple 4.7.1)."
+			"Théorème 3.16 : la dépendance linéaire en d est le prix à payer pour n'optimiser qu'une coordonnée à la fois. La CD est particulièrement naturelle quand la fonction se décompose en somme séparable ou quand la régularisation a une forme explicite par coordonnée — pour le Lasso, la mise à jour est le seuillage doux, de coût minime (exemple de la leçon)."
 	},
 	{
 		id: 'p1-l4-q4',
@@ -357,7 +357,7 @@ export const PART1: QuizQuestion[] = [
 		],
 		answerIndex: 0,
 		explanation:
-			"Callout « Newton sur un quadratique pur » : pour cette fonction, le modèle de Taylor d'ordre 2 est une égalité valable sur tout l'espace (q(y) ≡ f(y)) et la Hessienne est constante — Newton converge donc en un seul pas, quelle que soit l'inclinaison ou le conditionnement. Sur une fonction non quadratique, plusieurs itérations sont nécessaires, mais le nombre de chiffres corrects double localement (théorème 4.9)."
+			"Callout « Newton sur un quadratique pur » : pour cette fonction, le modèle de Taylor d'ordre 2 est une égalité valable sur tout l'espace (q(y) ≡ f(y)) et la Hessienne est constante — Newton converge donc en un seul pas, quelle que soit l'inclinaison ou le conditionnement. Sur une fonction non quadratique, plusieurs itérations sont nécessaires, mais le nombre de chiffres corrects double localement (théorème 3.14)."
 	},
 	{
 		id: 'p1-l4-q5',

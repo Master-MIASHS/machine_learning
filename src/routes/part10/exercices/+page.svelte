@@ -127,7 +127,7 @@
 			à la marge.
 		</p>
 
-		<ExercisePanel number="7.1" title="La perte 0-1 n'est ni convexe ni lisse">
+		<ExercisePanel number="1.1" title="La perte 0-1 n'est ni convexe ni lisse">
 			{#snippet solution()}
 				<p>
 					<strong>(a)</strong> Le graphe est un escalier : <KatexInline
@@ -170,7 +170,7 @@
 			</p>
 		</ExercisePanel>
 
-		<ExercisePanel number="7.2" title="Logistique et entropie croisée sont la même perte">
+		<ExercisePanel number="1.2" title="Logistique et entropie croisée sont la même perte">
 			{#snippet solution()}
 				<p>
 					<strong>(a)</strong> Comme <KatexInline formula={'p = \\dfrac{e^{f(x)}}{e^{f(x)} + 1}'} />
@@ -206,7 +206,7 @@
 			</p>
 		</ExercisePanel>
 
-		<ExercisePanel number="7.3" title="Convexité de la perte logistique">
+		<ExercisePanel number="1.3" title="Convexité de la perte logistique">
 			{#snippet solution()}
 				<p>
 					On calcule <KatexInline formula={logDeriv} />. Comme <KatexInline
@@ -231,7 +231,7 @@
 			</p>
 		</ExercisePanel>
 
-		<ExercisePanel number="7.4" title="Sensibilité à la marge">
+		<ExercisePanel number="1.4" title="Sensibilité à la marge">
 			{#snippet solution()}
 				<p>
 					Pour <KatexInline formula={'y = 1'} />, la marge est <KatexInline
@@ -284,7 +284,7 @@
 			conditionnel.
 		</p>
 
-		<ExercisePanel number="7.5" title="Risque conditionnel d'une perte quadratique décalée">
+		<ExercisePanel number="2.1" title="Risque conditionnel d'une perte quadratique décalée">
 			{#snippet solution()}
 				<p>
 					<strong>(a)</strong> Développement : <KatexInline formula={critSq} />.
@@ -322,7 +322,7 @@
 			</p>
 		</ExercisePanel>
 
-		<ExercisePanel number="7.6" title="Le critère φ′(0) < 0 sur les quatre pertes usuelles">
+		<ExercisePanel number="2.2" title="Le critère φ′(0) < 0 sur les quatre pertes usuelles">
 			{#snippet solution()}
 				<p>
 					Logistique : <KatexInline formula={logPrimeT} />, donc
@@ -355,7 +355,7 @@
 			</p>
 		</ExercisePanel>
 
-		<ExercisePanel number="7.7" title="Signe du minimiseur pour la logistique">
+		<ExercisePanel number="2.3" title="Signe du minimiseur pour la logistique">
 			{#snippet solution()}
 				<p>
 					<strong>(a)</strong> Dérivation terme à terme : <KatexInline
@@ -406,7 +406,7 @@
 			</p>
 		</ExercisePanel>
 
-		<ExercisePanel number="7.8" title="Le cas limite η = 1/2">
+		<ExercisePanel number="2.4" title="Le cas limite η = 1/2">
 			{#snippet solution()}
 				<p>
 					<strong>(a)</strong> Si <KatexInline formula={'\\eta = \\tfrac12'} />, la fonction
@@ -446,7 +446,7 @@
 			des trois termes, le cas favorable, et une synthèse critique.
 		</p>
 
-		<ExercisePanel number="7.9" title="L'identité de décomposition, version algébrique">
+		<ExercisePanel number="3.1" title="L'identité de décomposition, version algébrique">
 			{#snippet solution()}
 				<p>
 					Toutes les quantités intermédiaires s'annulent : <KatexInline formula={telescoping} />.
@@ -484,7 +484,7 @@
 			</p>
 		</ExercisePanel>
 
-		<ExercisePanel number="7.10" title="Logistique sur les hyperplans : quels termes s'annulent ?">
+		<ExercisePanel number="3.2" title="Logistique sur les hyperplans : quels termes s'annulent ?">
 			{#snippet solution()}
 				<p>
 					<strong>(a)</strong> Oui. La logistique est calibrée (<KatexInline
@@ -517,7 +517,7 @@
 			</p>
 		</ExercisePanel>
 
-		<ExercisePanel number="7.11" title="Le cas favorable : φ calibrée et f** ∈ F">
+		<ExercisePanel number="3.3" title="Le cas favorable : φ calibrée et f** ∈ F">
 			{#snippet solution()}
 				<p>
 					<strong>(a)</strong> <KatexInline formula={'f^{**}'} /> atteint le minimum global
@@ -556,7 +556,7 @@
 			</p>
 		</ExercisePanel>
 
-		<ExercisePanel number="7.12" title="Synthèse : « perte convexe donc Bayes-optimal » ?">
+		<ExercisePanel number="3.4" title="Synthèse : « perte convexe donc Bayes-optimal » ?">
 			{#snippet solution()}
 				<p>
 					L'affirmation confond trois conditions indépendantes, qui correspondent aux trois

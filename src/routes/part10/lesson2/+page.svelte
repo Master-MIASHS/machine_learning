@@ -1,5 +1,6 @@
 <script lang="ts">
 	import PageTemplate from '$lib/components/layout/PageTemplate.svelte';
+	import DeferredDemo from '$lib/components/layout/DeferredDemo.svelte';
 	import TheorySection from '$lib/components/narrative/TheorySection.svelte';
 	import TableOfContents from '$lib/components/narrative/TableOfContents.svelte';
 	import Callout from '$lib/components/narrative/Callout.svelte';
@@ -10,9 +11,6 @@
 	import KatexBlock from '$lib/components/narrative/KatexBlock.svelte';
 	import Bibliography from '$lib/components/narrative/bib/Bibliography.svelte';
 	import BibElement from '$lib/components/narrative/bib/BibElement.svelte';
-	import ConditionalCalibrationDemo from '$lib/components/demos/ConditionalCalibrationDemo.svelte';
-	import CalibrationCriterionDemo from '$lib/components/demos/CalibrationCriterionDemo.svelte';
-	import CalibratedLossExplorer from '$lib/components/demos/CalibratedLossExplorer.svelte';
 	import { getPageByPath, getAdjacentPages } from '$lib/navigation.js';
 	import { settings } from '$lib/stores/index.js';
 	import { createPageTracker } from '$lib/stores/progress.svelte';
@@ -238,7 +236,7 @@
 				; la perte 0-1, elle, fait sauter <KatexInline formula={'\\alpha^*'} /> de façon discontinue
 				et ne s'optimise pas.
 			</p>
-			<ConditionalCalibrationDemo />
+			<DeferredDemo load={() => import('$lib/components/demos/ConditionalCalibrationDemo.svelte')} />
 		</InteractiveSection>
 
 		<h2 id="criterium">Le critère φ′(0) &lt; 0</h2>
@@ -405,7 +403,7 @@
 				widget 2.1, qui montrait <KatexInline formula={String.raw`C_\varphi`} />. Le théorème est
 				précisément le pont entre les deux objets.
 			</p>
-			<CalibratedLossExplorer />
+			<DeferredDemo load={() => import('$lib/components/demos/CalibratedLossExplorer.svelte')} />
 		</InteractiveSection>
 
 		<h2 id="verification-exemples">Vérification sur les pertes usuelles</h2>
@@ -466,7 +464,7 @@
 				<KatexInline formula={'\\varphi\'(0) < 0'} /> n'est pas une curiosité formelle : c'est
 				précisément ce qui sépare les deux panneaux.
 			</p>
-			<CalibrationCriterionDemo />
+			<DeferredDemo load={() => import('$lib/components/demos/CalibrationCriterionDemo.svelte')} />
 		</InteractiveSection>
 
 		<Callout type="summary" title="Retenir">

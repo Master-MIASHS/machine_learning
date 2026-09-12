@@ -1,5 +1,6 @@
 <script lang="ts">
 	import PageTemplate from '$lib/components/layout/PageTemplate.svelte';
+	import DeferredDemo from '$lib/components/layout/DeferredDemo.svelte';
 	import TheorySection from '$lib/components/narrative/TheorySection.svelte';
 	import TableOfContents from '$lib/components/narrative/TableOfContents.svelte';
 	import Callout from '$lib/components/narrative/Callout.svelte';
@@ -7,7 +8,6 @@
 	import InteractiveSection from '$lib/components/narrative/InteractiveSection.svelte';
 	import KatexInline from '$lib/components/narrative/KatexInline.svelte';
 	import KatexBlock from '$lib/components/narrative/KatexBlock.svelte';
-	import ConditionalRegressionExplorer from '$lib/components/demos/ConditionalRegressionExplorer.svelte';
 	import { getPageByPath, getAdjacentPages } from '$lib/navigation.js';
 	import { settings } from '$lib/stores/index.js';
 	import { createPageTracker } from '$lib/stores/progress.svelte';
@@ -253,11 +253,11 @@
 		</Callout>
 
 		<InteractiveSection
-			number="1.1"
+			number="2.1"
 			title="Moyenne vs. médiane conditionnelle"
 			onInteract={tracker.trackInteraction}
 		>
-			<ConditionalRegressionExplorer />
+			<DeferredDemo load={() => import('$lib/components/demos/ConditionalRegressionExplorer.svelte')} />
 		</InteractiveSection>
 
 		<Callout type="summary" title="Retenir">
@@ -270,7 +270,7 @@
 		</Callout>
 
 		<InteractiveSection
-			number="1.2"
+			number="2.2"
 			title="Quiz — Régression : moyenne et médiane conditionnelles"
 			onInteract={tracker.trackInteraction}
 		>

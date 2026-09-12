@@ -1,5 +1,6 @@
 <script lang="ts">
 	import PageTemplate from '$lib/components/layout/PageTemplate.svelte';
+	import DeferredDemo from '$lib/components/layout/DeferredDemo.svelte';
 	import TheorySection from '$lib/components/narrative/TheorySection.svelte';
 	import TableOfContents from '$lib/components/narrative/TableOfContents.svelte';
 	import Callout from '$lib/components/narrative/Callout.svelte';
@@ -8,8 +9,6 @@
 	import InteractiveSection from '$lib/components/narrative/InteractiveSection.svelte';
 	import KatexInline from '$lib/components/narrative/KatexInline.svelte';
 	import KatexBlock from '$lib/components/narrative/KatexBlock.svelte';
-	import BayesDecisionExplorer from '$lib/components/demos/BayesDecisionExplorer.svelte';
-	import BayesRiskNoiseDemo from '$lib/components/demos/BayesRiskNoiseDemo.svelte';
 	import { getPageByPath, getAdjacentPages } from '$lib/navigation.js';
 	import { settings } from '$lib/stores/index.js';
 	import { createPageTracker } from '$lib/stores/progress.svelte';
@@ -253,7 +252,7 @@
 			title="Décision bayésienne"
 			onInteract={tracker.trackInteraction}
 		>
-			<BayesDecisionExplorer />
+			<DeferredDemo load={() => import('$lib/components/demos/BayesDecisionExplorer.svelte')} />
 		</InteractiveSection>
 
 		<h2 id="risque-bayes">Risque de Bayes et séparabilité</h2>
@@ -290,7 +289,7 @@
 			title="Séparabilité et bruit"
 			onInteract={tracker.trackInteraction}
 		>
-			<BayesRiskNoiseDemo />
+			<DeferredDemo load={() => import('$lib/components/demos/BayesRiskNoiseDemo.svelte')} />
 		</InteractiveSection>
 
 		<Callout type="summary" title="Retenir">

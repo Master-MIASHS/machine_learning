@@ -1,5 +1,6 @@
 <script lang="ts">
 	import PageTemplate from '$lib/components/layout/PageTemplate.svelte';
+	import DeferredDemo from '$lib/components/layout/DeferredDemo.svelte';
 	import TheorySection from '$lib/components/narrative/TheorySection.svelte';
 	import InteractiveSection from '$lib/components/narrative/InteractiveSection.svelte';
 	import DefinitionBlock from '$lib/components/narrative/DefinitionBlock.svelte';
@@ -12,11 +13,6 @@
 	import Bibliography from '$lib/components/narrative/bib/Bibliography.svelte';
 	import BibElement from '$lib/components/narrative/bib/BibElement.svelte';
 	import TableOfContents from '$lib/components/narrative/TableOfContents.svelte';
-	import VarianceReductionDemo from '$lib/components/demos/VarianceReductionDemo.svelte';
-	import EnsembleBoundaryVisualizer from '$lib/components/demos/EnsembleBoundaryVisualizer.svelte';
-	import BootstrapSampler from '$lib/components/demos/BootstrapSampler.svelte';
-	import BaggingConvergence from '$lib/components/demos/BaggingConvergence.svelte';
-	import OOBErrorTracker from '$lib/components/demos/OOBErrorTracker.svelte';
 	import { getPageByPath, getAdjacentPages, type PageMeta } from '$lib/navigation.js';
 	import { settings } from '$lib/stores/index.js';
 	import { createPageTracker } from '$lib/stores/progress.svelte';
@@ -81,7 +77,7 @@
 	const empRiskBlock = 'L_n(h) = \\frac{1}{n}\\sum_{i=1}^{n} \\ell\\bigl(h(X_i), Y_i\\bigr)';
 	const ellSym = '\\ell';
 
-	// Theorem 5.1 — Variance reduction
+	// Theorem 4.1 (regularization.typ) — Variance reduction
 	const predictorsFamily = '\\{y_j\\}_{j=1}^m';
 	const aggAvg = '\\hat{y}(x) = \\frac{1}{m}\\sum_{j=1}^{m} y_j(x)';
 	const predictorModel = '\\hat{y}_j(x) = y(x) + \\varepsilon_j';
@@ -152,7 +148,7 @@
 	const bootSampleJ = 'S_n^{(j)}';
 	const modelTrained = 'h_j = \\mathcal{A}(S_n^{(j)})';
 
-	// Theorem 5.6 — Bagging variance
+	// Theorem 4.2 (regularization.typ) — Bagging variance
 	const sigmaSq = '\\sigma^2';
 	const sigmaReduction = '\\sigma^2 / M';
 
@@ -222,7 +218,7 @@
 			supplémentaire.
 		</p>
 
-		<TheoremBlock number="5.1" title="Réduction de variance par agrégation">
+		<TheoremBlock number="4.1" title="Réduction de variance par agrégation">
 			<p>
 				Considérons une famille de prédicteurs <KatexInline formula={predictorsFamily} /> et leur agrégation
 				:
@@ -276,7 +272,7 @@
 			</p>
 		</Callout>
 
-		<ExampleBlock number="5.1.1" title="Le cas réaliste : erreurs corrélées">
+		<ExampleBlock title="Le cas réaliste : erreurs corrélées">
 			<p>
 				En pratique, les prédicteurs <KatexInline formula="h_j" /> sont tous entraînés sur un même jeu
 				de données ou partageant une grande partie, et souvent avec le même algorithme — leurs erreurs
@@ -304,11 +300,11 @@
 		</ExampleBlock>
 
 		<InteractiveSection
-			number="5.1"
+			number="1.1"
 			title="Variance par agrégation"
 			onInteract={tracker.trackInteraction}
 		>
-			<VarianceReductionDemo />
+			<DeferredDemo load={() => import('$lib/components/demos/VarianceReductionDemo.svelte')} />
 		</InteractiveSection>
 	</TheorySection>
 
@@ -316,13 +312,13 @@
 	<TheorySection>
 		<h2 id="approche-naive">L'approche naïve : combiner plusieurs modèles</h2>
 		<p>
-			Le Théorème 5.1 nous dit que moyenner des prédicteurs bruités réduit la variance — mais il
+			Le Théorème 4.1 nous dit que moyenner des prédicteurs bruités réduit la variance — mais il
 			suppose que les modèles agrégés produisent des valeurs numériques continues. Formalisons
 			maintenant comment cette idée s'adapte aux deux cadres les plus courants de l'apprentissage
 			supervisé : la classification et la régression.
 		</p>
 
-		<DefinitionBlock number="5.2" title="Vote majoritaire">
+		<DefinitionBlock number="4.2" title="Vote majoritaire">
 			<p>
 				Pour un problème de classification avec <KatexInline formula={mSym} /> modèles <KatexInline
 					formula={modelsFamily}
@@ -333,14 +329,14 @@
 		</DefinitionBlock>
 
 		<InteractiveSection
-			number="5.2"
+			number="1.2"
 			title="Frontières de décision"
 			onInteract={tracker.trackInteraction}
 		>
-			<EnsembleBoundaryVisualizer />
+			<DeferredDemo load={() => import('$lib/components/demos/EnsembleBoundaryVisualizer.svelte')} />
 		</InteractiveSection>
 
-		<DefinitionBlock number="5.3" title="Moyenne pour la régression">
+		<DefinitionBlock number="4.3" title="Moyenne pour la régression">
 			<p>
 				Pour un problème de régression avec <KatexInline formula={mSym} /> modèles <KatexInline
 					formula={modelsFamily}
@@ -348,8 +344,8 @@
 			</p>
 			<KatexBlock formula={avgRegBlock} />
 			<p>
-				C'est exactement l'agrégation étudiée dans le Théorème 5.1 — le vote majoritaire (Définition
-				5.2) en est l'analogue pour des sorties discrètes.
+				C'est exactement l'agrégation étudiée dans le Théorème 4.1 — le vote majoritaire (Définition
+				4.2) en est l'analogue pour des sorties discrètes.
 			</p>
 		</DefinitionBlock>
 
@@ -371,7 +367,7 @@
 			</p>
 		</Callout>
 
-		<ExercisePanel number="5.1" title="Majorité vs Individu">
+		<ExercisePanel number="1.1" title="Majorité vs Individu">
 			{#snippet solution()}
 				<p>
 					Notons <KatexInline formula="e < 0.5" /> le taux d'erreur commun à chaque classifieur, et supposons
@@ -418,7 +414,7 @@
 			confiance aux modèles qui expliquent mieux les données observées ».
 		</p>
 
-		<DefinitionBlock number="5.4" title="Bayesian Model Averaging">
+		<DefinitionBlock number="4.4" title="Bayesian Model Averaging">
 			<p>
 				Soit une famille de <KatexInline formula={mSymCap} /> modèles probabilistes <KatexInline
 					formula={modelFamilyCal}
@@ -471,7 +467,7 @@
 			<KatexBlock formula={logPosteriorBlock} />
 		</Callout>
 
-		<ExercisePanel number="5.2" title="BMA pour la classification">
+		<ExercisePanel number="1.2" title="BMA pour la classification">
 			{#snippet solution()}
 				<p>
 					Pour un modèle probabiliste, la log-vraisemblance est <KatexInline
@@ -511,13 +507,13 @@
 			pour une classe de modèles donnée, un même jeu d'apprentissage produit toujours la même
 			solution : entraîner dix fois le même arbre de décision sur les mêmes données donne dix fois
 			le même arbre, et l'agréger avec lui-même n'apporte évidemment aucune réduction de variance.
-			Or nous avons vu dans l'Exemple 5.1.1 que c'est justement la corrélation entre modèles qui
+			Or nous avons vu dans l'exemple des erreurs corrélées que c'est justement la corrélation entre modèles qui
 			borne le gain de l'agrégation. Le <strong>bagging</strong> (Bootstrap Aggregating) résout ce
 			problème en créant artificiellement de la variabilité entre les jeux d'entraînement, via des
 			<strong>échantillons bootstrap</strong>.
 		</p>
 
-		<DefinitionBlock number="5.5" title="Échantillon Bootstrap">
+		<DefinitionBlock number="4.5" title="Échantillon Bootstrap">
 			<p>
 				Soit <KatexInline formula={snDefShort} /> un jeu de données de taille <KatexInline
 					formula={nSym}
@@ -534,11 +530,11 @@
 		</DefinitionBlock>
 
 		<InteractiveSection
-			number="5.3"
+			number="1.3"
 			title="Échantillonnage Bootstrap"
 			onInteract={tracker.trackInteraction}
 		>
-			<BootstrapSampler />
+			<DeferredDemo load={() => import('$lib/components/demos/BootstrapSampler.svelte')} />
 		</InteractiveSection>
 
 		<Callout type="intuition" title="Pourquoi 63.2% ?">
@@ -573,34 +569,34 @@
 					<li>Entraîner un modèle <KatexInline formula={modelTrained} /></li>
 				</ul>
 				<li>
-					<strong>Sortie :</strong> Prédiction agrégée par moyenne (régression, Définition 5.3) ou vote
-					majoritaire (classification, Définition 5.2)
+					<strong>Sortie :</strong> Prédiction agrégée par moyenne (régression, Définition 4.3) ou vote
+					majoritaire (classification, Définition 4.2)
 				</li>
 			</ol>
 		</div>
 
 		<InteractiveSection
-			number="5.4"
+			number="1.4"
 			title="Convergence du Bagging"
 			onInteract={tracker.trackInteraction}
 		>
-			<BaggingConvergence />
+			<DeferredDemo load={() => import('$lib/components/demos/BaggingConvergence.svelte')} />
 		</InteractiveSection>
 
-		<TheoremBlock number="5.6" title="Réduction de variance par bagging">
+		<TheoremBlock number="4.2" title="Réduction de variance par bagging">
 			<p>
 				Si les modèles de base ont une variance <KatexInline formula={sigmaSq} /> et sont décorrélés,
 				alors le modèle baggé a une variance <KatexInline formula={sigmaReduction} />.
 			</p>
 			<p>
-				Ce résultat est une application directe du Théorème 5.1 : le bootstrap ne change rien à la
+				Ce résultat est une application directe du Théorème 4.1 : le bootstrap ne change rien à la
 				formule elle-même, il ne fait que fournir un mécanisme concret pour rendre l'hypothèse
 				d'indépendance <em>approximativement</em> vraie en pratique, en entraînant chaque modèle sur un
 				sous-échantillon différent plutôt que sur les données identiques.
 			</p>
 			<p>
 				En pratique, les modèles ne sont jamais totalement décorrélés (ils partagent la même
-				distribution sous-jacente, comme le montre l'Exemple 5.1.1), mais le bagging réduit
+				distribution sous-jacente, comme le montre l'exemple des erreurs corrélées), mais le bagging réduit
 				significativement la variance pour les modèles <strong>instables</strong> (arbres de décision,
 				réseaux de neurones).
 			</p>
@@ -618,7 +614,7 @@
 		</Callout>
 
 		<h3>Out-of-Bag (OOB) Error</h3>
-		<DefinitionBlock number="5.7" title="Out-of-Bag Error">
+		<DefinitionBlock number="4.6" title="Out-of-Bag Error">
 			<p>
 				Pour chaque exemple <KatexInline formula={xiYi} />, notons <KatexInline formula={CiDef} />
 				l'ensemble des modèles pour lesquels cet exemple n'était <strong>pas</strong> présent dans l'échantillon
@@ -639,14 +635,14 @@
 		</DefinitionBlock>
 
 		<InteractiveSection
-			number="5.5"
+			number="1.5"
 			title="Erreur Out-of-Bag"
 			onInteract={tracker.trackInteraction}
 		>
-			<OOBErrorTracker />
+			<DeferredDemo load={() => import('$lib/components/demos/OOBErrorTracker.svelte')} />
 		</InteractiveSection>
 
-		<ExercisePanel number="5.3" title="Bagging vs Arbre seul">
+		<ExercisePanel number="1.3" title="Bagging vs Arbre seul">
 			{#snippet solution()}
 				<p>
 					Avec 100 arbres baggés, on observe typiquement une réduction significative de la variance
@@ -654,7 +650,7 @@
 					exemples proches des frontières de décision, là où un arbre isolé est le plus instable (un
 					petit changement dans les données d'entraînement suffit à déplacer la frontière). Le gain
 					de précision moyen est généralement plus modeste que la réduction de variance elle-même,
-					car le biais des arbres individuels — inchangé par le bagging, voir le Théorème 5.6 —
+					car le biais des arbres individuels — inchangé par le bagging, voir le Théorème 4.2 —
 					reste une composante de l'erreur totale que l'agrégation ne corrige pas.
 				</p>
 			{/snippet}
@@ -668,7 +664,7 @@
 			<ul>
 				<li>
 					Le <strong>bagging</strong> crée de la diversité via le bootstrap (échantillonnage avec remise)
-					— répondant directement à la limite identifiée dans l'Exemple 5.1.1 : la corrélation entre modèles
+					— répondant directement à la limite identifiée dans l'exemple des erreurs corrélées : la corrélation entre modèles
 					borne le gain de l'agrégation.
 				</li>
 				<li>
@@ -683,7 +679,7 @@
 		</Callout>
 
 		<InteractiveSection
-			number="5.6"
+			number="1.6"
 			title="Quiz — Méthodes ensemblistes et bagging"
 			onInteract={tracker.trackInteraction}
 		>
@@ -719,7 +715,7 @@
 
 <style>
 	.algo-block {
-		background: var(--color-surface-raised);
+		background: var(--color-surface-2);
 		border-left: 3px solid var(--color-belief);
 		padding: 1rem 1.25rem;
 		margin: 1rem 0;

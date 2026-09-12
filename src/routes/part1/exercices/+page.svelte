@@ -252,8 +252,7 @@
 		<p>
 			Cette section propose vingt exercices couvrant l'ensemble des notions vues dans la leçon :
 			minima locaux et globaux, conditions nécessaires et suffisantes du premier et second ordre,
-			convexité, et coercivité. Chaque exercice est accompagné d'une solution détaillée, accessible
-			en cliquant sur « Voir la solution ».
+			convexité, et coercivité. Chaque exercice est accompagné d'une solution détaillée.
 		</p>
 
 		<ExercisePanel number="1.1" title="Minimum d'une parabole simple">
@@ -827,7 +826,7 @@
 			Cette section explore vingt-trois exercices sur les propriétés des fonctions rencontrées en
 			Machine Learning : conservation de la convexité par somme et moyenne, calcul de gradients et
 			Hessiennes, coercivité, et régularisation Ridge/Lasso. Chaque exercice est accompagné d'une
-			solution détaillée, accessible en cliquant sur « Voir la solution ».
+			solution détaillée.
 		</p>
 
 		<ExercisePanel number="2.1" title="Convexité d'une combinaison linéaire">
@@ -1846,7 +1845,7 @@ L_i.
 			Cette section propose vingt exercices couvrant les algorithmes d'optimisation de premier ordre
 			: descente de gradient classique, recherche linéaire, Momentum de Polyak, accélération de
 			Nesterov (NAG), et analyse des taux de convergence. Chaque exercice est accompagné d'une
-			solution détaillée, accessible en cliquant sur « Voir la solution ».
+			solution détaillée.
 		</p>
 
 		<ExercisePanel number="3.1" title="Calcul explicite d'un pas de descente de gradient en 1D">

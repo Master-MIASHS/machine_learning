@@ -1,5 +1,6 @@
 <script lang="ts">
 	import PageTemplate from '$lib/components/layout/PageTemplate.svelte';
+	import DeferredDemo from '$lib/components/layout/DeferredDemo.svelte';
 	import TheorySection from '$lib/components/narrative/TheorySection.svelte';
 	import ExercisePanel from '$lib/components/narrative/ExercisePanel.svelte';
 	import KatexInline from '$lib/components/narrative/KatexInline.svelte';
@@ -8,7 +9,6 @@
 	import { getPageByPath, getAdjacentPages } from '$lib/navigation.js';
 	import { settings } from '$lib/stores/index.js';
 	import InteractiveSection from '$lib/components/narrative/InteractiveSection.svelte';
-	import ClassificationIsEasierThanRegression from '$lib/components/demos/ClassificationIsEasierThanRegression.svelte';
 	import Callout from '$lib/components/narrative/Callout.svelte';
 	import { createPageTracker } from '$lib/stores/progress.svelte';
 	import type { PageMeta } from '$lib/navigation.js';
@@ -127,8 +127,7 @@
 			Cette section propose douze exercices sur le classifieur de Bayes : calcul du risque
 			conditionnel, dérivation du seuil <KatexInline formula={String.raw`1/2`} />, calcul du risque
 			de Bayes pour des distributions discrètes ou continues, séparabilité, et une extension
-			optionnelle aux coûts asymétriques. Chaque exercice est accompagné d'une solution détaillée,
-			accessible en cliquant sur « Voir la solution ».
+			optionnelle aux coûts asymétriques. Chaque exercice est accompagné d'une solution détaillée.
 		</p>
 
 		<ExercisePanel number="1.1" title="Calcul direct du risque conditionnel">
@@ -862,10 +861,10 @@
 			L'animation ci-dessous permet de jouer avec le bruit de la vraie probabilité, la qualité de
 			l'approximation et le bruit autour de l'approximation. Étudiez dans quel scénario le
 			classifieur résultat devient incorrect par rapport à l'optimum de Bayes.
-			<ClassificationIsEasierThanRegression />
+			<DeferredDemo load={() => import('$lib/components/demos/ClassificationIsEasierThanRegression.svelte')} />
 		</InteractiveSection>
 
-		<ExercisePanel number="1" title="Le coût d'une erreur de décision">
+		<ExercisePanel number="E.1" title="Le coût d'une erreur de décision">
 			<p>
 				On note
 				<KatexInline formula={String.raw`\eta(x)=\mathbb{P}(Y=1\mid X=x)`} />,
@@ -916,7 +915,7 @@
 			{/snippet}
 		</ExercisePanel>
 
-		<ExercisePanel number="2" title="Relier l'erreur de classification à l'erreur de régression">
+		<ExercisePanel number="E.2" title="Relier l'erreur de classification à l'erreur de régression">
 			<p>
 				Dans l'expression précédente, on ne connaît pas directement
 				<KatexInline formula={String.raw`|\eta(X)-1/2|`} />. Montrer que, sur l'événement
@@ -965,7 +964,7 @@
 			{/snippet}
 		</ExercisePanel>
 
-		<ExercisePanel number="3" title="Séparer les zones faciles et difficiles">
+		<ExercisePanel number="E.3" title="Séparer les zones faciles et difficiles">
 			<p>
 				Fixons <KatexInline formula={String.raw`\varepsilon>0`} />. Séparer l'espérance de
 				l'exercice précédent en deux régions :
@@ -1001,7 +1000,7 @@
 			{/snippet}
 		</ExercisePanel>
 
-		<ExercisePanel number="4" title="Contrôler la première région">
+		<ExercisePanel number="E.4" title="Contrôler la première région">
 			<p>
 				Montrer, en utilisant l'inégalité de Cauchy-Schwarz, que pour tout événement
 				<KatexInline formula={String.raw`A`} /> :
@@ -1044,7 +1043,7 @@
 			{/snippet}
 		</ExercisePanel>
 
-		<ExercisePanel number="5" title="Pourquoi les erreurs loin du seuil disparaissent">
+		<ExercisePanel number="E.5" title="Pourquoi les erreurs loin du seuil disparaissent">
 			<p>Montrer l'implication :</p>
 
 			<KatexBlock formula={exImplication} />
@@ -1089,7 +1088,7 @@
 			{/snippet}
 		</ExercisePanel>
 
-		<ExercisePanel number="6" title="La masse autour de la frontière">
+		<ExercisePanel number="E.6" title="La masse autour de la frontière">
 			<p>Justifier que</p>
 
 			<KatexBlock formula={exMargin} />
@@ -1127,7 +1126,7 @@
 			{/snippet}
 		</ExercisePanel>
 
-		<ExercisePanel number="7" title="Assembler les deux régions">
+		<ExercisePanel number="E.7" title="Assembler les deux régions">
 			<p>
 				On suppose maintenant
 				<KatexInline formula={String.raw`\mathbb{E}[(\eta_n(X)-\eta(X))^2]\to0`} />. À partir des
@@ -1160,7 +1159,7 @@
 			{#snippet solution()}
 				<p>
 					Le second facteur du deuxième terme tend vers zéro pour tout
-					<KatexInline formula={String.raw`\varepsilon>0`} /> grâce à l'exercice 5. Le premier facteur
+					<KatexInline formula={String.raw`\varepsilon>0`} /> grâce à l'exercice E.5. Le premier facteur
 					de chaque terme est l'erreur
 					<KatexInline formula={String.raw`L^2`} />, qui tend vers zéro.
 				</p>
@@ -1177,12 +1176,12 @@
 
 				<p>
 					On fait ensuite tendre <KatexInline formula={String.raw`\varepsilon`} /> vers zéro. L'hypothèse
-					de l'exercice 6 permet de rendre cette quantité arbitrairement petite.
+					de l'exercice E.6 permet de rendre cette quantité arbitrairement petite.
 				</p>
 			{/snippet}
 		</ExercisePanel>
 
-		<ExercisePanel number="8" title="Conclusion : la classification est plus facile que la régression">
+		<ExercisePanel number="E.8" title="Conclusion : la classification est plus facile que la régression">
 			<p>
 				On suppose que <KatexInline formula={String.raw`\eta_n`} /> est un estimateur consistant de la
 				fonction de régression au sens

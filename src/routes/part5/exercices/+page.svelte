@@ -77,7 +77,7 @@
 			le bootstrap et le principe du Bagging.
 		</p>
 
-		<ExercisePanel number="5.1" title="Réduction théorique de la variance">
+		<ExercisePanel number="1.1" title="Réduction théorique de la variance">
 			{#snippet solution()}
 				<p>
 					Puisque les estimateurs <KatexInline formula={String.raw`\hat{y}_j(X)`} /> sont supposés indépendants
@@ -101,7 +101,7 @@
 			</p>
 		</ExercisePanel>
 
-		<ExercisePanel number="5.2" title="Agrégation avec erreurs corrélées">
+		<ExercisePanel number="1.2" title="Agrégation avec erreurs corrélées">
 			{#snippet solution()}
 				<p>En développant la variance d'une somme de variables aléatoires corrélées :</p>
 				<KatexBlock
@@ -131,7 +131,7 @@
 			</p>
 		</ExercisePanel>
 
-		<ExercisePanel number="5.3" title="Limite asymptotique d'agrégation">
+		<ExercisePanel number="1.3" title="Limite asymptotique d'agrégation">
 			{#snippet solution()}
 				<p>
 					En prenant la limite quand <KatexInline formula={String.raw`m \to \infty`} /> dans la formule
@@ -149,13 +149,13 @@
 				</p>
 			{/snippet}
 			<p>
-				En utilisant le résultat de l'exercice 5.2, calculez la limite de la variance de l'ensemble
+				En utilisant le résultat de l'exercice 1.2, calculez la limite de la variance de l'ensemble
 				lorsque <KatexInline formula={String.raw`m \to \infty`} /> et interprétez physiquement le rôle
 				de la corrélation <KatexInline formula={String.raw`\rho`} />.
 			</p>
 		</ExercisePanel>
 
-		<ExercisePanel number="5.4" title="Probabilité de succès du vote majoritaire">
+		<ExercisePanel number="1.4" title="Probabilité de succès du vote majoritaire">
 			{#snippet solution()}
 				<p>
 					Soit <KatexInline formula={String.raw`Y_j = \mathbb{I}(h_j(x) = y)`} /> la variable indiquant
@@ -183,7 +183,7 @@
 			</p>
 		</ExercisePanel>
 
-		<ExercisePanel number="5.5" title="Borne de Hoeffding pour le vote majoritaire">
+		<ExercisePanel number="1.5" title="Borne de Hoeffding pour le vote majoritaire">
 			{#snippet solution()}
 				<p>
 					Notons <KatexInline formula={String.raw`X_j = \mathbb{I}(h_j(x) \neq y)`} /> avec <KatexInline
@@ -209,7 +209,7 @@
 			</p>
 		</ExercisePanel>
 
-		<ExercisePanel number="5.6" title="BMA : Calcul de probabilité a posteriori">
+		<ExercisePanel number="1.6" title="BMA : Calcul de probabilité a posteriori">
 			{#snippet solution()}
 				<p>
 					Par le théorème de Bayes, la probabilité a posteriori de chaque modèle est proportionnelle
@@ -245,7 +245,7 @@
 			</p>
 		</ExercisePanel>
 
-		<ExercisePanel number="5.7" title="Stabilité numérique du BMA par Log-Sum-Exp">
+		<ExercisePanel number="1.7" title="Stabilité numérique du BMA par Log-Sum-Exp">
 			{#snippet solution()}
 				<p>
 					Les vraisemblances <KatexInline formula={String.raw`P(S_n|\mathcal{M}_j)`} /> sont souvent extrêmement
@@ -268,7 +268,7 @@
 			</p>
 		</ExercisePanel>
 
-		<ExercisePanel number="5.8" title="Bootstrap : Probabilité théorique d'inclusion">
+		<ExercisePanel number="1.8" title="Bootstrap : Probabilité théorique d'inclusion">
 			{#snippet solution()}
 				<p>
 					1. À chaque tirage avec remise, la probabilité de ne pas sélectionner un exemple
@@ -303,7 +303,7 @@
 			</p>
 		</ExercisePanel>
 
-		<ExercisePanel number="5.9" title="Taux d'inclusion exact pour petit N">
+		<ExercisePanel number="1.9" title="Taux d'inclusion exact pour petit N">
 			{#snippet solution()}
 				<p>
 					Calculons la valeur exacte de la probabilité d'exclusion <KatexInline
@@ -342,7 +342,7 @@
 			</p>
 		</ExercisePanel>
 
-		<ExercisePanel number="5.10" title="Rôle des arbres profonds dans le Bagging">
+		<ExercisePanel number="1.10" title="Rôle des arbres profonds dans le Bagging">
 			{#snippet solution()}
 				<p>
 					Le Bagging réduit la variance de l'ensemble par moyennage, mais n'affecte pas (ou très
@@ -366,7 +366,7 @@
 			</p>
 		</ExercisePanel>
 
-		<ExercisePanel number="5.11" title="Erreur Out-of-Bag (OOB) vs Validation Croisée">
+		<ExercisePanel number="1.11" title="Erreur Out-of-Bag (OOB) vs Validation Croisée">
 			{#snippet solution()}
 				<p>
 					<strong>Différences majeures :</strong>
@@ -393,7 +393,7 @@
 			</p>
 		</ExercisePanel>
 
-		<ExercisePanel number="5.12" title="Estimation du nombre d'arbres OOB">
+		<ExercisePanel number="1.12" title="Estimation du nombre d'arbres OOB">
 			{#snippet solution()}
 				<p>
 					La probabilité qu'un arbre donné n'inclue pas un exemple spécifique est d'environ <KatexInline
@@ -417,7 +417,7 @@
 			</p>
 		</ExercisePanel>
 
-		<ExercisePanel number="5.13" title="Vote majoritaire dur vs vote majoritaire doux">
+		<ExercisePanel number="1.13" title="Vote majoritaire dur vs vote majoritaire doux">
 			{#snippet solution()}
 				<p>
 					<strong>Définitions :</strong>
@@ -447,7 +447,7 @@
 			</p>
 		</ExercisePanel>
 
-		<ExercisePanel number="5.14" title="BMA vs Bagging">
+		<ExercisePanel number="1.14" title="BMA vs Bagging">
 			{#snippet solution()}
 				<p>
 					<strong>Distinction essentielle :</strong>
@@ -471,7 +471,7 @@
 			</p>
 		</ExercisePanel>
 
-		<ExercisePanel number="5.15" title="Sensibilité du Bagging aux valeurs aberrantes">
+		<ExercisePanel number="1.15" title="Sensibilité du Bagging aux valeurs aberrantes">
 			{#snippet solution()}
 				<p>
 					Le Bagging est moyennement robuste aux valeurs aberrantes (outliers) : bien que
@@ -489,7 +489,7 @@
 			</p>
 		</ExercisePanel>
 
-		<ExercisePanel number="5.16" title="Agrégation de modèles stables">
+		<ExercisePanel number="1.16" title="Agrégation de modèles stables">
 			{#snippet solution()}
 				<p>
 					Le Bagging n'offre aucun gain sur les classifieurs dits <strong>stables</strong> (ex:
@@ -507,7 +507,7 @@
 			</p>
 		</ExercisePanel>
 
-		<ExercisePanel number="5.17" title="Calcul d'un poids optimal d'agrégation">
+		<ExercisePanel number="1.17" title="Calcul d'un poids optimal d'agrégation">
 			{#snippet solution()}
 				<p>
 					Nous voulons minimiser <KatexInline
@@ -546,7 +546,7 @@
 			</p>
 		</ExercisePanel>
 
-		<ExercisePanel number="5.18" title="Impact de la taille de l'échantillon de bootstrap">
+		<ExercisePanel number="1.18" title="Impact de la taille de l'échantillon de bootstrap">
 			{#snippet solution()}
 				<p>
 					Si l'on réduit la taille des échantillons bootstrap à <KatexInline
@@ -580,7 +580,7 @@
 			</p>
 		</ExercisePanel>
 
-		<ExercisePanel number="5.19" title="Subbagging vs Bagging classique">
+		<ExercisePanel number="1.19" title="Subbagging vs Bagging classique">
 			{#snippet solution()}
 				<p>
 					Le <strong>Subbagging</strong> consiste à échantillonner <em>sans remise</em> des
@@ -602,7 +602,7 @@
 			</p>
 		</ExercisePanel>
 
-		<ExercisePanel number="5.20" title="Synthèse et validation des concepts">
+		<ExercisePanel number="1.20" title="Synthèse et validation des concepts">
 			{#snippet solution()}
 				<ol>
 					<li>
@@ -649,12 +649,12 @@
 			sélection de features, critères de division optimale, importance des variables et convergence.
 		</p>
 
-		<ExercisePanel number="6.1" title="Démonstration de la variance d'une forêt">
+		<ExercisePanel number="2.1" title="Démonstration de la variance d'une forêt">
 			{#snippet solution()}
 				<p>
 					En utilisant la décomposition de la variance d'un estimateur moyenné de <KatexInline
 						formula={String.raw`M`}
-					/> variables corrélées (établie à l'exercice 5.2) :
+					/> variables corrélées (établie à l'exercice 1.2) :
 				</p>
 				<KatexBlock
 					formula={String.raw`\text{Var}\left(\frac{1}{M}\sum_{j=1}^M T_j(X)\right) = \bar{\rho} \sigma^2 + \frac{1-\bar{\rho}}{M}\sigma^2`}
@@ -677,7 +677,7 @@
 			</p>
 		</ExercisePanel>
 
-		<ExercisePanel number="6.2" title="Impact du paramètre de sélection de variables">
+		<ExercisePanel number="2.2" title="Impact du paramètre de sélection de variables">
 			{#snippet solution()}
 				<p>
 					Le paramètre <KatexInline formula={String.raw`m`} /> (souvent noté
@@ -708,7 +708,7 @@
 			</p>
 		</ExercisePanel>
 
-		<ExercisePanel number="6.3" title="Calcul de l'impureté de Gini">
+		<ExercisePanel number="2.3" title="Calcul de l'impureté de Gini">
 			{#snippet solution()}
 				<p>La formule de Gini pour un nœud binaire à deux classes (0 et 1) est :</p>
 				<KatexBlock formula={String.raw`I_G(t) = 1 - (p_0^2 + p_1^2)`} />
@@ -734,7 +734,7 @@
 			</p>
 		</ExercisePanel>
 
-		<ExercisePanel number="6.4" title="Calcul du gain de division par l'indice de Gini">
+		<ExercisePanel number="2.4" title="Calcul du gain de division par l'indice de Gini">
 			{#snippet solution()}
 				<p>
 					L'impureté initiale du nœud parent est <KatexInline
@@ -765,7 +765,7 @@
 				</p>
 			{/snippet}
 			<p>
-				En reprenant le nœud de l'exercice 6.3, on propose une division <KatexInline
+				En reprenant le nœud de l'exercice 2.3, on propose une division <KatexInline
 					formula={String.raw`s`}
 				/> qui sépare les données ainsi : le nœud de gauche <KatexInline
 					formula={String.raw`t_L`}
@@ -777,7 +777,7 @@
 			</p>
 		</ExercisePanel>
 
-		<ExercisePanel number="6.5" title="Probabilité d'inclure la meilleure feature">
+		<ExercisePanel number="2.5" title="Probabilité d'inclure la meilleure feature">
 			{#snippet solution()}
 				<p>
 					Le problème revient à calculer la probabilité d'obtenir au moins une fois la variable
@@ -811,7 +811,7 @@
 			</p>
 		</ExercisePanel>
 
-		<ExercisePanel number="6.6" title="Règle empirique de classification">
+		<ExercisePanel number="2.6" title="Règle empirique de classification">
 			{#snippet solution()}
 				<p>
 					Pour la classification, la règle par défaut est <KatexInline
@@ -837,7 +837,7 @@
 			</p>
 		</ExercisePanel>
 
-		<ExercisePanel number="6.7" title="Règle empirique de régression">
+		<ExercisePanel number="2.7" title="Règle empirique de régression">
 			{#snippet solution()}
 				<p>
 					Pour la régression, la règle par défaut est <KatexInline
@@ -859,7 +859,7 @@
 		</ExercisePanel>
 
 		<ExercisePanel
-			number="6.8"
+			number="2.8"
 			title="Calcul de l'importance des caractéristiques par impureté (MDI)"
 		>
 			{#snippet solution()}
@@ -889,7 +889,7 @@
 			</p>
 		</ExercisePanel>
 
-		<ExercisePanel number="6.9" title="Biais systématique du MDI pour les variables catégorielles">
+		<ExercisePanel number="2.9" title="Biais systématique du MDI pour les variables catégorielles">
 			{#snippet solution()}
 				<p>
 					L'importance par réduction d'impureté (MDI) souffre d'un biais majeur en faveur des
@@ -911,7 +911,7 @@
 			</p>
 		</ExercisePanel>
 
-		<ExercisePanel number="6.10" title="Importance par permutation (MDA)">
+		<ExercisePanel number="2.10" title="Importance par permutation (MDA)">
 			{#snippet solution()}
 				<p>
 					Le calcul de l'importance par permutation (Mean Decrease Accuracy) d'une variable
@@ -935,11 +935,11 @@
 			{/snippet}
 			<p>
 				Décrivez l'algorithme de calcul de l'importance des variables par permutation (Mean Decrease
-				Accuracy, MDA). En quoi cette technique résout-elle le biais identifié à l'exercice 6.9 ?
+				Accuracy, MDA). En quoi cette technique résout-elle le biais identifié à l'exercice 2.9 ?
 			</p>
 		</ExercisePanel>
 
-		<ExercisePanel number="6.11" title="Forêts Aléatoires vs Arbres de décision uniques">
+		<ExercisePanel number="2.11" title="Forêts Aléatoires vs Arbres de décision uniques">
 			{#snippet solution()}
 				<p>
 					L'avantage fondamental des Forêts Aléatoires réside dans la <strong
@@ -964,7 +964,7 @@
 			</p>
 		</ExercisePanel>
 
-		<ExercisePanel number="6.12" title="Convergence mathématique du Random Forest">
+		<ExercisePanel number="2.12" title="Convergence mathématique du Random Forest">
 			{#snippet solution()}
 				<p>
 					<strong>Non, il n'y a aucun risque de surapprentissage</strong> en augmentant indéfiniment
@@ -986,7 +986,7 @@
 			</p>
 		</ExercisePanel>
 
-		<ExercisePanel number="6.13" title="Robustesse face aux variables redondantes">
+		<ExercisePanel number="2.13" title="Robustesse face aux variables redondantes">
 			{#snippet solution()}
 				<p>
 					Si l'on ajoute 10 copies identiques d'une variable informative <KatexInline
@@ -1012,7 +1012,7 @@
 			</p>
 		</ExercisePanel>
 
-		<ExercisePanel number="6.14" title="Optimisation numérique : les Extra-Trees">
+		<ExercisePanel number="2.14" title="Optimisation numérique : les Extra-Trees">
 			{#snippet solution()}
 				<p>
 					Les <strong>Extremely Randomized Trees (Extra-Trees)</strong> poussent l'aléa encore plus loin
@@ -1040,7 +1040,7 @@
 			</p>
 		</ExercisePanel>
 
-		<ExercisePanel number="6.15" title="Gestion des données manquantes par Surrogate Splits">
+		<ExercisePanel number="2.15" title="Gestion des données manquantes par Surrogate Splits">
 			{#snippet solution()}
 				<p>
 					Les "surrogate splits" (divisions de secours) sont des règles alternatives apprises à
@@ -1062,7 +1062,7 @@
 			</p>
 		</ExercisePanel>
 
-		<ExercisePanel number="6.16" title="Élagage et forêts aléatoires">
+		<ExercisePanel number="2.16" title="Élagage et forêts aléatoires">
 			{#snippet solution()}
 				<p>
 					Dans une forêt aléatoire, il est de coutume de laisser les arbres croître jusqu'à leur
@@ -1085,7 +1085,7 @@
 			</p>
 		</ExercisePanel>
 
-		<ExercisePanel number="6.17" title="Forêts obliques vs orthogonales">
+		<ExercisePanel number="2.17" title="Forêts obliques vs orthogonales">
 			{#snippet solution()}
 				<p>
 					<strong>Comparaison :</strong>
@@ -1110,7 +1110,7 @@
 			</p>
 		</ExercisePanel>
 
-		<ExercisePanel number="6.18" title="Robustesse des Forêts Aléatoires face aux bruits de labels">
+		<ExercisePanel number="2.18" title="Robustesse des Forêts Aléatoires face aux bruits de labels">
 			{#snippet solution()}
 				<p>
 					Grâce à l'effet régulateur du bootstrap et du moyennage, les forêts aléatoires sont
@@ -1126,7 +1126,7 @@
 			</p>
 		</ExercisePanel>
 
-		<ExercisePanel number="6.19" title="Vrai ou Faux sur les Forêts Aléatoires">
+		<ExercisePanel number="2.19" title="Vrai ou Faux sur les Forêts Aléatoires">
 			{#snippet solution()}
 				<ol>
 					<li>
@@ -1172,7 +1172,7 @@
 			</ol>
 		</ExercisePanel>
 
-		<ExercisePanel number="6.20" title="Bilan : Optimisation des hyperparamètres critiques">
+		<ExercisePanel number="2.20" title="Bilan : Optimisation des hyperparamètres critiques">
 			{#snippet solution()}
 				<p>
 					Pour optimiser une forêt aléatoire, la hiérarchie des hyperparamètres à régler est la
@@ -1212,7 +1212,7 @@
 			théorie des marges, les fonctions de perte et le Gradient Boosting (GBDT).
 		</p>
 
-		<ExercisePanel number="7.1" title="Algorithme AdaBoost pas à pas">
+		<ExercisePanel number="3.1" title="Algorithme AdaBoost pas à pas">
 			{#snippet solution()}
 				<p>
 					1. Initialisation des poids : <KatexInline formula={String.raw`w_i^{(1)} = 1/5 = 0.2`} /> pour
@@ -1242,7 +1242,7 @@
 			</p>
 		</ExercisePanel>
 
-		<ExercisePanel number="7.2" title="Mise à jour des poids d'AdaBoost">
+		<ExercisePanel number="3.2" title="Mise à jour des poids d'AdaBoost">
 			{#snippet solution()}
 				<p>
 					Reprenons les valeurs : <KatexInline formula={String.raw`w_i^{(1)} = 0.2`} />, <KatexInline
@@ -1275,14 +1275,14 @@
 				</p>
 			{/snippet}
 			<p>
-				À l'aide des résultats de l'exercice 7.1, calculez la valeur du facteur de normalisation <KatexInline
+				À l'aide des résultats de l'exercice 3.1, calculez la valeur du facteur de normalisation <KatexInline
 					formula={String.raw`Z_1`}
 				/>, puis déterminez les nouveaux poids <KatexInline formula={String.raw`w_i^{(2)}`} /> pour les
 				exemples correctement classés et pour l'exemple incorrectement classé.
 			</p>
 		</ExercisePanel>
 
-		<ExercisePanel number="7.3" title="Preuve de la formule d'importance d'AdaBoost">
+		<ExercisePanel number="3.3" title="Preuve de la formule d'importance d'AdaBoost">
 			{#snippet solution()}
 				<p>
 					AdaBoost cherche à minimiser la somme des poids de l'étape suivante, ce qui équivaut à
@@ -1314,7 +1314,7 @@
 			</p>
 		</ExercisePanel>
 
-		<ExercisePanel number="7.4" title="AdaBoost et perte exponentielle">
+		<ExercisePanel number="3.4" title="AdaBoost et perte exponentielle">
 			{#snippet solution()}
 				<p>
 					Montrons que la mise à jour récursive des poids implique que le poids final d'un exemple
@@ -1345,7 +1345,7 @@
 			</p>
 		</ExercisePanel>
 
-		<ExercisePanel number="7.5" title="Borne supérieure de l'erreur d'apprentissage">
+		<ExercisePanel number="3.5" title="Borne supérieure de l'erreur d'apprentissage">
 			{#snippet solution()}
 				<p>
 					Notons que si le classifieur commet une erreur de prédiction sur l'exemple <KatexInline
@@ -1372,13 +1372,13 @@
 				</p>
 			{/snippet}
 			<p>
-				Démontrez le théorème 7.1 établissant que l'erreur d'apprentissage d'AdaBoost est majorée
+				Démontrez le Théorème 4.3 établissant que l'erreur d'apprentissage d'AdaBoost est majorée
 				par le produit des facteurs de normalisation successifs :
 				<KatexBlock formula={f75} />
 			</p>
 		</ExercisePanel>
 
-		<ExercisePanel number="7.6" title="AdaBoost sur classifieur parfait ou inversé">
+		<ExercisePanel number="3.6" title="AdaBoost sur classifieur parfait ou inversé">
 			{#snippet solution()}
 				<p>Analysons les deux situations extrêmes :</p>
 				<ul>
@@ -1406,7 +1406,7 @@
 			</p>
 		</ExercisePanel>
 
-		<ExercisePanel number="7.7" title="Calcul de la marge fonctionnelle d'un point">
+		<ExercisePanel number="3.7" title="Calcul de la marge fonctionnelle d'un point">
 			{#snippet solution()}
 				<p>
 					La marge fonctionnelle d'un point <KatexInline formula={String.raw`(x_i, y_i)`} /> est définie
@@ -1445,7 +1445,7 @@
 			</p>
 		</ExercisePanel>
 
-		<ExercisePanel number="7.8" title="Théorie des marges et non-surapprentissage">
+		<ExercisePanel number="3.8" title="Théorie des marges et non-surapprentissage">
 			{#snippet solution()}
 				<p>
 					L'erreur d'apprentissage d'AdaBoost tombe souvent à 0 après seulement quelques dizaines
@@ -1457,7 +1457,8 @@
 					points ont une marge positive), continuer les itérations pousse les exemples
 					d'apprentissage loin de la frontière de décision, ce qui
 					<strong>augmente la marge géométrique minimale</strong>. Une marge plus grande se traduit
-					par une meilleure capacité de généralisation (Théorème 7.2) et immunise le modèle contre
+					par une meilleure capacité de généralisation (borne de généralisation par les marges) et
+					immunise le modèle contre
 					le surapprentissage.
 				</p>
 			{/snippet}
@@ -1468,7 +1469,7 @@
 			</p>
 		</ExercisePanel>
 
-		<ExercisePanel number="7.9" title="Gradient Boosting : Pseudo-résidus L2">
+		<ExercisePanel number="3.9" title="Gradient Boosting : Pseudo-résidus L2">
 			{#snippet solution()}
 				<p>
 					La fonction de perte quadratique pour un exemple est <KatexInline
@@ -1493,7 +1494,7 @@
 			</p>
 		</ExercisePanel>
 
-		<ExercisePanel number="7.10" title="Gradient Boosting : Pseudo-résidus L1">
+		<ExercisePanel number="3.10" title="Gradient Boosting : Pseudo-résidus L1">
 			{#snippet solution()}
 				<p>
 					La fonction de perte absolue est <KatexInline
@@ -1520,7 +1521,7 @@
 			</p>
 		</ExercisePanel>
 
-		<ExercisePanel number="7.11" title="Initialisation optimale pour la perte L2">
+		<ExercisePanel number="3.11" title="Initialisation optimale pour la perte L2">
 			{#snippet solution()}
 				<p>
 					Le modèle initial constant <KatexInline formula={String.raw`F_0(x)`} /> est défini par le paramètre
@@ -1546,7 +1547,7 @@
 			</p>
 		</ExercisePanel>
 
-		<ExercisePanel number="7.12" title="Initialisation optimale pour la perte L1">
+		<ExercisePanel number="3.12" title="Initialisation optimale pour la perte L1">
 			{#snippet solution()}
 				<p>Pour la perte absolue L1 :</p>
 				<KatexBlock formula={String.raw`F_0(x) = \arg\min_{\gamma} \sum_{i=1}^N |y_i - \gamma|`} />
@@ -1564,7 +1565,7 @@
 			</p>
 		</ExercisePanel>
 
-		<ExercisePanel number="7.13" title="Stochastic Gradient Boosting">
+		<ExercisePanel number="3.13" title="Stochastic Gradient Boosting">
 			{#snippet solution()}
 				<p>
 					Le <strong>Stochastic Gradient Boosting</strong> introduit une étape d'échantillonnage aléatoire
@@ -1588,7 +1589,7 @@
 			</p>
 		</ExercisePanel>
 
-		<ExercisePanel number="7.14" title="Rôle du taux d'apprentissage (Shrinkage)">
+		<ExercisePanel number="3.14" title="Rôle du taux d'apprentissage (Shrinkage)">
 			{#snippet solution()}
 				<p>
 					La mise à jour de la prédiction cumulée s'écrit <KatexInline
@@ -1613,7 +1614,7 @@
 			</p>
 		</ExercisePanel>
 
-		<ExercisePanel number="7.15" title="Sensibilité d'AdaBoost au bruit">
+		<ExercisePanel number="3.15" title="Sensibilité d'AdaBoost au bruit">
 			{#snippet solution()}
 				<p>
 					AdaBoost utilise la <strong>perte exponentielle</strong>, qui est extrêmement sensible aux
@@ -1634,7 +1635,7 @@
 			</p>
 		</ExercisePanel>
 
-		<ExercisePanel number="7.16" title="Formulation du Tree Boosting (GBDT)">
+		<ExercisePanel number="3.16" title="Formulation du Tree Boosting (GBDT)">
 			{#snippet solution()}
 				<p>
 					Dans le GBDT, après avoir partitionné l'espace en régions disjointes <KatexInline
@@ -1663,7 +1664,7 @@
 			</p>
 		</ExercisePanel>
 
-		<ExercisePanel number="7.17" title="XGBoost vs GBDT Classique">
+		<ExercisePanel number="3.17" title="XGBoost vs GBDT Classique">
 			{#snippet solution()}
 				<p>
 					<strong>XGBoost</strong> propose deux améliorations mathématiques majeures :
@@ -1689,7 +1690,7 @@
 			</p>
 		</ExercisePanel>
 
-		<ExercisePanel number="7.18" title="Perte robuste de Huber">
+		<ExercisePanel number="3.18" title="Perte robuste de Huber">
 			{#snippet solution()}
 				<p>
 					La perte de Huber se comporte comme une perte L2 pour de petites erreurs et comme une
@@ -1714,7 +1715,7 @@
 			</p>
 		</ExercisePanel>
 
-		<ExercisePanel number="7.19" title="Vrai ou Faux sur le Boosting">
+		<ExercisePanel number="3.19" title="Vrai ou Faux sur le Boosting">
 			{#snippet solution()}
 				<ol>
 					<li>
@@ -1762,7 +1763,7 @@
 			</ol>
 		</ExercisePanel>
 
-		<ExercisePanel number="7.20" title="Bilan : Bagging vs Boosting">
+		<ExercisePanel number="3.20" title="Bilan : Bagging vs Boosting">
 			{#snippet solution()}
 				<table>
 					<thead>
@@ -1812,7 +1813,7 @@
 			(L1), de l'Elastic Net, et de leurs aspects géométriques et algorithmiques.
 		</p>
 
-		<ExercisePanel number="8.1" title="Décomposition Biais-Variance formelle">
+		<ExercisePanel number="4.1" title="Décomposition Biais-Variance formelle">
 			{#snippet solution()}
 				<p>
 					Soit <KatexInline formula={String.raw`y = f(x) + \varepsilon`} /> avec <KatexInline
@@ -1848,7 +1849,7 @@
 			</p>
 		</ExercisePanel>
 
-		<ExercisePanel number="8.2" title="Équivalence des formulations de régularisation">
+		<ExercisePanel number="4.2" title="Équivalence des formulations de régularisation">
 			{#snippet solution()}
 				<p>
 					L'équivalence repose sur les conditions d'optimalité de Karush-Kuhn-Tucker (KKT).
@@ -1876,7 +1877,7 @@
 			</p>
 		</ExercisePanel>
 
-		<ExercisePanel number="8.3" title="Dérivation de la solution analytique Ridge">
+		<ExercisePanel number="4.3" title="Dérivation de la solution analytique Ridge">
 			{#snippet solution()}
 				<p>
 					Le coût à minimiser est : <KatexInline
@@ -1901,7 +1902,7 @@
 			</p>
 		</ExercisePanel>
 
-		<ExercisePanel number="8.4" title="Interprétation géométrique L1 vs L2">
+		<ExercisePanel number="4.4" title="Interprétation géométrique L1 vs L2">
 			{#snippet solution()}
 				<p>L'explication réside dans la géométrie des courbes de niveau de la pénalité :</p>
 				<ul>
@@ -1930,7 +1931,7 @@
 			</p>
 		</ExercisePanel>
 
-		<ExercisePanel number="8.5" title="Opérateur de seuillage doux (Lasso 1D)">
+		<ExercisePanel number="4.5" title="Opérateur de seuillage doux (Lasso 1D)">
 			{#snippet solution()}
 				<p>
 					En dimension 1 avec <KatexInline formula={String.raw`X^\top X = n`} />, la fonction de
@@ -1972,7 +1973,7 @@
 			</p>
 		</ExercisePanel>
 
-		<ExercisePanel number="8.6" title="Opérateur de contraction linéaire (Ridge 1D)">
+		<ExercisePanel number="4.6" title="Opérateur de contraction linéaire (Ridge 1D)">
 			{#snippet solution()}
 				<p>
 					En dimension 1 avec <KatexInline formula={String.raw`X^\top X = n`} />, le coût du Ridge
@@ -1997,7 +1998,7 @@
 			</p>
 		</ExercisePanel>
 
-		<ExercisePanel number="8.7" title="Invertibilité garantie grâce à la régularisation Ridge">
+		<ExercisePanel number="4.7" title="Invertibilité garantie grâce à la régularisation Ridge">
 			{#snippet solution()}
 				<p>
 					La matrice de covariance empirique <KatexInline formula={String.raw`X^\top X`} /> est semi-définie
@@ -2028,7 +2029,7 @@
 			</p>
 		</ExercisePanel>
 
-		<ExercisePanel number="8.8" title="Colinéarité et régression Ridge">
+		<ExercisePanel number="4.8" title="Colinéarité et régression Ridge">
 			{#snippet solution()}
 				<p>
 					Soit deux variables colinéaires <KatexInline formula={String.raw`X_1 = X_2`} />. Ridge
@@ -2054,7 +2055,7 @@
 			</p>
 		</ExercisePanel>
 
-		<ExercisePanel number="8.9" title="Colinéarité et Lasso : instabilité de sélection">
+		<ExercisePanel number="4.9" title="Colinéarité et Lasso : instabilité de sélection">
 			{#snippet solution()}
 				<p>
 					Pour deux variables identiques <KatexInline formula={String.raw`X_1 = X_2`} /> et un effet cumulé
@@ -2079,14 +2080,14 @@
 				</p>
 			{/snippet}
 			<p>
-				Reprenez l'hypothèse de colinéarité de l'exercice 8.8 (<KatexInline
+				Reprenez l'hypothèse de colinéarité de l'exercice 4.8 (<KatexInline
 					formula={String.raw`X_1 = X_2`}
 				/>). Montrez que le Lasso n'offre pas de solution unique pour ce couple de variables et
 				discutez des conséquences sur la sélection de variables.
 			</p>
 		</ExercisePanel>
 
-		<ExercisePanel number="8.10" title="Elastic Net : Synthèse et stabilisation">
+		<ExercisePanel number="4.10" title="Elastic Net : Synthèse et stabilisation">
 			{#snippet solution()}
 				<p>La fonction objective de l'Elastic Net est :</p>
 				<KatexBlock
@@ -2108,7 +2109,7 @@
 			</p>
 		</ExercisePanel>
 
-		<ExercisePanel number="8.11" title="Ridge : Décomposition en éléments propres">
+		<ExercisePanel number="4.11" title="Ridge : Décomposition en éléments propres">
 			{#snippet solution()}
 				<p>
 					Soit la décomposition SVD de la matrice des données <KatexInline
@@ -2141,7 +2142,7 @@
 			</p>
 		</ExercisePanel>
 
-		<ExercisePanel number="8.12" title="Degrés de liberté effectifs de Ridge">
+		<ExercisePanel number="4.12" title="Degrés de liberté effectifs de Ridge">
 			{#snippet solution()}
 				<p>
 					Les degrés de liberté effectifs d'un ajustement linéaire régularisé Ridge se calculent par
@@ -2175,7 +2176,7 @@
 			</p>
 		</ExercisePanel>
 
-		<ExercisePanel number="8.13" title="Descente par coordonnées pour le Lasso">
+		<ExercisePanel number="4.13" title="Descente par coordonnées pour le Lasso">
 			{#snippet solution()}
 				<p>
 					L'algorithme optimise la fonction objectif coordonnée par coordonnée de manière itérative
@@ -2186,7 +2187,7 @@
 					/>.
 				</p>
 				<p>
-					Le problème se ramène à une minimisation unidimensionnelle équivalente à l'exercice 8.5.
+					Le problème se ramène à une minimisation unidimensionnelle équivalente à l'exercice 4.5.
 					La mise à jour du coefficient <KatexInline formula={String.raw`w_j`} /> est donnée par :
 				</p>
 				<KatexBlock formula={String.raw`w_j^{(k+1)} = \frac{S_{n\lambda}(\rho_j)}{\|X_j\|_2^2}`} />
@@ -2202,7 +2203,7 @@
 			</p>
 		</ExercisePanel>
 
-		<ExercisePanel number="8.14" title="Règle de l'écart-type pour la validation croisée">
+		<ExercisePanel number="4.14" title="Règle de l'écart-type pour la validation croisée">
 			{#snippet solution()}
 				<p>La règle du "One Standard Error" (1-SE Rule) consiste à :</p>
 				<ol>
@@ -2232,7 +2233,7 @@
 			</p>
 		</ExercisePanel>
 
-		<ExercisePanel number="8.15" title="Interprétation bayésienne du Ridge">
+		<ExercisePanel number="4.15" title="Interprétation bayésienne du Ridge">
 			{#snippet solution()}
 				<p>
 					Supposons un modèle <KatexInline formula={String.raw`y = Xw + \varepsilon`} /> avec un bruit
@@ -2267,7 +2268,7 @@
 			</p>
 		</ExercisePanel>
 
-		<ExercisePanel number="8.16" title="Interprétation bayésienne du Lasso">
+		<ExercisePanel number="4.16" title="Interprétation bayésienne du Lasso">
 			{#snippet solution()}
 				<p>
 					En conservant la même vraisemblance gaussienne, supposons cette fois un a priori de
@@ -2291,7 +2292,7 @@
 			</p>
 		</ExercisePanel>
 
-		<ExercisePanel number="8.17" title="Nécessité absolue de la standardisation">
+		<ExercisePanel number="4.17" title="Nécessité absolue de la standardisation">
 			{#snippet solution()}
 				<p>
 					La pénalité de régularisation applique le même traitement <KatexInline
@@ -2315,7 +2316,7 @@
 			</p>
 		</ExercisePanel>
 
-		<ExercisePanel number="8.18" title="Exclusion de l'intercept de la pénalité">
+		<ExercisePanel number="4.18" title="Exclusion de l'intercept de la pénalité">
 			{#snippet solution()}
 				<p>
 					L'ordonnée à l'origine (intercept, noté <KatexInline formula={String.raw`w_0`} />)
@@ -2335,7 +2336,7 @@
 			</p>
 		</ExercisePanel>
 
-		<ExercisePanel number="8.19" title="Vrai ou Faux sur la Régularisation L1/L2">
+		<ExercisePanel number="4.19" title="Vrai ou Faux sur la Régularisation L1/L2">
 			{#snippet solution()}
 				<ol>
 					<li>
@@ -2380,7 +2381,7 @@
 			</ol>
 		</ExercisePanel>
 
-		<ExercisePanel number="8.20" title="Bilan synthétique : Ridge vs Lasso">
+		<ExercisePanel number="4.20" title="Bilan synthétique : Ridge vs Lasso">
 			{#snippet solution()}
 				<table>
 					<thead>

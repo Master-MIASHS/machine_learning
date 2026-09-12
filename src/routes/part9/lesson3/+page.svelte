@@ -1,5 +1,6 @@
 <script lang="ts">
 	import PageTemplate from '$lib/components/layout/PageTemplate.svelte';
+	import DeferredDemo from '$lib/components/layout/DeferredDemo.svelte';
 	import TheorySection from '$lib/components/narrative/TheorySection.svelte';
 	import TableOfContents from '$lib/components/narrative/TableOfContents.svelte';
 	import Callout from '$lib/components/narrative/Callout.svelte';
@@ -11,10 +12,6 @@
 	import KatexBlock from '$lib/components/narrative/KatexBlock.svelte';
 	import Bibliography from '$lib/components/narrative/bib/Bibliography.svelte';
 	import BibElement from '$lib/components/narrative/bib/BibElement.svelte';
-	import VCShatteringExplorer from '$lib/components/demos/VCShatteringExplorer.svelte';
-	import SinusoidVCExplorer from '$lib/components/demos/SinusoidVCExplorer.svelte';
-	import SauerGrowthDemo from '$lib/components/demos/SauerGrowthDemo.svelte';
-	import MarginVCExplorer from '$lib/components/demos/MarginVCExplorer.svelte';
 	import { getPageByPath, getAdjacentPages } from '$lib/navigation.js';
 	import { settings } from '$lib/stores/index.js';
 	import { createPageTracker } from '$lib/stores/progress.svelte';
@@ -187,7 +184,7 @@
 			title="Briser un ensemble de points"
 			onInteract={tracker.trackInteraction}
 		>
-			<VCShatteringExplorer />
+			<DeferredDemo load={() => import('$lib/components/demos/VCShatteringExplorer.svelte')} />
 		</InteractiveSection>
 
 		<p>
@@ -224,7 +221,7 @@
 			title="Dimension VC infinie : sin(Ax + b)"
 			onInteract={tracker.trackInteraction}
 		>
-			<SinusoidVCExplorer />
+			<DeferredDemo load={() => import('$lib/components/demos/SinusoidVCExplorer.svelte')} />
 		</InteractiveSection>
 
 		<h2 id="coefficient-brisure-sauer-shelah">Coefficient de brisure et lemme de Sauer-Shelah</h2>
@@ -269,7 +266,7 @@
 			title="De la croissance exponentielle à la croissance polynomiale"
 			onInteract={tracker.trackInteraction}
 		>
-			<SauerGrowthDemo />
+			<DeferredDemo load={() => import('$lib/components/demos/SauerGrowthDemo.svelte')} />
 		</InteractiveSection>
 
 		<h2 id="theoreme-generalisation-vc">Théorème de généralisation VC</h2>
@@ -352,7 +349,7 @@
 			title="Marge, rayon et dimension VC"
 			onInteract={tracker.trackInteraction}
 		>
-			<MarginVCExplorer />
+			<DeferredDemo load={() => import('$lib/components/demos/MarginVCExplorer.svelte')} />
 		</InteractiveSection>
 
 		<Callout type="summary" title="Retenir">

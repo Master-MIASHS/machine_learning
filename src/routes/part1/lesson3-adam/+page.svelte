@@ -1,5 +1,6 @@
 <script lang="ts">
 	import PageTemplate from '$lib/components/layout/PageTemplate.svelte';
+	import DeferredDemo from '$lib/components/layout/DeferredDemo.svelte';
 	import TheorySection from '$lib/components/narrative/TheorySection.svelte';
 	import InteractiveSection from '$lib/components/narrative/InteractiveSection.svelte';
 	import DefinitionBlock from '$lib/components/narrative/DefinitionBlock.svelte';
@@ -17,13 +18,6 @@
 	import { createPageTracker } from '$lib/stores/progress.svelte';
 	import type { PageMeta } from '$lib/navigation.js';
 
-	import AdamMomentsVisualizer from '$lib/components/demos/AdamMomentsVisualizer.svelte';
-	import AdamStepByStep from '$lib/components/demos/AdamStepByStep.svelte';
-	import AdamBiasCorrectionExplorer from '$lib/components/demos/AdamBiasCorrectionExplorer.svelte';
-	import EffectiveLearningRateExplorer from '$lib/components/demos/EffectiveLearningRateExplorer.svelte';
-	import Beta2NonStationarityExplorer from '$lib/components/demos/Beta2NonStationarityExplorer.svelte';
-	import AdamVsAdamWDecayExplorer from '$lib/components/demos/AdamVsAdamWDecayExplorer.svelte';
-	import AdamFailureModesLab from '$lib/components/demos/AdamFailureModesLab.svelte';
 	import Quiz from '$lib/components/narrative/Quiz.svelte';
 	import { getQuizQuestions } from '$lib/quiz';
 
@@ -550,11 +544,11 @@
 		</Callout>
 
 		<InteractiveSection
-			number="5.1"
+			number="E.1"
 			title="Explorer les deux mémoires du gradient"
 			onInteract={tracker.trackInteraction}
 		>
-			<AdamMomentsVisualizer />
+			<DeferredDemo load={() => import('$lib/components/demos/AdamMomentsVisualizer.svelte')} />
 		</InteractiveSection>
 	</TheorySection>
 
@@ -570,7 +564,7 @@
 			multidimensionnel.
 		</p>
 
-		<DefinitionBlock number="6.1" title="Adam">
+		<DefinitionBlock number="E.2" title="Adam">
 			<p>
 				Soit un modèle avec <KatexInline formula={'d'} /> paramètres <KatexInline
 					formula={'\\theta_t \\in \\mathbb{R}^d'}
@@ -652,8 +646,8 @@
 			</p>
 		</Callout>
 
-		<InteractiveSection number="6.1" title="Adam pas à pas" onInteract={tracker.trackInteraction}>
-			<AdamStepByStep />
+		<InteractiveSection number="E.2" title="Adam pas à pas" onInteract={tracker.trackInteraction}>
+			<DeferredDemo load={() => import('$lib/components/demos/AdamStepByStep.svelte')} />
 		</InteractiveSection>
 	</TheorySection>
 
@@ -669,7 +663,7 @@
 			concret : <strong>les deux mémoires commencent artificiellement à zéro</strong>.
 		</p>
 
-		<ExampleBlock number="7.1" title="Un gradient constant">
+		<ExampleBlock number="E.3" title="Un gradient constant">
 			<p>Supposons pour simplifier que :</p>
 
 			<KatexBlock formula={String.raw`g_t=g\qquad\text{pour tout }t`} />
@@ -700,7 +694,7 @@
 
 		<KatexBlock formula={biasCorrection} />
 
-		<TheoremBlock number="7.1" title="Correction de l’initialisation">
+		<TheoremBlock number="E.3" title="Correction de l’initialisation">
 			<p>
 				Les facteurs
 				<KatexInline formula={'1-\\beta_1^t'} /> et
@@ -725,11 +719,11 @@
 		</Callout>
 
 		<InteractiveSection
-			number="7.1"
+			number="E.3"
 			title="Voir la correction du biais"
 			onInteract={tracker.trackInteraction}
 		>
-			<AdamBiasCorrectionExplorer />
+			<DeferredDemo load={() => import('$lib/components/demos/AdamBiasCorrectionExplorer.svelte')} />
 		</InteractiveSection>
 	</TheorySection>
 
@@ -783,11 +777,11 @@
 		</Callout>
 
 		<InteractiveSection
-			number="8.1"
+			number="E.4"
 			title="Explorer le taux d’apprentissage effectif"
 			onInteract={tracker.trackInteraction}
 		>
-			<EffectiveLearningRateExplorer />
+			<DeferredDemo load={() => import('$lib/components/demos/EffectiveLearningRateExplorer.svelte')} />
 		</InteractiveSection>
 
 		<Callout type="warning" title="Ce n’est pas Newton">
@@ -849,11 +843,11 @@
 		</Callout>
 
 		<InteractiveSection
-			number="9.1"
+			number="E.5"
 			title="β₂ et non-stationnarité"
 			onInteract={tracker.trackInteraction}
 		>
-			<Beta2NonStationarityExplorer />
+			<DeferredDemo load={() => import('$lib/components/demos/Beta2NonStationarityExplorer.svelte')} />
 		</InteractiveSection>
 
 		<h3>ε : le petit terme qui peut devenir important</h3>
@@ -1053,11 +1047,11 @@
 		</Callout>
 
 		<InteractiveSection
-			number="12.1"
+			number="E.6"
 			title="Adam et AdamW : comparer les trajectoires"
 			onInteract={tracker.trackInteraction}
 		>
-			<AdamVsAdamWDecayExplorer />
+			<DeferredDemo load={() => import('$lib/components/demos/AdamVsAdamWDecayExplorer.svelte')} />
 		</InteractiveSection>
 	</TheorySection>
 
@@ -1107,11 +1101,11 @@
 		</Callout>
 
 		<InteractiveSection
-			number="13.1"
+			number="E.7"
 			title="Laboratoire des modes d’échec"
 			onInteract={tracker.trackInteraction}
 		>
-			<AdamFailureModesLab />
+			<DeferredDemo load={() => import('$lib/components/demos/AdamFailureModesLab.svelte')} />
 		</InteractiveSection>
 	</TheorySection>
 
@@ -1438,7 +1432,7 @@
 		</Callout>
 
 		<InteractiveSection
-			number="13.2"
+			number="E.8"
 			title="Quiz — Adam : mémoire, échelle et normalisation"
 			onInteract={tracker.trackInteraction}
 		>
@@ -1603,7 +1597,7 @@
 		height: 2rem;
 		margin-bottom: 0.75rem;
 		border-radius: 50%;
-		background: var(--color-surface-raised, var(--color-surface));
+		background: var(--color-surface-2);
 		border: 1px solid var(--color-border);
 		font-weight: 700;
 	}
