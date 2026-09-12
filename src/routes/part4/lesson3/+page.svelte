@@ -25,19 +25,19 @@
 	const h3Vec = String.raw`\varepsilon \sim \mathcal{N}_n(0_n, \sigma^2 I_n)`;
 	const loglik = String.raw`\ell(\beta, \sigma^2) = -\tfrac{n}{2}\log(2\pi) - \tfrac{n}{2}\log\sigma^2 - \tfrac{1}{2\sigma^2}\|Y - X\beta\|^2`;
 	const mle = String.raw`\hat{\beta}^{\mathrm{MV}} = \hat{\beta}, \qquad \hat{\sigma}^{2}_{\mathrm{MV}} = \frac{\mathrm{SCR}}{n}`;
-	const loisBeta = String.raw`\hat{\beta} \sim \mathcal{N}_{p+1}\!\left(\beta,\ \sigma^2 (X^{\mathrm{T}}X)^{-1}\right)`;
+	const loisBeta = String.raw`\hat{\beta} \sim \mathcal{N}_{p+1}\!\left(\beta,\ \sigma^2 (X^\topX)^{-1}\right)`;
 	const loisChisq = String.raw`\frac{(n-p-1)\hat{\sigma}^2}{\sigma^2} \sim \chi^2(n-p-1)`;
-	const loisT = String.raw`T_{j-1} = \frac{\hat{\beta}_j - \beta_j}{\hat{\sigma}\sqrt{(X^{\mathrm{T}}X)^{-1}_{jj}}} \sim \text{Student}(n-p-1)`;
-	const icBeta = String.raw`IC_{1-\alpha}(\beta_j) = \hat{\beta}_j \pm t_{n-p-1}(1-\alpha/2)\ \hat{\sigma}\sqrt{(X^{\mathrm{T}}X)^{-1}_{jj}}`;
+	const loisT = String.raw`T_{j-1} = \frac{\hat{\beta}_j - \beta_j}{\hat{\sigma}\sqrt{(X^\topX)^{-1}_{jj}}} \sim \text{Student}(n-p-1)`;
+	const icBeta = String.raw`IC_{1-\alpha}(\beta_j) = \hat{\beta}_j \pm t_{n-p-1}(1-\alpha/2)\ \hat{\sigma}\sqrt{(X^\topX)^{-1}_{jj}}`;
 	const fGlobal = String.raw`F = \frac{\mathrm{SCE}/p}{\mathrm{SCR}/(n-p-1)} \sim F_{p,\,n-p-1}`;
 	const fNested = String.raw`F_q = \frac{(R^2 - R_q^2)/q}{(1 - R^2)/(n-p-1)} \sim F_{q,\,n-p-1}`;
-	const icMoy = String.raw`\hat{y}_0 \pm t_{n-p-1}(1-\alpha/2)\ \hat{\sigma}\sqrt{v_0^{\mathrm{T}}(X^{\mathrm{T}}X)^{-1}v_0}`;
-	const icPred = String.raw`\hat{y}_0 \pm t_{n-p-1}(1-\alpha/2)\ \hat{\sigma}\sqrt{1 + v_0^{\mathrm{T}}(X^{\mathrm{T}}X)^{-1}v_0}`;
+	const icMoy = String.raw`\hat{y}_0 \pm t_{n-p-1}(1-\alpha/2)\ \hat{\sigma}\sqrt{v_0^\top(X^\topX)^{-1}v_0}`;
+	const icPred = String.raw`\hat{y}_0 \pm t_{n-p-1}(1-\alpha/2)\ \hat{\sigma}\sqrt{1 + v_0^\top(X^\topX)^{-1}v_0}`;
 	const h2prime = String.raw`\mathrm{Cov}(\varepsilon) = \sigma^2 \mathcal{F}`;
-	const varOlsCorr = String.raw`\mathrm{Var}(\hat{\beta}) = \sigma^2 (X^{\mathrm{T}}X)^{-1} X^{\mathrm{T}}\mathcal{F}X (X^{\mathrm{T}}X)^{-1}`;
-	const gls = String.raw`\hat{\beta}_{\mathrm{MCG}} = (X^{\mathrm{T}}\mathcal{F}^{-1}X)^{-1} X^{\mathrm{T}}\mathcal{F}^{-1} Y`;
-	const glsVar = String.raw`\mathrm{Var}(\hat{\beta}_{\mathrm{MCG}}) = \sigma^2 (X^{\mathrm{T}}\mathcal{F}^{-1}X)^{-1}`;
-	const glsSig = String.raw`\hat{\sigma}^{2}_{\mathrm{MCG}} = \frac{(Y - X\hat{\beta}_{\mathrm{MCG}})^{\mathrm{T}}\mathcal{F}^{-1}(Y - X\hat{\beta}_{\mathrm{MCG}})}{n-p-1}`;
+	const varOlsCorr = String.raw`\mathrm{Var}(\hat{\beta}) = \sigma^2 (X^\topX)^{-1} X^\top\mathcal{F}X (X^\topX)^{-1}`;
+	const gls = String.raw`\hat{\beta}_{\mathrm{MCG}} = (X^\top\mathcal{F}^{-1}X)^{-1} X^\top\mathcal{F}^{-1} Y`;
+	const glsVar = String.raw`\mathrm{Var}(\hat{\beta}_{\mathrm{MCG}}) = \sigma^2 (X^\top\mathcal{F}^{-1}X)^{-1}`;
+	const glsSig = String.raw`\hat{\sigma}^{2}_{\mathrm{MCG}} = \frac{(Y - X\hat{\beta}_{\mathrm{MCG}})^\top\mathcal{F}^{-1}(Y - X\hat{\beta}_{\mathrm{MCG}})}{n-p-1}`;
 
 	const tocEntries: TocEntry[] = [
 		{ id: 'h3', label: 'L’hypothèse gaussienne (H3)', color: 'belief' },
@@ -67,10 +67,10 @@
 
 		<p>
 			Les leçons précédentes ont donné, sous (H1)–(H2) : l’estimateur
-			<KatexInline formula={String.raw`\hat{\beta} = (X^{\mathrm{T}}X)^{-1}X^{\mathrm{T}}Y`} />, ses
+			<KatexInline formula={String.raw`\hat{\beta} = (X^\topX)^{-1}X^\topY`} />, ses
 			propriétés (sans biais,
 			<KatexInline
-				formula={String.raw`\mathrm{Var}(\hat{\beta}) = \sigma^2 (X^{\mathrm{T}}X)^{-1}`}
+				formula={String.raw`\mathrm{Var}(\hat{\beta}) = \sigma^2 (X^\topX)^{-1}`}
 			/>), et l’estimateur sans biais
 			<KatexInline formula={String.raw`\hat{\sigma}^2 = \mathrm{SCR}/(n-p-1)`} />. Mais
 			<strong>aucune loi</strong>
@@ -153,7 +153,7 @@
 
 		<p>
 			Sous (H3), <KatexInline formula="Y" /> est gaussienne. Comme
-			<KatexInline formula={String.raw`\hat{\beta} = (X^{\mathrm{T}}X)^{-1}X^{\mathrm{T}}Y`} />
+			<KatexInline formula={String.raw`\hat{\beta} = (X^\topX)^{-1}X^\topY`} />
 			et
 			<KatexInline formula={String.raw`\hat{\varepsilon} = Y - X\hat{\beta}`} /> sont des
 			<strong>combinaisons linéaires</strong>
@@ -229,14 +229,14 @@
 				où <KatexInline formula={String.raw`t_{n-p-1}(1-\alpha/2)`} /> est le quantile
 				<KatexInline formula={String.raw`1-\alpha/2`} /> de la loi de Student à
 				<KatexInline formula={String.raw`n-p-1`} /> degrés de liberté. La demi-largeur
-				<KatexInline formula={String.raw`\hat{\sigma}\sqrt{(X^{\mathrm{T}}X)^{-1}_{jj}}`} />
+				<KatexInline formula={String.raw`\hat{\sigma}\sqrt{(X^\topX)^{-1}_{jj}}`} />
 				est l’<strong>erreur-type</strong> de
 				<KatexInline formula={String.raw`\hat{\beta}_j`} /> : elle croît avec
 				<KatexInline formula={String.raw`\hat{\sigma}`} /> et diminue quand la dispersion des <KatexInline
 					formula="x"
 				/> augmente
 				<KatexInline
-					formula={String.raw`((X^{\mathrm{T}}X)^{-1}_{jj} \propto 1/\text{dispersion})`}
+					formula={String.raw`((X^\topX)^{-1}_{jj} \propto 1/\text{dispersion})`}
 				/>.
 			</p>
 		</DefinitionBlock>
@@ -249,7 +249,7 @@
 				<KatexInline formula="\alpha" /> : on calcule
 			</p>
 			<KatexBlock
-				formula={String.raw`T_{j-1} = \frac{\hat{\beta}_j}{\hat{\sigma}\sqrt{(X^{\mathrm{T}}X)^{-1}_{jj}}}`}
+				formula={String.raw`T_{j-1} = \frac{\hat{\beta}_j}{\hat{\sigma}\sqrt{(X^\topX)^{-1}_{jj}}}`}
 			/>
 			<p>
 				et l’on <strong>rejette</strong>
@@ -427,7 +427,7 @@
 			On observe de nouvelles covariables
 			<KatexInline formula={String.raw`v_0 = (1, x_{10}, \dots, x_{p0})`} /> et on vise la réponse correspondante.
 			L’estimateur naturel est
-			<KatexInline formula={String.raw`\hat{y}_0 = v_0^{\mathrm{T}}\hat{\beta}`} />, mais il faut
+			<KatexInline formula={String.raw`\hat{y}_0 = v_0^\top\hat{\beta}`} />, mais il faut
 			distinguer deux cibles différentes.
 		</p>
 
@@ -435,17 +435,17 @@
 			<ul>
 				<li>
 					<strong>Moyenne de la réponse</strong> :
-					<KatexInline formula={String.raw`\mathrm{E}[Y_0] = v_0^{\mathrm{T}}\beta`} />
+					<KatexInline formula={String.raw`\mathrm{E}[Y_0] = v_0^\top\beta`} />
 					est une quantité <em>lisse</em>, estimée par
 					<KatexInline formula={String.raw`\hat{y}_0`} /> avec variance
-					<KatexInline formula={String.raw`\sigma^2 v_0^{\mathrm{T}}(X^{\mathrm{T}}X)^{-1}v_0`} />
+					<KatexInline formula={String.raw`\sigma^2 v_0^\top(X^\topX)^{-1}v_0`} />
 					— intervalle de confiance (extension immédiate de la formule du cours, au-delà des diapos, qui
 					ne donnent que l’intervalle de prédiction) :
 					<KatexBlock formula={icMoy} />
 				</li>
 				<li>
 					<strong>Nouvelle observation</strong> :
-					<KatexInline formula={String.raw`Y_0 = v_0^{\mathrm{T}}\beta + \varepsilon_0`} />
+					<KatexInline formula={String.raw`Y_0 = v_0^\top\beta + \varepsilon_0`} />
 					portée par son propre bruit
 					<KatexInline formula={String.raw`\varepsilon_0`} /> — intervalle de
 					<strong>prédiction</strong> :
@@ -459,7 +459,7 @@
 				<strong>toujours plus large</strong>
 				que l’intervalle de confiance. Les deux s’élargissent quand
 				<KatexInline formula={String.raw`v_0`} /> s’éloigne du barycentre des observations — l’effet levier
-				<KatexInline formula={String.raw`v_0^{\mathrm{T}}(X^{\mathrm{T}}X)^{-1}v_0`} />.
+				<KatexInline formula={String.raw`v_0^\top(X^\topX)^{-1}v_0`} />.
 			</p>
 		</DefinitionBlock>
 
@@ -502,7 +502,7 @@
 
 		<p>
 			— qui n’est plus
-			<KatexInline formula={String.raw`\sigma^2(X^{\mathrm{T}}X)^{-1}`} />, et que l’on ne peut pas
+			<KatexInline formula={String.raw`\sigma^2(X^\topX)^{-1}`} />, et que l’on ne peut pas
 			minimiser par OLS. La solution :
 		</p>
 
@@ -513,7 +513,7 @@
 			<KatexBlock formula={gls} />
 			<p>
 				<strong>Blanchiment.</strong> Écrivons la décomposition de Cholesky <KatexInline
-					formula={String.raw`\mathcal{F} = PP^{\mathrm{T}}`}
+					formula={String.raw`\mathcal{F} = PP^\top`}
 				/>
 				et multiplions le modèle par
 				<KatexInline formula={String.raw`P^{-1}`} /> :
@@ -538,7 +538,7 @@
 					formula={String.raw`\varepsilon \sim \mathcal{N}_n(0_n, \sigma^2 \mathcal{F})`}
 				/>
 				), les mêmes types de tests (Student, Fisher) s’appliquent, avec la variance MCG à la place de
-				<KatexInline formula={String.raw`\sigma^2(X^{\mathrm{T}}X)^{-1}`} />.
+				<KatexInline formula={String.raw`\sigma^2(X^\topX)^{-1}`} />.
 			</p>
 		</TheoremBlock>
 

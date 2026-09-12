@@ -162,7 +162,7 @@
 	const kPoly =
 		'K(x, \\tilde{x}) = \\left(\\langle x, \\tilde{x}\\rangle + c\\right)^d, \\qquad c \\in \\mathbb{R}_+, \\; d \\in \\mathbb{N}';
 	const kGauss =
-		'K(x, \\tilde{x}) = \\exp\\left\\{ -\\dfrac{1}{2} (x - \\tilde{x})^T \\Sigma^{-1} (x - \\tilde{x}) \\right\\}, \\qquad \\Sigma \\in \\mathbb{R}^{d \\times d} \\text{ s.d.p.}';
+		'K(x, \\tilde{x}) = \\exp\\left\\{ -\\dfrac{1}{2} (x - \\tilde{x})^\\top \\Sigma^{-1} (x - \\tilde{x}) \\right\\}, \\qquad \\Sigma \\in \\mathbb{R}^{d \\times d} \\text{ s.d.p.}';
 	const kGaussIso =
 		'K(x, \\tilde{x}) = \\exp\\left\\{ -\\dfrac{\\|x - \\tilde{x}\\|^2}{2 \\sigma^2} \\right\\}, \\qquad \\sigma \\in \\mathbb{R}_+^*';
 	const finalDual =

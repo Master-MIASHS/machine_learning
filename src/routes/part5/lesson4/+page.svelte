@@ -110,7 +110,7 @@
 	const ridgeObjectiveScaled = '\\frac{1}{2n}\\,\\|Xw - y\\|^2_2 + \\lambda \\, \\|w\\|^2_2';
 
 	// Ridge closed-form solution
-	const ridgeSolution = 'w^{*}_{\\text{Ridge}} = (X^T X + \\lambda I)^{-1} X^T y';
+	const ridgeSolution = 'w^{*}_{\\text{Ridge}} = (X^\\top X + \\lambda I)^{-1} X^\\top y';
 
 	// Ridge in eigen-directions
 	const ridgeEigenform =
@@ -121,7 +121,7 @@
 
 	// Effective degrees of freedom of Ridge — the classical (non-CV) bridge to AIC/Cp
 	const effectiveDf =
-		'\\operatorname{df}(\\lambda) = \\sum_{i=1}^{p} \\frac{d_i}{d_i + \\lambda} = \\operatorname{tr}\\bigl(X(X^TX+\\lambda I)^{-1}X^T\\bigr)';
+		'\\operatorname{df}(\\lambda) = \\sum_{i=1}^{p} \\frac{d_i}{d_i + \\lambda} = \\operatorname{tr}\\bigl(X(X^\\topX+\\lambda I)^{-1}X^\\top\\bigr)';
 	const aicRidge =
 		'\\operatorname{AIC}(\\lambda) = n \\log(\\hat\\sigma^2_\\lambda) + 2\\,\\operatorname{df}(\\lambda)';
 
@@ -168,10 +168,10 @@
 	const lassoConstraint = '\\sum_{i=1}^{p} |w_i| \\leq t';
 
 	// Coordinate descent update for Lasso
-	const coordDescentUpdate = 'w_j^{(k+1)} = \\frac{S\\bigl(z_j, \\lambda\\bigr)}{X_j^T X_j}';
+	const coordDescentUpdate = 'w_j^{(k+1)} = \\frac{S\\bigl(z_j, \\lambda\\bigr)}{X_j^\\top X_j}';
 
 	// z_j in coordinate descent
-	const zJ = 'z_j = X_j^T (y - \\sum_{i \\neq j} X_i w_i^{(k)})';
+	const zJ = 'z_j = X_j^\\top (y - \\sum_{i \\neq j} X_i w_i^{(k)})';
 
 	// Elastic net alpha limits
 	const alphaPureLasso = '\\alpha = 1 \\;\\Rightarrow\\; \\text{Lasso pur}';
@@ -383,7 +383,7 @@
 		<KatexBlock formula={ridgeSolution} />
 
 		<p>
-			Cette formule est valable même lorsque <KatexInline formula={'X^T X'} /> est singulière (ce qui
+			Cette formule est valable même lorsque <KatexInline formula={'X^\\top X'} /> est singulière (ce qui
 			arrive quand p > n). Le terme <KatexInline formula={'\\lambda I'} /> garantit que la matrice à inverser
 			est toujours définie positive.
 		</p>

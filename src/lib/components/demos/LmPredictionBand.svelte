@@ -79,7 +79,7 @@
 		la réponse en <KatexInline formula="x0" /> (bande étroite) et celle d'une
 		<strong>nouvelle observation</strong> qui ajoute le bruit ε (bande large). Les deux
 		s'élargissent en s'éloignant de <KatexInline formula={String.raw`\bar{x}`} />, via le
-		levier <KatexInline formula={String.raw`v_0^{\mathrm{T}}(X^{\mathrm{T}}X)^{-1}v_0`} />.
+		levier <KatexInline formula={String.raw`v_0^\top(X^\topX)^{-1}v_0`} />.
 	</p>
 
 	<Slider min={0} max={10} step={0.1} bind:value={x0} label="valeur de prédiction x₀" />

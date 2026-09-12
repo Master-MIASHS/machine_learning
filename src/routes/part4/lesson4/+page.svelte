@@ -29,7 +29,7 @@
 	const kappa = String.raw`\kappa = \frac{\lambda_1}{\lambda_p}`;
 	const vif = String.raw`\mathrm{VIF}_j = \frac{1}{1 - R_j^2}`;
 	const varBeta = String.raw`\mathrm{Var}(\hat{\beta}_j) = \frac{\sigma^2}{\|x_j - \bar{x}_j\|^2}\ \cdot\ \frac{1}{1 - R_j^2}`;
-	const resZero = String.raw`\hat{\varepsilon}^{\mathrm{T}}1_n = \hat{\varepsilon}^{\mathrm{T}} X\lambda = 0, \qquad \lambda = (1, 0, \dots, 0)`;
+	const resZero = String.raw`\hat{\varepsilon}^\top1_n = \hat{\varepsilon}^\top X\lambda = 0, \qquad \lambda = (1, 0, \dots, 0)`;
 	const partialRes = String.raw`\hat{\varepsilon}^{\Delta_j}_i = \hat{\beta}_j\, x_{j,i} + \hat{\varepsilon}_i \ = \ y_i - \sum_{k \neq j} \hat{\beta}_k\, x_{k,i}`;
 	const hiiBounds = String.raw`0 \le h_{ii} \le 1 \qquad \text{et} \qquad \sum_{i=1}^{n} h_{ii} = p + 1`;
 	const hiiThr = String.raw`h_{ii} > \frac{2(p+1)}{n}`;
@@ -81,7 +81,7 @@
 
 		<p>
 			Toute l’estimation de la leçon 1 repose sur
-			<KatexInline formula={String.raw`(X^{\mathrm{T}}X)^{-1}`} /> : il faut donc d’abord vérifier que
+			<KatexInline formula={String.raw`(X^\topX)^{-1}`} /> : il faut donc d’abord vérifier que
 			cette inversion est licite. Géométriquement, la régression est la
 			<strong>projection orthogonale</strong>
 			de
@@ -95,7 +95,7 @@
 		<DefinitionBlock number="4.1" title="Matrice chapeau (hat matrix) et plein rang">
 			<p>
 				La matrice
-				<KatexInline formula={String.raw`H = X(X^{\mathrm{T}}X)^{-1}X^{\mathrm{T}}`} />, appelée
+				<KatexInline formula={String.raw`H = X(X^\topX)^{-1}X^\top`} />, appelée
 				<strong>matrice chapeau</strong>
 				(hat matrix), est la projection orthogonale sur
 				<KatexInline formula={String.raw`\mathrm{sev}(X)`} /> : elle est
@@ -104,8 +104,8 @@
 				<KatexInline formula={String.raw`p+1`} /> colonnes de
 				<KatexInline formula="X" /> n’engendrent pas un sous-espace de dimension
 				<KatexInline formula={String.raw`p+1`} /> (colinéarité), alors
-				<KatexInline formula={String.raw`X^{\mathrm{T}}X`} /> n’est pas inversible et l’équation
-				<KatexInline formula={String.raw`X^{\mathrm{T}}Y = X^{\mathrm{T}}X\,\beta`} />
+				<KatexInline formula={String.raw`X^\topX`} /> n’est pas inversible et l’équation
+				<KatexInline formula={String.raw`X^\topY = X^\topX\,\beta`} />
 				n’a <strong>pas de solution unique</strong>.
 			</p>
 			<p>
@@ -161,7 +161,7 @@
 				avoir des
 				<strong>signes opposés</strong>, et certains passent sous le seuil de significativité.
 				Numériquement,
-				<KatexInline formula={String.raw`X^{\mathrm{T}}X`} /> est mal conditionnée : difficulté de convergence
+				<KatexInline formula={String.raw`X^\topX`} /> est mal conditionnée : difficulté de convergence
 				et manque de précision.
 			</p>
 		</TheoremBlock>
@@ -264,7 +264,7 @@
 				Dans un modèle avec constante, la moyenne des résidus est
 				<strong>nulle par construction</strong> : le vecteur des résidus est orthogonal aux
 				variables explicatives
-				<KatexInline formula={String.raw`\hat{\varepsilon}^{\mathrm{T}} X = 0`} />, et comme
+				<KatexInline formula={String.raw`\hat{\varepsilon}^\top X = 0`} />, et comme
 			</p>
 			<KatexBlock formula={resZero} />
 			<p>
@@ -425,7 +425,7 @@
 			<p>
 				(démonstrations : valeurs propres d’une idempotente dans
 				<KatexInline formula={String.raw`\{0,1\}`} />, donc
-				<KatexInline formula={String.raw`0 \le h_{ii} = e_i^{\mathrm{T}} H e_i \le 1`} />
+				<KatexInline formula={String.raw`0 \le h_{ii} = e_i^\top H e_i \le 1`} />
 				; et
 				<KatexInline
 					formula={String.raw`\sum_i h_{ii} = \mathrm{tr}(H) = \mathrm{rang}(H) = p+1`}
