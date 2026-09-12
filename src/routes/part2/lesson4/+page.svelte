@@ -629,7 +629,7 @@
 			<p>
 				<em>Exercice d'entraînement, au-delà des diapositives.</em>
 			</p>
-			<ExpertPanel title="Solution">
+			{#snippet solution()}
 				<p>
 					<strong>(a)</strong> L'hyperplan <KatexInline formula={ex1H} /> est l'hyperplan d'équation <KatexInline
 						formula={'\\langle (1, 0), x\\rangle = 0'}
@@ -690,11 +690,11 @@
 				<p>
 					ce qui retrouve exactement la solution du primal. (C'est bien le maximum : en posant <KatexInline
 						formula={'\\alpha_1 = \\alpha_2 = \\alpha'}
-					/>, l'objectif <KatexInline formula={'2\\alpha - 2\\alpha^2'} /> est maximisé en <KatexInline
+					/>, l'objectif <KatexInline formula={'2\\alpha - 2\\alpha^2'} 					/> est maximisé en <KatexInline
 						formula={'\\alpha = 1/2'}
 					/>.)
 				</p>
-			</ExpertPanel>
+			{/snippet}
 		</ExercisePanel>
 
 		<h2 id="marge-souple">SVM à marge souple</h2>
@@ -1054,7 +1054,7 @@
 			<p>
 				<em>Exercice d'entraînement, au-delà des diapositives.</em>
 			</p>
-			<ExpertPanel title="Solution">
+			{#snippet solution()}
 				<p>
 					<strong>(a)</strong> Avec
 					<KatexInline formula={'(\\widehat{w}, \\widehat{b}) = ((1, 0), 0)'} />, on a <KatexInline
@@ -1105,7 +1105,7 @@
 						<KatexInline formula={'\\widehat{\\alpha}_5 = 0'} />.
 					</li>
 				</ul>
-			</ExpertPanel>
+			{/snippet}
 		</ExercisePanel>
 
 		<h2 id="noyau">SVM à noyau</h2>
@@ -1371,7 +1371,7 @@
 			<p>
 				<em>Exercice de la diapositive « Propriétés du noyau K ».</em>
 			</p>
-			<ExpertPanel title="Solution">
+			{#snippet solution()}
 				<p>
 					Prendre <KatexInline formula={ex3phi} />. Vérification :
 				</p>
@@ -1386,7 +1386,7 @@
 					/>
 					.
 				</p>
-			</ExpertPanel>
+			{/snippet}
 		</ExercisePanel>
 
 		<h3>Exemples de noyau</h3>
