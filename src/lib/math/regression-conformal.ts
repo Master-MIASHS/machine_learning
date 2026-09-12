@@ -1,5 +1,23 @@
 /**
  * Regression conformal prediction — constant and adaptive prediction intervals.
+ *
+ * Reference: course_sources/typst/set_valued.typ, ch. « Application à la
+ * régression » :
+ *  - « Principe général » : construire C(x) = [a(x), b(x)] avec
+ *    P(Y ∈ [a(X), b(X)]) ≥ 1−α, le plus petit possible ;
+ *  - « Intervalles de largeur constante » : score s(x,y) = |y − f̂(x)|,
+ *    C(x) = [f̂(x)−q, f̂(x)+q], q = quantile des résidus absolus →
+ *    constantInterval ;
+ *  - quantile d'ordre ⌈(n+1)(1−α)⌉/n (Algorithme 6.2, code sklearn de la
+ *    source) → residualQuantile ;
+ *  - « Intervalles adaptatifs » : score s(x,y) = |y − f̂(x)| / (σ(x)+ε),
+ *    σ(x) = incertitude locale, ε > 0 → adaptiveInterval ;
+ *  - « Estimation de l'incertitude locale » (bootstrap, bagging, quantile
+ *    regression, réseaux bayésiens) ;
+ *  - « Évaluation des intervalles de prédiction » : taux de couverture
+ *    empirique, largeur moyenne, efficacité conditionnelle →
+ *    conditionalCoverageRate.
+ * Garantie : Théorème 6.1 (sous échangeabilité).
  */
 
 export interface PredictionIntervals {

@@ -1,4 +1,16 @@
-import { knnPredict, type LabeledPoint2D } from './consistency';
+/**
+ * Validation croisée pour le choix du nombre de voisins k (k-NN).
+ *
+ * Reference: course_sources/marine/Cours/CM/coursClassif-1-Intro.tex :
+ *  - frame « Validation croisée » (principe, variantes k-fold / leave-p-out) ;
+ *  - frames « Les KNN : exemple introductif » : « Le nombre de voisins K
+ *    considéré : il est choisi par validation croisée ».
+ * kFoldIndices (partition déterministe mélangée) et leavePOutCount
+ * (C(n,p)) sont des utilitaires d'implémentation, pas des formules
+ * numérotées de la source.
+ */
+
+import { knnPredict, type LabeledPoint01 } from './consistency';
 import { mulberry32 } from './util';
 
 export interface KnnCVAccuracy {
@@ -39,7 +51,7 @@ export function kFoldIndices(n: number, kFolds: number, seed = 1): number[][] {
  * observation contributes exactly once for every candidate k.
  */
 export function knnCVAccuracyCurve(
-	dataset: LabeledPoint2D[],
+	dataset: LabeledPoint01[],
 	Ks: number[],
 	kFolds: number,
 	seed = 1

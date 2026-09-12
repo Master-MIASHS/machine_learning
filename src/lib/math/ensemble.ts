@@ -1,5 +1,15 @@
 /**
  * Ensemble methods: voting, bagging, BMA.
+ *
+ * Reference: course_sources/typst/regularization.typ, ch. 4 « Méthodes
+ * ensemblistes » :
+ *  - Définition 4.2 (Vote majoritaire) → majorityVote ;
+ *  - Définition 4.3 (Moyenne pour la régression) → averagePredictions ;
+ *  - Définition 4.4 (Bayesian Model Averaging) + « Calcul des poids a
+ *    posteriori » (règle de Bayes, poids = p(M_j|D) ∝ p(D|M_j) p(M_j),
+ *    logsumexp pour la stabilité numérique) → bmaWeights / bmaPredict ;
+ *  - Définition 4.6 (Out-of-Bag Error : prédiction sur les ~36.8 % de
+ *    points absents de l'échantillon bootstrap) → oobError.
  */
 
 // ─── Voting / Aggregation ─────────────────────────────

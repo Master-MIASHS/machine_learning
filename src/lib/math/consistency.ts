@@ -1,9 +1,14 @@
 // src/lib/math/consistency.ts
 //
 // Part VII — Consistance
-// Reference: theorie.typ — "Consistance", "Définition", "Pourquoi cette
-// notion est-elle centrale ?", "Consistance universelle",
-// "Consistance du classifieur k-NN" (Théorème 2.1, Stone 1977).
+// Reference: course_sources/typst/theorie.typ, ch. 2 « Consistance et
+// convergence » :
+//  - « Consistance » : Définition 1.2 (Consistance : E[R(h_n)] → R*),
+//    Définition 1.3 (Consistance universelle : ∀ P_(X,Y)) ;
+//  - « Consistance du classifieur k-NN » : Théorème 2.1 (Consistance
+//    universelle de Stone, 1977 : k(n) → +∞ et k(n)/n → 0) →
+//    checkStoneConditions / knnExcessRisk / knnExcessRiskCurve /
+//    knnOptimalK.
 //
 // theorie.typ proves consistency results but doesn't give a concrete
 // learning-curve model to simulate from — the toy models below (excess risk
@@ -306,7 +311,7 @@ export function approxEstimCurve(
 // and decision boundary, not just a risk curve.
 // ---------------------------------------------------------------------------
 
-export interface LabeledPoint2D {
+export interface LabeledPoint01 {
 	x1: number;
 	x2: number;
 	label: 0 | 1;
@@ -343,10 +348,10 @@ export function generateKnnDataset(
 	model: Knn2DModel,
 	domain = 3,
 	seed = 1
-): LabeledPoint2D[] {
+): LabeledPoint01[] {
 	if (n <= 0) throw new Error(`n must be positive, got ${n}`);
 	const rand = mulberry32(seed);
-	const points: LabeledPoint2D[] = [];
+	const points: LabeledPoint01[] = [];
 	for (let i = 0; i < n; i++) {
 		const x1 = (rand() * 2 - 1) * domain;
 		const x2 = (rand() * 2 - 1) * domain;
@@ -367,9 +372,9 @@ function squaredDistance2D(a: { x1: number; x2: number }, b: { x1: number; x2: n
 /** The k nearest neighbors of `query` in `dataset`, sorted by increasing distance. */
 export function kNearestNeighbors(
 	query: { x1: number; x2: number },
-	dataset: LabeledPoint2D[],
+	dataset: LabeledPoint01[],
 	k: number
-): LabeledPoint2D[] {
+): LabeledPoint01[] {
 	if (k <= 0) throw new Error(`k must be positive, got ${k}`);
 	if (k > dataset.length) {
 		throw new Error(`k (${k}) cannot exceed dataset size (${dataset.length})`);
@@ -384,7 +389,7 @@ export function kNearestNeighbors(
 /** Majority-vote k-NN prediction at `query`, ties broken toward 1 (as in bayesAction). */
 export function knnPredict(
 	query: { x1: number; x2: number },
-	dataset: LabeledPoint2D[],
+	dataset: LabeledPoint01[],
 	k: number
 ): 0 | 1 {
 	const neighbors = kNearestNeighbors(query, dataset, k);
@@ -399,7 +404,7 @@ export function knnPredict(
  * gridSize and the dataset size modest for interactive use.
  */
 export function knnDecisionField(
-	dataset: LabeledPoint2D[],
+	dataset: LabeledPoint01[],
 	k: number,
 	domain: number,
 	gridSize = 20

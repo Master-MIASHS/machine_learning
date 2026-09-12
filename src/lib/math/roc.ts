@@ -1,6 +1,13 @@
 /**
  * ROC curve / AUC utilities for the "Évaluer un modèle avec l'AUC" section of
- * part2/lesson2 (Marine's course, chapitre 2 — régression logistique).
+ * part2/lesson2.
+ *
+ * Source : course_sources/marine/Cours/CM/coursClassif-2RegLogistique.tex,
+ * frame « Évaluer un modèle avec l'AUC » : construction de la courbe ROC
+ * par seuillage du score du modèle (Taux de positifs vrais en ordonnée,
+ * Taux de positifs faux en abscisse), lecture de l'AUC comme aire sous la
+ * courbe ; « L'AUC (calculée sur l'échantillon de validation) peut servir à
+ * choisir entre différents modèles ».
  *
  * Convention: a score is turned into a binary prediction by
  * "predict positive if score >= threshold" (seuil α on la sortie du modèle).

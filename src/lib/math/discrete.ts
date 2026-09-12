@@ -1,6 +1,11 @@
 /**
  * Discrete (categorical) distribution utilities.
  * All functions are pure and operate on plain number[] probability vectors.
+ *
+ * UTILITAIRE GÉNÉRAL — pas de correspondance directe dans course_sources/.
+ * Brique de base des autres modules math (gaussian.ts, kl.ts, entropy.ts,
+ * bayes.ts, free-energy.ts) et des démos de décision bayésienne /
+ * calibration (Parts VI & IX).
  */
 
 /** Smallest positive value used to guard against log(0). */

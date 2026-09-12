@@ -1,6 +1,20 @@
 /**
  * Coordinate descent optimization.
  * Cycle through coordinates, optimizing one at a time.
+ *
+ * Reference: course_sources/typst/optim.typ, ch. 3, section « Descente par
+ * coordonnées (Coordinate Descent) » :
+ *  - Algorithme 3.13 (Descente par coordonnées — version cyclique :
+ *    minimisation exacte de chaque coordonnée, valeurs déjà mises à jour
+ *    utilisées immédiatement) → cdCyclicStep ;
+ *  - « Stratégies de parcours » : cyclique / aléatoire / greedy →
+ *    cdCyclicStep / cdRandomStep / cdGreedyStep ;
+ *  - Théorème 3.16 (convergence CD aléatoire : E[f(x^(k))]−f(x*) = O(d/k)) ;
+ *  - Algorithme 3.17 (Block Coordinate Descent) — non implémenté ici.
+ * NB : la source énonce la minimisation *exacte* de chaque coordonnée ;
+ * la recherche de pas par ligne (lineSearchCoordinate) est un substitut
+ * numérique pour les fonctions sans solution en forme close — pas une
+ * formule de la source.
  */
 
 type FuncND = (theta: number[]) => number;

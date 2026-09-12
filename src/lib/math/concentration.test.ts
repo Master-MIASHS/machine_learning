@@ -12,6 +12,8 @@ import {
 	histogram,
 	type EmpiricalMeanModel
 } from './concentration';
+import { hoeffdingBound } from './generalization';
+import { mulberry32 } from './util';
 
 describe('markovBound', () => {
 	it('matches E[Z]/t directly', () => {
@@ -231,5 +233,82 @@ describe('fixedClassifierRiskBoundUniform', () => {
 		expect(fixedClassifierRiskBoundUniform(100, 0.2)).toBeLessThan(
 			fixedClassifierRiskBoundUniform(100, 0.1)
 		);
+	});
+});
+
+describe('Hoeffding bound (generalization.ts) on bounded variables', () => {
+	it('matches the closed form 2*exp(-2*n*t^2) of the [0,1]-case', () => {
+		for (const [n, t] of [
+			[1, 0.5],
+			[10, 0.4],
+			[100, 0.1]
+		]) {
+			expect(hoeffdingBound(n, t)).toBeCloseTo(2 * Math.exp(-2 * n * t * t), 12);
+		}
+	});
+
+	it('is exactly 1 at t = sqrt(ln 2 / (2n)) and stays in (0, 1] beyond it', () => {
+		for (const n of [1, 10]) {
+			const tCritical = Math.sqrt(Math.LN2 / (2 * n));
+			// 2*exp(-2n*(ln2/(2n))) = 2*exp(-ln 2) = 1 exactly
+			expect(hoeffdingBound(n, tCritical)).toBeCloseTo(1, 12);
+			expect(hoeffdingBound(n, 2 * tCritical)).toBeLessThan(1);
+			expect(hoeffdingBound(n, 2 * tCritical)).toBeGreaterThan(0);
+		}
+	});
+
+	it('is monotone decreasing in n and in t', () => {
+		expect(hoeffdingBound(20, 0.3)).toBeLessThan(hoeffdingBound(10, 0.3));
+		expect(hoeffdingBound(10, 0.5)).toBeLessThan(hoeffdingBound(10, 0.3));
+	});
+
+	it('Bernoulli(1/2) exact tail 2^(1-n) never exceeds the bound (worst case for [0,1] variables)', () => {
+		// Z_i ~ Bernoulli(1/2), t = 1/2: |Zbar_n - 1/2| >= 1/2 iff all draws
+		// are equal, so the exact two-sided tail is 2*(1/2)^n = 2^(1-n).
+		for (const n of [5, 10, 20]) {
+			const exact = Math.pow(2, 1 - n);
+			expect(hoeffdingBound(n, 0.5)).toBeGreaterThanOrEqual(exact);
+		}
+		// Empirical version of the same invariant (seeded, deterministic):
+		const rand = mulberry32(2024);
+		const n = 10;
+		const trials = 50000;
+		let exceed = 0;
+		for (let t = 0; t < trials; t++) {
+			let sum = 0;
+			for (let i = 0; i < n; i++) sum += rand() < 0.5 ? 0 : 1;
+			if (Math.abs(sum / n - 0.5) >= 0.5) exceed++;
+		}
+		expect(exceed / trials).toBeLessThanOrEqual(hoeffdingBound(n, 0.5));
+	});
+
+	it('empirical exceedance of Zbar_n for Z_i ~ Uniform(0,1) stays under the bound', () => {
+		// mean 1/2 and variance 1/12 make the simulator draw Uniform(0,1)
+		// exactly (half-width h = sqrt(3 * variance) = 1/2).
+		const model: EmpiricalMeanModel = { mean: 0.5, variance: 1 / 12 };
+		const n = 10;
+		const epsilon = 0.3;
+		const samples = simulateEmpiricalMeanTrials(n, 20000, model, 99);
+		const empirical = empiricalExceedanceProbability(samples, model.mean, epsilon);
+		// Bound 2*exp(-2*10*0.09) = 2*exp(-1.8) ~ 0.332; the exact tail of the
+		// mean of 10 uniforms is ~0.001, so the empirical frequency is far
+		// below the bound — a +0.01 margin absorbs any sampling noise.
+		expect(empirical).toBeLessThanOrEqual(hoeffdingBound(n, epsilon) + 0.01);
+	});
+});
+
+describe('monotonicity in n (fixed-classifier bounds)', () => {
+	it('fixedClassifierRiskBound decreases as n grows, for any risk in (0,1)', () => {
+		for (const risk of [0.2, 0.5, 0.8]) {
+			expect(fixedClassifierRiskBound(risk, 200, 0.1)).toBeLessThan(
+				fixedClassifierRiskBound(risk, 100, 0.1)
+			);
+		}
+	});
+
+	it('fixedClassifierRiskBoundUniform equals exactly 1 at n*epsilon^2 = 1/4 and is in (0,1] beyond', () => {
+		expect(fixedClassifierRiskBoundUniform(1, 0.5)).toBeCloseTo(1, 12);
+		expect(fixedClassifierRiskBoundUniform(4, 0.5)).toBeCloseTo(0.25, 12);
+		expect(fixedClassifierRiskBoundUniform(1, 1)).toBeCloseTo(0.25, 12);
 	});
 });

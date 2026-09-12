@@ -1,11 +1,22 @@
 // src/lib/math/calibration.ts
 //
 // Part IX — Fonctions de perte : pertes de substitution et calibration
-// Reference: theorie.typ — "Motivation : pourquoi ne pas minimiser la perte 0-1 ?",
-// "Formalisation" (perte phi, phi-risque, phi-risque de Bayes), "Calibration"
-// (risque conditionnel C_phi, calibration ponctuelle, Théorème 4.1 —
-// Bartlett, Jordan, McAuliffe 2006), "Décomposition de l'erreur"
-// (Théorème 4.2).
+// Reference: course_sources/typst/theorie.typ, ch. 4 « Fonctions de perte
+// calibrées » :
+//  - "Motivation : pourquoi ne pas minimiser la perte 0-1 ?" ;
+//  - "Formalisation" (perte phi, phi-risque R_phi, phi-risque de Bayes)
+//    → SURROGATE_LOSSES / conditionalPhiRisk / bayesConditionalPhiRisk ;
+//  - "Calibration" : Définition (Perte calibrée), risque conditionnel
+//    C_phi(alpha, eta) = eta·phi(alpha) + (1−eta)·phi(−alpha) et
+//    C_phi*(eta) → conditionalPhiRiskCurve / conditionalPhiRiskMinimizer ;
+//    Définition (Calibration ponctuelle) → checkCalibration /
+//    pointwise calibration helpers ;
+//  - "Théorème de calibration" — Théorème 4.1 (Bartlett, Jordan, McAuliffe
+//    2006) : phi calibrée ssi phi différentiable en 0 et phi'(0) < 0 ;
+//  - "Décomposition de l'erreur" — Théorème 4.2 (termes A estimation /
+//    B calibration / C approximation) → RiskDecompositionDemo.
+// Les tirages aléatoires de η (gaussianSample) et les courbes simulées sont
+// illustratifs — la source énonce les résultats, pas les simulations.
 
 import { exponentialLoss, logisticLoss } from './boosting';
 import { gaussianSample } from './gaussian';

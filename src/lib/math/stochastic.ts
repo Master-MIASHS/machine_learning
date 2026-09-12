@@ -1,6 +1,19 @@
 /**
  * Stochastic optimization helpers.
  * SGD, mini-batch gradient computation for machine learning loss landscapes.
+ *
+ * Reference: course_sources/typst/optim.typ, ch. 3, section « Descente de
+ * gradient stochastique (SGD) » :
+ *  - Algorithme 3.9 (Stochastic Gradient Descent : tirage d'un exemple i_k,
+ *    x^(k+1) = x^(k) − α_k ∇f_{i_k}(x^(k))) → sgdStep / runSGD ;
+ *  - Proposition 3.10 (Gradient non biaisé : E[∇f_{i_k}(w)] = ∇f(w))
+ *    → exactGradient ;
+ *  - « Variance du gradient stochastique » (oscillation autour du minimum)
+ *    + Remarque 3.13 (Var[∇̃f] = σ²/b pour un mini-batch de taille b) →
+ *    computeGradientVariance / miniBatchGradient ;
+ *  - Algorithme 3.12 (Mini-batch SGD) ;
+ *  - Proposition 3.11 (Convergence SGD : f convexe, L-lisse,
+ *    α_k = α/√k ⇒ E[f(w̄_K)] − f(w*) = O(1/√K), moyenne des itérés).
  */
 
 /** Gradient of a single loss component f_i with respect to theta (2D) */

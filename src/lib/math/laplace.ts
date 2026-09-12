@@ -1,6 +1,10 @@
 /**
  * Laplace distribution utilities.
  * All functions are pure and never return NaN for valid inputs (b > 0).
+ *
+ * UTILITAIRE GÉNÉRAL — pas de correspondance dans course_sources/ (la loi
+ * de Laplace n'est pas enseignée dans le cours). Exportée dans l'API
+ * publique (index.ts).
  */
 
 /** Laplace distribution parameterized by location (mu) and scale (b). */

@@ -1,8 +1,7 @@
 /**
  * Deterministic seeded PRNG (mulberry32) — reproducible across runs for a
- * given seed. Third copy of this helper (bayes-learning.ts, consistency.ts
- * each keep their own private one) — worth hoisting to util.ts now rather
- * than copying a fourth time.
+ * given seed. Single shared instance: every math module and demo that needs
+ * randomness imports this (no private copies).
  */
 export function mulberry32(seed: number): () => number {
 	let a = seed;

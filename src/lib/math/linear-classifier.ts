@@ -3,9 +3,12 @@
  *
  * Source pédagogique : Marine Demangeot, « Apprentissage supervisé et non
  * supervisé », M1 MIASHS, CM 2 — Classifieurs linéaires & régression
- * logistique (marine/Cours/CM/coursClassif-2RegLogistique.tex). Le classifieur
- * est la composée φ ∘ h_{w,b} avec h_{w,b}(x) = ⟨w,x⟩ + b (ensemble L_d des
- * fonctions affines, définition des classes d'hypothèse H_φ dans les diapos).
+ * logistique (course_sources/marine/Cours/CM/coursClassif-2RegLogistique.tex).
+ * Le classifieur est la composée φ ∘ h_{w,b} avec h_{w,b}(x) = ⟨w,x⟩ + b
+ * (ensemble L_d des fonctions affines, définition des classes d'hypothèse H_φ
+ * dans les diapos) ; section « Classifieurs Linéaires — La régression
+ * logistique » : classifieur des demi-espaces (sign), fonction sigmoïde
+ * φ_sig : R → [0,1], coût logistique ℓ = log(1 + exp(−y(⟨w,x⟩+b))).
  */
 import { gaussianSample, type Gaussian } from './gaussian';
 import { mulberry32, combineSeed } from './util';

@@ -2,7 +2,8 @@
  * SVM (Support Vector Machines) utilities — marge rigide, marge souple, noyaux.
  *
  * Source pédagogique : Marine Demangeot, « Apprentissage supervisé et non
- * supervisé », M1 MIASHS, CM 4 — SVM (marine/Cours/CM/coursClassif-4-SVM.tex) :
+ * supervisé », M1 MIASHS, CM 4 — SVM
+ * (course_sources/marine/Cours/CM/coursClassif-4-SVM.tex) :
  *  - Proposition « Formulation mathématique » : d(x, H) = |⟨w, x⟩ + b| / ‖w‖ ;
  *  - eq. optim2 : primale à marge rigide (min ½‖w‖² s.c. y_i(⟨w,x_i⟩+b) ≥ 1) ;
  *  - eq. optim3 : duale à marge rigide (max Σα_i − ½ΣΣ α_iα_j y_iy_j⟨x_i,x_j⟩,
@@ -14,6 +15,10 @@
  *    par K(x_i, x_j)) et astuce du noyau ;
  *  - Définitions symétrique / semi-défini positif et Théorème de
  *    Moore–Aronszajn (existence de φ).
+ * Lien avec la généralisation : course_sources/typst/theorie.typ, ch. 3,
+ * « Application : borne VC pour le SVM » — Définition (Classifieur à marge)
+ * et Théorème 3.4 (Borne VC pour le SVM, Vapnik 1995 : VCdim(H_γ) ≤
+ * ⌊R²/γ²⌋) — utilisé par la démo MarginVCExplorer.
  */
 import type { LabeledPoint2D } from './linear-classifier';
 import { gaussianSample, type Gaussian } from './gaussian';

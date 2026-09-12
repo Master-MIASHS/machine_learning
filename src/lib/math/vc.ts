@@ -1,10 +1,20 @@
 // src/lib/math/vc.ts
 //
 // Part VIII — Cas |H|=+infty : théorie de Vapnik-Chervonenkis
-// Reference: theorie.typ — "Dimension de Vapnik-Chervonenkis" (brisure,
-// VCdim, coefficient de brisure, lemme de Sauer-Shelah), "Théorème de
-// généralisation VC" (Théorème 3.3), "Application : borne VC pour le SVM"
-// (Théorème 3.4).
+// Reference: course_sources/typst/theorie.typ, ch. 3, section « Cas
+// |H| = +∞ : théorie de Vapnik-Chervonenkis » :
+//  - "Dimension de Vapnik-Chervonenkis" : Définition (Brisure), Définition
+//    (Dimension VC, convention VCdim = +∞), exemples (seuils VCdim 1,
+//    intervalles VCdim 2, hyperplans de R^d VCdim d+1) → shatters /
+//    countRealizedDichotomies ;
+//  - "Coefficient de brisure et lemme de Sauer-Shelah" : Définition
+//    (Coefficient de brisure Π_H(m) ≤ 2^m), Lemme de Sauer-Shelah (1972)
+//    (Π_H(m) ≤ Σ_{i=0}^d C(m,i), en particulier ≤ (em/d)^d pour m ≥ d) ;
+//  - "Théorème de généralisation VC" (Théorème 3.3 :
+//    |R(h)−R_n(h)| ≤ √((8d log(2en/d) + 8 log(4/δ))/n)) ;
+//  - "Application : borne VC pour le SVM" (Définition (Classifieur à
+//    marge), Théorème 3.4 (Borne VC pour le SVM, Vapnik 1995 :
+//    VCdim(H_γ) ≤ ⌊R²/γ²⌋)).
 
 // ---------------------------------------------------------------------------
 // Shattering checks for small point sets

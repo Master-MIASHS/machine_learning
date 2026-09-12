@@ -1,10 +1,12 @@
 // src/lib/math/metrics.ts
 //
 // Part II, lesson 1 — « Évaluer un modèle »
-// Reference: marine/Cours/CM/coursClassif-1-Intro.tex, frames
-// « Les métriques — classification binaire », « Les métriques —
-// classification multiclasse » (matrice de confusion, accuracy, sensibilité,
-// précision, F1-score, spécificité, macro/weighted/micro-average, exercice).
+// Reference: course_sources/marine/Cours/CM/coursClassif-1-Intro.tex, frames
+// « Les métriques », « Les métriques - classification binaire » (matrice de
+// confusion, accuracy = (TP+TN)/(TP+TN+FP+FN), sensibilité, précision,
+// F1-score, spécificité, problème des données déséquilibrées) et « Les
+// métriques - classification multiclasse » (matrice M_{i,j}, macro-average
+// = (1/C) Σ m_i, micro-average = accuracy, exercice) :
 //
 // Binary convention: pairs are [trueLabel, predLabel] with labels 0|1. The
 // confusion matrix follows the slide layout — rows = classe prédite, columns

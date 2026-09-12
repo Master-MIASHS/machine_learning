@@ -171,6 +171,67 @@ describe('runMomentum', () => {
 	});
 });
 
+describe('exact convergence on a quadratic with known condition number', () => {
+	// paraboloid: f(x,y) = x^2 + 4y^2, Hessian diag(2, 8) — eigenvalues 2 and 8,
+	// so mu = 2, L = 8, condition number kappa = L/mu = 4.
+	// With alpha = 1/L, the iterate is diagonal: x_k = (1 - 2*alpha)^k x_0,
+	// y_k = (1 - 8*alpha)^k y_0, and (1 - 8/8) = 0 kills y in one step.
+
+	it('closed form of the gradient step at alpha = 1/L', () => {
+		const [x1, y1] = gdStep(2, 1, paraboloid.grad, 1 / 8);
+		expect(x1).toBeCloseTo(2 * (1 - 2 * (1 / 8)), 12); // 2 * 0.75 = 1.5
+		expect(y1).toBe(0); // 1 - 8 * (1/8) = 0 exactly
+	});
+
+	it('one step reaches the minimizer of a quadratic with Hessian 2*I', () => {
+		// f = 0.5*||x - c||^2: grad = x - c, so x - alpha*(x - c) with
+		// alpha = 1 lands exactly on c in a single step.
+		const f = (x: number, y: number) => 0.5 * (x - 2) ** 2 + 0.5 * (y + 1) ** 2;
+		const grad = (x: number, y: number): [number, number] => [x - 2, y + 1];
+		const traj = runGD(4, 3, grad, f, { alpha: 1, maxIter: 50 });
+		expect(traj.length).toBe(2); // gradient norm is 0 after step 1
+		expect(traj[1].x).toBeCloseTo(2, 12);
+		expect(traj[1].y).toBeCloseTo(-1, 12);
+		expect(traj[1].fVal).toBe(0);
+	});
+
+	it('exact geometric decay x_k = 2*0.75^k, y_k = 0, and the O(1/k) rate of Théorème 3.4', () => {
+		const traj = runGD(2, 1, paraboloid.grad, paraboloid.f, { alpha: 1 / 8, maxIter: 100 });
+		for (const pt of traj) {
+			if (pt.k === 0) {
+				expect(pt.x).toBeCloseTo(2, 12);
+				expect(pt.y).toBeCloseTo(1, 12);
+				continue;
+			}
+			expect(pt.y).toBe(0);
+			expect(pt.x).toBeCloseTo(2 * Math.pow(0.75, pt.k), 7);
+			// Théorème 3.4 (optim.typ): f(x^(k)) - f(x*) <= L*||x^(0) - x*||^2/(2k)
+			const fVal = paraboloid.f(pt.x, pt.y);
+			const bound = (8 * (2 * 2 + 1 * 1)) / (2 * pt.k);
+			expect(fVal).toBeLessThanOrEqual(bound);
+		}
+	});
+});
+
+describe('momentum on a constant gradient (closed form)', () => {
+	it('matches x_T = x0 - alpha/(1-beta) * (T - beta*(1-beta^T)/(1-beta))', () => {
+		const grad = (): [number, number] => [1, 0];
+		const alpha = 0.1;
+		const beta = 0.9;
+		let state = createMomentumState();
+		let x = 0;
+		for (let t = 0; t < 3; t++) {
+			const r = momentumStep(x, 0, state, grad, alpha, beta);
+			x = r.x;
+			state = r.state;
+		}
+		// v_t = (1-beta^t)/(1-beta) * g; summing t = 1..3:
+		const closedForm = -(alpha / (1 - beta)) * (3 - (beta * (1 - beta ** 3)) / (1 - beta));
+		expect(x).toBeCloseTo(closedForm, 12);
+		expect(x).toBeCloseTo(-0.561, 12); // -0.1 * (1 + 1.9 + 2.71)
+	});
+});
+
 describe('runNAG', () => {
 	it('converges to paraboloid minimum', () => {
 		const traj = runNAG(2, 2, paraboloid.grad, paraboloid.f, {

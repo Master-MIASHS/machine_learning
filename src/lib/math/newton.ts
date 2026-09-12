@@ -1,5 +1,18 @@
 /**
  * Newton's method for unconstrained optimization.
+ *
+ * Reference: course_sources/typst/optim.typ, ch. 3, section « Méthode de
+ * Newton-Raphson » :
+ *  - « Motivation par développement de Taylor » (développement à l'ordre 2)
+ *    et « Dérivation de l'algorithme » (v* = −H_f(x)⁻¹ ∇f(x)) →
+ *    taylorApproximation2 / newtonStep ;
+ *  - Algorithme 3.13 (Méthode de Newton) — NB : la source réutilise le
+ *    numéro 3.13 (déjà porté par la descente par coordonnées cyclique) ;
+ *  - Théorème 3.14 (Convergence quadratique : ‖x^(k+1)−x*‖ ≤ C‖x^(k)−x*‖²
+ *    près d'un minimum strict) → runNewton.
+ * Le Newton amorti (dampedNewtonStep) n'est PAS dans les sources —
+ * illustratif, au-delà du cours (la source évoque la combinaison GD puis
+ * Newton dans « Remarque 3.14.2 — Convergence locale vs globale »).
  */
 
 type Grad2D = (x: number, y: number) => [number, number];

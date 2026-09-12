@@ -1,6 +1,19 @@
 /**
  * Conformal prediction for classification.
  * Builds valid prediction sets with finite-sample coverage guarantees.
+ *
+ * Reference: course_sources/typst/set_valued.typ, ch. « Prédiction
+ * conformelle » :
+ *  - Définition 6.3 (Score de conformité : s(x,y) faible = conforme) ;
+ *  - « Score de conformité : rang de la prédiction » → conformityScoreRank ;
+ *  - « Scores de conformité probabilistes » : score 1 − probabilité
+ *    → conformityScore1MinusProba, score produit de probabilités (cumul)
+ *    → conformityScoreCumulative ;
+ *  - Algorithme 6.2 (Prédiction conformelle) : q = quantile d'ordre
+ *    ⌈(n+1)(1−α)⌉/n des scores de calibration → computeQuantileThreshold /
+ *    conformalPredictionSet ;
+ *  - Théorème 6.1 (Garantie de couverture : P(Y∈C(X)) ≥ 1−α sous
+ *    échangeabilité, exacte en échantillon fini).
  */
 
 export interface ConformalResult {

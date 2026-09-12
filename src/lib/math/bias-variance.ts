@@ -2,59 +2,32 @@
  * Bias–variance decomposition utilities.
  *
  * Monte Carlo estimates of bias², variance, and irreducible noise for
- * polynomial regression and Ridge regularization demos (Leçon 8).
+ * polynomial regression and Ridge regularization demos. The trade-off
+ * « la régularisation introduit un biais mais réduit la variance » is
+ * course_sources/typst/regularization.typ, ch. 5, Théorème 5.1 (Décomposition
+ * biais-variance avec régularisation); the bootstrap/Monte Carlo procedure
+ * itself is an illustrative simulation, not a source result.
+ *
+ * All randomness is seeded (mulberry32 from util.ts) for reproducibility.
  */
 
-import { matMul, matVec, transpose } from './util.js';
-
-/** Solve Ax = b via Gaussian elimination with partial pivoting. */
-function solveLinearSystem(A: number[][], b: number[]): number[] {
-	const n = A.length;
-	const aug = Array.from({ length: n }, (_, i) => [...A[i], b[i]]);
-
-	for (let col = 0; col < n; col++) {
-		let maxRow = col,
-			maxVal = Math.abs(aug[col][col]);
-		for (let row = col + 1; row < n; row++) {
-			if (Math.abs(aug[row][col]) > maxVal) {
-				maxVal = Math.abs(aug[row][col]);
-				maxRow = row;
-			}
-		}
-		[aug[col], aug[maxRow]] = [aug[maxRow], aug[col]];
-
-		if (Math.abs(aug[col][col]) < 1e-12) continue;
-
-		for (let row = col + 1; row < n; row++) {
-			const factor = aug[row][col] / aug[col][col];
-			for (let j = col; j <= n; j++) aug[row][j] -= factor * aug[col][j];
-		}
-	}
-
-	const x = new Array(n);
-	for (let i = n - 1; i >= 0; i--) {
-		let sum = aug[i][n];
-		for (let j = i + 1; j < n; j++) sum -= aug[i][j] * x[j];
-		x[i] = Math.abs(aug[i][i]) > 1e-12 ? sum / aug[i][i] : 0;
-	}
-	return x;
-}
+import { combineSeed, matMul, matVec, mulberry32, solveLinearSystem, transpose } from './util.js';
 
 // ─── Random sampling helpers ──────────────────────────────────────
 
-/** Draw a standard normal sample via Box-Muller. */
-function randn(): number {
+/** Draw a standard normal sample via Box-Muller (seeded). */
+function randn(rng: () => number): number {
 	let u = 0,
 		v = 0;
-	while (u === 0) u = Math.random();
-	while (v === 0) v = Math.random();
+	while (u === 0) u = rng();
+	while (v === 0) v = rng();
 	return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v);
 }
 
-/** Sample `k` indices uniformly with replacement from [0, n). */
-function sampleIndices(n: number, k: number): number[] {
+/** Sample `k` indices uniformly with replacement from [0, n) (seeded). */
+function sampleIndices(n: number, k: number, rng: () => number): number[] {
 	const idx = new Array(k);
-	for (let i = 0; i < k; i++) idx[i] = Math.floor(Math.random() * n);
+	for (let i = 0; i < k; i++) idx[i] = Math.floor(rng() * n);
 	return idx;
 }
 
@@ -69,18 +42,23 @@ function trueFuncDefault(x: number): number {
  * Generate synthetic data from a true function + Gaussian noise.
  * @param n number of samples
  * @param noiseStd standard deviation of Gaussian noise
- * @returns xs (uniform in [0,1]), ys, and the ground truth function
+ * @param seed PRNG seed (default 42) — reproducible for a given seed
+ * @returns xs (uniform on [0,1]), ys, and the ground truth function
  */
 export function generateSyntheticData(
 	n: number,
-	noiseStd: number
+	noiseStd: number,
+	seed = 42
 ): {
 	xs: number[];
 	ys: number[];
 	trueFunc: (x: number) => number;
 } {
+	if (!Number.isFinite(n) || n <= 0) throw new Error(`generateSyntheticData: n must be > 0, got ${n}`);
+	if (noiseStd < 0) throw new Error(`generateSyntheticData: noiseStd must be >= 0, got ${noiseStd}`);
+	const rng = mulberry32(seed);
 	const xs = Array.from({ length: n }, (_, i) => (i + 0.5) / n); // uniform on [0,1]
-	const ys = xs.map((x) => trueFuncDefault(x) + noiseStd * randn());
+	const ys = xs.map((x) => trueFuncDefault(x) + noiseStd * randn(rng));
 	return { xs, ys, trueFunc: trueFuncDefault };
 }
 
@@ -140,21 +118,10 @@ function olsClosedForm(X: number[][], y: number[]): number[] {
 
 // ─── Ridge solver ──────────────────────────────────────────────
 
-/**
- * Ridge regression solver using normal equations with L2 penalty.
- * θ = (XᵀX + λI)⁻¹ Xᵀy
- */
-export function ridgeSolver(X: number[][], y: number[], lambda: number): number[] {
-	const n = X.length,
-		d = X[0].length;
-	const Xt = transpose(X, n, d);
-	const XtX = matMul(Xt, X);
-
-	for (let j = 0; j < d; j++) XtX[j][j] += lambda;
-
-	const Xty = matVec(Xt, y);
-	return solveLinearSystem(XtX, Xty);
-}
+// Ridge solver θ = (XᵀX + λI)⁻¹ Xᵀy — shared with regression.ts (single
+// implementation, re-exported here for the bias-variance demos/tests).
+export { ridgeSolver } from './regression.js';
+import { ridgeSolver } from './regression.js';
 
 // ─── Bias–variance decomposition (polynomial degree) ──────────────
 
@@ -170,6 +137,7 @@ export function ridgeSolver(X: number[][], y: number[], lambda: number): number[
  * @param degree polynomial degree to use for each fit
  * @param numRepeats number of bootstrap samples (default 50)
  * @param subsampleFraction fraction of data to use per bootstrap sample (default 0.8)
+ * @param seed PRNG seed (default 42) — reproducible for a given seed
  * @returns array of { x, biasSq, variance, noise } at evaluation points
  */
 export function computeBiasVarianceDecomposition(
@@ -178,8 +146,10 @@ export function computeBiasVarianceDecomposition(
 	trueFunc: (x: number) => number,
 	degree: number,
 	numRepeats = 50,
-	subsampleFraction = 0.8
+	subsampleFraction = 0.8,
+	seed = 42
 ): { x: number; biasSq: number; variance: number; noise: number }[] {
+	const rng = mulberry32(combineSeed(seed, degree));
 	const nTrain = xsTrain.length;
 	const subSize = Math.max(2, Math.floor(subsampleFraction * nTrain));
 
@@ -193,7 +163,7 @@ export function computeBiasVarianceDecomposition(
 	const predAccumulators = evalPoints.map(() => new Array(numRepeats).fill(0));
 
 	for (let r = 0; r < numRepeats; r++) {
-		const indices = sampleIndices(nTrain, subSize);
+		const indices = sampleIndices(nTrain, subSize, rng);
 		const xsSub = indices.map((i) => xsTrain[i]);
 		const ysSub = indices.map((i) => ysTrain[i]);
 
@@ -235,6 +205,7 @@ export function computeBiasVarianceDecomposition(
  * @param lambdas array of lambda values to evaluate
  * @param degree polynomial degree for feature expansion
  * @param numRepeats number of bootstrap samples (default 30)
+ * @param seed PRNG seed (default 42) — reproducible for a given seed
  * @returns { lambdas, decompositions } where each decomposition has per-point stats
  */
 export function computeRidgeBiasVariance(
@@ -243,11 +214,13 @@ export function computeRidgeBiasVariance(
 	trueFunc: (x: number) => number,
 	lambdas: number[],
 	degree: number,
-	numRepeats = 30
+	numRepeats = 30,
+	seed = 42
 ): {
 	lambdas: number[];
 	decompositions: Array<{ biasSq: number; variance: number; noise: number }>;
 } {
+	const rng = mulberry32(combineSeed(seed, degree));
 	const nTrain = xsTrain.length;
 	const subSize = Math.max(2, Math.floor(0.8 * nTrain));
 
@@ -267,7 +240,7 @@ export function computeRidgeBiasVariance(
 		});
 
 		for (let r = 0; r < numRepeats; r++) {
-			const indices = sampleIndices(nTrain, subSize);
+			const indices = sampleIndices(nTrain, subSize, rng);
 			const xsSub = indices.map((i) => xsTrain[i]);
 			const ysSub = indices.map((i) => ysTrain[i]);
 

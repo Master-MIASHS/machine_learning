@@ -8,9 +8,13 @@
  *   F = KL(q(s) ‖ p(s)) − E_q[log p(o|s)]
  *     = complexity − accuracy
  *
- * References:
+ * References (externes au cours) :
  *   - Friston (2010). "The free-energy principle: a unified brain theory?"
  *   - Parr, Pezzulo & Friston (2022). "Active Inference."
+ *
+ * AU-DELÀ DU COURS : la free energy variationnelle n'est pas dans
+ * course_sources/ — références externes ci-dessus. Utilitaire générale
+ * exportée dans l'API publique (index.ts), sans leçon dédiée.
  */
 
 import type { Gaussian } from './gaussian.js';

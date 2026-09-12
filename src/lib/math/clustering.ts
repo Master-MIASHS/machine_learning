@@ -2,10 +2,23 @@
  * Part III — Clustering.
  *
  * Implements the formulas taught in the course, source:
- * `marine/Cours/CM/coursClassif-5-Clustering.tex` (slides M1 MIASHS,
- * M. Demangeot, themselves largely inspired by C.-A. Azencott,
+ * course_sources/marine/Cours/CM/coursClassif-5-Clustering.tex (slides
+ * M1 MIASHS, M. Demangeot, themselves largely inspired by C.-A. Azencott,
  * « Introduction au Machine Learning », Dunod). Frame references below
- * point at the beamer frames of that file.
+ * point at the beamer frames of that file :
+ *  - frames « Distances — variables quantitatives » (euclidienne,
+ *    Manhattan, Minkowski, Chebyshev, Mahalanobis) ;
+ *  - « Choix d'une partition » : B_n = (1/e) Σ_{K≥1} Kⁿ/K! (nombre de Bell,
+ *    B_50 ≥ 10^48) → bellNumber ; critère R(homogénéité, séparabilité) ;
+ *  - « Homogénéité », « Séparabilité », « Indice de Davies-Bouldin »,
+ *    « Coefficient de silhouette », « Inertie intra et inter classes » ;
+ *  - section « Clustering hiérarchique » : frames « Principe », « Distance
+ *    entre deux clusters » (simple / complet / moyen / centroïde / Ward :
+ *    |C_k||C_ℓ|/(|C_k|+|C_ℓ|)·‖μ_k−μ_ℓ‖² = gain de variance intra-classe),
+ *    « Dendogramme », « Choix du nombre de clusters » ;
+ *  - section « Les K-moyennes » : frames « Principe », « Algorithme de
+ *    Lloyd » (+ variante), « Répétition de la procédure » (restarts),
+ *    « Choix de K » (coudure), « Données aberrantes ».
  *
  * Conventions:
  * - points are plain number arrays; the ambient dimension d is inferred;

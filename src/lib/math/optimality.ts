@@ -1,6 +1,17 @@
 /**
  * Optimality condition helpers.
  * Find critical points, compute Hessians numerically, and test positive definiteness.
+ *
+ * Reference: course_sources/typst/optim.typ, ch. 1 « Conditions d'existence
+ * d'un minimum » :
+ *  - Définition 1.1 (Minimum local) / Définition 1.2 (Minimum global) ;
+ *  - Théorème 1.3 (CNO — condition nécessaire : ∇f(x*) = 0) ;
+ *  - Théorème 1.4 (CNSO — hessienne semi-définie positive au minimum local)
+ *    → isSemiDefinitePositive ;
+ *  - Théorème 1.5 (CSSO — hessienne définie positive ⇒ minimum local strict)
+ *    → isPositiveDefinite ;
+ *  - Définition 1.6 (Fonction convexe) + Théorème 1.7 (Convexité et
+ *    optimalité : tout point critique est minimum global).
  */
 
 type Grad2D = (x: number, y: number) => [number, number];

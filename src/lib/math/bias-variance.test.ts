@@ -147,11 +147,24 @@ describe('generateSyntheticData', () => {
 			expect(trueFunc(x)).toBe(Math.sin(2 * Math.PI * x) * Math.exp(-(x ** 2)));
 		}
 	});
+
+	it('is deterministic for a given seed and differs across seeds', () => {
+		const a = generateSyntheticData(50, 0.3, 7);
+		const b = generateSyntheticData(50, 0.3, 7);
+		const c = generateSyntheticData(50, 0.3, 8);
+		expect(a.ys).toEqual(b.ys);
+		expect(a.ys).not.toEqual(c.ys);
+	});
+
+	it('rejects invalid domains', () => {
+		expect(() => generateSyntheticData(0, 0.3)).toThrow();
+		expect(() => generateSyntheticData(10, -0.1)).toThrow();
+	});
 });
 
-// The decomposition helpers sample with Math.random (not seedable in this
-// module), so these checks use loose ratio bounds, each verified against
-// repeated runs before being fixed.
+// The decomposition helpers are seeded (mulberry32), so they are
+// reproducible for a given seed; these checks use loose ratio bounds, each
+// verified against repeated runs before being fixed.
 const N = 100;
 const NOISE = 0.3;
 
@@ -187,6 +200,15 @@ describe('computeBiasVarianceDecomposition', () => {
 		expect(h.variance).toBeGreaterThan(1.5 * l.variance);
 		expect(m.bias).toBeLessThan(0.5 * l.bias);
 	});
+
+	it('is deterministic for a given seed and differs across seeds', () => {
+		const { xs, ys, trueFunc } = generateSyntheticData(N, NOISE, 3);
+		const a = computeBiasVarianceDecomposition(xs, ys, trueFunc, 3, 30, 0.8, 11);
+		const b = computeBiasVarianceDecomposition(xs, ys, trueFunc, 3, 30, 0.8, 11);
+		const c = computeBiasVarianceDecomposition(xs, ys, trueFunc, 3, 30, 0.8, 12);
+		expect(a.map((p) => p.variance)).toEqual(b.map((p) => p.variance));
+		expect(a.map((p) => p.variance)).not.toEqual(c.map((p) => p.variance));
+	});
 });
 
 describe('computeRidgeBiasVariance', () => {
@@ -203,5 +225,18 @@ describe('computeRidgeBiasVariance', () => {
 		const [weak, strong] = decompositions;
 		expect(weak.variance).toBeGreaterThan(1.2 * strong.variance);
 		expect(strong.biasSq).toBeGreaterThan(1.5 * weak.biasSq);
+	});
+
+	it('is deterministic for a given seed', () => {
+		const { xs, ys, trueFunc } = generateSyntheticData(N, NOISE, 3);
+		const a = computeRidgeBiasVariance(xs, ys, trueFunc, [0.01, 100], 4, 20, 11);
+		const b = computeRidgeBiasVariance(xs, ys, trueFunc, [0.01, 100], 4, 20, 11);
+		const c = computeRidgeBiasVariance(xs, ys, trueFunc, [0.01, 100], 4, 20, 12);
+		expect(a.decompositions.map((d) => d.variance)).toEqual(
+			b.decompositions.map((d) => d.variance)
+		);
+		expect(a.decompositions.map((d) => d.variance)).not.toEqual(
+			c.decompositions.map((d) => d.variance)
+		);
 	});
 });

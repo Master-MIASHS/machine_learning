@@ -6,6 +6,16 @@
  * Part 2, lesson 3: `buildCartTree` / `findBestSplit1D` implement the greedy,
  * recursive, axis-aligned binary partition of the lecture, and the impurity
  * criteria come from `random-forest.ts` (Gini / entropy / misclassification).
+ *
+ * Sources :
+ *  - course_sources/marine/Cours/CM/coursClassif-3ArbresDecision.tex,
+ *    section « Les arbres de décisions » : partition binaire récursive
+ *    alignée sur les axes, choix de la division (variable + seuil) qui
+ *    maximise le gain d'information, frames « Critères d'impureté »
+ *    (Gini, entropie, erreur de classification) → buildCartTree /
+ *    findBestSplit1D / costComplexity ;
+ *  - course_sources/typst/regularization.typ, ch. 4, Algorithme 4.2
+ *    (Random Forest) — pour la démo ForestGrowthAnimation.
  */
 
 import { impurityOf, type ImpurityCriterion } from './random-forest.js';

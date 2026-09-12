@@ -1,3 +1,15 @@
+/**
+ * « Fléau de la dimension » — comportement des distances euclidiennes dans
+ * le cube unité quand d croît (ratio min/max des distances par paires).
+ *
+ * Reference: course_sources/marine/Cours/CM/coursClassif-1-Intro.tex, frame
+ * « Qualités et défauts » (KNN) : « susceptible de ne pas marcher en grande
+ * dimension, i.e. quand d est grand (fléau de la dimension) — Pourquoi ? ».
+ * La source pose la question sans donner le calcul : les points simulés et
+ * l'analyse du ratio min/max ci-dessous sont illustratifs, pas dans les
+ * sources.
+ */
+
 import { mulberry32 } from './util';
 
 export interface DistanceExtremes {

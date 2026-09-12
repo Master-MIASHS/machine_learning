@@ -1,9 +1,22 @@
 // src/lib/math/concentration.ts
 //
 // Part VIII — Inégalités de concentration et Généralisation
-// Reference: theorie.typ — "Inégalités fondamentales" (Markov,
-// Bienaymé-Tchebychev, application à la consistance en probabilité de la
-// moyenne empirique, application au risque empirique d'un classifieur fixé).
+// Reference: course_sources/typst/theorie.typ, ch. 3 « Inégalités de
+// concentration et Généralisation », section « Inégalités fondamentales » :
+//  - Théorème (Inégalité de Markov) : P(Z≥t) ≤ E[Z]/t pour Z ≥ 0 p.s.
+//    → markovBound ;
+//  - Théorème (Inégalité de Bienaymé-Tchebychev) :
+//    P(|Z−E[Z]|≥ε) ≤ Var(Z)/ε² → chebyshevBound ;
+//  - « Application : consistance en probabilité de la moyenne empirique » :
+//    E[Z̄_n] = μ, Var(Z̄_n) = σ²/n → empiricalMeanStandardError ;
+//    pour h fixé, P(|R_n(h)−R(h)|≥ε) ≤ R(h)(1−R(h))/(nε²) ≤ 1/(4nε²)
+//    → fixedClassifierRiskBound / fixedClassifierRiskBoundUniform.
+// Les simulations Monte Carlo (simulateEmpiricalMeanTrials /
+// simulateEmpiricalMeanPath / empiricalExceedanceProbability /
+// empiricalOneSidedExceedanceProbability) et l'histogramme sont
+// illustratifs — la source énonce les bornes, pas la simulation.
+// (Hoeffding : « Rappel : inégalité de Hoeffding » de la même section,
+// implémentée dans generalization.ts.)
 
 import { combineSeed, mulberry32 } from './util';
 

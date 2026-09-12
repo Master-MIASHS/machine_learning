@@ -1,5 +1,14 @@
 /**
  * Prediction sets — Top-K accuracy and optimal-K search.
+ *
+ * Reference: course_sources/typst/set_valued.typ :
+ *  - ch. « Classification Top-K », Définition 6.1 (Prédiction Top-K :
+ *    C_K(x) = les K classes de plus haute probabilité prédite) → topK ;
+ *  - Définition 6.2 (Accuracy@K : Acc@K = (1/n) Σ 1[y_i ∈ C_K(x_i)], avec
+ *    Acc@1 ≤ Acc@2 ≤ … ≤ Acc@C = 1) → accuracyAtK ;
+ *  - ch. « Choix automatique de K », Algorithme 6.1 (Choix de K par
+ *    validation : K* = argmin_k {Acc@k ≥ τ}, le plus petit ensemble qui
+ *    garantit le niveau τ) → findOptimalK.
  */
 
 /** Return indices of the K classes with highest probability, sorted descending by proba. */

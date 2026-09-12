@@ -1,5 +1,15 @@
 /**
  * Bootstrap resampling and variance estimation.
+ *
+ * Reference: course_sources/typst/regularization.typ, ch. 4 « Méthodes
+ * ensemblistes », section « Bagging (Bootstrap Aggregating) » :
+ *  - Définition 4.5 (Échantillon Bootstrap : tirage de n points avec remise,
+ *    ~63.2 % des points présents, ~36.8 % absents) → bootstrapSample ;
+ *  - Algorithme 4.1 (Bagging) → bootstrapPredictions ;
+ *  - Théorème 4.2 (Réduction de variance par bagging : σ²/M si les modèles
+ *    sont décorrélés) → bootstrapVariance.
+ * NB : seededRandom ci-dessous est une copie privée de mulberry32 (dette
+ * antérieure — les nouveaux modules importent de util.ts).
  */
 
 export interface BootstrapResult {

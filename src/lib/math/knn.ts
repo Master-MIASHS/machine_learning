@@ -1,5 +1,20 @@
+/**
+ * k-NN classifier (majority vote) and regressor (mean of K neighbors).
+ *
+ * Reference:
+ *  - course_sources/typst/theorie.typ, ch. 2, section « Consistance du
+ *    classifieur k-NN » : Théorème 2.1 (Consistance universelle de Stone,
+ *    1977 — k(n) → +∞ et k(n)/n → 0) ;
+ *  - course_sources/marine/Cours/CM/coursClassif-1-Intro.tex : frames
+ *    « Les KNN : exemple introductif » (classification par vote à la
+ *    majorité ; régression f_KNN(x) = (1/K) Σ_{i: x_i ∈ N_K(x)} y_i ;
+ *    distance souvent euclidienne ; K choisi par validation croisée) et
+ *    « Qualités et défauts » (O(nd) puis O(n log K), fléau de la
+ *    dimension).
+ */
+
 import { mulberry32 } from './util';
-import type { LabeledPoint2D } from './consistency';
+import type { LabeledPoint01 } from './consistency';
 
 export interface KnnRegressionPoint {
 	x1: number;
@@ -66,7 +81,7 @@ export function generateKnnRegressionDataset(
 
 /** Return the binary class vote counts among the k nearest observations. */
 export function knnVoteCounts(
-	dataset: LabeledPoint2D[],
+	dataset: LabeledPoint01[],
 	query: { x1: number; x2: number },
 	k: number
 ): KnnVoteCounts {
@@ -86,7 +101,7 @@ export function knnVoteCounts(
  * This is the convention used by the introductory k-NN widget.
  */
 export function knnClassificationPredict(
-	dataset: LabeledPoint2D[],
+	dataset: LabeledPoint01[],
 	query: { x1: number; x2: number },
 	k: number
 ): 0 | 1 {

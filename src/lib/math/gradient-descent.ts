@@ -1,6 +1,23 @@
 /**
  * Gradient descent step implementations.
  * Each function takes current position, gradient info, and returns the next iterate.
+ *
+ * Reference: course_sources/typst/optim.typ, ch. 3 « Algorithmes de
+ * descente de gradient » :
+ *  - Algorithme 3.1 (Descente de gradient : x^(k+1) = x^(k) − α_k ∇f(x^(k)))
+ *    → gdStep / runGD ;
+ *  - Proposition 3.2 (Direction de plus forte descente) et Proposition 3.3
+ *    (Décroissance locale : f(x − α∇f(x)) < f(x) pour α assez petit) ;
+ *  - « Choix du pas d'apprentissage » (pas constant / line search / pas
+ *    décroissant) ;
+ *  - Théorème 3.4 (Convergence — cas convexe : f convexe, L-lisse,
+ *    α = 1/L ⇒ f(x^(k)) − f(x*) ≤ L‖x^(0)−x*‖²/(2k), soit O(1/k)) ;
+ *  - Algorithme 3.6 (Gradient avec momentum : v^(k+1) = βv^(k) + ∇f,
+ *    x^(k+1) = x^(k) − αv^(k+1)) + Remarque 3.7 (développement de la
+ *    vitesse) → momentumStep / runMomentum ;
+ *  - Algorithme 3.8 (Nesterov Accelerated Gradient : évaluation du
+ *    gradient au point anticipé x̃^(k) = x^(k) + β(x^(k) − x^(k−1)))
+ *    → nesterovStep / runNAG.
  */
 
 type Grad2D = (x: number, y: number) => [number, number];

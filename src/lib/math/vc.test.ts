@@ -204,6 +204,58 @@ describe('marginVCDimBound', () => {
 	});
 });
 
+describe('growth function on known point sets (Sauer-Shelah)', () => {
+	it('thresholds (VCdim 1): equality case — Pi(m) = m+1 = sauerShelahBound(m,1) for m distinct points', () => {
+		for (let m = 1; m <= 6; m++) {
+			const points = Array.from({ length: m }, (_, i) => i + 1);
+			const growth = countRealizedDichotomies('thresholds', points);
+			expect(growth).toBe(m + 1); // 0*1* patterns: all-zero + m transition points
+			expect(growth).toBe(sauerShelahBound(m, 1));
+		}
+	});
+
+	it('intervals (VCdim 2): equality case — Pi(m) = 1 + m + C(m,2) = sauerShelahBound(m,2)', () => {
+		for (let m = 1; m <= 6; m++) {
+			const points = Array.from({ length: m }, (_, i) => i + 1);
+			const growth = countRealizedDichotomies('intervals', points);
+			// 0*1*0* patterns: all-zero + one contiguous block of 1s
+			// (m(m+1)/2 non-empty blocks) = 1 + m + m(m-1)/2
+			expect(growth).toBe(1 + m + (m * (m - 1)) / 2);
+			expect(growth).toBe(sauerShelahBound(m, 2));
+		}
+	});
+
+	it('halfspaces2d (VCdim 3): 3 points in general position are shattered, Pi(3) = 2^3', () => {
+		const triangle: [number, number][] = [
+			[0, 0],
+			[1, 0],
+			[0, 1]
+		];
+		expect(countRealizedDichotomies('halfspaces2d', triangle)).toBe(8);
+	});
+
+	it('halfspaces2d: the unit square (convex position, m=4) realizes m(m-1)+2 = 14 dichotomies', () => {
+		const square: [number, number][] = [
+			[0, 0],
+			[1, 0],
+			[1, 1],
+			[0, 1]
+		];
+		// For m points in convex position, a labeling is halfspace-realizable
+		// iff the 1s form a contiguous block in cyclic order: 2 (empty/full)
+		// + m(m-1) (block length 1..m-1, m starting positions) = m^2 - m + 2.
+		// The only unrealizable labelings of the square are the two
+		// checkerboard (diagonal) ones: 16 - 2 = 14.
+		expect(countRealizedDichotomies('halfspaces2d', square)).toBe(14);
+		expect(countRealizedDichotomies('halfspaces2d', square)).toBe(4 * 3 + 2);
+		// Sauer-Shelah with d = 3 is valid but not tight here: 1 + 4 + 6 + 4 = 15
+		expect(countRealizedDichotomies('halfspaces2d', square)).toBeLessThanOrEqual(
+			sauerShelahBound(4, 3)
+		);
+		expect(sauerShelahBound(4, 3)).toBe(15);
+	});
+});
+
 describe('svmGeneralizationBound', () => {
 	it('returns 0 when the margin-based VC-dim bound rounds down to 0', () => {
 		expect(svmGeneralizationBound(1, 2, 100, 0.05)).toBe(0);

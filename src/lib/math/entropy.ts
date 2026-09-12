@@ -1,5 +1,13 @@
 /**
  * Entropy functions for discrete and Gaussian distributions.
+ *
+ * Contexte du cours : course_sources/marine/Cours/CM/coursClassif-3ArbresDecision.tex,
+ * frame « Critères d'impureté » — l'entropie est l'un des trois critères
+ * d'impureté des arbres de décision (avec Gini et erreur de classification) ;
+ * entropyDiscrete sert d'impureté via random-forest.ts (entropyImpurity) et
+ * le gain d'information (frame du choix de la division).
+ * entropyGaussian / conditionalEntropy / entropyBinary : utilitaires
+ * généraux, pas dans les sources.
  */
 
 import type { Gaussian } from './gaussian.js';

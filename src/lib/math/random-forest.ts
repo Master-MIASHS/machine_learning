@@ -1,10 +1,24 @@
 /**
  * Random Forest utilities: stumps, impurity measures, feature importance.
  *
- * Supports Part IV, lesson 2 of the course (random forests — `regularization.typ`,
- * section "Random Forest"): Définition 6.2 (impureté de Gini et division
- * optimale), Définition 6.3 (division optimale restreinte) and the impurity-based
- * feature importance of Section 4 of the lesson.
+ * Sources :
+ *  - course_sources/typst/regularization.typ, ch. 4, section « Random
+ *    Forest » : Algorithme 4.2 (Random Forest — échantillon bootstrap +
+ *    sélection aléatoire de m features par division), règles empiriques
+ *    m = √d (classification) / m = d/3 (régression), avantages « Estimation
+ *    de l'importance des variables » et « Estimation OOB de l'erreur de
+ *    généralisation » ;
+ *  - course_sources/marine/Cours/CM/coursClassif-3ArbresDecision.tex, frame
+ *    « Critères d'impureté » : impureté de Gini, entropie, erreur de
+ *    classification, et le choix de la division qui maximise le gain
+ *    d'information → giniImpurity / entropyImpurity /
+ *    misclassificationImpurity / impurityOf / informationGain /
+ *    buildDecisionStump.
+ * NB : regularization.typ ne contient AUCUNE définition numérotée de
+ * Gini/entropie (les « Définition 6.2 / 6.3 » de l'ancien en-tête n'existent
+ * pas dans ce fichier) — ces critères viennent des diapos Marine ci-dessus.
+ * permutationImportance : la formule (importance par permutation) n'est pas
+ * dans les sources — illustratif, au-delà du cours.
  */
 
 import { mulberry32 } from './util.js';

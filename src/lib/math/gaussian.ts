@@ -1,6 +1,12 @@
 /**
  * Gaussian distribution utilities.
  * All functions are pure and never return NaN for valid inputs (sigma2 > 0).
+ *
+ * UTILITAIRE GÉNÉRAL — pas de résultat numéroté de course_sources/
+ * « enseigne » la loi gaussienne comme telle. Briques des modules du modèle
+ * linéaire (linear-model.ts, regression.ts — source : course_sources/sophie/,
+ * où ε ~ N(0, σ²In) est l'hypothèse (H3) du modèle) et des modules
+ * bayésiens (bayes.ts, kl.ts, entropy.ts, calibration.ts).
  */
 
 /** Gaussian distribution parameterized by mean (mu) and variance (sigma2). */

@@ -1,5 +1,20 @@
 /**
  * Linear regression solvers (OLS, Ridge) with matrix utilities.
+ *
+ * Sources :
+ *  - OLS : course_sources/sophie/StatM1S1_2025.pdf (« Modèles de régression
+ *    linéaire et outils du diagnostic ») — estimation MCO du modèle
+ *    Y = Xβ + ε, hypothèses (H1) rang(X), (H2) E(ε)=0, (H3) Σ_ε = σ²In
+ *    (cf. linear-model.ts pour le détail : Théorème 1 MCO, Théorème 2 MV) ;
+ *  - Ridge : course_sources/typst/regularization.typ, ch. 5, Définition 5.1
+ *    (Régularisation L2 — Ridge) et solution analytique
+ *    θ̂_Ridge = (XᵀX + λI)⁻¹Xᵀy (inversion garantie pour λ > 0) →
+ *    ridgeSolver ; cf. aussi course_sources/typst/optim.typ, ch. 2,
+ *    Proposition 2.6.2 (Régularisation Ridge) ;
+ *  - svdShrinkageFactors : course_sources/typst/regularization.typ,
+ *    Proposition 5.1 (Facteurs de rétrécissement : avec X = UΣVᵀ,
+ *    θ̂_Ridge = Σ_j (σ_j²/(σ_j²+λ)) v_j (u_jᵀy) — shrinkage plus fort sur
+ *    les petites valeurs singulières).
  */
 
 import { matMul, matVec, solveLinearSystem, transpose } from './util.js';

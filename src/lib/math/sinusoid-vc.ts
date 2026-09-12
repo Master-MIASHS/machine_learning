@@ -8,14 +8,16 @@
 // pas chaque configuration — certains ensembles symétriques admettent des
 // étiquetages irréalisables).
 //
-// Ce résultat n'est PAS dans theorie.typ, qui ne mentionne la convention
-// VCdim = +∞ que dans la définition de la dimension VC (section « Dimension
-// de Vapnik-Chervonenkis ») et n'y présente que des familles de VCdim finie
-// (seuils, intervalles, hyperplans). Ce module fournit le solveur utilisé par
+// Ce résultat n'est PAS dans course_sources/typst/theorie.typ, qui ne
+// mentionne la convention VCdim = +∞ que dans la Définition (Dimension VC)
+// de la section « Dimension de Vapnik-Chervonenkis » (ch. 3) et n'y présente
+// que des familles de VCdim finie (seuils VCdim 1, intervalles VCdim 2,
+// hyperplans de R^d VCdim d+1). Ce module fournit le solveur utilisé par
 // la démo SinusoidVCExplorer : il cherche, pour un étiquetage donné de points
 // distincts, une paire (A, b) réalisant l'étiquetage. La recherche est exacte
 // (à A fixé, puis en A jusqu'à un plafond de fréquence drawable) mais elle
-// n'est pas une preuve de la brisure — la démo est présentée comme telle.
+// n'est pas une preuve de la brisure — la démo est présentée comme telle
+// (« au-delà du cours »).
 
 const TAU = 2 * Math.PI;
 

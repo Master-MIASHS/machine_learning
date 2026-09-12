@@ -1,5 +1,18 @@
 /**
  * Margin analysis for boosting classifiers.
+ *
+ * Reference: course_sources/typst/regularization.typ, ch. 4 « Méthodes
+ * ensemblistes », section « Boosting » :
+ *  - Définition 4.7 (Margin : margin_i = y_i F(x_i), interprétation
+ *    signe/confiance) → computeMargins ;
+ *  - « Interprétation en termes de margin » : la perte exponentielle
+ *    pénalise exponentiellement les margines très négatives ;
+ *  - « Propriété clé (Margin maximization) » : AdaBoost tend à maximiser le
+ *    margin minimum → minMargin / trackMarginEvolution ;
+ *  - Théorème 4.3 (γ_t = ½ − ε_t : l'avantage conditionnel qui sous-tend la
+ *    borne d'erreur d'entraînement).
+ * Les statistiques descriptives (moyenne, médiane, histogramme de margines)
+ * sont des utilitaires, pas des formules de la source.
  */
 
 import type { DecisionStump } from './random-forest.js';

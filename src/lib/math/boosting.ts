@@ -1,5 +1,26 @@
 /**
  * Boosting algorithms: AdaBoost, Gradient Boosting steps.
+ *
+ * Reference: course_sources/typst/regularization.typ, ch. 4 « Méthodes
+ * ensemblistes », section « Boosting » :
+ *  - Algorithme 4.3 (AdaBoost) : w_i^1 = 1/n, erreur pondérée
+ *    ε_t = Σ_{i: h_t(x_i)≠y_i} w_i^t, α_t = ½ log((1−ε_t)/ε_t), arrêt si
+ *    ε_t ≥ 1/2, mise à jour w_i^(t+1) = (w_i^t/Z_t) e^(−α_t y_i h_t(x_i)),
+ *    H(x) = sign(Σ_t α_t h_t(x)) → createAdaBoostState / adaboostStep /
+ *    computeAlpha / updateWeights / adaboostPredict / runAdaBoost ;
+ *  - Théorème 4.3 (Borne sur l'erreur d'entraînement :
+ *    Err_train ≤ ∏ 2√(ε_t(1−ε_t)) = ∏ √(1−4γ_t²), γ_t = ½−ε_t) ;
+ *  - Théorème 4.4 (AdaBoost et perte exponentielle : AdaBoost est une
+ *    descente de coordonnées sur L_exp(F) = (1/n) Σ e^(−y_i F(x_i))) →
+ *    exponentialLoss / exponentialLossDerivative ;
+ *  - Définition 4.7 (Margin) + « Interprétation en termes de margin » →
+ *    cf. margin-analysis.ts ;
+ *  - « Comparaison avec la perte logistique » (L_log = log(1+e^(−margin)))
+ *    → logisticLoss / logisticLossDerivative ;
+ *  - « Gradient Boosting » (principe : r_(i,m) = −∂L/∂F, F_m = F_(m−1)+ν h_m)
+ *    → gradientBoostingStep (la source énonce le principe sans formule
+ *    numérotée pas-à-pas).
+ * Les stumps (classificateurs faibles) viennent de random-forest.ts.
  */
 
 import type { DecisionStump } from './random-forest.js';

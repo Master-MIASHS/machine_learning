@@ -1,6 +1,16 @@
 /**
  * Benchmark test functions for optimization algorithms.
  * Each function exports { f, grad, hess } — the objective, analytical gradient, and analytical Hessian.
+ *
+ * SUITE DE BENCHMARK GÉNÉRALE — pas de correspondance dans course_sources/.
+ * Les fonctions (paraboloid, rosenbrock, ellipse, rastrigin, beale,
+ * saddle, cubicInflection, semiDefSaddle) sont des benchmarks standards,
+ * au-delà du cours. Elles alimentent les démos de
+ * course_sources/typst/optim.typ : ch. 1 (conditions d'optimalité,
+ * Théorèmes 1.3–1.7, coercivité — Définition 1.11 / Théorème 1.12) et
+ * ch. 3 (GD — Algorithme 3.1, momentum — 3.6, Nesterov — 3.8, Newton —
+ * Algorithme 3.13 / Théorème 3.14, descente par coordonnées — Algorithme
+ * 3.13 / Théorème 3.16, SGD/mini-batch — 3.9–3.12).
  */
 
 type Func2D = (x: number, y: number) => number;

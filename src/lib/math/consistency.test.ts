@@ -22,7 +22,7 @@ import {
 	type KnnRiskModel,
 	type ApproxEstimModel,
 	type Knn2DModel,
-	type LabeledPoint2D
+	type LabeledPoint01
 } from './consistency';
 import { linspace } from './util';
 
@@ -342,7 +342,7 @@ describe('generateKnnDataset', () => {
 });
 
 describe('kNearestNeighbors', () => {
-	const dataset: LabeledPoint2D[] = [
+	const dataset: LabeledPoint01[] = [
 		{ x1: 0, x2: 0, label: 1 },
 		{ x1: 1, x2: 0, label: 1 },
 		{ x1: 5, x2: 5, label: 0 },
@@ -364,7 +364,7 @@ describe('kNearestNeighbors', () => {
 
 describe('knnPredict', () => {
 	it('predicts the majority label among the k nearest neighbors', () => {
-		const dataset: LabeledPoint2D[] = [
+		const dataset: LabeledPoint01[] = [
 			{ x1: 0, x2: 0, label: 1 },
 			{ x1: 0.1, x2: 0, label: 1 },
 			{ x1: 0.2, x2: 0, label: 0 },
@@ -375,7 +375,7 @@ describe('knnPredict', () => {
 	});
 
 	it('breaks ties toward 1', () => {
-		const dataset: LabeledPoint2D[] = [
+		const dataset: LabeledPoint01[] = [
 			{ x1: 0, x2: 0, label: 1 },
 			{ x1: 0.1, x2: 0, label: 0 }
 		];

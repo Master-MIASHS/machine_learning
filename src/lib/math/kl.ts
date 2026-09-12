@@ -2,6 +2,11 @@
  * KL divergence functions for Gaussian and discrete distributions.
  *
  * Convention: KL(p ‖ q) — the "forward" KL, p is the reference distribution.
+ *
+ * UTILITAIRE GÉNÉRAL — la divergence de KL n'est pas énoncée dans
+ * course_sources/. Brique des modules bayésiens (free-energy.ts :
+ * F = KL(q‖p) − E_q[log p(o|s)]) et exportée dans l'API publique
+ * (index.ts).
  */
 
 import type { Gaussian } from './gaussian.js';

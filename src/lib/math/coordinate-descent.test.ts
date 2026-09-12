@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { cdCyclicStep, runCD } from '../math/coordinate-descent.js';
+import { cdCyclicStep, cdRandomStep, runCD } from '../math/coordinate-descent.js';
 
 describe('cdCyclicStep', () => {
 	it('reduces the objective on a simple quadratic', () => {
@@ -117,5 +117,64 @@ describe('runCD', () => {
 
 		expect(traj.length).toBeGreaterThan(0);
 		expect(traj[traj.length - 1].k >= traj.length - 1).toBe(true);
+	});
+});
+
+describe('exact solution on separable (diagonal) quadratics', () => {
+	// f = theta_0^2 + 4*theta_1^2 + 9*theta_2^2 has a diagonal Hessian, so
+	// each 1-D slice is a quadratic with a unique exact minimizer at 0: one
+	// cyclic sweep solves the whole problem (the source's « Exercice » in
+	// optim.typ, « Descente par coordonnées »: « Pour f(x) = 1/2 x^T A x - b^T x
+	// avec A diagonale, montrez que CD cyclique converge en une époque »).
+
+	it('every cyclic sweep strictly decreases the objective on a separable quadratic', () => {
+		const f = (theta: number[]) => theta[0] ** 2 + 4 * theta[1] ** 2 + 9 * theta[2] ** 2;
+		let theta = [2, 3, 4];
+		let fPrev = f(theta);
+		for (let i = 0; i < 5; i++) {
+			theta = cdCyclicStep(theta, f);
+			const fNow = f(theta);
+			expect(fNow).toBeLessThan(fPrev);
+			fPrev = fNow;
+		}
+	});
+
+	it('cyclic sweeps converge to the exact minimizer (0,0,0) of a separable quadratic', () => {
+		// NB: one sweep is NOT exact — the line search brackets [0, last
+		// improving point], which can exclude the true coordinate minimum
+		// (e.g. f = theta^2 from theta = 2 stops at 0.4, the last improving
+		// test point). Convergence to the exact solution is nevertheless
+		// fast (~5x residual shrinkage per sweep until the bracket straddles
+		// the minimum).
+		const f = (theta: number[]) => theta[0] ** 2 + 4 * theta[1] ** 2 + 9 * theta[2] ** 2;
+		let theta = [2, 3, 4];
+		for (let i = 0; i < 30; i++) theta = cdCyclicStep(theta, f);
+		for (const value of theta) expect(Math.abs(value)).toBeLessThan(1e-3);
+		expect(f(theta)).toBeLessThan(1e-6);
+	});
+
+	it('closed form of a single coordinate step: the chosen coordinate lands on its exact minimizer, the others are untouched', () => {
+		const f = (theta: number[]) => (theta[0] - 3) ** 2 + 7 * (theta[1] - 2) ** 2;
+		const { newTheta, coord } = cdRandomStep([0, 5], f, () => 0); // rng 0 -> coordinate 0
+		expect(coord).toBe(0);
+		expect(newTheta[0]).toBeCloseTo(3, 4); // exact 1-D minimizer of (t - 3)^2
+		expect(newTheta[1]).toBe(5); // coordinate 1 untouched (fresh array)
+	});
+
+	it('sweeps converge to the exact minimum (3,2) of a shifted separable quadratic', () => {
+		const f = (theta: number[]) => (theta[0] - 3) ** 2 + 7 * (theta[1] - 2) ** 2;
+		let theta = [0, 0];
+		for (let i = 0; i < 30; i++) theta = cdCyclicStep(theta, f);
+		expect(theta[0]).toBeCloseTo(3, 3);
+		expect(theta[1]).toBeCloseTo(2, 3);
+		expect(f(theta)).toBeLessThan(1e-6);
+	});
+
+	it('runCD converges to the exact minimum of a separable quadratic', () => {
+		const f = (theta: number[]) => theta[0] ** 2 + 4 * theta[1] ** 2 + 9 * theta[2] ** 2;
+		const traj = runCD([2, -3, 4], f, { method: 'cyclic', maxIter: 1000 });
+		const last = traj[traj.length - 1];
+		expect(last.fVal).toBeLessThan(1e-6);
+		for (const value of last.theta) expect(Math.abs(value)).toBeLessThan(1e-3);
 	});
 });

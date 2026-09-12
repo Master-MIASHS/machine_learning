@@ -1,5 +1,13 @@
 /**
  * Synthetic data generation for ML experiments (regularization, ensembles).
+ *
+ * GÉNÉRATEUR SYNTHÉTIQUE — pas de formule dans course_sources/.
+ * Fournit des données linéaires creuses (sparse) et corrélées pour les
+ * démos de régularisation (Lasso/Ridge/Elastic Net, cf.
+ * course_sources/typst/regularization.typ, ch. 5) ; la structure « 5
+ * coefficients non nuls sur 20 » reprend le style de l'exemple Python de la
+ * source (« Génération de données avec structure parce »), sans être une
+ * formule de la source.
  */
 
 /** Generate linear regression data with k sparse true features and Gaussian noise */

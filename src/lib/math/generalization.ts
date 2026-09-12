@@ -1,11 +1,19 @@
 // src/lib/math/generalization.ts
 //
 // Part VIII — Généralisation
-// Reference: theorie.typ — "Majoration de l'erreur de généralisation : cas
-// fini" (Théorème 3.1 séparable, Théorème 3.2 non séparable/Hoeffding), and
-// "Limites de la théorie VC pour les réseaux de neurones" (double descente,
-// Belkin et al. 2019 — the pseudo-inverse linear regression figure,
-// d=50, 50 répétitions, bruit irréductible sigma^2=1).
+// Reference: course_sources/typst/theorie.typ, ch. 3 « Inégalités de
+// concentration et Généralisation » :
+//  - "Majoration de l'erreur de généralisation : cas fini" —
+//    Théorème 3.1 (cas séparable, |H| < +∞ : P^n(R(ĥ_S) > ε) ≤
+//    |H| e^(−nε), taille d'échantillon n ≥ (log|H| + log(1/δ))/ε) et
+//    Théorème 3.2 (cas non séparable : via Hoeffding,
+//    |R(h) − R_n(h)| ≤ √((log|H| + log(2/δ))/(2n)) simultanément) ;
+//  - "Rappel : inégalité de Hoeffding" (Théorème (Hoeffding, 1963) :
+//    P(1/n Σ(Z_i − E[Z_i]) ≥ t) ≤ exp(−2n²t²/Σ(b_i−a_i)²), en particulier
+//    2e^(−2nt²) pour Z_i ∈ [0,1]) → hoeffdingBound / hoeffdingUniformBound ;
+//  - "Limites de la théorie VC pour les réseaux de neurones" (double
+//    descente, Belkin et al. 2019 — the pseudo-inverse linear regression
+//    figure, d=50, 50 répétitions, bruit irréductible sigma^2=1).
 // ---------------------------------------------------------------------------
 // Cas séparable (Théorème 3.1)
 // ---------------------------------------------------------------------------

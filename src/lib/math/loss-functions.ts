@@ -1,5 +1,19 @@
 /**
  * Loss functions for ML regression/classification with gradients.
+ *
+ * Sources :
+ *  - MSE (coût quadratique) : course_sources/marine/Cours/CM/coursClassif-2RegLogistique.tex
+ *    (section « Classifieurs Linéaires ») et course_sources/typst/optim.typ,
+ *    ch. 2, « Exemples en ML — Régression linéaire » (Proposition 2.6.1,
+ *    solution en forme close) ;
+ *  - Perte logistique : course_sources/marine/Cours/CM/coursClassif-2RegLogistique.tex,
+ *    frames de la section « La régression logistique » : ℓ = log(1 +
+ *    exp(−y(⟨w,x⟩+b))), choix du log motivé par les cas y = ±1 ;
+ *  - Perte charnière (hinge) : course_sources/marine/Cours/CM/coursClassif-4-SVM.tex,
+ *    section « SVM à marge souple » : ℓ^hinge = max(0, 1 − y_i(⟨w,x_i⟩+b)),
+ *    primale min ½‖w‖² + C Σ ℓ^hinge.
+ * Les gradients ci-dessous sont les dérivées standards de ces pertes
+ * (pas de formule numérotée dans les sources).
  */
 
 /** MSE loss for a single example: ½(y - wᵀx)² */

@@ -1,5 +1,14 @@
 /**
  * Diversity measures for ensemble methods.
+ *
+ * Relié à course_sources/typst/regularization.typ, ch. 4 « Méthodes
+ * ensemblistes », Théorème 4.1 (Réduction de variance par agrégation) et sa
+ * « Remarque cruciale » : la réduction de variance n'est effective que si
+ * les modèles font des erreurs complémentaires (erreurs centrées, idéalement
+ * indépendantes).
+ * Les mesures elles-mêmes (corrélations, taux de désaccord, q-statistique de
+ * Weiss, mesure composite de diversité) ne sont PAS énoncées dans les
+ * sources — illustratif, au-delà du cours.
  */
 
 // Diversity measures computed directly without ensemble imports

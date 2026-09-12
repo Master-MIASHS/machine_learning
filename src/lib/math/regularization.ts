@@ -1,5 +1,24 @@
 /**
  * Regularization solvers: Ridge path, Lasso (coordinate descent), Elastic Net, and LARS.
+ *
+ * Source principale : course_sources/typst/regularization.typ, ch. 5
+ * « Régularisation » :
+ *  - Définition 5.1 (Régularisation L2 — Ridge) + solution analytique
+ *    → ridgePath ;
+ *  - Définition 5.2 (Régularisation L1 — Lasso) + « sélection de variables
+ *    automatique » (les coins du losange L1) → lassoCoordinateDescent ;
+ *    la descente par coordonnées elle-même : course_sources/typst/optim.typ,
+ *    ch. 3, Algorithme 3.13 (« Solution exacte possible dans certains cas
+ *    (Lasso) » est listée parmi les avantages de la CD) ;
+ *  - Définition 5.3 (Lasso path — fonction linéaire par morceaux, variables
+ *    qui entrent/sortent à des valeurs spécifiques de λ) → lassoPathLARS ;
+ *  - Algorithme 5.1 (LARS simplifié : j* = argmax_j |x_jᵀr|, direction
+ *    « équiangular », événements) → lassoPathLARS ;
+ *  - Définition 5.3 (Elastic Net — NB : la source réutilise le numéro 5.3,
+ *    déjà porté par le Lasso path ; paramétrisation α ∈ [0,1]) →
+ *    elasticNetSolver.
+ * Cf. aussi Théorème 5.1 (Décomposition biais-variance avec
+ * régularisation) pour l'interprétation du trade-off.
  */
 
 import { ridgeSolver } from './regression.js';
