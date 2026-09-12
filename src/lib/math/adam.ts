@@ -1,4 +1,16 @@
-/** Pure, element-wise implementations of Adam and AdamW. */
+/**
+ * Pure, element-wise implementations of Adam and AdamW.
+ *
+ * AU-DELÀ DU COURS : Adam n'apparaît dans course_sources/typst/optim.typ
+ * que dans une seule ligne de la « Synthèse » (dernière ligne du fichier :
+ * « SGD/mini-batch avec momentum (Adam, etc.) »). Ni l'algorithme, ni la
+ * correction de biais 1/(1−βᵗ) n'y sont énoncés — les formules implémentées
+ * ici (Adam standard, AdamW) sont illustratives, pas dans les sources.
+ *
+ * Contexte du chapitre 3 (course_sources/typst/optim.typ) : Algorithme 3.9
+ * (SGD), Proposition 3.10 (gradient non biaisé), Proposition 3.11
+ * (convergence O(1/√K)), Algorithme 3.12 (mini-batch).
+ */
 
 export interface AdamState {
 	m: number[];

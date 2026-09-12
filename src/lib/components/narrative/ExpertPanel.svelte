@@ -30,8 +30,8 @@
 
 <style>
 	.expert-panel {
-		border: 1px solid rgba(167, 139, 250, 0.3);
-		background: rgba(167, 139, 250, 0.06);
+		border: 1px solid color-mix(in srgb, var(--color-epistemic) 30%, transparent);
+		background: color-mix(in srgb, var(--color-epistemic) 6%, transparent);
 		border-radius: var(--radius-lg);
 		padding: 1.25rem;
 		margin-bottom: 1.5rem;
@@ -50,8 +50,8 @@
 		text-transform: uppercase;
 		letter-spacing: 0.1em;
 		color: var(--color-epistemic);
-		background: rgba(167, 139, 250, 0.15);
-		border: 1px solid rgba(167, 139, 250, 0.3);
+		background: color-mix(in srgb, var(--color-epistemic) 15%, transparent);
+		border: 1px solid color-mix(in srgb, var(--color-epistemic) 30%, transparent);
 		border-radius: var(--radius-sm);
 		padding: 0.125rem 0.375rem;
 	}

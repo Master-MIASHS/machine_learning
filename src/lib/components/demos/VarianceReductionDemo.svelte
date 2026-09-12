@@ -5,6 +5,7 @@
 	import Slider from '$lib/components/controls/Slider.svelte';
 	import Button from '$lib/components/controls/Button.svelte';
 	import CurveChart from '../charts/CurveChart.svelte';
+	import { mulberry32 } from '$lib/math/util';
 
 	// ─── Constants ──────────────────────────────────────────────────────────────
 	const N_POINTS = 100;
@@ -23,10 +24,10 @@
 
 	const truePoints = $derived(xValues.map((x): [number, number] => [x, trueFunction(x)]));
 
-	function randn(): number {
-		let u1 = Math.random(),
-			u2 = Math.random();
-		while (u1 === 0) u1 = Math.random();
+	function randn(rng: () => number): number {
+		let u1 = rng(),
+			u2 = rng();
+		while (u1 === 0) u1 = rng();
 		return Math.sqrt(-2 * Math.log(u1)) * Math.cos(2 * Math.PI * u2);
 	}
 
@@ -37,11 +38,13 @@
 	let animTimer: ReturnType<typeof setInterval> | null = null;
 
 	function generateAllModels(): number[][] {
+		// La graine pilote réellement le tirage : même graine → mêmes modèles.
+		const rng = mulberry32(seed + 1);
 		const models: number[][] = [];
 		for (let j = 0; j < MAX_MODELS; j++) {
 			const preds: number[] = [];
 			for (let i = 0; i < N_POINTS; i++) {
-				preds.push(trueFunction(xValues[i]) + NOISE_STD * randn());
+				preds.push(trueFunction(xValues[i]) + NOISE_STD * randn(rng));
 			}
 			models.push(preds);
 		}

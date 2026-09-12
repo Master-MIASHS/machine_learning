@@ -31,9 +31,11 @@
 	});
 </script>
 
-<span class="katex-inline" aria-label={formula}>
-	<!-- eslint-disable-next-line svelte/no-at-html-tags -->
-	{@html rendered}
+<span class="katex-inline" role="img" aria-label={formula}>
+	<span aria-hidden="true">
+		<!-- eslint-disable-next-line svelte/no-at-html-tags -->
+		{@html rendered}
+	</span>
 </span>
 
 <style>

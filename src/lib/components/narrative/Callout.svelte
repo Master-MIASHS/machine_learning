@@ -12,50 +12,50 @@
 	const config = {
 		insight: {
 			color: 'var(--color-belief)',
-			bg: 'rgba(6, 182, 212, 0.08)',
-			border: 'rgba(6, 182, 212, 0.3)',
+			bg: 'color-mix(in srgb, var(--color-belief) 8%, transparent)',
+			border: 'color-mix(in srgb, var(--color-belief) 30%, transparent)',
 			icon: '💡',
 			defaultTitle: 'Insight'
 		},
 		warning: {
 			color: 'var(--color-surprise)',
-			bg: 'rgba(244, 63, 94, 0.08)',
-			border: 'rgba(244, 63, 94, 0.3)',
+			bg: 'color-mix(in srgb, var(--color-surprise) 8%, transparent)',
+			border: 'color-mix(in srgb, var(--color-surprise) 30%, transparent)',
 			icon: '⚠️',
 			defaultTitle: 'Attention'
 		},
 		definition: {
 			color: 'var(--color-positive)',
-			bg: 'rgba(16, 185, 129, 0.08)',
-			border: 'rgba(16, 185, 129, 0.3)',
+			bg: 'color-mix(in srgb, var(--color-positive) 8%, transparent)',
+			border: 'color-mix(in srgb, var(--color-positive) 30%, transparent)',
 			icon: '📖',
 			defaultTitle: 'Définition'
 		},
 		intuition: {
 			color: 'var(--color-epistemic)',
-			bg: 'rgba(167, 139, 250, 0.08)',
-			border: 'rgba(167, 139, 250, 0.3)',
+			bg: 'color-mix(in srgb, var(--color-epistemic) 8%, transparent)',
+			border: 'color-mix(in srgb, var(--color-epistemic) 30%, transparent)',
 			icon: '🔮',
 			defaultTitle: 'Intuition'
 		},
 		summary: {
 			color: 'var(--color-epistemic)',
-			bg: 'rgba(167, 139, 250, 0.08)',
-			border: 'rgba(167, 139, 250, 0.3)',
+			bg: 'color-mix(in srgb, var(--color-epistemic) 8%, transparent)',
+			border: 'color-mix(in srgb, var(--color-epistemic) 30%, transparent)',
 			icon: '📌',
 			defaultTitle: 'Retenir'
 		},
 		proof: {
 			color: 'var(--color-positive)',
-			bg: 'rgba(16, 185, 129, 0.06)',
-			border: 'rgba(16, 185, 129, 0.25)',
+			bg: 'color-mix(in srgb, var(--color-positive) 6%, transparent)',
+			border: 'color-mix(in srgb, var(--color-positive) 25%, transparent)',
 			icon: '📝',
 			defaultTitle: 'Démonstration'
 		},
 		note: {
 			color: 'var(--color-neutral)',
-			bg: 'rgba(107, 114, 128, 0.08)',
-			border: 'rgba(107, 114, 128, 0.3)',
+			bg: 'color-mix(in srgb, var(--color-text-muted) 8%, transparent)',
+			border: 'color-mix(in srgb, var(--color-text-muted) 30%, transparent)',
 			icon: '📝',
 			defaultTitle: 'Note'
 		}

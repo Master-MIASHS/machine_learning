@@ -24,8 +24,8 @@
 
 <style>
 	.theorem-block {
-		border-left: 3px solid rgba(6, 182, 212, 0.4);
-		background: rgba(6, 182, 212, 0.06);
+		border-left: 3px solid color-mix(in srgb, var(--color-belief) 40%, transparent);
+		background: color-mix(in srgb, var(--color-belief) 6%, transparent);
 		border-radius: 0 var(--radius-md) var(--radius-md) 0;
 		padding: 1rem 1.25rem;
 		margin-top: 1em;

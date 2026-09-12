@@ -27,8 +27,8 @@
 
 <style>
 	.example-block {
-		border-left: 3px solid rgba(245, 158, 11, 0.4);
-		background: rgba(245, 158, 11, 0.04);
+		border-left: 3px solid color-mix(in srgb, var(--color-neutral) 40%, transparent);
+		background: color-mix(in srgb, var(--color-neutral) 4%, transparent);
 		border-radius: 0 var(--radius-md) var(--radius-md) 0;
 		padding: 0.75rem 1.25rem;
 		margin-top: 1em;
@@ -55,7 +55,7 @@
 	.block-title {
 		font-size: 0.875rem;
 		font-weight: 700;
-		color: var(--color-positive);
+		color: var(--color-neutral);
 		text-transform: uppercase;
 		letter-spacing: 0.05em;
 	}
@@ -69,7 +69,7 @@
 	.block-body {
 		margin-top: 0.6rem;
 		padding-top: 0.6rem;
-		border-top: 1px solid rgba(245, 158, 11, 0.15);
+		border-top: 1px solid color-mix(in srgb, var(--color-neutral) 15%, transparent);
 		font-size: 0.9375rem;
 		line-height: 1.6;
 	}

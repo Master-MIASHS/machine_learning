@@ -24,8 +24,8 @@
 
 <style>
 	.definition-block {
-		border-left: 3px solid rgba(167, 139, 250, 0.4);
-		background: rgba(167, 139, 250, 0.06);
+		border-left: 3px solid color-mix(in srgb, var(--color-epistemic) 40%, transparent);
+		background: color-mix(in srgb, var(--color-epistemic) 6%, transparent);
 		border-radius: 0 var(--radius-md) var(--radius-md) 0;
 		padding: 1rem 1.25rem;
 		margin-top: 1em;

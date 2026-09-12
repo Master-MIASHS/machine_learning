@@ -1,5 +1,17 @@
 /**
  * Bayesian inference utilities for Gaussian (conjugate) and numerical posteriors.
+ *
+ * UTILITAIRE GÉNÉRAL — pas de résultat numéroté de course_sources/ ne
+ * correspond à la mise à jour conjuguée gaussienne : la décision bayésienne
+ * du cours est enseignée dans course_sources/typst/theorie.typ (ch. 1,
+ * Théorème 1.1 — classifieur de Bayes) et
+ * course_sources/marine/Cours/CM/coursClassif-1-Intro.tex (frame « Coût
+ * absolu et coût 0/1 » — classifieur de Bayes ; frame « Risque empirique » —
+ * information a priori / biais inductif).
+ * Les formules conjuguées (précision additive 1/σ²_post = 1/σ²_0 + 1/σ²_l)
+ * et le posterior numérique sont illustratifs, au-delà du cours ; elles
+ * alimentent les démos Part VI (BayesDecisionExplorer, BayesRiskNoiseDemo,
+ * ConditionalRegressionExplorer).
  */
 
 import type { Gaussian } from './gaussian.js';

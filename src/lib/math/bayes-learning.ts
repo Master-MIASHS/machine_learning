@@ -5,8 +5,21 @@
 // classifier, Bayes risk, and optimality of the conditional mean (L2) /
 // conditional median (L1) for regression.
 //
-// Reference: theorie.typ — "Prédicteurs optimaux de Bayes",
-// "Le cadre de la décision Bayésienne", "Cas de la régression".
+// Reference: course_sources/typst/theorie.typ, ch. 1 « Prédicteurs optimaux
+// de Bayes » :
+//  - « Le cadre de la décision Bayésienne » : Théorème 1.1 (Classifieur de
+//    Bayes) — risque conditionnel r(1,x) = 1−η(x), r(0,x) = η(x),
+//    h*(x) = 1 si η(x) ≥ 1/2, risque de Bayes R* = E[min(η(X), 1−η(X))]
+//    → conditionalRisk / bayesAction / bayesConditionalRisk / bayesRisk ;
+//  - « Cas de la régression » : Théorème 1.2 (Prédicteurs optimaux en
+//    régression) — moyenne conditionnelle (L2) / médiane conditionnelle
+//    (L1) → conditionalSquaredRisk / conditionalAbsoluteRisk /
+//    conditionalMean / conditionalMedian.
+// Cf. aussi course_sources/marine/Cours/CM/coursClassif-1-Intro.tex, frame
+// « Coût absolu et coût 0/1 » (médiane conditionnelle pour le coût absolu,
+// classifieur de Bayes = argmax P(Y=k|X=x) pour le coût 0/1).
+// sampleConditionalDistribution / conditionalRiskCurve : distributions
+// discrètes jouet pour les démos — illustratif, pas dans les sources.
 
 import { mulberry32 } from './util';
 

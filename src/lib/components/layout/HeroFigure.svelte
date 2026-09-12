@@ -18,7 +18,7 @@
   anneaux de pulsation. À remplacer par un vrai composant animé si celui-ci
   est un jour construit.
 
-  Motif d'animation calqué sur demos/FEPGridworldDemo.svelte : un seul
+  Motif d'animation : un seul
   $effect piloté par une ref, une boucle requestAnimationFrame, le temps de
   frame conservé dans un var PLAIN ($state() relancerait l'effet à chaque
   frame et tuerait la boucle), un prefers-reduced-motion qui dessine une

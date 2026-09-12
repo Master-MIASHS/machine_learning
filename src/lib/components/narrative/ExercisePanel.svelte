@@ -1,6 +1,6 @@
 <script lang="ts">
 	import type { Snippet } from 'svelte';
-	import { page } from '$app/stores';
+	import { page } from '$app/state';
 
 	interface Props {
 		number?: string;
@@ -13,7 +13,7 @@
 
 	let { number, title = 'Exercice', children, solution, titleSnippet }: Props = $props();
 
-	const isTeacherMode = $derived($page.url.searchParams.get('teacher') === 'true');
+	const isTeacherMode = $derived(page.url.searchParams.get('teacher') === 'true');
 </script>
 
 <aside class="exercise-block">
@@ -43,8 +43,8 @@
 
 <style>
 	.exercise-block {
-		border-left: 3px solid rgba(244, 63, 94, 0.3);
-		background: rgba(244, 63, 94, 0.05);
+		border-left: 3px solid color-mix(in srgb, var(--color-surprise) 30%, transparent);
+		background: color-mix(in srgb, var(--color-surprise) 5%, transparent);
 		border-radius: 0 var(--radius-md) var(--radius-md) 0;
 		padding: 1rem 1.25rem;
 		margin-top: 1em;
@@ -83,7 +83,7 @@
 	.solution-toggle {
 		margin-top: 0.8rem;
 		padding-top: 0.8rem;
-		border-top: 1px dashed rgba(244, 63, 94, 0.2);
+		border-top: 1px dashed color-mix(in srgb, var(--color-surprise) 20%, transparent);
 	}
 
 	.solution-summary {
@@ -107,7 +107,7 @@
 	.solution-body {
 		margin-top: 0.6rem;
 		padding: 0.75rem 1rem;
-		background: rgba(244, 63, 94, 0.08);
+		background: color-mix(in srgb, var(--color-surprise) 8%, transparent);
 		border-radius: var(--radius-sm);
 		font-size: 0.9rem;
 		line-height: 1.6;
