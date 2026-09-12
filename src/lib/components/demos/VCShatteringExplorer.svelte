@@ -19,7 +19,6 @@
 		isThresholdRealizable,
 		isIntervalRealizable,
 		isHalfspaceRealizable,
-		shatters,
 		countRealizedDichotomies,
 		trivialGrowthBound,
 		type HypothesisFamily
@@ -46,6 +45,14 @@
 		{ value: 'intervals', label: FAMILY_LABELS.intervals },
 		{ value: 'halfspaces2d', label: FAMILY_LABELS.halfspaces2d }
 	];
+	// Le comptage des dichotomies énumère les 2ⁿ étiquetages
+	// (countRealizedDichotomies → allLabelings) et, pour les demi-plans,
+	// chaque test de séparabilité coûte O(n³) : mesuré ~110 ms à n = 12,
+	// ~660 ms à n = 14, ~3,7 s à n = 16. On borne donc le nombre de points
+	// placables (la famille la plus coûteuse reste lisible) ; les résultats
+	// affichés restent exacts pour les n points présents.
+	const MAX_POINTS = 12;
+
 	const DEFAULT_POINTS: Record<HypothesisFamily, UiPoint[]> = {
 		thresholds: [
 			{ x: -1, y: 0.5, label: 0 },
@@ -83,6 +90,10 @@
 	const is1D = $derived(family === 'thresholds' || family === 'intervals');
 
 	const SIZE = 420;
+	// Hauteur réduite (le SVG est affiché en width: 100%, height: auto, donc
+	// l'aspect est fixé par le viewBox) : la zone de tracé reste large mais
+	// plus compacte verticalement.
+	const PLOT_HEIGHT = 280;
 	const PAD = 4;
 	const domainX: [number, number] = [-3, 3];
 	const domainY = $derived(is1D ? ([0, 1] as [number, number]) : ([-3, 3] as [number, number]));
@@ -92,7 +103,7 @@
 	}
 	function invProjY(py: number): number {
 		const [yMin, yMax] = domainY;
-		return yMax - ((py - PAD) / (SIZE - PAD * 2)) * (yMax - yMin);
+		return yMax - ((py - PAD) / (PLOT_HEIGHT - PAD * 2)) * (yMax - yMin);
 	}
 
 	const CLICK_RADIUS_DATA = 0.35; // toggle an existing point within this data-space distance, else add a new one
@@ -113,7 +124,7 @@
 				...points[nearestIndex],
 				label: points[nearestIndex].label === 0 ? 1 : 0
 			};
-		} else {
+		} else if (points.length < MAX_POINTS) {
 			points = [...points, { x: dataX, y: dataY, label: 0 }];
 		}
 	}
@@ -168,11 +179,15 @@
 		return isHalfspaceRealizable(pointsAs2D(), currentLabeling);
 	});
 
-	const familyShattersSet = $derived(points.length === 0 ? true : shatters(family, familyPoints()));
+	// Un seul parcours de l'énumération des 2ⁿ étiquetages : la brisure se
+	// déduit du nombre de dichotomies réalisées (tous les étiquetages sont
+	// réalisés ⇔ le compte atteint la borne triviale 2ⁿ), ce qui évite la
+	// seconde énumération qu'aurait faite shatters() en plus.
 	const realizedCount = $derived(
 		points.length === 0 ? 1 : countRealizedDichotomies(family, familyPoints())
 	);
 	const totalCount = $derived(trivialGrowthBound(points.length));
+	const familyShattersSet = $derived(realizedCount === totalCount);
 
 	function labelColor(label: 0 | 1): string {
 		return label === 1 ? 'var(--color-belief)' : 'var(--color-surprise)';
@@ -195,7 +210,7 @@
 		{domainX}
 		{domainY}
 		width={SIZE}
-		height={SIZE}
+		height={PLOT_HEIGHT}
 		colorBy={colorByLabel}
 		defaultSize={7}
 		showAxes={true}
@@ -206,7 +221,7 @@
 				x={0}
 				y={0}
 				width={SIZE}
-				height={SIZE}
+				height={PLOT_HEIGHT}
 				fill="transparent"
 				style="cursor: crosshair"
 				role="button"
@@ -224,6 +239,12 @@
 		<span style="color: var(--color-belief)">bleu = 1</span>).
 		{#if is1D}
 			La coordonnée verticale n'a pas de sens ici — seule la position horizontale compte.
+		{/if}
+		{#if points.length >= MAX_POINTS}
+			<br />
+			Le nombre de points est borné à {MAX_POINTS} pour la lisibilité : le comptage énumère les
+			2ⁿ étiquetages possibles, et au-delà de {MAX_POINTS} points, de nouveaux points ne sont
+			plus ajoutés.
 		{/if}
 	{/snippet}
 </Figure>
