@@ -5,6 +5,8 @@
 	import Slider from '$lib/components/controls/Slider.svelte';
 	import Button from '$lib/components/controls/Button.svelte';
 	import KatexInline from '$lib/components/narrative/KatexInline.svelte';
+	import { olsClosedForm } from '$lib/math/regression.js';
+	import { withIntercept } from '$lib/math/linear-model.js';
 
 	let trueW = $state(1.5);
 	let noiseLevel = $state(0.8);
@@ -33,19 +35,14 @@
 		if (aid) cancelAnimationFrame(aid);
 	});
 
+	// Ajustement MCO complet y = b + w·x (colonne d'intercept dans X) :
+	// β̂ = (XᵀX)⁻¹Xᵀy — la droite OLS doit inclure l'intercept, sinon elle
+	// est parallèle (mais décalée) à la droite vers laquelle GD converge.
 	const ols = $derived.by(() => {
-		let sx = 0,
-			sy = 0,
-			sxx = 0,
-			sxy = 0;
-		for (const p of dataPoints) {
-			sx += p.x;
-			sy += p.y;
-			sxx += p.x * p.x;
-			sxy += p.x * p.y;
-		}
-		const d = N * sxx - sx * sx;
-		return Math.abs(d) < 1e-10 ? 0 : (N * sxy - sx * sy) / d;
+		const X = withIntercept(dataPoints.map((p) => [p.x]));
+		const y = dataPoints.map((p) => p.y);
+		const beta = olsClosedForm(X, y);
+		return { b: beta[0], w: beta[1] };
 	});
 
 	let gdW = $state(0);
@@ -62,8 +59,10 @@
 			dw += e * p.x;
 			db += e;
 		}
-		gdW -= (0.01 * dw) / N;
-		gdB -= (0.01 * db) / N;
+		// Pas 0.05 : stable car 0.05 < 2/λ_max, avec λ_max ≈ 3,1 la plus
+		// grande valeur propre de la Hessienne (1/N)·XᵀX de ce design.
+		gdW -= (0.05 * dw) / N;
+		gdB -= (0.05 * db) / N;
 		if (Math.abs(dw) > 1e-8 || Math.abs(db) > 1e-8) aid = requestAnimationFrame(step);
 		else running = false;
 	}
@@ -94,7 +93,8 @@
 	}
 
 	const olsL = $derived.by(
-		() => [tx(dx[0]), ty(ols * dx[0]), tx(dx[1]), ty(ols * dx[1])] as number[]
+		() =>
+			[tx(dx[0]), ty(ols.w * dx[0] + ols.b), tx(dx[1]), ty(ols.w * dx[1] + ols.b)] as number[]
 	);
 	const gdL = $derived.by(() => {
 		const b = gdB;
@@ -141,7 +141,9 @@
 		<div class="grp">
 			<div class="gttl">Résultats</div>
 			<div class="rw"><span style="color:#f59e0b">w_GD</span> ≈ {gdW.toFixed(3)}</div>
-			<div class="rw"><span style="color:#10b981">w_OLS</span> = {ols.toFixed(3)}</div>
+			<div class="rw"><span style="color:#10b981">w_OLS</span> = {ols.w.toFixed(3)}</div>
+			<div class="rw"><span style="color:#f59e0b">b_GD</span> ≈ {gdB.toFixed(3)}</div>
+			<div class="rw"><span style="color:#10b981">b_OLS</span> = {ols.b.toFixed(3)}</div>
 		</div>
 	</SliderGrid>
 
