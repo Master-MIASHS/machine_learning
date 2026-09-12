@@ -3,6 +3,7 @@
 	import SliderGrid from '$lib/components/layout/SliderGrid.svelte';
 	import Slider from '$lib/components/controls/Slider.svelte';
 	import KatexInline from '$lib/components/narrative/KatexInline.svelte';
+	import { mulberry32 } from '$lib/math/util';
 
 	// ─── KaTeX formulas ──────────────────────────────────────────
 	const F_ALPHA = String.raw`1 - \alpha`;
@@ -13,16 +14,7 @@
 	const F_SIGMA = String.raw`\sigma(x) = \sigma_0(0.05 + 1.8\,(x/5)^2)`;
 	const F_NOISE = String.raw`\varepsilon \sim \mathcal{N}(0, \sigma^2(x))`;
 
-	// ─── Seeded PRNG ────────────────────────────────────────────
-	function mulberry32(seed: number): () => number {
-		return function () {
-			seed |= 0;
-			seed = (seed + 0x6d2b79f5) | 0;
-			let t = Math.imul(seed ^ (seed >>> 15), 1 | seed);
-			t = (t + Math.imul(t ^ (t >>> 7), 61 | seed)) ^ t;
-			return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
-		};
-	}
+
 
 	function boxMuller(rng: () => number): number {
 		let u = 0,
@@ -440,7 +432,7 @@
 						y={88 - barH}
 						width="17"
 						height={barH}
-						fill="var(--color-accent, #a78bfa)"
+						fill="var(--color-epistemic)"
 						opacity="0.6"
 						rx="1"
 					/>
@@ -713,7 +705,7 @@
 	.progress-bar-track {
 		width: 100%;
 		height: 18px;
-		background: var(--color-bg-soft, #1e1e2e);
+		background: var(--color-surface);
 		border-radius: 4px;
 		overflow: hidden;
 	}
@@ -727,7 +719,7 @@
 	}
 
 	.progress-bar-fill.adapt-fill {
-		background: var(--color-accent, #a78bfa);
+		background: var(--color-epistemic);
 	}
 
 	.progress-values {
@@ -773,8 +765,8 @@
 	}
 
 	.method-tag.adapt-tag {
-		background: color-mix(in srgb, var(--color-accent, #a78bfa) 15%, transparent);
-		color: var(--color-accent, #a78bfa);
+		background: color-mix(in srgb, var(--color-epistemic) 15%, transparent);
+		color: var(--color-epistemic);
 	}
 
 	/* ─── Scatter row ─── */
@@ -810,7 +802,7 @@
 	.bar-track {
 		width: 100%;
 		height: 22px;
-		background: var(--color-bg-soft, #1e1e2e);
+		background: var(--color-surface);
 		border-radius: 4px;
 		overflow: hidden;
 	}
@@ -823,7 +815,7 @@
 	}
 
 	.bar-fill.adapt-fill {
-		background: var(--color-accent, #a78bfa);
+		background: var(--color-epistemic);
 	}
 
 	.bar-value {
@@ -848,7 +840,7 @@
 
 	/* ─── Plot background ─── */
 	.plot-bg {
-		fill: var(--color-bg-soft, transparent);
+		fill: transparent;
 	}
 
 	/* ─── Summary table ─── */
@@ -998,7 +990,7 @@
 	}
 
 	.legend-adapt {
-		background: var(--color-accent, #a78bfa);
+		background: var(--color-epistemic);
 	}
 
 	.legend-covered {
