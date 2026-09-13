@@ -7,7 +7,7 @@ anchor: conditions-suffisantes
 title: "Conditions KKT et dualité lagrangienne"
 level: m2
 priority: 1
-status: pending
+status: implemented
 related: [p1-lesson-dualite-convexe-kkt, p2-l4-svm-dualite-kkt]
 sources:
   - course_sources/typst/optim.typ

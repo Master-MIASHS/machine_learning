@@ -17,6 +17,7 @@ export * from './free-energy.js';
 // ── Part I — Optimization fundamentals ──
 export * from './test-functions.js';
 export * from './optimality.js';
+export * from './duality.js';
 export * from './gradient-descent.js';
 export * from './stochastic.js';
 export * from './coordinate-descent.js';

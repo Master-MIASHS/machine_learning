@@ -1,7 +1,7 @@
 # INDEX — briefs expert
 
 Manifeste des 64 briefs de recherche (52 panneaux `ExpertPanel` + 12 leçons
-expert). Tous en `pending` : aucun agent n'a été spawné.
+expert). 1 brief `implemented`, 63 en `pending`.
 
 Colonnes : **id** (lien vers le brief) · **titre** · **type** (`panel`/`lesson`)
 · **level** (`m1+`/`m2`/`research`) · **prio** (1 haute, 2 moyenne, 3 frontière)
@@ -22,7 +22,7 @@ Légende des statuts et prompt de spawn : voir [README.md](README.md).
 
 | id | titre | type | level | prio | statut |
 |---|---|---|---|---|---|
-| [p1-l1-kkt-dualite-lagrangienne](part1/lesson1/kkt-dualite-lagrangienne.md) | Conditions KKT et dualité lagrangienne | panel | m2 | 1 | pending |
+| [p1-l1-kkt-dualite-lagrangienne](part1/lesson1/kkt-dualite-lagrangienne.md) | Conditions KKT et dualité lagrangienne | panel | m2 | 1 | implemented |
 | [p1-l1-sous-gradient-optimisation-non-lisse](part1/lesson1/sous-gradient-optimisation-non-lisse.md) | Sous-gradient et optimisation non lisse | panel | m2 | 2 | pending |
 | [p1-l2-conditionnement-taux-gd](part1/lesson2/conditionnement-taux-gd.md) | Nombre de conditionnement et taux de convergence de la descente de gradient | panel | m2 | 2 | pending |
 | [p1-l2-fenchel-legendre-dualite](part1/lesson2/fenchel-legendre-dualite.md) | Dualité de Fenchel–Legendre | panel | m2 | 2 | pending |

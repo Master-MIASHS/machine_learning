@@ -8,6 +8,7 @@
 	import TheoremBlock from '$lib/components/narrative/TheoremBlock.svelte';
 	import ExampleBlock from '$lib/components/narrative/ExampleBlock.svelte';
 	import ExercisePanel from '$lib/components/narrative/ExercisePanel.svelte';
+	import ExpertPanel from '$lib/components/narrative/ExpertPanel.svelte';
 	import InteractiveSection from '$lib/components/narrative/InteractiveSection.svelte';
 	import KatexInline from '$lib/components/narrative/KatexInline.svelte';
 	import KatexBlock from '$lib/components/narrative/KatexBlock.svelte';
@@ -183,6 +184,78 @@
 	const fTwiceDiff = 'f \\text{ deux fois différentiable}';
 	const fConvexDiff = 'f \\text{ convexe et différentiable}';
 	const fContCoerciveRn = 'f \\text{ continue et coercive sur } \\mathbb{R}^n';
+
+	// ── Expert panel « Conditions KKT et dualité lagrangienne » (au-delà du cours —
+	//    Boyd & Vandenberghe, Convex Optimization, CUP 2004, ch. 5) ──
+
+	// Opening
+	const minConstrainedIntro = '\\min_{x \\le 0} (x-1)^2';
+	const fPrimeNotZero = "f'(x^*) = 2(x^*-1) = -2 \\neq 0";
+
+	// Lagrangian & dual function
+	const probWithConstraint = '\\min_x f(x) \\quad \\text{sous} \\quad h(x) \\le 0';
+	const lagrangian1D = 'L(x, \\lambda) = f(x) + \\lambda\\, h(x), \\qquad \\lambda \\ge 0';
+	const lambdaHLeqZero = '\\lambda h(x) \\le 0';
+	const LLeqf = 'L(x, \\lambda) \\le f(x)';
+	const dualFunc1D = 'g(\\lambda) = \\inf_x L(x, \\lambda), \\qquad \\lambda \\ge 0';
+	const problemGeneral =
+		'\\min_x f_0(x) \\quad \\text{sous} \\quad f_i(x) \\le 0\\ (i=1,\\dots,m),\\quad h_i(x) = 0\\ (i=1,\\dots,p)';
+	const lagrangianGeneral =
+		'L(x, \\lambda, \\nu) = f_0(x) + \\sum_{i=1}^{m} \\lambda_i f_i(x) + \\sum_{i=1}^{p} \\nu_i h_i(x)';
+	const dualFuncGeneral = 'g(\\lambda, \\nu) = \\inf_x L(x, \\lambda, \\nu)';
+
+	// Weak duality
+	const weakDualityIneq = 'd^* \\le p^*';
+	const dualityGapIneq = 'p^* - d^* \\ge 0';
+	const dualProblem = '\\max_{\\lambda \\ge 0} \\; g(\\lambda)';
+
+	// Strong duality & Slater
+	const strongDualityEq = 'd^* = p^*';
+	const slaterCondition = 'f_i(\\tilde{x}) < 0,\\quad h_i(\\tilde{x}) = 0';
+
+	// KKT (1-D and general)
+	const kktPrimal = 'h(x^*) \\le 0';
+	const kktDual = '\\lambda^* \\ge 0';
+	const kktComplementary = '\\lambda^* h(x^*) = 0';
+	const kktStationarity = '\\nabla f(x^*) + \\lambda^* \\nabla h(x^*) = 0';
+	const kktGeneral =
+		'\\nabla f_0(x^*) + \\sum_i \\lambda_i^* \\nabla f_i(x^*) + \\sum_i \\nu_i^* \\nabla h_i(x^*) = 0';
+	const saddleIneq = 'L(x, \\lambda^*) \\le L(x^*, \\lambda^*) \\le L(x^*, \\lambda)';
+
+	// Worked example (P): min (x−1)² s.t. x ≤ 0
+	const exPLagrangian = 'L(x, \\lambda) = (x-1)^2 + \\lambda x';
+	const exPXlambda = 'x(\\lambda) = 1 - \\lambda/2';
+	const exPG = 'g(\\lambda) = \\lambda - \\lambda^2/4';
+	const exPGStar = 'd^* = g(2) = 1 = p^*';
+	const exPKktSystem =
+		'2(x^*-1) + \\lambda^* = 0,\\quad x^* \\le 0,\\quad \\lambda^* \\ge 0,\\quad \\lambda^* x^* = 0';
+	const exPSaddle = 'L(x, 2) = x^2 + 1 \\ge 1 = L(0, 2) = L(0, \\lambda)';
+	const exPRecovery = 'x(\\lambda^*) = 1 - 2/2 = 0 = x^*';
+
+	// Example (B&V ex. 5.21): convex, Slater fails
+	const ex521Problem = '\\min_{(x,y)} e^{-x} \\quad \\text{sous} \\quad x^2/y \\le 0,\\quad y > 0';
+	const ex521Lagrangian = 'L(x, y, \\lambda) = e^{-x} + \\lambda\\, x^2/y';
+	const ex521Gap = 'd^* = 0 < 1 = p^*';
+
+	// Non-convex example (Q): min x⁴ − x² s.t. x ≤ 0
+	const exQProblem = '\\min_x x^4 - x^2 \\quad \\text{sous} \\quad x \\le 0';
+	const exQKktSystem =
+		'x \\le 0,\\quad \\lambda \\ge 0,\\quad \\lambda x = 0,\\quad 4x^3 - 2x + \\lambda = 0';
+	const exQMinValue = 'f(-1/\\sqrt{2}) = -1/4';
+	const exQMaxSecondDeriv = "f''(0) = -2 < 0";
+
+	// Formules contenant des accolades : impossibles en attribut double-quotes
+	// (Svelte interprète {…} comme une expression) — constantes obligatoires.
+	const xTilde = '\\tilde{x}';
+	const hXtildeLeq0 = 'h(\\tilde{x}) \\le 0';
+	const hXtildeLt0 = 'h(\\tilde{x}) < 0';
+	const proofLIneq =
+		'L(\\tilde{x}, \\lambda) = f(\\tilde{x}) + \\lambda h(\\tilde{x}) \\le f(\\tilde{x})';
+	const proofGIneq = 'g(\\lambda) \\le L(\\tilde{x}, \\lambda) \\le f(\\tilde{x})';
+	const slaterAtMinus1 = '\\tilde{x} = -1';
+	const ex521InfY = '\\inf_{y > 0} \\lambda x^2/y = 0';
+	const ex521GZero = 'g(\\lambda) = \\inf_x e^{-x} = 0';
+	const exQXmin = 'x = -1/\\sqrt{2}';
 </script>
 
 <svelte:head>
@@ -457,6 +530,308 @@
 			</p>
 		</ExampleBlock>
 
+		<!-- Panneau expert (mode expert uniquement) : pont vers l'optimisation
+		     contrainte. Contenu au-delà du cours — voir expert/part1/lesson1/
+		     kkt-dualite-lagrangienne.md et kkt-dualite-lagrangienne.research.md. -->
+		<ExpertPanel title="Conditions KKT et dualité lagrangienne">
+			<p>
+				Jusqu'ici, la leçon suppose qu'on minimise <KatexInline formula={fSym} /> sur un ouvert
+				<KatexInline formula={omegaSym} /> <strong>sans contrainte</strong> : les conditions d'optimalité
+				sont locales (gradient, Hessienne). Une seule contrainte change la nature du problème. Exemple
+				minimal :
+			</p>
+			<KatexBlock formula={minConstrainedIntro} />
+			<p>
+				Le minimum est en <KatexInline formula="x^* = 0" />, mais <KatexInline
+					formula={fPrimeNotZero}
+				/> : la CNO (Théorème 1.3) n'est même plus <strong>nécessaire</strong> dès que le point
+				optimal est « plaqué » contre une contrainte. Il faut de nouvelles conditions d'optimalité,
+				et un nouvel outil : la <strong>dualité lagrangienne</strong>.
+			</p>
+
+			<DefinitionBlock number="1.5.1.bis" title="Lagrangienne et fonction duale">
+				<p>
+					Soit le problème (1D, une contrainte d'inégalité) <KatexInline
+						formula={probWithConstraint}
+					/> avec <KatexInline formula="f" /> et <KatexInline formula="h" /> convexes et différentiables.
+					On introduit le multiplicateur <KatexInline formula="\lambda" /> et la
+					<strong>fonction lagrangienne</strong> :
+				</p>
+				<KatexBlock formula={lagrangian1D} />
+				<p>
+					Pour <KatexInline formula={xSym} /> réalisable (<KatexInline formula="h(x) \le 0" />) et <KatexInline
+						formula="\lambda \ge 0"
+					/>, on a <KatexInline formula={lambdaHLeqZero} /> donc <KatexInline formula={LLeqf} /> ; en
+					prenant l'infimum sur <strong>tout</strong>
+					<KatexInline formula={xSym} /> (et pas seulement les points réalisables), on obtient une minoration
+					de la valeur optimale. On définit la <strong>fonction duale</strong> :
+				</p>
+				<KatexBlock formula={dualFunc1D} />
+				<p>
+					Forme générale (Boyd &amp; Vandenberghe §5.1.1) pour le problème <KatexInline
+						formula={problemGeneral}
+					/> :
+				</p>
+				<KatexBlock formula={lagrangianGeneral} />
+				<KatexBlock formula={dualFuncGeneral} />
+				<p>
+					La fonction duale est <strong>concave</strong> même si le problème primal n'est pas
+					convexe : c'est l'infimum au sens point d'une famille de fonctions affines de
+					<KatexInline formula="(\lambda, \nu)" /> (B&V §5.1.2).
+				</p>
+			</DefinitionBlock>
+
+			<TheoremBlock number="1.5.2.bis" title="Dualité faible">
+				<p>
+					Soit <KatexInline formula="p^*" /> la valeur optimale du problème primal et
+					<KatexInline formula="d^*" /> la valeur duale,
+				</p>
+				<KatexBlock formula={dualProblem} />
+				<p>
+					Alors <KatexInline formula={weakDualityIneq} /> quelle que soit la convexité du problème (B&V
+					§5.2.2). L'écart <KatexInline formula={dualityGapIneq} /> est l'<strong
+						>écart de dualité</strong
+					> ; il est toujours non négatif.
+				</p>
+			</TheoremBlock>
+
+			<div class="proof-block">
+				<p><strong>Idée de la démonstration :</strong></p>
+				<p>
+					Soit <KatexInline formula={xTilde} /> un point réalisable (<KatexInline
+						formula={hXtildeLeq0}
+					/>) et <KatexInline formula="\lambda \ge 0" />. Alors
+					<KatexInline formula={lambdaHLeqZero} />, donc
+					<KatexInline formula={proofLIneq} />. Comme <KatexInline
+						formula="g(\lambda) = \inf_x L(x, \lambda)"
+					/>, on a
+					<KatexInline formula={proofGIneq} />
+					pour <strong>tout</strong>
+					<KatexInline formula={xTilde} /> réalisable, donc
+					<KatexInline formula="g(\lambda) \le p^*" />. En maximisant sur
+					<KatexInline formula="\lambda \ge 0" /> : <KatexInline formula={weakDualityIneq} />. ∎
+					(B&V §5.1.3, eq. 5.2)
+				</p>
+			</div>
+
+			<p>
+				Le <strong>problème dual</strong> est <KatexInline formula={dualProblem} />. C'est un
+				problème d'optimisation <strong>convexe</strong> — on maximise une fonction concave sur un
+				convexe — <strong>même si le primal n'est pas convexe</strong> (B&V §5.2). Les contraintes «
+				sont passées dans les multiplicateurs » : on a échangé un problème contraint en
+				<KatexInline formula={xSym} /> contre un problème convexe sur
+				<KatexInline formula="\lambda" />, sans autre contrainte d'inégalité que
+				<KatexInline formula="\lambda \ge 0" />.
+			</p>
+
+			<TheoremBlock number="1.5.3.bis" title="Dualité forte et condition de Slater">
+				<p>
+					La <strong>dualité forte</strong> tient si <KatexInline formula={strongDualityEq} />
+					(écart nul). Pour un problème convexe, c'est garanti par la
+					<strong>condition de Slater</strong>
+					> (B&V §5.2.3) : il existe un point <strong>strictement réalisable</strong>
+					<KatexInline formula={xTilde} /> tel que
+				</p>
+				<KatexBlock formula={slaterCondition} />
+				<p>
+					(version 1D : <KatexInline formula={hXtildeLt0} />). Alors :
+				</p>
+				<ol>
+					<li>
+						<strong>dualité forte</strong> : <KatexInline formula={strongDualityEq} /> ;
+					</li>
+					<li>
+						le dual <strong>est atteint</strong> : il existe <KatexInline
+							formula="\lambda^* \ge 0"
+						/> avec <KatexInline formula="g(\lambda^*) = d^* = p^*" /> ;
+					</li>
+					<li>
+						la qualification peut être affaiblie si les contraintes sont affines (elles n'ont alors
+						pas à être strictes) (B&V, eq. 5.27).
+					</li>
+				</ol>
+				<p>
+					La preuve (B&V §5.3.2) sépare par un hyperplan deux ensembles convexes construits à partir
+					des valeurs des contraintes et de l'objectif ; Slater garantit que l'hyperplan séparateur
+					est « non vertical », ce qui fournit un multiplicateur
+					<KatexInline formula="\lambda^*" /> avec <KatexInline formula="g(\lambda^*) = p^*" />.
+				</p>
+			</TheoremBlock>
+
+			<TheoremBlock number="1.5.4.bis" title="Conditions de Karush–Kuhn–Tucker (KKT)">
+				<p>
+					Sous les hypothèses de différentiabilité (B&V §5.5.3), les <strong
+						>conditions de Karush–Kuhn–Tucker</strong
+					>
+					d'un couple <KatexInline formula="(x^*, \lambda^*)" /> sont, dans le cas 1D :
+				</p>
+				<ol>
+					<li>
+						<strong>faisabilité primal</strong> : <KatexInline formula={kktPrimal} /> ;
+					</li>
+					<li>
+						<strong>faisabilité dual</strong> : <KatexInline formula={kktDual} /> ;
+					</li>
+					<li>
+						<strong>complémentarité</strong> : <KatexInline formula={kktComplementary} /> (c.-à-d.
+						<KatexInline formula="\lambda^* > 0 \Rightarrow h(x^*) = 0" /> : le multiplicateur est nul
+						si la contrainte n'est pas active) ;
+					</li>
+					<li>
+						<strong>stationnarité</strong> : <KatexInline formula={kktStationarity} />.
+					</li>
+				</ol>
+				<p>En forme générale (B&V, eq. 5.49) :</p>
+				<KatexBlock formula={kktGeneral} />
+				<p>Deux faits essentiels (B&V §5.5.3) :</p>
+				<ul>
+					<li>
+						<strong>Convexe + Slater ⇒ les KKT sont nécessaires ET suffisantes</strong> :
+						<KatexInline formula={xStarSym} /> est optimal si et seulement s'il existe
+						<KatexInline formula="\lambda^*" /> tel que <KatexInline formula="(x^*, \lambda^*)" /> satisfait
+						les KKT.
+					</li>
+					<li>
+						<strong>Hors convexité, les KKT ne sont que nécessaires</strong> (sous dualité forte, ou sous
+						une qualification des contraintes dans le contexte général non convexe — Nocedal &amp; Wright,
+						ch. 12) : un point KKT n'est pas forcément un optimum (voir l'Exemple 1.5.7.bis).
+					</li>
+				</ul>
+				<p>
+					Si la dualité forte tient, <KatexInline formula="(x^*, \lambda^*)" /> est un
+					<strong>point-selle</strong> de la lagrangienne (B&V §5.4.2) :
+				</p>
+				<KatexBlock formula={saddleIneq} />
+				<p>
+					minimum en <KatexInline formula={xSym} />, maximum en <KatexInline formula="\lambda" />.
+				</p>
+			</TheoremBlock>
+
+			<ExampleBlock number="1.5.5.bis" title="Un exemple complet en 1D">
+				<p>
+					Problème : <KatexInline formula={minConstrainedIntro} />. Convexe ; Slater vérifié (<KatexInline
+						formula={slaterAtMinus1}
+					/> est strictement réalisable).
+				</p>
+				<ol>
+					<li>
+						<strong>Primal</strong> : <KatexInline formula="p^* = 1" /> en
+						<KatexInline formula="x^* = 0" /> (le minimiseur non contraint
+						<KatexInline formula="x = 1" /> est non réalisable).
+					</li>
+					<li>
+						<strong>Lagrangienne</strong> : <KatexInline formula={exPLagrangian} /> ;
+						<KatexInline formula="\partial L/\partial x = 2(x-1) + \lambda = 0" /> ⇒
+						<KatexInline formula={exPXlambda} />.
+					</li>
+					<li>
+						<strong>Fonction duale</strong> : <KatexInline formula={exPG} /> (parabole concave sur <KatexInline
+							formula="\lambda \ge 0"
+						/>).
+					</li>
+					<li>
+						<strong>Dual</strong> : <KatexInline formula="g'(\lambda) = 1 - \lambda/2" /> ⇒
+						<KatexInline formula="\lambda^* = 2" />, et <KatexInline formula={exPGStar} />
+						(dualité forte, écart nul).
+					</li>
+					<li>
+						<strong>KKT</strong> : <KatexInline formula={exPKktSystem} /> ⇒ solution unique
+						<KatexInline formula="(x^*, \lambda^*) = (0, 2)" />.
+					</li>
+					<li>
+						<strong>Récupération du primal</strong> (B&V §5.5.1) : <KatexInline
+							formula={exPRecovery}
+						/> — le primal se lit directement sur la solution duale.
+					</li>
+					<li>
+						<strong>Point-selle</strong> : <KatexInline formula={exPSaddle} /> pour tout
+						<KatexInline formula="\lambda \ge 0" />.
+					</li>
+				</ol>
+			</ExampleBlock>
+
+			<ExampleBlock number="1.5.6.bis" title="Convexe ne suffit pas : Slater échoue">
+				<p>
+					Exercice 5.21 de Boyd &amp; Vandenberghe : <KatexInline formula={ex521Problem} />.
+				</p>
+				<ul>
+					<li>
+						Le problème est <strong>convexe</strong>, et <KatexInline formula="p^* = 1" /> (réalisable
+						: <KatexInline formula="x = 0, y > 0" />).
+					</li>
+					<li>
+						Mais Slater <strong>échoue</strong> : il n'existe aucun point avec
+						<KatexInline formula="x^2/y < 0" /> (puisque <KatexInline formula="x^2 \ge 0" />).
+					</li>
+					<li>
+						Dual : <KatexInline formula={ex521Lagrangian} /> ; comme
+						<KatexInline formula="\lambda x^2/y \ge 0" /> et
+						<KatexInline formula={ex521InfY} />, on a
+						<KatexInline formula={ex521GZero} /> pour tout
+						<KatexInline formula="\lambda \ge 0" />, donc <KatexInline formula={ex521Gap} /> :
+						<strong>l'écart de dualité vaut 1</strong>.
+					</li>
+				</ul>
+				<p>
+					Morale : la convexité seule ne garantit pas la dualité forte — il faut une qualification
+					des contraintes (Slater).
+				</p>
+			</ExampleBlock>
+
+			<ExampleBlock number="1.5.7.bis" title="Hors convexité, KKT ≠ optimum">
+				<p>
+					Reprenons la fonction de l'Exemple 1.8 de la leçon, <KatexInline
+						formula="f(x) = x^4 - x^2"
+					/>, mais restreinte à <KatexInline formula="x \le 0" /> : <KatexInline
+						formula={exQProblem}
+					/>
+				</p>
+				<p>
+					KKT : <KatexInline formula={exQKktSystem} />.
+				</p>
+				<ul>
+					<li>
+						<KatexInline formula={exQXmin} />, <KatexInline formula="\lambda = 0" /> : KKT vérifiées ;
+						<KatexInline formula={exQMinValue} /> — c'est le <strong>minimum global</strong>
+						> sur <KatexInline formula="x \le 0" />.
+					</li>
+					<li>
+						<KatexInline formula="x = 0" />, <KatexInline formula="\lambda = 0" /> : KKT vérifiées (<KatexInline
+							formula="0 + 0 = 0"
+						/>, <KatexInline formula="0 \cdot 0 = 0" />)… mais <KatexInline
+							formula={exQMaxSecondDeriv}
+						/> : c'est un <strong>maximum local</strong>
+						> (<KatexInline formula="f(x) < 0 = f(0)" /> pour <KatexInline formula="x < 0" /> petit).
+					</li>
+				</ul>
+				<p>
+					Deux points KKT, l'un optimal, l'autre pas : <strong>
+						hors convexité, satisfaire les KKT ne suffit pas à être optimal
+					</strong>
+					. La convexité (et Slater) sont exactement ce qui transforme les KKT en critère complet de décision.
+				</p>
+			</ExampleBlock>
+
+			<Callout type="intuition" title="Pourquoi c'est la clé de voûte du reste du cours">
+				La dualité transforme un problème <strong>contraint</strong> en un problème convexe
+				<strong>sans contraintes d'inégalité</strong> sur les multiplicateurs : c'est exactement ce
+				qui rend la SVM exploitable (le dual de la SVM n'a que la contrainte de somme
+				<KatexInline formula="\sum_i \lambda_i y_i = 0" />, et la complémentarité
+				<KatexInline formula="\lambda_i > 0" /> sélectionne les vecteurs support — Partie II, leçon 4)
+				et ce qui explique la parcimonie du Lasso (Partie V). Aperçu seulement ici : le développement
+				complet est hors périmètre de ce panneau.
+			</Callout>
+
+			<p>
+				<strong>Explorer :</strong> faites glisser <KatexInline formula="\lambda" /> — la courbe
+				<KatexInline formula="L(x, \lambda)" /> pivote, la fonction duale
+				<KatexInline formula="g(\lambda)" /> ne dépend que du problème, et le panneau KKT ne s'illumine
+				qu'en <KatexInline formula="\lambda^* = 2" />. En mode non convexe, les deux points KKT sont
+				affichés : le piège.
+			</p>
+			<DeferredDemo load={() => import('$lib/components/demos/KktDualityExplorer.svelte')} />
+		</ExpertPanel>
+
 		<InteractiveSection
 			number="1.3"
 			title="Courbure du Hessien"
@@ -562,10 +937,9 @@
 				et égale à
 				<KatexInline formula={String.raw`2A`} />, donc semi-définie positive partout — ce qui,
 				d'après un critère équivalent à la Définition 1.6 (convexité via la Hessienne, critère
-				standard, rappelé dans l'exercice 2.1 de la leçon suivante), suffit à garantir la convexité de <KatexInline
-					formula={String.raw`f`}
-				/>. C'est exactement la structure de la perte des moindres carrés que nous retrouverons dans
-				la prochaine leçon.
+				standard, rappelé dans l'exercice 2.1 de la leçon suivante), suffit à garantir la convexité
+				de <KatexInline formula={String.raw`f`} />. C'est exactement la structure de la perte des
+				moindres carrés que nous retrouverons dans la prochaine leçon.
 			</p>
 		</ExampleBlock>
 
