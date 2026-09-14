@@ -7,7 +7,7 @@ anchor: distance-clusters
 title: "Single-linkage, arbres couvrants minimaux et consistance de Hartigan"
 level: m2
 priority: 1
-status: pending
+status: implemented
 related: [p3-lesson-clustering-spectral-laplacien]
 sources:
   - course_sources/marine/Cours/CM/coursClassif-5-Clustering.tex

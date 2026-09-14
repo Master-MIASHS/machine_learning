@@ -30,6 +30,7 @@ export * from './svm.js';
 
 // ── Part III — Clustering ──
 export * from './clustering.js';
+export * from './mst.js';
 
 // ── Part IV — Régression linéaire ──
 export * from './linear-model.js';
