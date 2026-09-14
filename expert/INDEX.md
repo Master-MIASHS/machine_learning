@@ -1,7 +1,7 @@
 # INDEX — briefs expert
 
 Manifeste des 64 briefs de recherche (52 panneaux `ExpertPanel` + 12 leçons
-expert). 1 brief `implemented`, 63 en `pending`.
+expert). 2 briefs `implemented`, 62 en `pending`.
 
 Colonnes : **id** (lien vers le brief) · **titre** · **type** (`panel`/`lesson`)
 · **level** (`m1+`/`m2`/`research`) · **prio** (1 haute, 2 moyenne, 3 frontière)
@@ -33,7 +33,7 @@ Légende des statuts et prompt de spawn : voir [README.md](README.md).
 | [p1-l4-sgd-regularisation-implicite](part1/lesson4/sgd-regularisation-implicite.md) | Le SGD comme régularisateur implicite | panel | research | 3 | pending |
 | [p1-l4-quasi-newton-lbfgs-gradient-naturel](part1/lesson4/quasi-newton-lbfgs-gradient-naturel.md) | Quasi-Newton (L-BFGS) et gradient naturel | panel | m2 | 2 | pending |
 | [p1-lesson-dualite-convexe-kkt](part1/lessons/dualite-convexe-kkt.md) | Dualité convexe et conditions KKT | lesson | m2 | 1 | pending |
-| [p1-lesson-methodes-proximales-fista-admm](part1/lessons/methodes-proximales-fista-admm.md) | Méthodes proximales et premier ordre moderne (prox, FISTA, ADMM) | lesson | m2 | 1 | pending |
+| [p1-lesson-methodes-proximales-fista-admm](part1/lessons/methodes-proximales-fista-admm.md) | Méthodes proximales et premier ordre moderne (prox, FISTA, ADMM) | lesson | m2 | 1 | implemented |
 | [p1-lesson-optimisation-non-convexe-deep-learning](part1/lessons/optimisation-non-convexe-deep-learning.md) | Optimisation non convexe en deep learning | lesson | research | 3 | pending |
 
 ## Part II — Classification supervisée (7)

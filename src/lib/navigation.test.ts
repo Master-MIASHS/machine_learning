@@ -13,11 +13,11 @@ async function load() {
 }
 
 describe('PAGES', () => {
-	it('contains exactly one expert page (Adam)', async () => {
+	it('contains exactly two expert pages (Adam, méthodes proximales)', async () => {
 		const { PAGES } = await load();
 		const experts = PAGES.filter((p) => p.expert);
-		expect(experts).toHaveLength(1);
-		expect(experts[0].path).toBe('/part1/lesson3-adam');
+		expect(experts).toHaveLength(2);
+		expect(experts.map((p) => p.path)).toEqual(['/part1/lesson3-adam', '/part1/methodes-proximales']);
 	});
 
 	it('orders the Adam page between lesson3 and lesson4 of part 1', async () => {
@@ -25,6 +25,13 @@ describe('PAGES', () => {
 		const idx = PAGES.findIndex((p) => p.path === '/part1/lesson3');
 		expect(PAGES[idx + 1].path).toBe('/part1/lesson3-adam');
 		expect(PAGES[idx + 2].path).toBe('/part1/lesson4');
+	});
+
+	it('orders the proximal-methods page between lesson4 and the quiz of part 1', async () => {
+		const { PAGES } = await load();
+		const idx = PAGES.findIndex((p) => p.path === '/part1/lesson4');
+		expect(PAGES[idx + 1].path).toBe('/part1/methodes-proximales');
+		expect(PAGES[idx + 2].path).toBe('/part1/quiz');
 	});
 
 	it('assigns sequential indices and a resolved path to every entry', async () => {
@@ -140,6 +147,28 @@ describe('getAdjacentPages', () => {
 		expect(prev?.path).toBe('/part1/lesson3');
 		const { prev: prevExpert } = getAdjacentPages('/part1/lesson4', true);
 		expect(prevExpert?.path).toBe('/part1/lesson3-adam');
+	});
+
+	it('gives lesson4/quiz as prev/next of the proximal page in expert mode', async () => {
+		const { getAdjacentPages } = await load();
+		const { prev, next } = getAdjacentPages('/part1/methodes-proximales', true);
+		expect(prev?.path).toBe('/part1/lesson4');
+		expect(next?.path).toBe('/part1/quiz');
+	});
+
+	it('hides the proximal page entirely in default mode (no prev/next for it)', async () => {
+		const { getAdjacentPages } = await load();
+		const { prev, next } = getAdjacentPages('/part1/methodes-proximales', false);
+		expect(prev).toBeUndefined();
+		expect(next).toBeUndefined();
+	});
+
+	it('bridges the proximal page: lesson4 → quiz in default mode, via proximal in expert mode', async () => {
+		const { getAdjacentPages } = await load();
+		expect(getAdjacentPages('/part1/lesson4', false).next?.path).toBe('/part1/quiz');
+		expect(getAdjacentPages('/part1/lesson4', true).next?.path).toBe('/part1/methodes-proximales');
+		expect(getAdjacentPages('/part1/quiz', false).prev?.path).toBe('/part1/lesson4');
+		expect(getAdjacentPages('/part1/quiz', true).prev?.path).toBe('/part1/methodes-proximales');
 	});
 
 	it('returns no prev for home and intro as next (both modes)', async () => {

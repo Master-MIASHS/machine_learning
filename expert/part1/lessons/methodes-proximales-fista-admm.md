@@ -7,7 +7,7 @@ anchor: null
 title: "Méthodes proximales et premier ordre moderne (prox, FISTA, ADMM)"
 level: m2
 priority: 1
-status: pending
+status: implemented
 related: [p1-l1-sous-gradient-optimisation-non-lisse, p1-l2-fenchel-legendre-dualite, p5-l4-lasso-oracle-irrepresentable]
 sources:
   - course_sources/typst/optim.typ

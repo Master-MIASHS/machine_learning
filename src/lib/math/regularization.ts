@@ -31,8 +31,14 @@ export function ridgePath(X: number[][], y: number[], lambdas: number[]): number
 
 // ─── Lasso via Coordinate Descent ──────────────────
 
-/** Soft-thresholding operator */
-function softThreshold(val: number, threshold: number): number {
+/**
+ * Soft-thresholding operator S(val, threshold) = sign(val)·max(|val| − threshold, 0).
+ *
+ * Also used by the proximal-methods module (proximal.ts) and the expert
+ * lesson « Méthodes proximales » (Part I) — the closed form of
+ * prox_{λ‖·‖₁} (Parikh & Boyd 2014, §6.5.2, eq. (6.9)).
+ */
+export function softThreshold(val: number, threshold: number): number {
 	if (val > threshold) return val - threshold;
 	if (val < -threshold) return val + threshold;
 	return 0;

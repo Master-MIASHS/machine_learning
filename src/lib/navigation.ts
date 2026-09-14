@@ -27,6 +27,12 @@ const RAW_PAGES = [
 		expert: true
 	},
 	{ path: '/part1/lesson4', title: 'SGD, CD & Newton', part: 1 },
+	{
+		path: '/part1/methodes-proximales',
+		title: 'Méthodes proximales : prox, FISTA et ADMM',
+		part: 1,
+		expert: true
+	},
 	{ path: '/part1/quiz', title: 'Quiz de synthèse', part: 1 },
 	{ path: '/part1/exercices', title: 'Exercices', part: 1 },
 	{ path: '/part1/practice/travaux-pratiques', title: 'Travaux pratiques', part: 1 },

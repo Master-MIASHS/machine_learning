@@ -632,5 +632,80 @@ export const PART1: QuizQuestion[] = [
 		answerIndex: 1,
 		explanation:
 			"Un pas trop grand peut 'sauter' par-dessus le minimum et conduire la fonction vers l'infini."
+	},
+	{
+		id: 'p1-proximal-q1',
+		tags: ['p1/proximal'],
+		question:
+			"En une dimension, que vaut l'opérateur de seuillage doux S(v, λ) = (prox_{λ‖·‖₁})(v) ?",
+		options: [
+			'sign(v) · max(|v| − λ, 0)',
+			'sign(v) · max(|v| − λ, 0) · λ',
+			'v · λ / (λ + |v|)',
+			'v si |v| > λ, sinon 0 (sans rétrécissement)'
+		],
+		answerIndex: 0,
+		explanation:
+			"La minimisation de |x| + (1/(2λ))(x−v)² est séparable : pour |v| ≤ λ le minimum est exactement en 0 (0 ∈ ∂|0| = [−1,1]), et pour |v| > λ il est en v − λ·sign(v). D'où S(v,λ) = sign(v)·max(|v|−λ,0) (PB14 §6.5.2, eq. (6.9)) : les coordonnées « petites » sont annulées, les autres rétrécies de λ."
+	},
+	{
+		id: 'p1-proximal-q2',
+		tags: ['p1/proximal'],
+		question:
+			"Pour un problème convexe lisse + convexe, quel est l'écart de taux en valeur objective entre ISTA et FISTA ?",
+		options: [
+			'ISTA O(1/k) et FISTA O(1/k²), en valeur objective F(xᵏ) − F*',
+			'ISTA O(1/k) et FISTA O(1/k²), en distance ‖xᵏ − x*‖',
+			'Les deux sont O(1/k²), FISTA a seulement une constante plus petite',
+			'FISTA O(1/k) et ISTA O(1/k²)'
+		],
+		answerIndex: 0,
+		explanation:
+			"ISTA (PB14 §4.2 / BT09 thm 3.1) donne F(xᵏ)−F* ≤ L‖x⁰−x*‖²/(2k) ; FISTA (BT09 thm 4.4) donne F(xᵏ)−F* ≤ 2L‖x⁰−x*‖²/(k+1)². Le gain est en valeur objective, pas en distance : la convergence de la suite d'itérés est un résultat distinct (cadre forward-backward, Combettes & Wajs 2005)."
+	},
+	{
+		id: 'p1-proximal-q3',
+		tags: ['p1/proximal'],
+		question:
+			"Dans l'ADMM appliqué au Lasso min ½‖Ax−b‖² + λ‖x‖₁, que vaut la mise à jour de x ?",
+		options: [
+			'xᵏ⁺¹ = (AᵀA + ρI)⁻¹(Aᵀb + ρ(zᵏ − uᵏ)) — une régression Ridge',
+			'xᵏ⁺¹ = (AᵀA)⁻¹Aᵀb — une régression OLS',
+			'xᵏ⁺¹ = S_{λ/ρ}(xᵏ + uᵏ) — un seuillage doux',
+			'xᵏ⁺¹ = xᵏ − (1/L)Aᵀ(Axᵏ − b) — un pas de gradient'
+		],
+		answerIndex: 0,
+		explanation:
+			"L'étape x de l'ADMM minimise ½‖Ax−b‖² + (ρ/2)‖x−zᵏ+uᵏ‖², une quadratique dont le minimiseur est (AᵀA + ρI)⁻¹(Aᵀb + ρ(zᵏ−uᵏ)) : AᵀA + ρI est toujours inversible (ρ > 0). « ADMM can be interpreted as a method for solving the lasso problem by iteratively carrying out ridge regression » (BPC11 §6.4)."
+	},
+	{
+		id: 'p1-proximal-q4',
+		tags: ['p1/proximal'],
+		question:
+			"Pour f convexe fermé propre et λ > 0, comment caractérise-t-on z = prox_{λf}(x) ?",
+		options: [
+			"par 0 ∈ ∂f(z) + (1/λ)(z − x), c'est-à-dire prox_{λf} = (I + λ∂f)⁻¹",
+			'par ∇f(z) = (x − z)/λ',
+			'par z ∈ argmin f + ½‖z − x‖² sans paramètre λ',
+			'par f(z) ≤ f(x) et ‖z − x‖ ≤ λ'
+		],
+		answerIndex: 0,
+		explanation:
+			"La condition d'optimalité de min f(x) + (1/(2λ))‖x−v‖² est 0 ∈ ∂f(z) + (1/λ)(z−x) : c'est exactement la définition de la résolvante (I + λ∂f)⁻¹ (PB14 §3.2, eq. (3.4)). La seconde option serait la condition pour la projection, pas pour le proximal d'une fonction quelconque."
+	},
+	{
+		id: 'p1-proximal-q5',
+		tags: ['p1/proximal'],
+		question:
+			"Quelles sont les hypothèses minimales pour appliquer la descente proximale (ISTA) ?",
+		options: [
+			"f lisse à gradient L-Lipschitz + g convexe (éventuellement non lisse) de proximal calculable",
+			"f et g lisses (sinon aucun algorithme de premier ordre ne s'applique)",
+			"l'objectif non convexe mais différentiable, avec Hessienne disponible",
+			"la contrainte Ax = b avec f convexe mais g quelconque"
+		],
+		answerIndex: 0,
+		explanation:
+			"ISTA (PB14 §4.2) traite min f(x) + g(x) où ∇f est L-Lipschitz et g convexe fermé propre (non lisse autorisé : ‖·‖₁, indicatrice, …) à condition de savoir calculer prox de g. Si f et g sont lisses, c'est simplement du gradient ; la puissance du cadre est de couvrir la partie non lisse (PB14 §4.2, BT09 §2.2)."
 	}
 ];
