@@ -7,7 +7,7 @@ anchor: convergence-minima-locaux
 title: "k-means++ : une initialisation avec garantie"
 level: m2
 priority: 1
-status: pending
+status: implemented
 related: [p3-l2-kmeans-em-dur, p3-lesson-clustering-spectral-laplacien]
 sources:
   - course_sources/marine/Cours/CM/coursClassif-5-Clustering.tex

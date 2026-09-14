@@ -1,7 +1,7 @@
 # INDEX — briefs expert
 
 Manifeste des 64 briefs de recherche (52 panneaux `ExpertPanel` + 12 leçons
-expert). 6 briefs `implemented`, 58 en `pending`.
+expert). 7 briefs `implemented`, 56 en `pending`.
 
 Colonnes : **id** (lien vers le brief) · **titre** · **type** (`panel`/`lesson`)
 · **level** (`m1+`/`m2`/`research`) · **prio** (1 haute, 2 moyenne, 3 frontière)
@@ -54,7 +54,7 @@ Légende des statuts et prompt de spawn : voir [README.md](README.md).
 | ----------------------------------------------------------------------------------------- | -------------------------------------------------------------------- | ------ | -------- | ---- | ------- |
 | [p3-l1-single-linkage-mst-hartigan](part3/lesson1/single-linkage-mst-hartigan.md)         | Single-linkage, arbres couvrants minimaux et consistance de Hartigan | panel  | m2       | 1    | implemented |
 | [p3-l1-clustering-model-based-bmdp](part3/lesson1/clustering-model-based-bmdp.md)         | Vue model-based : BMDP et priors de partition                        | panel  | research | 3    | pending |
-| [p3-l2-kmeanspp-garantie](part3/lesson2/kmeanspp-garantie.md)                             | k-means++ : une initialisation avec garantie                         | panel  | m2       | 1    | pending |
+| [p3-l2-kmeanspp-garantie](part3/lesson2/kmeanspp-garantie.md) | k-means++ : une initialisation avec garantie | panel | m2 | 1 | implemented |
 | [p3-l2-kmeans-em-dur](part3/lesson2/kmeans-em-dur.md)                                     | K-moyennes comme EM dur sur un mélange gaussien                      | panel  | m2       | 2    | pending |
 | [p3-lesson-clustering-spectral-laplacien](part3/lessons/clustering-spectral-laplacien.md) | Clustering spectral et laplacien de graphe                           | lesson | m2       | 2    | pending |
 | [p3-lessons-melange-gaussien-em](part3/lessons/melange-gaussien-em.md)                    | Mélange gaussien et algorithme EM                                    | lesson | m2       | 2    | pending |

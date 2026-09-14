@@ -3,7 +3,9 @@
 	import TheorySection from '$lib/components/narrative/TheorySection.svelte';
 	import TableOfContents from '$lib/components/narrative/TableOfContents.svelte';
 	import Callout from '$lib/components/narrative/Callout.svelte';
+	import DefinitionBlock from '$lib/components/narrative/DefinitionBlock.svelte';
 	import TheoremBlock from '$lib/components/narrative/TheoremBlock.svelte';
+	import ExpertPanel from '$lib/components/narrative/ExpertPanel.svelte';
 	import InteractiveSection from '$lib/components/narrative/InteractiveSection.svelte';
 	import KatexInline from '$lib/components/narrative/KatexInline.svelte';
 	import KatexBlock from '$lib/components/narrative/KatexBlock.svelte';
@@ -17,6 +19,7 @@
 	import OutlierDetectionDemo from '$lib/components/demos/OutlierDetectionDemo.svelte';
 	import ClusterShapeDemo from '$lib/components/demos/ClusterShapeDemo.svelte';
 	import InternalEvaluationDemo from '$lib/components/demos/InternalEvaluationDemo.svelte';
+	import KMeansPPGuaranteeDemo from '$lib/components/demos/KMeansPPGuaranteeDemo.svelte';
 	import { asset, resolve } from '$app/paths';
 	import { getPageByPath, getAdjacentPages } from '$lib/navigation.js';
 	import { settings } from '$lib/stores/index.js';
@@ -108,6 +111,38 @@
 	const lloydComplexity = String.raw`O(ndKt)`;
 	const cahComplexity = String.raw`O(dn^2)`;
 	const lambdaN = String.raw`K = \lambda n`;
+
+	// ── Formules du panneau expert « k-means++ : une initialisation avec garantie »
+	// (au-delà du cours — voir expert/part3/lesson2/kmeanspp-garantie.md et
+	// kmeanspp-garantie.research.md ; sources primaires : Arthur & Vassilvitskii,
+	// SODA 2007 ; Bahmani et al., PVLDB 2012 ; Makarychev et al., NeurIPS 2020). ──
+	const phiDef = String.raw`\phi(C) = \sum_{x \in X} \min_{c \in C} \| x - c \|^2`;
+	const phiOptDef = String.raw`\varphi_{\mathrm{OPT}} = \min_{|C| = k} \phi(C)`;
+	const phiOptSym = String.raw`\varphi_{\mathrm{OPT}}`;
+	const ratioUnbounded = String.raw`\varphi / \varphi_{\mathrm{OPT}}`;
+	const lnk = String.raw`\ln k`;
+	const xSetDef = String.raw`X = \{x_1, \dots, x_n\} \subset \mathbb R^d`;
+	const dDef = String.raw`D(x) = \min_{c \in C_{i-1}} \| x - c \|`;
+	const d2Prob = String.raw`p(x') = \dfrac{D(x')^2}{\sum_{x \in X} D(x)^2}`;
+	const avBound = String.raw`\mathbb E[\phi(C)] \le 8(\ln k + 2) \cdot \varphi_{\mathrm{OPT}}`;
+	const lemmaUniform = String.raw`\mathbb E[\varphi(A)] = 2\,\varphi_{\mathrm{OPT}}(A)`;
+	const lemmaD2 = String.raw`\mathbb E[\varphi(A)] \le 8\,\varphi_{\mathrm{OPT}}(A)`;
+	const harmonic = String.raw`H_t = 1 + \frac{1}{2} + \dots + \frac{1}{t} \le 1 + \ln t`;
+	const harmonicK = String.raw`H_{k-1} \le 1 + \ln k`;
+	const lowerBound = String.raw`\Omega(\ln k)`;
+	const bound2020 = String.raw`\mathbb E[\phi(C)] \le 5(\ln k + 2)\,\varphi_{\mathrm{OPT}}`;
+	const separation = String.raw`\varphi_{\mathrm{OPT},k} / \varphi_{\mathrm{OPT},k-1} \le \varepsilon^2`;
+	const lloydCarry = String.raw`\phi(C^*) \le \phi(C_{\mathrm{seed}})`;
+	const Olnk = String.raw`O(\ln k)`;
+	const Onkd = String.raw`O(nkd)`;
+	const Ologn = String.raw`O(\log n)`;
+	const D2x = String.raw`D(x)^2`;
+	const ellThetaK = String.raw`\ell = \Theta(k)`;
+	const iDotsK = String.raw`i = 2, \dots, k`;
+	const ciSample = String.raw`c_i = x' \in X`;
+	const phiSym = String.raw`\phi`;
+	const cOpt = String.raw`C_{\mathrm{OPT}}`;
+	const cSeed = String.raw`C_{\mathrm{seed}}`;
 
 	// ── Quiz — K-moyennes & évaluation ──
 	// Questions et réponses fidèles aux frames « Algorithme de Lloyd »,
@@ -264,6 +299,222 @@
 			</p>
 			<KMeansRestartsDemo />
 		</InteractiveSection>
+
+		<!-- Panneau expert (mode expert uniquement) : k-means++ et sa garantie
+		     O(log k). Contenu au-delà du cours — voir expert/part3/lesson2/
+		     kmeanspp-garantie.md et kmeanspp-garantie.research.md. -->
+		<ExpertPanel title="k-means++ : une initialisation avec garantie">
+			<p>
+				La section précédente propose le remède standard aux minima locaux : redémarrer la
+				procédure avec différentes initialisations aléatoires et garder la meilleure
+				partition. C'est une heuristique pure : aucune garantie ne vient à la qualité de la
+				solution finale, et l'initialisation aléatoire uniforme elle-même peut être
+				arbitrairement mauvaise. Arthur &amp; Vassilvitskii (2007) construisent des
+				instances « naturelles » — sans placement adverse des centres de départ — sur
+				lesquelles le ratio <KatexInline formula={ratioUnbounded} /> du résultat de Lloyd
+				est <strong>non borné, même quand <KatexInline formula="n" /> et
+				<KatexInline formula="k" /> sont fixes</strong>, et ce <strong>avec haute
+				probabilité</strong> : sur des clusters bien séparés, le tirage uniforme met
+				inévitablement plusieurs centres de départ dans le même nuage, et la recherche
+				locale de Lloyd ne fait que fusionner des nuages — elle ne peut jamais les
+				séparer.
+			</p>
+			<p>
+				La question est donc : peut-on choisir les centres de départ de façon à garantir,
+				dès l'initialisation, un majorant du coût ? Oui : <strong>k-means++</strong>
+				(Arthur &amp; Vassilvitskii 2007) tire les centres proportionnellement au
+				<strong>carré</strong> de la distance au centre le plus proche déjà choisi
+				(échantillonnage D²), et obtient une garantie d'approximation pire cas en
+				espérance, de l'ordre de <KatexInline formula={lnk} />.
+			</p>
+
+			<DefinitionBlock number="2.2.1.bis" title="Échantillonnage D² (k-means++)">
+				<p>
+					Soit <KatexInline formula={xSetDef} />, un nombre de centres
+					<KatexInline formula="k" />, et le <strong>potentiel</strong> (coût) d'un
+					ensemble <KatexInline formula="C" /> de centres :
+				</p>
+				<KatexBlock formula={phiDef} />
+				<p>
+					avec <KatexInline formula={phiOptDef} /> le coût optimal.
+				</p>
+				<p>
+					<strong>Algorithme k-means++</strong> (Arthur–Vassilvitskii 2007, §2.2) :
+				</p>
+				<ol>
+					<li>
+						tirer le premier centre <KatexInline formula="c_1" />
+						<strong>uniformément au hasard dans X</strong> ;
+					</li>
+					<li>
+						pour <KatexInline formula={iDotsK} />, soit
+						<KatexInline formula={dDef} /> la distance de <KatexInline
+							formula="x"
+						/>
+						au centre déjà choisi le plus proche ; tirer <KatexInline
+							formula={ciSample}
+						/>
+						avec probabilité
+						<KatexBlock formula={d2Prob} />
+					</li>
+					<li>lancer ensuite l'algorithme de Lloyd (leçon) depuis ces k centres.</li>
+				</ol>
+				<p>
+					La pondération <KatexInline formula="D^2" />/ΣD² est appelée « D² weighting
+					». La phase de seeding fait <KatexInline formula="k - 1" /> passes sur les
+					données (mise à jour de tous les <KatexInline formula="D(x)" /> à chaque
+					étape) : son coût <KatexInline formula={Onkd} /> est du même ordre de
+					grandeur qu'une itération de Lloyd. La leçon a déjà nommé cette
+					initialisation à l'étape 1 de l'algorithme de Lloyd (dans le but de
+					disperser les centroïdes) ; c'est ici sa définition exacte.
+				</p>
+			</DefinitionBlock>
+
+			<TheoremBlock number="2.2.2.bis" title="Théorème (Arthur & Vassilvitskii, SODA 2007)">
+				<p>
+					Si <KatexInline formula="C" /> est l'ensemble des <KatexInline formula="k" />
+					centres produits par la phase de seeding de k-means++, alors
+				</p>
+				<KatexBlock formula={avBound} />
+				<ul>
+					<li>
+						l'espérance est prise sur les tirages du seeding ; la borne est
+						<strong>pire cas sur toutes les instances</strong> — aucune hypothèse sur
+						la répartition des données ;
+					</li>
+					<li>
+						la borne est démontrée <strong>sur le seeding seul</strong> : les
+						itérations de Lloyd ne peuvent ensuite que diminuer
+						<KatexInline formula={phiSym} /> (Proposition 2.2.3.bis) ;
+					</li>
+					<li>
+						c'est une borne <strong>en espérance</strong> : un tirage isolé peut être
+						mauvais ; c'est la moyenne sur les tirages du seeding qui est majorée.
+					</li>
+				</ul>
+				<p><strong>Idée de la démonstration</strong> (A&V 2007, §3) :</p>
+				<p>
+					On décompose le coût sur les clusters <KatexInline formula="A" /> d'une
+					partition optimale <KatexInline formula={cOpt} />, et on borne
+					l'espérance du coût de chaque cluster selon la façon dont les centres sont
+					tirés :
+				</p>
+				<ol>
+					<li>
+						<strong>Lemme 3.1 — premier centre (tirage uniforme).</strong> Si
+						l'unique centre est tiré uniformément dans un cluster optimal
+						<KatexInline formula="A" />, alors <KatexInline formula={lemmaUniform} /> :
+						c'est la décomposition de la variance autour du centroïde — tirer un
+						point au hasard plutôt que le centroïde (qui est le centre optimal du
+						cluster) ajoute exactement la variance du cluster ;
+					</li>
+					<li>
+						<strong>Lemme 3.2 — centre tiré avec pondération D².</strong> Si l'on
+						ajoute à un clustering quelconque un centre tiré de <KatexInline
+							formula="A"
+						/>
+						avec pondération D², alors <KatexInline formula={lemmaD2} />, par
+						l'inégalité triangulaire puis l'inégalité des puissances (cas de
+						Cauchy–Schwarz) ;
+					</li>
+					<li>
+						<strong>Lemme 3.3 — récurrence.</strong> En récurrence sur le nombre
+						<KatexInline formula="t" /> de centres tirés et le nombre
+						<KatexInline formula="u" /> de clusters optimaux encore « non couverts »
+						(aucun centre tiré d'eux), l'espérance du potentiel fait intervenir la
+						<strong>somme harmonique</strong> <KatexInline formula={harmonic} />.
+						Appliquée après le premier centre (<KatexInline formula="t = u = k - 1" />),
+						avec <KatexInline formula={harmonicK} />, elle donne la borne du
+						théorème. <strong>C'est la somme harmonique qui produit le
+						<KatexInline formula={lnk} /></strong> : chaque cluster optimal « paie »
+						un facteur lié au moment où il est couvert pour la première fois.
+					</li>
+				</ol>
+				<p>
+					<strong>Optimalité de l'ordre.</strong> Le Théorème 4.1 (A&V 2007) construit
+					une famille d'instances (k clusters très séparés) sur laquelle
+					l'échantillonnage D² n'est pas mieux qu'<KatexInline formula={lowerBound} />-
+					compétitif en espérance : l'ordre <KatexInline formula={lnk} /> est
+					<strong>optimal à un facteur constant près</strong>. La constante 8 a depuis
+					été améliorée en 5 (Makarychev, Reddy &amp; Shan, NeurIPS 2020) :
+					<KatexInline formula={bound2020} />, sans changer l'ordre.
+				</p>
+				<p>
+					<strong>Sur les données bien séparées.</strong> Ostrovsky, Rabani, Schulman
+					&amp; Swamy (FOCS 2006), qui proposent indépendamment le même seeding,
+					prouvent qu'il est <strong>O(1)-compétitif</strong> dès que les données
+					admettent une bonne partition en <KatexInline formula="k" /> clusters, à
+					savoir <KatexInline formula={separation} /> (ajouter un
+					<KatexInline formula="k + 1" />-ième cluster n'apporte presque rien). Le
+					régime <KatexInline formula={lnk} /> est donc une borne pire cas : sur des
+					données « bien formées », le facteur est borné par une constante.
+				</p>
+			</TheoremBlock>
+
+			<TheoremBlock number="2.2.3.bis" title="Lloyd après k-means++">
+				<p>
+					Soit <KatexInline formula={cSeed} /> l'ensemble des centres du
+					seeding, et <KatexInline formula="C^*" /> la partition obtenue en exécutant
+					l'algorithme de Lloyd depuis <KatexInline formula={cSeed} />.
+					D'après la Proposition de la leçon (monotonie de l'inertie intra-classes,
+					lemme 22.1 de Shalev-Shwartz &amp; Ben-David), le coût ne fait que diminuer
+					le long des itérations de Lloyd :
+				</p>
+				<KatexBlock formula={lloydCarry} />
+				<p>D'où</p>
+				<KatexBlock formula={avBound} />
+				<p>
+					<strong>la garantie se transporte au coût final de k-means++</strong>
+					(seeding + Lloyd). Arthur &amp; Vassilvitskii soulignent que c'est le
+					raffinement par Lloyd qui rend la méthode efficace en pratique — sur leurs
+					jeux de données, le potentiel final est 20 à 1000 fois plus petit qu'avec le
+					seeding aléatoire, et la convergence est 2 à 3 fois plus rapide (moins
+					d'itérations) — mais la théorie ne quantifie pas ce raffinement : la borne
+					ne s'applique qu'au coût du seeding.
+				</p>
+			</TheoremBlock>
+
+			<p>
+				<strong>Redémarrages contre k-means++.</strong> Les redémarrages multiples de la
+				section précédente restent une heuristique : chaque essai est un tirage
+				indépendant ; « le meilleur des R » s'améliore empiriquement avec R (section
+				interactive 2.2), mais aucune garantie pire cas ne s'y attache — le tirage
+				uniforme peut être arbitrairement mauvais, comme vu ci-dessus.
+				<strong>k-means++</strong> fournit en revanche une garantie pire cas, en
+				espérance : <KatexInline formula={Olnk} /> sur tout jeu de données, pour un coût
+				de seeding <KatexInline formula={Onkd} /> — du même ordre qu'une itération de
+				Lloyd — et en pratique il bat plusieurs redémarrages, tout en convergeant plus
+				vite (A&V 2007, §6).
+			</p>
+			<p>
+				<strong>k-means||</strong> (Bahmani, Moseley, Vattani, Kumar &amp;
+				Vassilvitskii, PVLDB 2012). Les <KatexInline formula="k - 1" /> passes du seeding
+				de k-means++ sont séquentielles par nature ; k-means|| les parallélise : après un
+				premier centre uniforme, chacun des <KatexInline formula={Ologn} /> tours
+				échantillonne <strong>en parallèle</strong> un lot de points avec une probabilité
+				proportionnelle à <KatexInline formula={D2x} /> (environ
+				<KatexInline formula={ellThetaK} /> nouveaux points par tour), puis on sélectionne
+				les <KatexInline formula="k" /> centres finaux parmi les candidats — pondérés par
+				le nombre de points qu'ils attirent — par exemple en réexécutant k-means++ sur
+				l'instance pondérée. La garantie <KatexInline formula={Olnk} /> en espérance est
+				préservée (Théorème 1 de l'article : si l'étape finale utilise un α-algorithme
+				d'approximation, le résultat est un O(α)-algorithme), le coût décroissant
+				géométriquement à chaque tour (Théorème 2) ; en pratique, un nombre constant de
+				tours (3 à 5) suffit. C'est la variante déployée dans les grands systèmes de
+				calcul distribué.
+			</p>
+
+			<InteractiveSection number="2.2.bis" title="k-means++ : la garantie en pratique"
+				onInteract={tracker.trackInteraction}>
+				<p>
+					Mêmes données que la section 2.2 : 30 runs Lloyd initialisés au hasard contre
+					1 run k-means++, avec la référence <KatexInline formula={phiOptSym} /> (Lloyd
+					initialisé aux vrais centroïdes des 3 nuages) et la borne du théorème en
+					pointillés. « Réinitialiser » redessine les tirages.
+				</p>
+				<KMeansPPGuaranteeDemo />
+			</InteractiveSection>
+		</ExpertPanel>
 
 		<h2 id="choix-k">Choix de K : critère du coude</h2>
 
@@ -533,6 +784,33 @@
 			title="The Elements of Statistical Learning: Data Mining, Inference, and Prediction"
 			journal="Springer Science & Business Media, Second Edition."
 			link="https://hastie.su.domains/ElemStatLearn/"
+		/>
+		<BibElement
+			authors={['Arthur, D.', 'Vassilvitskii, S.']}
+			year={2007}
+			title="k-means++: The Advantages of Careful Seeding"
+			journal="Proceedings of the 18th Annual ACM-SIAM Symposium on Discrete Algorithms (SODA), pp. 1027–1035."
+			link="https://theory.stanford.edu/~sergei/papers/kMeansPP-soda.pdf"
+		/>
+		<BibElement
+			authors={['Bahmani, B.', 'Moseley, B.', 'Vattani, A.', 'Kumar, R.', 'Vassilvitskii, S.']}
+			year={2012}
+			title="Scalable K-Means++"
+			journal="Proceedings of the VLDB Endowment (PVLDB), 5(7), pp. 622–627."
+			link="https://www.vldb.org/pvldb/vol5/p622_bahmanbahmani_vldb2012.pdf"
+		/>
+		<BibElement
+			authors={['Makarychev, K.', 'Reddy, A.', 'Shan, L.']}
+			year={2020}
+			title="Improved Guarantees for k-means++ and k-means++ Parallel"
+			journal="Advances in Neural Information Processing Systems (NeurIPS), 33, pp. 26739–26750."
+			link="https://proceedings.neurips.cc/paper/2020/file/ba304f3809ed31d0ad97b5a2b5df2a39-Paper.pdf"
+		/>
+		<BibElement
+			authors={['Ostrovsky, R.', 'Rabani, Y.', 'Schulman, L.', 'Swamy, C.']}
+			year={2006}
+			title="The Effectiveness of Lloyd-type Methods for the k-means Problem"
+			journal="Proceedings of the 47th Annual IEEE Symposium on Foundations of Computer Science (FOCS)."
 		/>
 	</Bibliography>
 </PageTemplate>
