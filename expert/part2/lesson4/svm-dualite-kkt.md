@@ -7,7 +7,7 @@ anchor: svm-marge-rigide
 title: "Dualité KKT de la SVM : vecteurs support et parcimonie"
 level: m2
 priority: 1
-status: pending
+status: implemented
 related: [p1-l1-kkt-dualite-lagrangienne, p1-lesson-dualite-convexe-kkt]
 sources:
   - course_sources/marine/Cours/CM/coursClassif-4-SVM.tex

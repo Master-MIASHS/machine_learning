@@ -164,12 +164,92 @@ export function hingeObjective(
 	return 0.5 * dot(w, w) + C * s;
 }
 
+// ── Lecture KKT d'une solution duale ───────────────────────────────────────
+
+/**
+ * Régime d'un point par rapport à la marge fonctionnelle
+ * m_i = y_i(⟨ŵ, x_i⟩ + b̂) : « hors-marge » si m_i > 1 + tol, « sur-marge »
+ * si |m_i − 1| ≤ tol, « dans-marge » si m_i < 1 − tol. Les trois régimes et
+ * leur lien avec α̂_i (α̂_i = 0 / libre / α̂_i = C) sont dérivés dans le
+ * panneau expert « Dualité KKT de la SVM » (brief
+ * expert/part2/lesson4/svm-dualite-kkt.md) — conditions KKT de la marge
+ * souple : course_sources/marine/Cours/CM/coursClassif-4-SVM.tex (KKT de
+ * l'eq. optim5) et Hastie, Tibshirani & Friedman, ESL 2e éd., (12.12),
+ * (12.14)–(12.16). Le régime n'est qu'une lecture des marges : la valeur de
+ * α̂_i (0, intérieur, C) se lit séparément.
+ *
+ * @throws si margins est vide ou tol ≤ 0.
+ */
+export type AlphaRegime = 'hors-marge' | 'sur-marge' | 'dans-marge';
+
+export function alphaRegimes(margins: number[], tol = 1e-6): AlphaRegime[] {
+	if (margins.length === 0) {
+		throw new Error('alphaRegimes: margins vide');
+	}
+	if (!(tol > 0)) {
+		throw new Error(`alphaRegimes: tol doit être > 0 (reçu ${tol})`);
+	}
+	return margins.map((m) => {
+		if (m > 1 + tol) return 'hors-marge';
+		if (m < 1 - tol) return 'dans-marge';
+		return 'sur-marge';
+	});
+}
+
+/**
+ * Résidus KKT d'une solution duale à marge souple, recalculés depuis les
+ * marges fonctionnelles (et non depuis l'état interne du solveur, afin
+ * qu'aucun résidu — notamment celui induit par le choix de b̂ — ne soit
+ * masqué) :
+ *   - `slack` = max_i |α_i · (m_i − 1 + ξ_i)| : écart complémentaire,
+ *   - `box`   = max_i |(C − α_i) · ξ_i| : écart complémentaire des slacks,
+ * avec ξ_i = max(0, 1 − m_i). Pour une solution KKT exacte, les deux
+ * résidus valent 0 (course_sources/marine/Cours/CM/coursClassif-4-SVM.tex,
+ * KKT de l'eq. optim5 ; ESL 2e éd., (12.14)–(12.16)).
+ *
+ * @throws si alphas/margins sont de longueurs différentes, si C ≤ 0, ou si
+ * un α_i est hors de [0, C] (hors un arrondi de 1e-9).
+ */
+export function kktResidues(
+	alphas: number[],
+	C: number,
+	margins: number[]
+): { slack: number; box: number } {
+	const n = alphas.length;
+	if (n === 0) {
+		throw new Error('kktResidues: alphas vide');
+	}
+	if (margins.length !== n) {
+		throw new Error(`kktResidues: longueurs inégales (${n} α, ${margins.length} marges)`);
+	}
+	if (!(C > 0)) {
+		throw new Error(`kktResidues: C doit être > 0 (reçu ${C})`);
+	}
+	for (const a of alphas) {
+		if (a < -1e-9 || a > C + 1e-9) {
+			throw new Error(`kktResidues: α = ${a} hors de [0, C = ${C}]`);
+		}
+	}
+	let slack = 0;
+	let box = 0;
+	for (let i = 0; i < n; i++) {
+		const xi = Math.max(0, 1 - margins[i]);
+		slack = Math.max(slack, Math.abs(alphas[i] * (margins[i] - 1 + xi)));
+		box = Math.max(box, Math.abs((C - alphas[i]) * xi));
+	}
+	return { slack, box };
+}
+
 // ── Solveur duale (SMO) ────────────────────────────────────────────────────
 
 export interface SvmSolution {
 	/** Multiplicateurs duaux α_i ≥ 0 (eq. optim3/optim5). */
 	alphas: number[];
-	/** Biais b̂ (moyenne des y_i − (Qα)_i sur les vecteurs de support). */
+	/**
+	 * Biais b̂ : moyenne des y_i − (Qα)_i sur les vecteurs de support
+	 * intérieurs (0 < α_i < C) ; à défaut, milieu de l'intervalle des b
+	 * KKT-valides (bornes issues des écarts complémentaires).
+	 */
 	b: number;
 	/** Vecteur ŵ = Σ α_i y_i x_i — vide si le noyau n'est pas linéaire. */
 	w: number[];
@@ -329,20 +409,35 @@ export function solveSvmDual(
 	}
 
 	// b̂ : moyenne de y_i(1 − (Qα)_i) sur les vecteurs de support intérieurs
-	// (0 < α_i < C) ; à défaut, sur tous les vecteurs de support (le cours
-	// note qu'en l'absence de point intérieur on peut prendre toute valeur
-	// d'un intervalle — on choisit ici la moyenne, déterministe).
+	// (0 < α_i < C) — seuls ces points l'imposent exactement (m_i = 1).
+	// En leur absence, b n'est pas unique : les écarts complémentaires
+	// bornent sa plage — α_i = 0 impose m_i ≥ 1, α_i = C impose m_i ≤ 1,
+	// d'où avec bFromI(i) = y_i(1 − (Qα)_i) :
+	//   α_i = 0 et y_i = +1 (resp. α_i = C et y_i = −1)  ⇒  b ≥ bFromI(i),
+	//   α_i = C et y_i = +1 (resp. α_i = 0 et y_i = −1)  ⇒  b ≤ bFromI(i).
+	// On prend le milieu de cet intervalle des b KKT-valides (déterministe ;
+	// toute valeur de l'intervalle donne la même valeur optimale, et seule
+	// cette plage garantit les conditions d'écart complémentaire).
 	const interior: number[] = [];
 	const support: number[] = [];
 	for (let i = 0; i < n; i++) {
 		if (alpha[i] > alphaTol) support.push(i);
 		if (alpha[i] > alphaTol && alpha[i] < C - alphaTol) interior.push(i);
 	}
-	const bSet = interior.length > 0 ? interior : support;
-	b = 0;
-	if (bSet.length > 0) {
-		for (const i of bSet) b += bFromI(i);
-		b /= bSet.length;
+	if (interior.length > 0) {
+		b = 0;
+		for (const i of interior) b += bFromI(i);
+		b /= interior.length;
+	} else {
+		let lo = -Infinity;
+		let hi = Infinity;
+		for (let i = 0; i < n; i++) {
+			const atC = alpha[i] >= C - alphaTol;
+			const lowerBound = (atC && ys[i] === -1) || (!atC && ys[i] === 1);
+			if (lowerBound) lo = Math.max(lo, bFromI(i));
+			else hi = Math.min(hi, bFromI(i));
+		}
+		b = Number.isFinite(lo) && Number.isFinite(hi) ? (lo + hi) / 2 : 0;
 	}
 
 	// ŵ explicite : n'a de sens que pour le noyau linéaire (Σα_i y_i x_i vit

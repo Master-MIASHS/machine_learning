@@ -11,6 +11,8 @@ import {
 	functionalMargins,
 	slackVariables,
 	hingeObjective,
+	alphaRegimes,
+	kktResidues,
 	solveSvmDual,
 	makeDecisionFunction,
 	minEigenvalueSymmetric,
@@ -191,6 +193,43 @@ describe('solveSvmDual — marge souple (eq. optim4 / optim5)', () => {
 	});
 });
 
+describe('solveSvmDual — b quand aucun point n’est intérieur (plage KKT)', () => {
+	// x1 = (1,0)+, x2 = (−1,0)−, x3 = (−½,0)+, C = 1 : l’optimum dual est
+	// unique α = (0, 1, 1), d’où ŵ = (½, 0). Aucun α n’est strictement entre
+	// 0 et C : b n’est pas unique, et la plage des b KKT-valides
+	// (α1 = 0 ⇒ m1 ≥ 1 ; α3 = C ⇒ m3 ≤ 1) est exactement [½, 5/4].
+	const pts = [P(1, 0, 1), P(-1, 0, -1), P(-0.5, 0, 1)];
+	const opts = { tol: 1e-9, maxPasses: 100 };
+
+	it('b dans la plage KKT-valide [1/2, 5/4]', () => {
+		const sol = solveSvmDual(pts, 1, opts);
+		expect(sol.alphas[0]).toBeCloseTo(0, 9);
+		expect(sol.alphas[1]).toBeCloseTo(1, 9);
+		expect(sol.alphas[2]).toBeCloseTo(1, 9);
+		expect(sol.w[0]).toBeCloseTo(0.5, 9);
+		expect(sol.w[1]).toBeCloseTo(0, 9);
+		expect(sol.b).toBeGreaterThanOrEqual(0.5 - 1e-9);
+		expect(sol.b).toBeLessThanOrEqual(1.25 + 1e-9);
+	});
+
+	it('écarts complémentaires (C − αi)·ξi = 0 pour tout i', () => {
+		const sol = solveSvmDual(pts, 1, opts);
+		for (let i = 0; i < pts.length; i++) {
+			const xi = Math.max(0, 1 - sol.margins[i]);
+			expect((1 - sol.alphas[i]) * xi).toBeCloseTo(0, 9);
+		}
+	});
+
+	it('égalité primal-dual : ½‖ŵ‖² + Σξi = d* = 15/8', () => {
+		const sol = solveSvmDual(pts, 1, opts);
+		let slacks = 0;
+		for (const m of sol.margins) slacks += Math.max(0, 1 - m);
+		const primal = 0.5 * norm(sol.w) ** 2 + slacks;
+		expect(primal).toBeCloseTo(15 / 8, 9);
+		expect(sol.dualObjective).toBeCloseTo(15 / 8, 9);
+	});
+});
+
 describe('solveSvmDual — erreurs de validation', () => {
 	it('jeu déséquilibré : le dual reste faisable (α = 0) et se résout', () => {
 		const sol = solveSvmDual([P(0, 0, 1), P(1, 1, 1), P(2, 2, -1)], 1);
@@ -202,6 +241,62 @@ describe('solveSvmDual — erreurs de validation', () => {
 	});
 	it('n < 2 → erreur', () => {
 		expect(() => solveSvmDual([P(0, 0, 1)], 1)).toThrow(/2 points/);
+	});
+});
+
+describe("alphaRegimes / kktResidues (lecture KKT d'une solution duale)", () => {
+	it('alphaRegimes : seuils exacts m = 1 ± tol', () => {
+		expect(alphaRegimes([2, 1, 0.9999995, 0, -3])).toEqual([
+			'hors-marge',
+			'sur-marge',
+			'sur-marge',
+			'dans-marge',
+			'dans-marge'
+		]);
+	});
+
+	it('alphaRegimes : jeu vide / tol invalide → erreur', () => {
+		expect(() => alphaRegimes([])).toThrow(/vide/);
+		expect(() => alphaRegimes([1], 0)).toThrow(/tol/);
+	});
+
+	// Exemple « marge rigide » du panneau expert : α = (½, ½, 0),
+	// m = (1, 1, 2) — les deux résidus KKT valent exactement 0.
+	it('kktResidues : exemple rigide (α = (½,½,0), m = (1,1,2))', () => {
+		const r = kktResidues([0.5, 0.5, 0], 1e6, [1, 1, 2]);
+		expect(r.slack).toBeCloseTo(0, 12);
+		expect(r.box).toBeCloseTo(0, 12);
+	});
+
+	// Exemple « marge souple, C = 1 » du panneau expert : α = (0, 1, 1),
+	// m = (1, 0, ¼) avec b̂ = ½ (borne de la plage [½, 5/4]) — résidus nuls.
+	it('kktResidues : exemple souple (C = 1, α = (0,1,1), m = (1,0,¼))', () => {
+		const r = kktResidues([0, 1, 1], 1, [1, 0, 0.25]);
+		expect(r.slack).toBeCloseTo(0, 12);
+		expect(r.box).toBeCloseTo(0, 12);
+	});
+
+	// b = 3/8, hors de la plage KKT-valide [½, 5/4] : m = (7/8, 1/8, 1/8),
+	// ξ_1 = 1/8 > 0 avec α_1 = 0 → le résidu « box » (C − α_1)ξ_1 = 1/8
+	// signale la violation (le résidu « slack » reste nul).
+	it('kktResidues : b hors plage valide → résidu box > 0', () => {
+		const r = kktResidues([0, 1, 1], 1, [0.875, 0.125, 0.125]);
+		expect(r.slack).toBeCloseTo(0, 12);
+		expect(r.box).toBeCloseTo(0.125, 12);
+	});
+
+	it('kktResidues : longueurs inégales / C ≤ 0 / α hors boîte → erreurs', () => {
+		expect(() => kktResidues([0, 1], 1, [1])).toThrow(/longueurs/);
+		expect(() => kktResidues([0], 0, [1])).toThrow(/C/);
+		expect(() => kktResidues([2], 1, [1])).toThrow(/\[0, C/);
+	});
+
+	it('invariance : solution SMO (anneau) → résidus ≈ 0', () => {
+		const pts = generateRingData(10, 20, 1, 2.4);
+		const sol = solveSvmDual(pts, 1, { tol: 1e-5, maxPasses: 300 });
+		const r = kktResidues(sol.alphas, 1, sol.margins);
+		expect(r.slack).toBeLessThan(1e-2);
+		expect(r.box).toBeLessThan(1e-2);
 	});
 });
 

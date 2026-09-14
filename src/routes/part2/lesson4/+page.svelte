@@ -133,6 +133,40 @@
 	const kktOn = 'y_i\\left(\\langle \\widehat{w}, x_i\\rangle + \\widehat{b}\\right) = 1';
 	const mDef = 'm_i = y_i\\left(\\langle \\widehat{w}, x_i\\rangle + \\widehat{b}\\right)';
 
+	// Panneau expert « Dualité KKT de la SVM : vecteurs support et parcimonie »
+	// (expert/part2/lesson4/svm-dualite-kkt.md — dérivation du dual rigide et
+	// souple, lecture KKT : ESL 2e éd. ch. 12, S&B ch. 15, B&V ch. 5)
+	const dualFuncDef =
+		'g(\\alpha) \\;=\\; \\inf_{(w, b) \\, \\in \\, \\mathbb{R}^d \\times \\mathbb{R}} \\; \\mathcal{L}(w, b, \\alpha)';
+	const dualMaxG = '\\max_{\\alpha \\, \\geq \\, 0} \\; g(\\alpha) \\;=\\; (Q)';
+	const kktGradW =
+		'\\nabla_w \\, \\mathcal{L}(w, b, \\alpha) \\;=\\; w - \\sum_{i=1}^n \\alpha_i y_i x_i \\;=\\; 0 \\quad \\Longrightarrow \\quad w(\\alpha) \\;=\\; \\sum_{i=1}^n \\alpha_i y_i x_i';
+	const kktGradB =
+		'\\frac{\\partial \\, \\mathcal{L}(w, b, \\alpha)}{\\partial b} \\;=\\; - \\sum_{i=1}^n \\alpha_i y_i';
+	const kktSubst =
+		'\\mathcal{L}(w(\\alpha), b, \\alpha) \\;=\\; \\sum_{i=1}^n \\alpha_i - \\frac{1}{2} \\left\\| \\sum_{i=1}^n \\alpha_i y_i x_i \\right\\|^2 - b \\sum_{i=1}^n \\alpha_i y_i \\;=\\; \\sum_{i=1}^n \\alpha_i - \\frac{1}{2} \\sum_{i=1}^n \\sum_{\\ell=1}^n \\alpha_i \\alpha_\\ell \\, y_i y_\\ell \\, \\langle x_i, x_\\ell \\rangle';
+	const kktDualFunc =
+		'g(\\alpha) \\;=\\; \\begin{cases} \\displaystyle \\sum_{i=1}^n \\alpha_i - \\frac{1}{2} \\sum_{i=1}^n \\sum_{\\ell=1}^n \\alpha_i \\alpha_\\ell \\, y_i y_\\ell \\, \\langle x_i, x_\\ell \\rangle & \\text{si } \\alpha \\geq 0 \\text{ et } \\sum_{i=1}^n \\alpha_i y_i = 0, \\\\[1.2em] -\\infty & \\text{sinon}. \\end{cases}';
+	const kktSparsityW =
+		'\\widehat{w} \\;=\\; \\sum_{i=1}^n \\widehat{\\alpha}_i y_i x_i \\;=\\; \\sum_{i \\, : \\, \\widehat{\\alpha}_i > 0} \\widehat{\\alpha}_i y_i x_i';
+	const kktSparseClassify =
+		'\\operatorname{sign}\\left[ \\sum_{i \\, : \\, \\widehat{\\alpha}_i > 0} \\widehat{\\alpha}_i \\, y_i \\, \\langle x_i, x \\rangle + \\widehat{b} \\right]';
+	const kktSpanS = 'S = \\operatorname{span}\\{\\phi(x_1), \\dots, \\phi(x_n)\\}';
+	const kktProjection =
+		'\\|w\\|^2_{\\mathcal{H}} \\;=\\; \\|P_S w\\|^2_{\\mathcal{H}} + \\|v\\|^2_{\\mathcal{H}} \\;\\geq\\; \\|P_S w\\|^2_{\\mathcal{H}} \\qquad \\text{et} \\qquad \\langle w, \\phi(x_i)\\rangle_{\\mathcal{H}} \\;=\\; \\langle P_S w, \\phi(x_i)\\rangle_{\\mathcal{H}}';
+	const kktKernelStation =
+		'w = \\sum_{i=1}^n \\alpha_i y_i \\phi(x_i), \\qquad \\langle \\phi(x_i), \\phi(x_\\ell)\\rangle_{\\mathcal{H}} = K(x_i, x_\\ell)';
+	const kktSoftLagr =
+		'\\mathcal{L}(w, b, \\xi, \\alpha, \\mu) \\;=\\; \\frac{1}{2}\\|w\\|^2 + \\sum_{i=1}^n \\alpha_i \\left(1 - y_i\\left(\\langle w, x_i\\rangle + b\\right)\\right) + \\sum_{i=1}^n \\bigl(C - \\alpha_i - \\mu_i\\bigr)\\, \\xi_i';
+	const kktXiBound = '\\min_{\\xi_i \\geq 0} \\, (C - \\alpha_i - \\mu_i)\\, \\xi_i';
+	const kktSoftKKT =
+		'\\begin{aligned} & y_i\\left(\\langle \\widehat{w}, x_i\\rangle + \\widehat{b}\\right) - 1 + \\widehat{\\xi}_i \\; \\geq\\; 0 && \\text{(faisabilité primal)} \\\\ & 0 \\; \\leq\\; \\widehat{\\alpha}_i \\; \\leq\\; C, \\qquad \\sum_{i=1}^n \\widehat{\\alpha}_i y_i = 0 && \\text{(faisabilité dual)} \\\\ & \\widehat{\\alpha}_i \\left[ y_i\\left(\\langle \\widehat{w}, x_i\\rangle + \\widehat{b}\\right) - 1 + \\widehat{\\xi}_i \\right] = 0 && \\text{(écart complémentaire)} \\\\ & \\bigl(C - \\widehat{\\alpha}_i\\bigr)\\, \\widehat{\\xi}_i = 0 && \\text{(écart complémentaire des slacks)} \\end{aligned}';
+	const kktEx1Dual =
+		'\\max_{\\alpha} \\; \\alpha_1 + \\alpha_2 + \\alpha_3 - \\frac{1}{2}\\left( \\alpha_1^2 + \\alpha_2^2 + \\alpha_3^2 + 2\\alpha_1\\alpha_2 + 4\\alpha_1\\alpha_3 + 4\\alpha_2\\alpha_3 \\right) \\quad \\text{s.c.} \\quad \\alpha \\geq 0, \\; \\alpha_1 - \\alpha_2 + \\alpha_3 = 0';
+	const kktEx2Slacks =
+		'\\xi_1(b) = \\max\\left(0, \\tfrac{1}{2} - b\\right), \\qquad \\xi_2(b) = \\max\\left(0, \\tfrac{1}{2} + b\\right), \\qquad \\xi_3(b) = \\max\\left(0, \\tfrac{5}{4} - b\\right)';
+	const kktEx2Bset = '\\left[\\tfrac{1}{2}, \\tfrac{5}{4}\\right]';
+
 	// SVM à noyau
 	const phiMap = '\\phi : \\mathcal{X} \\to \\mathcal{H}';
 	const kernelDual =
@@ -535,7 +569,7 @@
 			Le terme en <KatexInline formula="b" />, égal à
 			<KatexInline formula={'-b \\sum_{i=1}^n \\alpha_i y_i'} />, s'annule sous la contrainte <KatexInline
 				formula={'\\sum_{i=1}^n \\alpha_i y_i = 0'}
-			/> : c'est pourquoi les diapositives écrivent le Lagrangien réduit
+			/> : c'est pourquoi on écrit souvent le Lagrangien réduit
 		</p>
 		<KatexBlock formula={lagrangianReduced} />
 		<p>On a alors</p>
@@ -592,6 +626,557 @@
 			</p>
 		</Callout>
 
+		<!-- Panneau expert (mode expert uniquement) : dérivation du dual de la
+		     SVM et lecture KKT (vecteurs support, parcimonie, apparition du
+		     noyau). Contenu au-delà du cours — voir expert/part2/lesson4/
+		     svm-dualite-kkt.md et svm-dualite-kkt.research.md. -->
+		<ExpertPanel title="Dualité KKT de la SVM : vecteurs support et parcimonie">
+			<p>
+				La leçon a énoncé la formulation duale (Proposition) et les conditions KKT qu'elle
+				satisfait, en renvoyant la preuve à la référence citée. Ce panneau fait le travail : il
+				calcule le <KatexInline formula={'\\min_{(w, b)}'} /> de la lagrangienne, et on voit sortir
+				<strong>exactement</strong> la duale de la leçon — avec sa contrainte <KatexInline
+					formula={'\\sum_i \\alpha_i y_i = 0'}
+				/>
+				(marge rigide), puis <KatexInline formula={'0 \\leq \\alpha_i \\leq C'} /> (marge souple) —
+				et la condition d'écart complémentaire devient une <strong>boussole</strong> : elle dit
+				quels points portent le classifieur (les vecteurs support), d'où la parcimonie de la SVM,
+				et pourquoi le noyau entre sans modifier le primal. C'est l'application directe, fil rouge,
+				de la dualité convexe de la
+				<a href={resolve('/part1/lesson1')}>Partie I, leçon 1</a> (panneau « Conditions KKT et
+				dualité lagrangienne »).
+			</p>
+
+			<DefinitionBlock number="4.4.bis" title="Fonction duale de la formulation rigide">
+				<p>À la lagrangienne de la leçon</p>
+				<KatexBlock formula={lagrangianFull} />
+				<p>on associe la <strong>fonction duale</strong></p>
+				<KatexBlock formula={dualFuncDef} />
+				<p>
+					c'est-à-dire la meilleure minoration de la valeur optimale <KatexInline
+						formula={'p^*'}
+					/>
+					du primal que produit le vecteur de multiplicateurs <KatexInline formula={'\\alpha'} />
+					(dualité faible, Partie I). Le problème dual est alors
+				</p>
+				<KatexBlock formula={dualMaxG} />
+				<p>
+					qui est précisément le <KatexInline formula={'(Q)'} /> écrit dans la leçon. La leçon
+					s'arrête à l'énoncé : on va maintenant <strong>calculer</strong> <KatexInline
+						formula={'g(\\alpha)'}
+					/>.
+				</p>
+			</DefinitionBlock>
+
+			<TheoremBlock title="Dérivation du dual rigide">
+				<p>
+					Soit <KatexInline formula={'\\alpha \\geq 0'} /> fixé. La lagrangienne est quadratique
+					strictement convexe en <KatexInline formula={'w'} /> et affine en <KatexInline
+						formula={'b'}
+					/>, donc <KatexInline formula={'\\inf_{(w, b)} \\mathcal{L}'} /> est soit
+					<KatexInline formula={'-\\infty'} />, soit atteint au point où les dérivées s'annulent.
+				</p>
+				<p>
+					<strong>Stationnarité en <KatexInline formula={'w'} />.</strong>
+				</p>
+				<KatexBlock formula={kktGradW} />
+				<p>
+					<strong>Stationnarité en <KatexInline formula={'b'} />.</strong>
+				</p>
+				<KatexBlock formula={kktGradB} />
+				<p>
+					La lagrangienne est affine en <KatexInline formula={'b'} /> de pente <KatexInline
+						formula={'- \\sum_i \\alpha_i y_i'}
+					/>
+					: son infimum sur <KatexInline formula={'\\mathbb{R}'} /> est fini <strong
+						>si et seulement si</strong>
+					<KatexInline formula={'\\sum_{i=1}^n \\alpha_i y_i = 0'} />
+					(sinon <KatexInline formula={'g(\\alpha) = -\\infty'} />). C'est la première contrainte
+					du dual — elle n'était pas une hypothèse, elle sort du calcul.
+				</p>
+				<p>
+					<strong>Substitution.</strong> En <KatexInline formula={'w = w(\\alpha)'} /> :
+				</p>
+				<KatexBlock formula={kktSubst} />
+				<p>
+					le terme en <KatexInline formula={'b'} /> s'annulant sous la contrainte. On a donc
+				</p>
+				<KatexBlock formula={kktDualFunc} />
+				<p>
+					Le dual de la leçon (la Proposition « formulation duale » de la section ci-dessus) n'est
+					rien d'autre que <KatexInline formula={'\\max_{\\alpha \\geq 0} g(\\alpha)'} />. Comme le
+					primal est convexe et que Slater tient (la leçon), la dualité forte donne <KatexInline
+						formula={'p^* = q^*'}
+					/>, et la solution <KatexInline formula={'\\widehat{\\alpha}'} /> du dual satisfait les
+					conditions KKT (Partie I, leçon 1).
+				</p>
+			</TheoremBlock>
+
+			<TheoremBlock title="Complémentarité : les vecteurs support, et la parcimonie">
+				<p>L'écart complémentaire de la leçon,</p>
+				<KatexBlock formula={kktHard} />
+				<p>découpe le jeu de données en deux :</p>
+				<ul>
+					<li>
+						<KatexInline formula={'\\widehat{\\alpha}_i > 0'} /> implique <KatexInline
+							formula={'y_i\\left(\\langle \\widehat{w}, x_i\\rangle + \\widehat{b}\\right) = 1'}
+						/>
+						: le point est <strong>sur la marge</strong> (<KatexInline formula={'x_i \\in H_+'} />
+						ou <KatexInline formula={'x_i \\in H_-'} />) — c'est la définition du vecteur
+						support ;
+					</li>
+					<li>
+						<KatexInline formula={'\\widehat{\\alpha}_i = 0'} /> n'impose rien : le point est en
+						général <strong>à l'extérieur</strong> de la marge (<KatexInline
+							formula={'y_i\\left(\\langle \\widehat{w}, x_i\\rangle + \\widehat{b}\\right) > 1'}
+						/>).
+					</li>
+				</ul>
+				<p>
+					Et <KatexInline formula={'w'} /> ne dépend que des vecteurs support :
+				</p>
+				<KatexBlock formula={kktSparsityW} />
+				<p>
+					<strong>Proposition — retirer un point non vecteur support ne change pas la
+					solution.</strong> Soit <KatexInline formula={'x_k'} /> avec <KatexInline
+						formula={'\\widehat{\\alpha}_k = 0'}
+					/>, et le même problème rigide résolu sur les <KatexInline formula={'n - 1'} /> points
+					restants. Alors la valeur optimale est inchangée, <KatexInline formula={'\\widehat{w}'} />
+					aussi, et <KatexInline formula={'\\widehat{b}'} /> aussi dès qu'il était unique (le cas
+					général : un <KatexInline formula={'\\widehat{\\alpha}_i'} /> intérieur) ; le vecteur
+					<KatexInline formula={'\\widehat{\\alpha}'} />, restreint, reste dual optimal.
+				</p>
+				<div class="proof-block">
+					<p>
+						<strong>Idée de la démonstration :</strong> notons <KatexInline formula={'p^*'} /> et
+						<KatexInline formula={'q^*'} /> les valeurs optimales du primal/dual complets, et
+						<KatexInline formula={'p^*_{\\mathrm{red}}'} /> et <KatexInline
+							formula={'q^*_{\\mathrm{red}}'}
+						/>
+						celles du problème réduit.
+					</p>
+					<p>
+						<strong>(i)</strong> <KatexInline formula={'(\\widehat{w}, \\widehat{b})'} /> satisfait
+						les contraintes du primal réduit (c'étaient des contraintes du primal complet) :
+						<KatexInline
+							formula={'p^*_{\\mathrm{red}} \\leq \\tfrac{1}{2}\\|\\widehat{w}\\|^2 = p^*'}
+						/>
+						.
+					</p>
+					<p>
+						<strong>(ii)</strong> le vecteur <KatexInline formula={'\\widehat{\\alpha}'} /> (avec
+						<KatexInline formula={'\\widehat{\\alpha}_k = 0'} />) est dual admissible pour le
+						problème réduit (<KatexInline formula={'0 \\leq \\alpha_i'} /> et <KatexInline
+							formula={'\\sum_i \\alpha_i y_i = 0'}
+						/>
+						toujours satisfaites), et y atteint la même valeur <KatexInline formula={'q^*'} /> —
+						les termes en <KatexInline formula={'\\widehat{\\alpha}_k'} /> de l'objectif valant
+						<KatexInline formula={'0'} /> : <KatexInline formula={'q^*_{\\mathrm{red}} \\geq q^*'}
+						/>
+						. Réciproquement, le dual réduit est le dual complet où l'on impose <KatexInline
+							formula={'\\alpha_k = 0'}
+						/>
+						(un sous-problème) : <KatexInline formula={'q^*_{\\mathrm{red}} \\leq q^*'} />. Donc
+						<KatexInline formula={'q^*_{\\mathrm{red}} = q^*'} />.
+					</p>
+					<p>
+						<strong>(iii)</strong> les contraintes du problème réduit sont affines en
+						<KatexInline formula={'(w, b)'} /> et il est réalisable (<KatexInline
+							formula={'(\\widehat{w}, \\widehat{b})'}
+						/>, cf. (i)) : Slater tient (variante B&amp;V pour contraintes affines, eq. 5.27,
+						déjà citée dans le panneau « Conditions KKT et dualité lagrangienne » de la Partie I,
+						leçon 1), donc <KatexInline formula={'p^*_{\\mathrm{red}} = q^*_{\\mathrm{red}}'} />.
+					</p>
+					<p>
+						D'où <KatexInline
+							formula={'p^*_{\\mathrm{red}} = q^*_{\\mathrm{red}} = q^* = p^*'}
+						/>
+						, <KatexInline formula={'(\\widehat{w}, \\widehat{b})'} /> reste primal optimal pour le
+						problème réduit, et <KatexInline formula={'\\widehat{\\alpha}'} /> restreint reste dual
+						optimal ; la stationnarité lui associe le même <KatexInline
+							formula={'\\widehat{w} = \\sum_{i \\neq k} \\widehat{\\alpha}_i y_i x_i'}
+						/>, unique (convexité stricte de <KatexInline formula={'\\tfrac{1}{2}\\|w\\|^2'} />),
+						et le même <KatexInline formula={'\\widehat{b}'} /> quand il était unique. (Même
+						argument que Hastie, Tibshirani &amp; Friedman, ESL 2e éd., §12.2.2 : « leaving out an
+						observation that is not a support vector will not change the solution ».)
+					</p>
+					<p>
+						<strong>Point d'attention :</strong> en l'absence de point intérieur (<KatexInline
+							formula={'0 < \\widehat{\\alpha}_i < C'}
+						/>, <KatexInline formula={'\\widehat{b}'} /> n'est pas unique (cf. exemple 2
+						ci-dessous) : retirer <KatexInline formula={'x_k'} /> retire une borne de KKT sur
+						<KatexInline formula={'b'} />
+						, l'ensemble des <KatexInline formula={'b'} /> optimales ne peut que s'élargir, et
+						<KatexInline formula={'\\widehat{w}'} /> — lui — reste le même. ∎
+					</p>
+				</div>
+			</TheoremBlock>
+
+			<Callout type="intuition" title="La parcimonie de la SVM">
+				<p>Prédire avec la SVM, c'est évaluer</p>
+				<KatexBlock formula={kktSparseClassify} />
+				<p>
+					seule la <strong>liste des vecteurs support</strong> (et leurs <KatexInline
+						formula={'\\widehat{\\alpha}_i'}
+					/>) est nécessaire — les autres points n'interviennent ni dans <KatexInline
+						formula={'\\widehat{w}'}
+					/>
+					ni dans le classifieur. Deux conséquences :
+				</p>
+				<ul>
+					<li>
+						le nombre de vecteurs support — typiquement bien inférieur à <KatexInline
+							formula={'n'}
+						/>
+						— contrôle le coût de la prédiction, et non la taille du jeu d'entraînement ;
+					</li>
+					<li>
+						l'écart complémentaire garantit les vecteurs support <strong>avec</strong>
+						<KatexInline formula={'\\widehat{\\alpha}_i > 0'} />, pas l'inverse : un point peut
+						être sur la marge avec <KatexInline formula={'\\widehat{\\alpha}_i = 0'} /> — c'est le
+						« pas forcément tous » de la leçon, qu'on va voir en action dans l'exemple 2
+						ci-dessous.
+					</li>
+				</ul>
+			</Callout>
+
+			<TheoremBlock title="L'apparition du noyau — le primal reste inchangé">
+				<p>
+					La leçon écrit le dual noyau (produits scalaires <KatexInline
+						formula={'\\langle \\phi(x_i), \\phi(x_\\ell)\\rangle'}
+					/>) et note l'astuce : <KatexInline formula={'\\phi'} /> n'intervient que via ces produits
+					scalaires. Pourquoi, alors, le <strong>primal</strong> dans l'espace de redescription
+					<KatexInline formula={'\\mathcal{H}'} /> a-t-il les mêmes solutions ? Argument de
+					projection (le cas fini-dimensionnel est l'instance <KatexInline
+						formula={'\\mathcal{H} = \\mathbb{R}^d'}
+					/>
+					) :
+				</p>
+				<p>
+					Soit <KatexInline formula={kktSpanS} /> et <KatexInline formula={'P_S'} /> la projection
+					orthogonale de <KatexInline formula={'\\mathcal{H}'} /> sur <KatexInline formula={'S'} />.
+					Tout <KatexInline formula={'w \\in \\mathcal{H}'} /> se décompose <KatexInline
+						formula={'w = P_S w + v'}
+					/>
+					avec <KatexInline formula={'v \\in S^\\perp'} /> :
+				</p>
+				<KatexBlock formula={kktProjection} />
+				<p>
+					(les deux dernières relations car <KatexInline formula={'\\phi(x_i) \\in S'} /> et
+					<KatexInline formula={'v \\perp S'} />). Le projeté <KatexInline formula={'P_S w'} />
+					satisfait donc <strong>les mêmes contraintes</strong> que <KatexInline formula={'w'} />
+					avec une norme <strong>au plus aussi grande</strong> : la valeur optimale du primal dans
+					<KatexInline formula={'\\mathcal{H}'} /> vaut celle du problème restreint à <KatexInline
+						formula={'S'}
+					/>. Plus : si <KatexInline formula={'w'} /> est optimal et <KatexInline
+						formula={'v \\neq 0'}
+					/>, alors <KatexInline formula={'P_S w'} /> est strictement meilleur — contradiction.
+					<strong>Tout</strong> <KatexInline formula={'w'} /> optimal appartient à <KatexInline
+						formula={'S'}
+					/>.
+				</p>
+				<p>
+					Sur <KatexInline formula={'S'} />, la stationnarité du dual (calculée dans le bloc
+					précédent) écrit
+				</p>
+				<KatexBlock formula={kktKernelStation} />
+				<p>
+					et le dual ne contient plus que ces produits scalaires : c'est exactement le dual noyau de
+					la leçon. Le primal reste inchangé, et toute la machine — dual, <KatexInline
+						formula={'\\widehat{w}'}
+					/>, <KatexInline formula={'\\widehat{b}'} />, classifieur — ne demande que les valeurs de
+					<KatexInline formula={'K'} /> sur le nuage : d'où l'apparition du noyau. (L'existence de
+					<KatexInline formula={'\\mathcal{H}'} /> et de <KatexInline formula={'\\phi'} /> associées
+					à <KatexInline formula={'K'} /> est le Théorème Moore–Aronszajn de la leçon ; « the
+					solution must be in the linear span of the examples, a fact we will use later to derive
+					SVM with kernels », Shalev-Shwartz &amp; Ben-David, ch. 15 §15.4.)
+				</p>
+			</TheoremBlock>
+
+			<TheoremBlock title="Marge souple — d'où vient 0 ≤ αᵢ ≤ C, les trois régimes">
+				<p>
+					La section « SVM à marge souple » de la leçon donne le primal (les variables
+					d'ajustement <KatexInline formula={'\\xi_i'} />) et énonce le dual avec la contrainte
+					<KatexInline formula={'0 \\leq \\alpha_i \\leq C'} /> : voici d'où elle sort.
+					Multiplicateurs <KatexInline formula={'\\alpha_i \\geq 0'} /> pour <KatexInline
+						formula={'1 - \\xi_i - y_i\\left(\\langle w, x_i\\rangle + b\\right) \\leq 0'}
+					/>
+					et <KatexInline formula={'\\mu_i \\geq 0'} /> pour <KatexInline formula={'- \\xi_i \\leq 0'}
+					/>
+					:
+				</p>
+				<KatexBlock formula={kktSoftLagr} />
+				<ul>
+					<li>
+						<strong>Minimisation en <KatexInline formula={'\\xi_i \\geq 0'} /></strong> :
+						<KatexInline formula={kktXiBound} /> est fini (vaut <KatexInline formula={'0'} />, en
+						<KatexInline formula={'\\xi_i = 0'} />) <strong>ssi</strong> <KatexInline
+							formula={'C - \\alpha_i - \\mu_i \\geq 0'}
+						/>. L'objectif du dual ne dépendant pas de <KatexInline formula={'\\mu'} />, on pose
+						<KatexInline formula={'\\mu_i = C - \\alpha_i'} />, ce qui donne exactement la
+						<strong>contrainte en boîte</strong> <KatexInline
+							formula={'0 \\leq \\alpha_i \\leq C'}
+						/>
+						du dual de la leçon.
+					</li>
+					<li>
+						<strong>Minimisation en <KatexInline formula={'w'} /> et <KatexInline formula={'b'}
+						/></strong>
+						: comme pour la marge rigide — <KatexInline
+							formula={'w = \\sum_i \\alpha_i y_i x_i'}
+						/>
+						et la contrainte <KatexInline formula={'\\sum_i \\alpha_i y_i = 0'} />.
+					</li>
+				</ul>
+				<p>Les conditions KKT complètes (la leçon n'en énonce que la troisième) :</p>
+				<KatexBlock formula={kktSoftKKT} />
+				<p>
+					Notons <KatexInline formula={mDef} /> la marge fonctionnelle. Les trois régimes, et leur
+					<strong>preuve</strong> :
+				</p>
+				<ol>
+					<li>
+						<strong><KatexInline formula={'m_i > 1'} /> (extérieur de la marge)</strong> :
+						l'objectif primal étant croissant en <KatexInline formula={'\\xi_i'} /> (coefficient
+						<KatexInline formula={'C > 0'} />), le slack optimal vaut <KatexInline
+							formula={'\\widehat{\\xi}_i = \\max(0, 1 - m_i) = 0'}
+						/>
+						; l'écart complémentaire <KatexInline
+							formula={'\\widehat{\\alpha}_i (m_i - 1) = 0'}
+						/>
+						avec <KatexInline formula={'m_i - 1 > 0'} /> donne alors <strong
+							><KatexInline formula={'\\widehat{\\alpha}_i = 0'} /></strong>
+						— la leçon l'énonce, on vient de le dériver.
+					</li>
+					<li>
+						<strong><KatexInline formula={'m_i = 1'} /> (sur la marge)</strong> : <KatexInline
+							formula={'\\widehat{\\xi}_i = 0'}
+						/>
+						et <KatexInline formula={'\\widehat{\\alpha}_i \\in [0, C]'} /> — libre ; les points
+						<KatexInline formula={'0 < \\widehat{\\alpha}_i < C'} /> (intérieurs) sont ceux qui
+						servent à la formule de <KatexInline formula={'\\widehat{b}'} /> de la leçon.
+					</li>
+					<li>
+						<strong><KatexInline formula={'m_i < 1'} /> (dans la marge, y compris mal classé si
+						<KatexInline formula={'m_i < 0'} />)</strong> : <KatexInline
+							formula={'\\widehat{\\xi}_i = 1 - m_i > 0'}
+						/>, et la quatrième condition <KatexInline
+							formula={'(C - \\widehat{\\alpha}_i)\\,\\widehat{\\xi}_i = 0'}
+						/>
+						donne <strong><KatexInline formula={'\\widehat{\\alpha}_i = C'} /></strong> — Hastie,
+						Tibshirani &amp; Friedman, ESL 2e éd., (12.12)+(12.15).
+					</li>
+				</ol>
+				<p>
+					Deux nuances : la réciproque du point 3 est fausse — <KatexInline
+						formula={'\\widehat{\\alpha}_i = C'}
+					/>
+					n'empêche pas <KatexInline formula={'\\widehat{\\xi}_i = 0'} /> ; et le point 2 ne force
+					pas <KatexInline formula={'\\widehat{\\alpha}_i > 0'} /> — un point peut être
+					<strong>sur</strong> la marge avec <KatexInline formula={'\\widehat{\\alpha}_i = 0'} />
+					(le « pas forcément tous » de la leçon).
+				</p>
+			</TheoremBlock>
+
+			<ExampleBlock title="Exemple — trois points, marge rigide">
+				<p>
+					Reprenons l'Exercice 1 de la leçon, <KatexInline formula={'x_1 = (1, 0)'} /> avec
+					<KatexInline formula={'y_1 = +1'} />, et <KatexInline formula={'x_2 = (-1, 0)'} /> avec
+					<KatexInline formula={'y_2 = -1'} />, et ajoutons <KatexInline formula={'x_3 = (2, 0)'} />
+					avec <KatexInline formula={'y_3 = +1'} /> — bien classé, loin de la marge. Le dual est
+				</p>
+				<KatexBlock formula={kktEx1Dual} />
+				<p>
+					matrice <KatexInline formula={'\\langle x_i, x_\\ell\\rangle'} /> : <KatexInline
+						formula={'x_1 \\cdot x_2 = -1'}
+					/>, <KatexInline formula={'x_1 \\cdot x_3 = 2'} />, <KatexInline
+						formula={'x_2 \\cdot x_3 = -2'}
+					/>. La solution est <KatexInline
+						formula={'\\widehat{\\alpha} = (\\tfrac{1}{2}, \\tfrac{1}{2}, 0)'}
+					/>
+					:
+				</p>
+				<ul>
+					<li>
+						<KatexInline
+							formula={'\\widehat{w} = \\tfrac{1}{2}(1, 0) + \\tfrac{1}{2}(-1)(-1, 0) = (1, 0)'}
+						/>, <KatexInline
+							formula={'\\widehat{b} = 1 - \\langle (1, 0), (1, 0)\\rangle = 0'}
+						/>
+						;
+					</li>
+					<li>
+						marges fonctionnelles <KatexInline formula={'m = (1, 1, 2)'} /> : <KatexInline
+							formula={'x_1'}
+						/>, <KatexInline formula={'x_2'} /> sur la marge (<KatexInline
+							formula={'\\widehat{\\alpha}_1 = \\widehat{\\alpha}_2 = \\tfrac{1}{2} > 0'}
+						/>, <KatexInline formula={'x_3'} /> à l'extérieur (<KatexInline formula={'m_3 = 2 > 1'}
+						/>, <KatexInline formula={'\\widehat{\\alpha}_3 = 0'} />) — la complémentarité
+						<KatexInline formula={'\\widehat{\\alpha}_i (m_i - 1) = 0'} /> est vérifiée point par
+						point : <KatexInline formula={'(0, 0, 0)'} /> ;
+					</li>
+					<li>
+						<KatexInline
+							formula={'p^* = q^* = \\tfrac{1}{2}\\|\\widehat{w}\\|^2 = \\tfrac{1}{2}'}
+						/>
+						: dualité forte, écart nul.
+					</li>
+				</ul>
+				<p>
+					<KatexInline formula={'x_3'} /> n'est pas vecteur support : selon le bloc précédent,
+					retirer <KatexInline formula={'x_3'} /> reproduit exactement l'Exercice 1 — même
+					<KatexInline formula={'(\\widehat{w}, \\widehat{b})'} />, mêmes <KatexInline
+						formula={'\\widehat{\\alpha}_1 = \\widehat{\\alpha}_2 = \\tfrac{1}{2}'}
+					/>. Le troisième point n'a <strong>aucun</strong> effet sur le classifieur.
+				</p>
+			</ExampleBlock>
+
+			<ExampleBlock title="Exemple — trois points, marge souple, C = 1">
+				<p>
+					Mêmes deux premiers points, mais <KatexInline
+						formula={'x_3 = (-\\tfrac{1}{2}, 0)'}
+					/>
+					avec <KatexInline formula={'y_3 = +1'} /> : cette fois <KatexInline formula={'x_3'} /> est
+					<strong>dans la marge</strong> (même côté que <KatexInline formula={'x_1'} />). La solution
+					du dual (contraintes <KatexInline formula={'0 \\leq \\alpha_i \\leq 1'} />, <KatexInline
+						formula={'\\alpha_1 - \\alpha_2 + \\alpha_3 = 0'}
+					/>) est <KatexInline formula={'\\widehat{\\alpha} = (0, 1, 1)'} /> :
+				</p>
+				<ul>
+					<li>
+						<KatexInline
+							formula={'\\widehat{w} = (-1)(-1, 0) + (1)(-\\tfrac{1}{2}, 0) = (\\tfrac{1}{2}, 0)'}
+						/>
+						; avec le choix <KatexInline formula={'\\widehat{b} = \\tfrac{1}{2}'} />, marges
+						fonctionnelles <KatexInline formula={'m = (1, 0, \\tfrac{1}{4})'} /> et slacks
+						<KatexInline formula={'\\widehat{\\xi} = (0, 1, \\tfrac{3}{4})'} /> ;
+					</li>
+					<li>
+						objectif primal <KatexInline
+							formula={'\\tfrac{1}{2}\\|\\widehat{w}\\|^2 + C(\\widehat{\\xi}_1 + \\widehat{\\xi}_2 + \\widehat{\\xi}_3) = \\tfrac{1}{8} + \\tfrac{7}{4} = \\tfrac{15}{8}'}
+						/>
+						; objectif dual <KatexInline formula={'\\tfrac{15}{8}'} /> : <strong
+							>dualité forte, écart nul</strong>
+						;
+					</li>
+					<li>
+						les quatre conditions KKT sont vérifiées point par point (en particulier <KatexInline
+							formula={'(C - \\widehat{\\alpha}_i)\\,\\widehat{\\xi}_i = (1, 0, 0) \\cdot (0, 1, \\tfrac{3}{4}) = 0'}
+						/>).
+					</li>
+				</ul>
+				<p>Les trois régimes du bloc précédent, <strong>en un seul exemple</strong> :</p>
+				<table>
+					<thead>
+						<tr>
+							<th>Point</th>
+							<th>m_i</th>
+							<th>ξ_i</th>
+							<th>α_i</th>
+							<th>Régime</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr>
+							<td><KatexInline formula={'x_1 = (1, 0)'} /></td>
+							<td><KatexInline formula={'1'} /></td>
+							<td><KatexInline formula={'0'} /></td>
+							<td><KatexInline formula={'0'} /></td>
+							<td>
+								<strong
+									>sur la marge, mais <KatexInline formula={'\\widehat{\\alpha}_1 = 0'} /></strong
+								>
+								— le « pas forcément tous »
+							</td>
+						</tr>
+						<tr>
+							<td><KatexInline formula={'x_2 = (-1, 0)'} /></td>
+							<td><KatexInline formula={'0'} /></td>
+							<td><KatexInline formula={'1'} /></td>
+							<td><KatexInline formula={'C = 1'} /></td>
+							<td>
+								mal classé (outlier), <KatexInline formula={'\\widehat{\\alpha}_2 = C'} />
+							</td>
+						</tr>
+						<tr>
+							<td><KatexInline formula={'x_3 = (-\\tfrac{1}{2}, 0)'} /></td>
+							<td><KatexInline formula={'\\tfrac{1}{4}'} /></td>
+							<td><KatexInline formula={'\\tfrac{3}{4}'} /></td>
+							<td><KatexInline formula={'C = 1'} /></td>
+							<td>
+								dans la marge, bien classé, <KatexInline formula={'\\widehat{\\alpha}_3 = C'} />
+							</td>
+						</tr>
+					</tbody>
+				</table>
+				<p>
+					Aucun <KatexInline formula={'\\widehat{\\alpha}_i'} /> n'est ici intérieur (<KatexInline
+						formula={'0 < \\widehat{\\alpha}_i < C'}
+					/>) : <KatexInline formula={'\\widehat{b}'} /> n'est <strong>pas unique</strong>. Pour le
+					voir, fixons <KatexInline formula={'\\widehat{w} = (\\tfrac{1}{2}, 0)'} /> et faisons
+					varier <KatexInline formula={'b'} /> : les slacks optimaux sont
+				</p>
+				<KatexBlock formula={kktEx2Slacks} />
+				<p>
+					et pour tout <KatexInline formula={'b \\in ' + kktEx2Bset} /> l'objectif primal vaut
+					<KatexInline formula={'\\tfrac{1}{8} + \\tfrac{7}{4} = \\tfrac{15}{8}'} /> (les termes en
+					<KatexInline formula={'b'} /> se compensent), tandis qu'il est strictement plus grand pour
+					<KatexInline formula={'b < \\tfrac{1}{2}'} /> ou <KatexInline formula={'b > \\tfrac{5}{4}'}
+					/>
+					: l'ensemble des <KatexInline formula={'b'} /> optimales est exactement <KatexInline
+						formula={kktEx2Bset}
+					/>. C'est la remarque de la leçon (« il est possible de prendre une valeur au hasard dans
+					un certain intervalle pour <KatexInline formula={'\\widehat{b}'} /> »), rendue concrète ;
+					le choix <KatexInline formula={'\\widehat{b} = \\tfrac{1}{2}'} /> ci-dessus est la borne
+					inférieure de cet intervalle.
+				</p>
+			</ExampleBlock>
+
+			<Callout type="summary" title="Le pont Partie I → Partie II">
+				<p>
+					Rien de nouveau sous le soleil : le panneau « Conditions KKT et dualité lagrangienne » de
+					la
+					<a href={resolve('/part1/lesson1')}>Partie I, leçon 1</a> (lagrangienne, fonction duale,
+					dualité faible, Slater, dualité forte, conditions KKT) s'applique mot pour mot au QP de la
+					SVM, et fait tout le travail :
+				</p>
+				<ol>
+					<li>
+						la <strong>contrainte</strong> <KatexInline formula={'\\sum_i \\alpha_i y_i = 0'} /> du
+						dual (et la boîte <KatexInline formula={'0 \\leq \\alpha_i \\leq C'} /> en souple) sont
+						les <strong>conditions de finitude</strong> de <KatexInline
+							formula={'\\min_{(w, b, \\xi)} \\mathcal{L}'}
+						/>
+						— elles ne se posent pas, elles s'obtiennent ;
+					</li>
+					<li>
+						la <strong>complémentarité</strong> sélectionne les vecteurs support (<KatexInline
+							formula={'\\alpha_i > 0'}
+						/>, et <KatexInline formula={'w'} /> ne vit que sur eux : la <strong>parcimonie</strong>
+						est un théorème, pas une propriété empirique ;
+					</li>
+					<li>
+						le <strong>noyau</strong> entre parce que toute solution vit dans le span des
+						observations — le primal, lui, ne change pas.
+					</li>
+				</ol>
+				<p>
+					Plus loin dans le cours, cette même marge maximale paie en généralisation : la borne VC de
+					la SVM dépend du rapport marge/rayon des données, et <strong>non</strong> de la dimension
+					ambiante — <a href={resolve('/part9/lesson3')}>Théorème 3.4 (Partie IX, leçon 3)</a>.
+				</p>
+			</Callout>
+
+			<p>
+				<strong>Explorer :</strong> faites glisser <KatexInline formula={'C'} /> — les barres des
+				<KatexInline formula={'\\widehat{\\alpha}_i'} /> se placent sur <KatexInline formula={'0'} />
+				ou sur <KatexInline formula={'C'} />, les régimes des points changent, et les résidus KKT
+				restent ≈ 0 ; retirez des points de <KatexInline formula={'\\widehat{\\alpha}_i = 0'} /> et
+				vérifiez que la frontière ne bouge pas.
+			</p>
+			<DeferredDemo load={() => import('$lib/components/demos/SvmAlphaKktExplorer.svelte')} />
+		</ExpertPanel>
+
 		<Callout type="note" title="Complexité algorithmique">
 			<p>
 				La formulation primale est un problème d'optimisation en
@@ -627,7 +1212,7 @@
 				</li>
 			</ol>
 			<p>
-				<em>Exercice d'entraînement, au-delà des diapositives.</em>
+				<em>Exercice d'entraînement.</em>
 			</p>
 			{#snippet solution()}
 				<p>
@@ -1052,7 +1637,7 @@
 				</li>
 			</ol>
 			<p>
-				<em>Exercice d'entraînement, au-delà des diapositives.</em>
+				<em>Exercice d'entraînement.</em>
 			</p>
 			{#snippet solution()}
 				<p>
@@ -1165,7 +1750,7 @@
 				<KatexInline formula={'-1'} /> n'est pas séparable linéairement dans
 				<KatexInline formula={'\\mathbb{R}^2'} />. Changez de mode : « Sans transformation », « <KatexInline
 					formula={'\\phi(x) = (x_1^2, x_2^2)'}
-				/> » (l'application de la diapositive) ou « polynomial de degré 2 » — les points levés deviennent
+				/> » (la transformation quadratique) ou « polynomial de degré 2 » — les points levés deviennent
 				linéairement séparables dans l'espace de redescription, et la SVM y retrouve un hyperplan de décision.
 				Dans les trois modes, la duale à marge souple est résolue dans l'espace
 				<strong>d'origine</strong> à partir de la matrice de Gram
@@ -1369,7 +1954,7 @@
 				.
 			</p>
 			<p>
-				<em>Exercice de la diapositive « Propriétés du noyau K ».</em>
+				<em>À la suite de la section « Propriétés du noyau K ».</em>
 			</p>
 			{#snippet solution()}
 				<p>
@@ -1470,9 +2055,9 @@
 		<p>Le <strong>classifieur SVM à noyau</strong> s'écrit</p>
 		<KatexBlock formula={finalClassifier} />
 
-		<Callout type="insight" title="Au-delà du cours">
+		<Callout type="insight" title="Prolongements — la SVM au-delà du binaire">
 			<p>
-				Les diapositives évoquent (dans une frame commentée, non développée) que la SVM s'étend à :
+				La SVM s'étend naturellement à :
 			</p>
 			<ul>
 				<li>
@@ -1490,9 +2075,6 @@
 				<a href={resolve('/part5/lesson4')}>Partie V, leçon 4</a>). Quant à l'évaluation théorique de la SVM,
 				la borne de généralisation via la dimension VC est développée dans la
 				<a href={resolve('/part9/lesson3')}>Partie IX, leçon 3</a>.
-			</p>
-			<p>
-				Ce contenu est <strong>au-delà du cours</strong> : il n'est pas développé dans les diapositives.
 			</p>
 		</Callout>
 
@@ -1625,5 +2207,19 @@
 
 	.exercise-table tbody th {
 		text-align: left;
+	}
+
+	.proof-block {
+		padding: 1rem 1.5rem;
+		margin: 1rem 0;
+		border-left: 3px solid var(--color-positive, #4caf50);
+		background-color: color-mix(in srgb, var(--color-positive, #4caf50) 5%, transparent);
+		border-radius: 0 6px 6px 0;
+		font-size: 0.95em;
+		line-height: 1.7;
+	}
+
+	.proof-block p {
+		margin: 0.4rem 0;
 	}
 </style>
