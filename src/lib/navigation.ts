@@ -50,6 +50,12 @@ const RAW_PAGES = [
 	},
 	{ path: '/part2/lesson3', title: 'Arbres de décision', part: 2 },
 	{ path: '/part2/lesson4', title: 'Support Vector Machines (SVM)', part: 2 },
+	{
+		path: '/part2/rkhs-methodes-noyau',
+		title: 'Espaces de Hilbert à noyau (RKHS) et méthodes à noyau',
+		part: 2,
+		expert: true
+	},
 	{ path: '/part2/exercices', title: 'Exercices', part: 2 },
 	{ path: '/part2/practice/travaux-pratiques', title: 'Travaux pratiques', part: 2 },
 

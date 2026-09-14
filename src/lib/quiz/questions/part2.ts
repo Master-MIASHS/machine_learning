@@ -102,5 +102,74 @@ export const PART2: QuizQuestion[] = [
 		options: ['Régression', 'Classification'],
 		answerIndex: 0,
 		explanation: 'Régression : le nombre de clics est une quantité réelle (non finie en général).'
+	},
+	{
+		id: 'p2-rkhs-q1',
+		tags: ['p2/rkhs'],
+		question:
+			'Un noyau K symétrique et semi-défini positif sur un ensemble X implique… (théorème de Moore–Aronszajn, forme complète)',
+		options: [
+			"l'existence d'un unique RKHS H_K dont K est le noyau reproduisant",
+			'que K est nécessairement continu',
+			"qu'il existe plusieurs espaces de Hilbert distincts portant K",
+			'que K est nécessairement universel'
+		],
+		answerIndex: 0,
+		explanation:
+			'K symétrique et PSD ⟺ il existe un unique espace de Hilbert de fonctions H_K pour lequel K est le noyau reproduisant (construction : complétion de span{K(·,x)}). Continuité et universalité ne sont pas garanties — ce sont des propriétés supplémentaires.'
+	},
+	{
+		id: 'p2-rkhs-q2',
+		tags: ['p2/rkhs'],
+		question:
+			'Théorème du représentant : sous quelle condition sur g tout minimiseur de « E (valeurs aux xᵢ) + g(‖f‖_H) » s’écrit Σᵢ αᵢ K(·, xᵢ) ?',
+		options: ['g strictement croissante sur [0, +∞)', 'g convexe', 'E convexe', 'K universel'],
+		answerIndex: 0,
+		explanation:
+			"E est indifférente à la composante de f orthogonale à span{K(·, xᵢ)} (la propriété reproduisante ne voit que les valeurs aux xᵢ) ; g strictement croissante rend cette composante strictement pénalisée, donc nulle au minimiseur. La convexité de g ou de E n'est pas la condition, et l'universalité n'intervient pas."
+	},
+	{
+		id: 'p2-rkhs-q3',
+		tags: ['p2/rkhs'],
+		question:
+			'KRR avec l’objectif (1/n)·Σᵢ (yᵢ − f(xᵢ))² + λ·‖f‖²_HK : la solution canonique est…',
+		options: [
+			'α* = (K + nλI)⁻¹ y',
+			'α* = (K + λI)⁻¹ y',
+			'α* = (1/n)(K + λI)⁻¹ y',
+			'α* = K(K + λI)⁻¹ y'
+		],
+		answerIndex: 0,
+		explanation:
+			'Le théorème du représentant réduit à α ∈ ℝⁿ et ‖f‖² = αᵀKα ; l’équation du premier ordre donne K(K + nλI)α = Ky, d’où α* = (K + nλI)⁻¹y. Le facteur n vient du 1/n de la perte — les autres écritures correspondent à d’autres conventions d’objectif (scikit-learn omet le 1/n).'
+	},
+	{
+		id: 'p2-rkhs-q4',
+		tags: ['p2/rkhs'],
+		question: 'Lequel de ces noyaux est universel sur un compact de ℝᵈ ?',
+		options: [
+			'le gaussien exp(−‖x − x′‖² / (2σ²))',
+			'le noyau linéaire xᵀx′',
+			'tout noyau symétrique semi-défini positif',
+			'le noyau boîte 1{‖x − x′‖ ≤ r}'
+		],
+		answerIndex: 0,
+		explanation:
+			"D'après Bochner + Micchelli–Xu–Zhang (2006) : un noyau invariant par translation est universel si et seulement si sa mesure spectrale est strictement positive ; la transformée de Fourier du noyau gaussien est une densité gaussienne strictement positive partout. Le noyau linéaire a un RKHS fini (fonctions affines), et le noyau boîte n'est pas continu."
+	},
+	{
+		id: 'p2-rkhs-q5',
+		tags: ['p2/rkhs'],
+		question:
+			'Pour que la KRR à noyau universel soit consistante en L²(μ) quand n → ∞, il faut que le paramètre λₙ vérifie…',
+		options: [
+			'λₙ → 0 et n·λₙ → +∞',
+			'λₙ → +∞',
+			'λₙ constant > 0',
+			'n·λₙ → 0'
+		],
+		answerIndex: 0,
+		explanation:
+			'λₙ → 0 fait disparaître le biais (sinon f* → 0) ; n·λₙ → +∞ garde assez de régularisation pour contrôler le bruit (variance). C’est le même arbitrage biais/variance que pour le k-NN (Partie VIII, leçon 2), avec λₙ = n^(−1/3) comme exemple valide.'
 	}
 ];

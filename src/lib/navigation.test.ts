@@ -13,11 +13,15 @@ async function load() {
 }
 
 describe('PAGES', () => {
-	it('contains exactly two expert pages (Adam, méthodes proximales)', async () => {
+	it('contains exactly three expert pages (Adam, méthodes proximales, RKHS)', async () => {
 		const { PAGES } = await load();
 		const experts = PAGES.filter((p) => p.expert);
-		expect(experts).toHaveLength(2);
-		expect(experts.map((p) => p.path)).toEqual(['/part1/lesson3-adam', '/part1/methodes-proximales']);
+		expect(experts).toHaveLength(3);
+		expect(experts.map((p) => p.path)).toEqual([
+			'/part1/lesson3-adam',
+			'/part1/methodes-proximales',
+			'/part2/rkhs-methodes-noyau'
+		]);
 	});
 
 	it('orders the Adam page between lesson3 and lesson4 of part 1', async () => {
@@ -52,8 +56,10 @@ describe('reserved parts (classification supervisée & clustering)', () => {
 		expect(PAGES[idx + 1].path).toBe('/part2/lesson2');
 		expect(PAGES[idx + 2].path).toBe('/part2/lesson3');
 		expect(PAGES[idx + 3].path).toBe('/part2/lesson4');
-		expect(PAGES[idx + 4].path).toBe('/part2/exercices');
-		expect(PAGES[idx + 5].path).toBe('/part2/practice/travaux-pratiques');
+		expect(PAGES[idx + 4].path).toBe('/part2/rkhs-methodes-noyau');
+		expect(PAGES[idx + 4].expert).toBe(true);
+		expect(PAGES[idx + 5].path).toBe('/part2/exercices');
+		expect(PAGES[idx + 6].path).toBe('/part2/practice/travaux-pratiques');
 	});
 
 	it('registers the reserved Part III (clustering) pages in course order', async () => {
@@ -169,6 +175,28 @@ describe('getAdjacentPages', () => {
 		expect(getAdjacentPages('/part1/lesson4', true).next?.path).toBe('/part1/methodes-proximales');
 		expect(getAdjacentPages('/part1/quiz', false).prev?.path).toBe('/part1/lesson4');
 		expect(getAdjacentPages('/part1/quiz', true).prev?.path).toBe('/part1/methodes-proximales');
+	});
+
+	it('gives lesson4/exercices as prev/next of the RKHS page in expert mode', async () => {
+		const { getAdjacentPages } = await load();
+		const { prev, next } = getAdjacentPages('/part2/rkhs-methodes-noyau', true);
+		expect(prev?.path).toBe('/part2/lesson4');
+		expect(next?.path).toBe('/part2/exercices');
+	});
+
+	it('hides the RKHS page entirely in default mode (no prev/next for it)', async () => {
+		const { getAdjacentPages } = await load();
+		const { prev, next } = getAdjacentPages('/part2/rkhs-methodes-noyau', false);
+		expect(prev).toBeUndefined();
+		expect(next).toBeUndefined();
+	});
+
+	it('bridges the RKHS page: lesson4 → exercices in default mode, via RKHS in expert mode', async () => {
+		const { getAdjacentPages } = await load();
+		expect(getAdjacentPages('/part2/lesson4', false).next?.path).toBe('/part2/exercices');
+		expect(getAdjacentPages('/part2/lesson4', true).next?.path).toBe('/part2/rkhs-methodes-noyau');
+		expect(getAdjacentPages('/part2/exercices', false).prev?.path).toBe('/part2/lesson4');
+		expect(getAdjacentPages('/part2/exercices', true).prev?.path).toBe('/part2/rkhs-methodes-noyau');
 	});
 
 	it('returns no prev for home and intro as next (both modes)', async () => {

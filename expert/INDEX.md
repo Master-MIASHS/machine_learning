@@ -46,7 +46,7 @@ Légende des statuts et prompt de spawn : voir [README.md](README.md).
 | [p2-l2-biais-implicite-sgd-max-margin](part2/lesson2/biais-implicite-sgd-max-margin.md) | Biais implicite du SGD : vers la solution max-margin | panel | research | 3 | pending |
 | [p2-l3-impurete-vue-informationnelle](part2/lesson3/impurete-vue-informationnelle.md) | Critères d'impureté : vue informationnelle | panel | m2 | 2 | pending |
 | [p2-l4-svm-dualite-kkt](part2/lesson4/svm-dualite-kkt.md) | Dualité KKT de la SVM : vecteurs support et parcimonie | panel | m2 | 1 | implemented |
-| [p2-lesson-rkhs-methodes-noyau](part2/lessons/rkhs-methodes-noyau.md) | Espaces de Hilbert à noyau (RKHS) et méthodes à noyau | lesson | m2 | 1 | pending |
+| [p2-lesson-rkhs-methodes-noyau](part2/lessons/rkhs-methodes-noyau.md) | Espaces de Hilbert à noyau (RKHS) et méthodes à noyau | lesson | m2 | 1 | implemented |
 
 ## Part III — Clustering (6)
 

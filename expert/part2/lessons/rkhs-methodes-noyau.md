@@ -7,7 +7,7 @@ anchor: null
 title: "Espaces de Hilbert à noyau (RKHS) et méthodes à noyau"
 level: m2
 priority: 1
-status: pending
+status: implemented
 related: [p2-l4-svm-dualite-kkt, p2-l1-estimateurs-noyau-nadaraya-watson, p9-lesson-ntk-generalisation-moderne]
 sources:
   - course_sources/marine/Cours/CM/coursClassif-4-SVM.tex

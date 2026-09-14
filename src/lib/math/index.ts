@@ -39,6 +39,7 @@ export * from './synthetic-data.js';
 export * from './regression.js';
 export * from './loss-functions.js';
 export * from './regularization.js';
+export * from './rkhs.js';
 export * from './ensemble.js';
 export * from './diversity.js';
 export * from './random-forest.js';
