@@ -107,6 +107,14 @@
 
 	const moreau = String.raw`v = \operatorname{prox}_{f}(v) + \operatorname{prox}_{f^{*}}(v)`;
 
+	const fenchelDef = String.raw`f^{*}(y) = \sup_{x \in \mathbb{R}^{n}}\; \big( y^{\top} x - f(x) \big)`;
+
+	const fenchelYoung = String.raw`f(x) + f^{*}(y) \ge x^{\top} y`;
+
+	const fenchelAffine = String.raw`x \mapsto y^{\top} x - f^{*}(y)`;
+
+	const fenchelAbs = String.raw`f^{*}(y) = \sup_{x \in \mathbb{R}}\; \big( yx - |x| \big) = \begin{cases} 0 & \text{si } |y| \le 1 \\ +\infty & \text{sinon} \end{cases}`;
+
 	const ista = String.raw`x^{k+1} = \operatorname{prox}_{\frac{1}{L}\, g}\!\left( x^{k} - \frac{1}{L}\,\nabla f(x^{k}) \right)`;
 
 	const istaLasso = String.raw`\theta^{k+1} = S_{\lambda/L}\!\left( \theta^{k} - \frac{1}{L}\, X^{\top}(X\theta^{k} - y) \right)`;
@@ -349,6 +357,88 @@
 			</p>
 		</TheoremBlock>
 
+		<DefinitionBlock title="Conjuguée de Fenchel (conjugée convexe)">
+			<p>
+				Soit <KatexInline formula="f" /> une fonction convexe fermée propre de
+				<KatexInline formula={String.raw`\mathbb{R}^{n}`} /> dans
+				<KatexInline formula={String.raw`\mathbb{R} \cup \{+\infty\}`} />. Sa <strong>conjugée de Fenchel</strong>
+				(<em>conjugée convexe</em>) est la fonction
+			</p>
+			<KatexBlock formula={fenchelDef} />
+			<p>
+				(Parikh & Boyd 2014 §2.5 ; Boyd & Vandenberghe §3.3.1, eq. (3.18)) ; elle vaut
+				<KatexInline formula={String.raw`+\infty`} /> lorsque le supremum est infini, et son domaine est
+				l'ensemble des <KatexInline formula="y" /> pour lesquels il est fini.
+			</p>
+			<p>
+				<strong>Lecture</strong> : pour chaque « pente » <KatexInline formula="y" />, l'hyperplan affine
+				<KatexInline formula={fenchelAffine} /> est le <em>plus haut</em> de pente <KatexInline formula="y"
+				/>
+				qui reste sous <KatexInline formula="f" /> — la conjugée paramètre donc les
+				<strong>hyperplans support</strong> de <KatexInline formula="f" /> (l'ordonnée à l'origine
+				<KatexInline formula={String.raw`-f^{*}(y)`} /> est la plus grande qui convienne). Équivalentement,
+				l'inégalité de Fenchel (Boyd & Vandenberghe §3.3.2) :
+			</p>
+			<KatexBlock formula={fenchelYoung} />
+			<p>
+				avec égalité seulement si l'hyperplan est support. Deux faits suffiront pour la suite :
+			</p>
+			<ul>
+				<li>
+					<KatexInline formula={String.raw`f^{**} = f`} /> pour <KatexInline formula="f" /> convexe fermée
+					propre (bi-conjugée, Boyd & Vandenberghe §3.3.2) ;
+				</li>
+				<li>
+					pour une <em>norme</em>, la conjugée est la fonction indicatrice de la <strong>boule unité de la
+					norme duale</strong> : <KatexInline
+						formula={String.raw`\lVert\cdot\rVert^{*} = \iota_{B}`} /> avec
+					<KatexInline formula={String.raw`B = \{y \mid \lVert y \rVert_{\mathrm{duale}} \le 1\}`} />
+					(Parikh & Boyd 2014 §6.5 ; Boyd & Vandenberghe Exemple 3.26).
+				</li>
+			</ul>
+			<p>
+				C'est ce second fait qui rend la décomposition de Moreau ci-dessous <em>calculable</em> : le proximal
+				d'une norme se réduit à une projection sur la boule duale.
+			</p>
+		</DefinitionBlock>
+
+		<ExampleBlock title="Calcul direct : la conjugée de |·| en 1D">
+			<p>
+				Pour <KatexInline formula={String.raw`f(x) = |x|`} />, appliquons la définition sans astuce :
+			</p>
+			<KatexBlock formula={fenchelAbs} />
+			<ul>
+				<li>
+					Si <KatexInline formula={String.raw`|y| \le 1`} /> : <KatexInline
+						formula={String.raw`yx - |x| \le |y|\,|x| - |x| \le 0`}
+					/> et le maximum <KatexInline formula="0" /> est atteint en <KatexInline formula="x = 0" />.
+				</li>
+				<li>
+					Si <KatexInline formula={String.raw`y > 1`} /> : pour <KatexInline formula="x > 0" />,
+					<KatexInline formula={String.raw`yx - |x| = (y - 1)x \to +\infty`} />.
+				</li>
+				<li>
+					Si <KatexInline formula={String.raw`y < -1`} /> : symétriquement, pour <KatexInline
+						formula="x < 0"
+					/>, <KatexInline formula={String.raw`yx - |x| = (y + 1)x \to +\infty`} /> (car
+					<KatexInline formula={String.raw`y + 1 < 0`} /> et <KatexInline formula="x" /> tend vers
+					<KatexInline formula={String.raw`-\infty`} />).
+				</li>
+			</ul>
+			<p>
+				On retrouve <KatexInline
+					formula={String.raw`\lVert\cdot\rVert_1^{*} = \iota_{[-1, 1]}`}
+				/> : la conjugée de la norme 1 en dimension 1 est l'indicatrice de
+				<KatexInline formula={String.raw`[-1, 1]`} /> — la « boule duale » de
+				<KatexInline formula={String.raw`\lVert\cdot\rVert_1`} /> est la boule
+				<KatexInline formula={String.raw`\lVert\cdot\rVert_{\infty`} />. C'est exactement ce que la conséquence
+				pratique de la décomposition de Moreau ci-dessous exploite : tronquer <KatexInline
+					formula="v"
+				/>
+				en <KatexInline formula={String.raw`[-\lambda, \lambda]`} /> et soustraire.
+			</p>
+		</ExampleBlock>
+
 		<TheoremBlock title="Décomposition de Moreau">
 			<p>
 				Pour toute fonction convexe fermée propre <KatexInline formula="f" /> et tout <KatexInline
@@ -357,9 +447,9 @@
 			</p>
 			<KatexBlock formula={moreau} />
 			<p>
-				où <KatexInline formula={String.raw`f^{*}`} /> est la conjugée convexe de
-				<KatexInline formula="f" /> (« This property, known as Moreau decomposition, is the main relationship
-				between proximal operators and duality. »).
+				où <KatexInline formula={String.raw`f^{*}`} /> est la conjugée de Fenchel de
+				<KatexInline formula="f" /> (définie ci-dessus ; Parikh & Boyd 2014 §2.5 : « This property, known as
+				Moreau decomposition, is the main relationship between proximal operators and duality. »).
 			</p>
 			<p>
 				<strong>Conséquence pratique</strong> (Parikh & Boyd 2014 §6.5.2) : comme
@@ -1095,6 +1185,14 @@ Arrêt : ‖θᵏ − θ^{k−1}‖ < tol  ou  k = K_max`}</pre>
 			year={1983}
 			title="A method for solving the convex programming problem with convergence rate O(1/k²)"
 			journal="Dokl. Akad. Nauk SSSR, 269:543–547 (en russe) — cité par Beck & Teboulle 2009, ref. 27."
+		/>
+
+		<BibElement
+			authors={['Boyd, S.', 'Vandenberghe, L.']}
+			year={2004}
+			title="Convex Optimization"
+			journal="Cambridge University Press."
+			link="https://web.stanford.edu/~boyd/cvxbook/"
 		/>
 	</Bibliography>
 </PageTemplate>

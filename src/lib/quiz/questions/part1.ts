@@ -707,5 +707,19 @@ export const PART1: QuizQuestion[] = [
 		answerIndex: 0,
 		explanation:
 			"ISTA (Parikh & Boyd 2014 §4.2) traite min f(x) + g(x) où ∇f est L-Lipschitz et g convexe fermé propre (non lisse autorisé : ‖·‖₁, indicatrice, …) à condition de savoir calculer prox de g. Si f et g sont lisses, c'est simplement du gradient ; la puissance du cadre est de couvrir la partie non lisse (Parikh & Boyd 2014 §4.2, Beck & Teboulle 2009 §2.2)."
+	},
+	{
+		id: 'p1-proximal-q6',
+		tags: ['p1/proximal'],
+		question: "Que vaut la conjugée convexe f* de f(x) = |x| ?",
+		options: [
+			'0 si |y| ≤ 1, +∞ sinon — l\'indicatrice de [−1, 1]',
+			'|y| : la conjugée de |·| est |·| elle-même',
+			'0 partout : le supremum de yx − |x| est toujours 0',
+			'partie positive y⁺ = max(y, 0)'
+		],
+		answerIndex: 0,
+		explanation:
+			"Par définition, f*(y) = sup_x (yx − |x|) : si |y| ≤ 1 alors yx − |x| ≤ |y||x| − |x| ≤ 0 (atteint en x = 0) ; si y > 1 alors (y−1)x → +∞ en x → +∞ ; symétriquement si y < −1. Donc f* = ι_[−1,1] : c'est le cas 1D de ‖·‖₁* = ι_B (indicatrice de la boule duale, Parikh & Boyd 2014 §6.5 ; Boyd & Vandenberghe Exemple 3.26) — et c'est ce qui, via la décomposition de Moreau, transforme le soft-thresholding en troncature sur [−λ, λ]."
 	}
 ];
