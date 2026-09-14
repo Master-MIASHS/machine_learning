@@ -133,7 +133,12 @@
 	// La frontière a-t-elle bougé après suppression de points (α = 0) ?
 	// Comparaison des hyperplans à l'échelle près : (w, b) et (kw, kb)
 	// définissent la même droite, et (w, b) ~ (−w, −b).
-	const boundaryMoved = $derived.by((): 'moved' | 'same' | null => {
+	// « b-shift » : ŵ inchangé mais b décalé — attendu lorsque b n'est pas
+	// unique (aucun α̂ intérieur) : retirer un point de α = 0 retire une
+	// borne de KKT sur b et l'ensemble des b optimales s'élarge
+	// (Proposition du panneau, « point d'attention »).
+	const fullHasInterior = $derived(fullSol.alphas.some((a) => a > ALPHA_TOL && a < C - ALPHA_TOL));
+	const boundaryMoved = $derived.by((): 'moved' | 'same' | 'b-shift' | null => {
 		if (removed.length === 0) return null;
 		const n0 = norm(fullSol.w);
 		const n1 = norm(sol.w);
@@ -147,7 +152,9 @@
 			db = Math.abs(fullSol.b / n0 + sol.b / n1);
 		}
 		const angle = Math.acos(Math.max(-1, Math.min(1, cos)));
-		return angle > Math.PI / 180 || db > 0.05 ? 'moved' : 'same';
+		if (angle > Math.PI / 180) return 'moved';
+		if (db > 0.05) return fullHasInterior ? 'moved' : 'b-shift';
+		return 'same';
 	});
 
 	// ── Projection (mirror de ScatterPlot, pad = 4) ─────────────────────
@@ -471,8 +478,15 @@
 				{#if boundaryMoved !== null}
 					<div class="row">
 						<span class="k">Frontière après retrait</span>
-						<span class="v" class:ok={boundaryMoved === 'same'}>
-							{boundaryMoved === 'same' ? 'inchangée' : 'a bougé'}
+						<span
+							class="v"
+							class:ok={boundaryMoved === 'same'}
+							class:warn={boundaryMoved === 'b-shift' || boundaryMoved === 'moved'}>
+							{boundaryMoved === 'same'
+								? 'inchangée'
+								: boundaryMoved === 'b-shift'
+									? 'ŵ inchangé (b non unique)'
+									: 'a bougé'}
 						</span>
 					</div>
 				{/if}
@@ -565,7 +579,9 @@
 		la marge, rose = dans la marge, gris = à l'extérieur ; les points creusés (petit disque
 		central) sont de classe −1. Étoile = vecteur support (0 &lt; α̂ &lt; C), anneau = α̂ = C,
 		carré = mal classé. Cliquez sur un point gris (α̂ = 0) pour le retirer du jeu : la frontière
-		ne bouge pas — c'est la Proposition du panneau, rendue visible. Le solveur est le SMO de la
+		ne bouge pas — c'est la Proposition du panneau, rendue visible ; s'il n'y a aucune étoile
+		(aucun α̂ intérieur), b n'est pas unique et la droite peut se décaler légèrement en parallèle
+		sans changer ŵ. Le solveur est le SMO de la
 		leçon (solveSvmDual) ; les deux résidus KKT sont recalculés depuis les marges, d'où leur
 		valeur « ≈ 0 » quelle que soit la solution numérique.
 	</p>
@@ -629,6 +645,10 @@
 
 	.row .v.ok {
 		color: var(--color-positive);
+	}
+
+	.row .v.warn {
+		color: var(--color-surprise);
 	}
 
 	.grp {
