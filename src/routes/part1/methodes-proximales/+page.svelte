@@ -196,10 +196,7 @@
 		<!-- ========================================================= -->
 		<h2 id="operateur-proximal">L'opérateur proximal</h2>
 
-		<DefinitionBlock
-			number="Parikh &amp; Boyd 2014, §1.1, eq. (1.1)–(1.2)"
-			title="Opérateur proximal"
-		>
+		<DefinitionBlock title="Opérateur proximal">
 			<p>
 				Soit <KatexInline formula={String.raw`f : \mathbb{R}^n \to \mathbb{R} \cup \{+\infty\}`} /> une
 				fonction convexe fermée propre. L'opérateur proximal de <KatexInline formula="f" /> est l'application
@@ -250,10 +247,7 @@
 			</p>
 		</Callout>
 
-		<ExampleBlock
-			number="Parikh &amp; Boyd 2014, §6.5.2, eq. (6.9)"
-			title="Soft-thresholding : le proximal du ‖·‖₁"
-		>
+		<ExampleBlock title="Soft-thresholding : le proximal du ‖·‖₁">
 			<p>
 				Pour <KatexInline formula={String.raw`f = \lVert\cdot\rVert_1`} />, la minimisation est
 				séparable coordonnée par coordonnée. En une dimension :
@@ -310,10 +304,7 @@
 			</p>
 		</ExampleBlock>
 
-		<TheoremBlock
-			number="Parikh &amp; Boyd 2014, §3.2, eq. (3.4)"
-			title="Proximal = résolvante du sous-différentiel"
-		>
+		<TheoremBlock title="Proximal = résolvante du sous-différentiel">
 			<p>
 				Pour <KatexInline formula="f" /> convexe fermée propre et
 				<KatexInline formula={String.raw`\lambda > 0`} /> :
@@ -327,7 +318,7 @@
 			</p>
 			<KatexBlock formula={resolventChar} />
 			<p>
-				<strong>Esquisse de la preuve</strong> (PB14 §3.2) :
+				<strong>Esquisse de la preuve</strong> (Parikh & Boyd 2014 §3.2) :
 				<KatexInline formula={String.raw`z \in (I + \lambda\partial f)^{-1}(x)`} /> ⟺
 				<KatexInline formula={String.raw`x \in z + \lambda\partial f(z)`} /> ⟺
 				<KatexInline formula={String.raw`0 \in \partial f(z) + \frac{1}{\lambda}(z - x)`} /> ⟺
@@ -358,7 +349,7 @@
 			</p>
 		</TheoremBlock>
 
-		<TheoremBlock number="Parikh &amp; Boyd 2014, §2.5, eq. (2.4)" title="Décomposition de Moreau">
+		<TheoremBlock title="Décomposition de Moreau">
 			<p>
 				Pour toute fonction convexe fermée propre <KatexInline formula="f" /> et tout <KatexInline
 					formula="v"
@@ -371,7 +362,7 @@
 				between proximal operators and duality. »).
 			</p>
 			<p>
-				<strong>Conséquence pratique</strong> (PB14 §6.5.2) : comme
+				<strong>Conséquence pratique</strong> (Parikh & Boyd 2014 §6.5.2) : comme
 				<KatexInline formula={String.raw`\lVert\cdot\rVert_1^{*} = \iota_{B}`} /> avec
 				<KatexInline formula={String.raw`B = \{w \mid \lVert w \rVert_{\infty} \le \lambda\}`} /> (boule
 				duale), on a <KatexInline
@@ -386,7 +377,7 @@
 		</TheoremBlock>
 
 		<InteractiveSection
-			number="P.1"
+			number="E.1"
 			title="Le proximal en 1D : visualiser le compromis"
 			onInteract={tracker.trackInteraction}
 		>
@@ -398,10 +389,7 @@
 		<!-- ========================================================= -->
 		<h2 id="descente-proximale">La descente proximale (ISTA)</h2>
 
-		<DefinitionBlock
-			number="Parikh &amp; Boyd 2014, §4.2, eq. (4.6)"
-			title="Algorithme ISTA / descente proximale"
-		>
+		<DefinitionBlock title="Algorithme ISTA / descente proximale">
 			<p>
 				Pour minimiser <KatexInline formula={String.raw`F(x) = f(x) + g(x)`} /> (<KatexInline
 					formula="f"
@@ -414,13 +402,13 @@
 				avec pas constant <KatexInline formula={String.raw`\lambda = 1/L`} /> (plus généralement tout
 				<KatexInline formula={String.raw`\lambda \in (0, 1/L]`} />, et même <KatexInline
 					formula={String.raw`\lambda < 2/L`}
-				/> pour la convergence — PB14 §4.2). Chaque itération :
+				/> pour la convergence — Parikh & Boyd 2014 §4.2). Chaque itération :
 				<strong
 					>un pas de gradient sur la partie lisse, puis un proximal sur la partie non lisse</strong
 				>
 				— d'où le nom
 				<em>forward-backward</em> (Euler explicite sur <KatexInline formula="f" />, implicite sur
-				<KatexInline formula="g" /> ; PB14 §4.2 « Forward-backward integration of gradient flow »).
+				<KatexInline formula="g" /> ; Parikh & Boyd 2014 §4.2 « Forward-backward integration of gradient flow »).
 			</p>
 			<p>
 				Pour le Lasso avec <KatexInline
@@ -432,8 +420,8 @@
 			</p>
 			<KatexBlock formula={istaLasso} />
 			<p>
-				c'est l'<strong>ISTA</strong> (iterative shrinkage-thresholding algorithm, PB14 §7.1.1 /
-				BT09 eq. (1.4)–(1.5)). Le facteur
+				c'est l'<strong>ISTA</strong> (iterative shrinkage-thresholding algorithm, Parikh & Boyd 2014 §7.1.1 /
+				Beck & Teboulle 2009 eq. (1.4)–(1.5)). Le facteur
 				<KatexInline formula={String.raw`\frac{1}{2}`} /> dans
 				<KatexInline formula={String.raw`f(\theta) = \frac{1}{2}\lVert y - X\theta\rVert_2^2`} /> est
 				une convention d'écriture qui ne change pas les minimiseurs de la Définition 5.2 du cours ; elle
@@ -444,7 +432,7 @@
 			</p>
 		</DefinitionBlock>
 
-		<TheoremBlock number="Beck &amp; Teboulle 2009, Théorème 3.1" title="Taux O(1/k)">
+		<TheoremBlock title="Taux O(1/k)">
 			<p>
 				Soit <KatexInline formula={String.raw`\{x^{k}\}`} /> la suite ISTA (pas constant
 				<KatexInline formula={String.raw`1/L`} /> ou backtracking). Alors pour tout
@@ -462,12 +450,12 @@
 				précision <KatexInline formula={String.raw`\varepsilon`} /> en valeur coûte
 				<KatexInline formula={String.raw`O(L\lVert x^{0} - x^{*}\rVert^2/\varepsilon)`} /> itérations,
 				chacune coutant un produit matrice-vecteur par <KatexInline formula={String.raw`X`} /> et par
-				<KatexInline formula={String.raw`X^{\top}`} /> (PB14 §7.1.1) — la partie proximale ne dépend pas
+				<KatexInline formula={String.raw`X^{\top}`} /> (Parikh & Boyd 2014 §7.1.1) — la partie proximale ne dépend pas
 				de la dimension <KatexInline formula="d" />.
 			</p>
 		</TheoremBlock>
 
-		<Callout type="insight" title="Un algorithme, trois visages (PB14 §4.2, « Special cases »)">
+		<Callout type="insight" title="Un algorithme, trois visages (Parikh & Boyd 2014 §4.2, « Special cases »)">
 			<ul>
 				<li>
 					<KatexInline formula={String.raw`g = \iota_{C}`} /> (contrainte) :
@@ -489,7 +477,7 @@
 		</Callout>
 
 		<ExampleBlock
-			title="Pourquoi le taux ne peut pas être meilleur, sans accélération (PB14 §4.3, BT09 §1.2)"
+			title="Pourquoi le taux ne peut pas être meilleur, sans accélération (Parikh & Boyd 2014 §4.3, Beck & Teboulle 2009 §1.2)"
 		>
 			<p>
 				Le taux <KatexInline formula={String.raw`O(1/k)`} /> de l'ISTA est
@@ -508,7 +496,7 @@
 		<!-- ========================================================= -->
 		<h2 id="fista">FISTA : l'accélération</h2>
 
-		<DefinitionBlock number="Beck &amp; Teboulle 2009, eq. (4.1)–(4.3)" title="Algorithme FISTA">
+		<DefinitionBlock title="Algorithme FISTA">
 			<p>
 				Même problème <KatexInline formula={String.raw`\min f(x) + g(x)`} />,
 				<KatexInline formula={String.raw`\nabla f`} />
@@ -543,23 +531,23 @@
 					formula={String.raw`x^{k-1}`}
 				/>) plutôt qu'à <KatexInline formula={String.raw`x^{k-1}`} />. Le coût d'itération est
 				<strong>identique</strong> (un gradient + un proximal) ; le surcoût de (4.2)–(4.3) est
-				marginal (BT09 §4). La récurrence (4.2) donne
-				<KatexInline formula={String.raw`t_{k} \ge \frac{k+1}{2}`} /> (BT09, Lemme 4.3) — le « momentum
+				marginal (Beck & Teboulle 2009 §4). La récurrence (4.2) donne
+				<KatexInline formula={String.raw`t_{k} \ge \frac{k+1}{2}`} /> (Beck & Teboulle 2009, Lemme 4.3) — le « momentum
 				» croît linéairement.
 			</p>
 			<p>
-				<strong>Variante backtracking</strong> (BT09 §4) : si <KatexInline
+				<strong>Variante backtracking</strong> (Beck & Teboulle 2009 §4) : si <KatexInline
 					formula={String.raw`L`}
 				/> est inconnu, on choisit <KatexInline formula={String.raw`L_{k}`} /> par backtracking (le plus
 				petit
 				<KatexInline formula={String.raw`\bar{L} = \eta^{i_{k}} L_{k-1}`} /> tel que le modèle quadratique
 				majorant soit vérifié) ; le taux est alors garanti avec
 				<KatexInline formula={String.raw`\alpha = \eta`} /> au lieu de
-				<KatexInline formula={String.raw`\alpha = 1`} /> (PB14 §4.2–§4.3 donnent la même line search).
+				<KatexInline formula={String.raw`\alpha = 1`} /> (Parikh & Boyd 2014 §4.2–§4.3 donnent la même line search).
 			</p>
 		</DefinitionBlock>
 
-		<TheoremBlock number="Beck &amp; Teboulle 2009, Théorème 4.4" title="Taux O(1/k²) — optimal">
+		<TheoremBlock title="Taux O(1/k²) — optimal">
 			<p>
 				Soit <KatexInline formula={String.raw`\{x^{k}\}`} /> la suite FISTA (pas constant). Alors pour
 				tout <KatexInline formula={String.raw`k \ge 1`} /> et tout minimiseur
@@ -571,13 +559,13 @@
 				<KatexInline formula={String.raw`2C/(k+1)^2`} />. Pour atteindre une précision
 				<KatexInline formula={String.raw`\varepsilon`} /> :
 				<KatexInline formula={String.raw`O(\sqrt{C/\varepsilon})`} /> itérations au lieu de
-				<KatexInline formula={String.raw`O(C/\varepsilon)`} /> — <strong>le carré s'épare</strong> (BT09
+				<KatexInline formula={String.raw`O(C/\varepsilon)`} /> — <strong>le carré s'épare</strong> (Beck & Teboulle 2009
 				: « which clearly improves ISTA »).
 			</p>
 			<p>
 				Ce taux est <strong>optimal au pire cas</strong> parmi les méthodes au premier ordre pour les
 				problèmes convexes composites lisse + convexe : il ne peut pas être amélioré sans information
-				supplémentaire (BT09 §1.2, §4, d'après Nesterov 1983 et Nemirovsky–Yudin 1979 ; PB14 §4.3 « cannot
+				supplémentaire (Beck & Teboulle 2009 §1.2, §4, d'après Nesterov 1983 et Nemirovsky–Yudin 1979 ; Parikh & Boyd 2014 §4.3 « cannot
 				be improved further »).
 			</p>
 		</TheoremBlock>
@@ -598,7 +586,7 @@
 		</Callout>
 
 		<InteractiveSection
-			number="P.2"
+			number="E.2"
 			title="ISTA vs FISTA vs ADMM sur un Lasso synthétique"
 			onInteract={tracker.trackInteraction}
 		>
@@ -610,10 +598,7 @@
 		<!-- ========================================================= -->
 		<h2 id="admm">L'ADMM</h2>
 
-		<DefinitionBlock
-			number="Boyd et al. 2011, §3.1, eq. (3.1)–(3.7)"
-			title="ADMM : éclatement de variables"
-		>
+		<DefinitionBlock title="ADMM : éclatement de variables">
 			<p>
 				L'ADMM (alternating direction method of multipliers) résout des problèmes où l'objectif est <strong
 					>séparable après éclatement</strong
@@ -632,10 +617,10 @@
 			<KatexBlock formula={admmU} />
 			<p>
 				<KatexInline formula={String.raw`\rho > 0`} /> est la pénalité de la lagrangienne augmentée ;
-				<KatexInline formula={String.raw`u^{k}`} /> est la somme cumulée des résidus (BPC11 §3.1.1).
+				<KatexInline formula={String.raw`u^{k}`} /> est la somme cumulée des résidus (Boyd et al. 2011 §3.1.1).
 			</p>
 			<p>
-				<strong>Mécanique</strong> (BPC11 §3.1) : on forme la lagrangienne augmentée
+				<strong>Mécanique</strong> (Boyd et al. 2011 §3.1) : on forme la lagrangienne augmentée
 				<KatexInline
 					formula={String.raw`L_{\rho}(x, z, y) = f(x) + g(z) + y^{\top}(Ax + Bz - c) + \frac{\rho}{2}\lVert Ax + Bz - c\rVert^2`}
 				/>
@@ -648,7 +633,7 @@
 			</p>
 		</DefinitionBlock>
 
-		<TheoremBlock number="Boyd et al. 2011, §3.2 (Assumptions 1–2)" title="Convergence de l'ADMM">
+		<TheoremBlock title="Convergence de l'ADMM">
 			<p>Sous deux hypothèses :</p>
 			<ol>
 				<li>
@@ -662,7 +647,7 @@
 			</ol>
 			<p>
 				les itérations ADMM <strong>convergent</strong> (résultat « basic but still very general » ;
-				preuve en annexe A de BPC11). Aucun rang minimum n'est exigé de
+				preuve en annexe A de Boyd et al. 2011). Aucun rang minimum n'est exigé de
 				<KatexInline formula="A" /> ou <KatexInline formula="B" />.
 			</p>
 			<p>
@@ -674,10 +659,7 @@
 			</p>
 		</TheoremBlock>
 
-		<DefinitionBlock
-			number="Boyd et al. 2011, §6.3–§6.4, eq. (6.2)"
-			title="L'ADMM appliqué au Lasso"
-		>
+		<DefinitionBlock title="L'ADMM appliqué au Lasso">
 			<p>
 				Lasso <KatexInline
 					formula={String.raw`\min \frac{1}{2}\lVert Ax - b\rVert^2 + \lambda\lVert x\rVert_1`}
@@ -685,7 +667,7 @@
 				<KatexInline formula={String.raw`x - z = 0`} /> avec
 				<KatexInline formula={String.raw`f(x) = \frac{1}{2}\lVert Ax - b\rVert^2`} />,
 				<KatexInline formula={String.raw`g(z) = \lambda\lVert z\rVert_1`} />. Les deux minimisations
-				ont une forme close (BPC11 §6.4) :
+				ont une forme close (Boyd et al. 2011 §6.4) :
 			</p>
 			<KatexBlock formula={lassoAdmmX} />
 			<p class="algo-annot">← un Ridge (système symétrique défini positif)</p>
@@ -698,11 +680,11 @@
 				<strong>toujours inversible</strong>
 				(<KatexInline formula={String.raw`\rho > 0`} />) ; sa factorisation se calcule une fois pour
 				toutes (« The x-update is essentially a ridge regression … ADMM can be interpreted as a
-				method for solving the lasso problem by iteratively carrying out ridge regression. » — BPC11
+				method for solving the lasso problem by iteratively carrying out ridge regression. » — Boyd et al. 2011
 				§6.4).
 			</p>
 			<p>
-				<strong>Généralisation</strong> (BPC11 §6.3) : pour <em>n'importe quelle</em> perte convexe <KatexInline
+				<strong>Généralisation</strong> (Boyd et al. 2011 §6.3) : pour <em>n'importe quelle</em> perte convexe <KatexInline
 					formula={String.raw`\ell`}
 				/>,
 				<KatexInline formula={String.raw`\min \ell(x) + \lambda\lVert x\rVert_1`} /> se résout par le
@@ -717,7 +699,7 @@
 			</p>
 		</DefinitionBlock>
 
-		<Callout type="summary" title="Le choix en pratique (PB14 §4.4, BPC11 §6.4)">
+		<Callout type="summary" title="Le choix en pratique (Parikh & Boyd 2014 §4.4, Boyd et al. 2011 §6.4)">
 			<table class="choice-table">
 				<thead>
 					<tr>
@@ -750,7 +732,7 @@
 							<KatexInline formula={String.raw`O(1/k)`} /> (ISTA),
 							<KatexInline formula={String.raw`O(1/k^2)`} /> (FISTA)
 						</td>
-						<td>Convergence (BPC11 §3.2) ; pas de taux enseigné ici</td>
+						<td>Convergence (Boyd et al. 2011 §3.2) ; pas de taux enseigné ici</td>
 					</tr>
 					<tr>
 						<td>Itérés sparses</td>
@@ -758,13 +740,13 @@
 							<KatexInline formula={String.raw`x^{k}`} /> « presque sparses »
 						</td>
 						<td>
-							<KatexInline formula={String.raw`z^{k}`} /> <strong>exactement sparses</strong> (PB14 §4.4)
+							<KatexInline formula={String.raw`z^{k}`} /> <strong>exactement sparses</strong> (Parikh & Boyd 2014 §4.4)
 						</td>
 					</tr>
 					<tr>
 						<td>Répartition</td>
 						<td>Naturellement parallèle (produits)</td>
-						<td>Découpable sur les exemples/features (BPC11 ch. 7–8, hors périmètre)</td>
+						<td>Découpable sur les exemples/features (Boyd et al. 2011 ch. 7–8, hors périmètre)</td>
 					</tr>
 				</tbody>
 			</table>
@@ -784,7 +766,7 @@
 
 		<Callout
 			type="insight"
-			title="Trois identités, un même objet (PB14 ch. 3, « Interpretations »)"
+			title="Trois identités, un même objet (Parikh & Boyd 2014 ch. 3, « Interpretations »)"
 		>
 			<p>
 				L'opérateur proximal apparaît simultanément dans trois cadres — c'est ce qui le rend central
@@ -792,7 +774,7 @@
 			</p>
 			<ol>
 				<li>
-					<strong>Sous-différentiel</strong> (PB14 §3.2, eq. (3.4)) :
+					<strong>Sous-différentiel</strong> (Parikh & Boyd 2014 §3.2, eq. (3.4)) :
 					<KatexInline formula={resolvent} />. Le proximal est la <em>résolvante</em> du
 					sous-différentiel ; itérer
 					<KatexInline formula={String.raw`(I + \lambda\partial g)^{-1}(I - \lambda\nabla f)`} />
@@ -800,14 +782,14 @@
 					<KatexInline formula={String.raw`0 \in \nabla f(x^{*}) + \partial g(x^{*})`} />.
 				</li>
 				<li>
-					<strong>Fenchel / dualité</strong> (PB14 §2.5, eq. (2.4)) :
+					<strong>Fenchel / dualité</strong> (Parikh & Boyd 2014 §2.5, eq. (2.4)) :
 					<KatexInline formula={moreau} /> (Moreau) — le proximal de
 					<KatexInline formula="f" /> et celui de sa conjugée se complètent comme deux projections orthogonales.
 					En particulier, le soft-thresholding se calcule par troncature (projection sur la boule duale,
-					PB14 §6.5.2).
+					Parikh & Boyd 2014 §6.5.2).
 				</li>
 				<li>
-					<strong>Régularisation de Moreau–Yosida</strong> (PB14 §3.1) : l'enveloppe
+					<strong>Régularisation de Moreau–Yosida</strong> (Parikh & Boyd 2014 §3.1) : l'enveloppe
 					<KatexInline formula={moreauYosida} /> est convexe et
 					<strong>différentiable</strong> même si <KatexInline formula="f" /> ne l'est pas — le proximal
 					« lisse » les fonctions.
@@ -820,7 +802,7 @@
 			</p>
 		</Callout>
 
-		<Callout type="note" title="Nom alternatif : Douglas–Rachford splitting (PB14 §4.4)">
+		<Callout type="note" title="Nom alternatif : Douglas–Rachford splitting (Parikh & Boyd 2014 §4.4)">
 			<p>
 				Pour <KatexInline formula={String.raw`\min f(x) + g(x)`} /> <strong>sans</strong> contrainte
 				(<KatexInline formula={String.raw`A = I`} />, <KatexInline formula={String.raw`B = -I`} />,
@@ -831,8 +813,8 @@
 			<KatexBlock formula={douglas2} />
 			<KatexBlock formula={douglas3} />
 			<p>
-				PB14 l'appelle aussi <strong>Douglas–Rachford splitting</strong> et signale : « This method
-				converges under more or less the most general possible conditions; see [BPC11, §3.2] for
+				Parikh & Boyd 2014 l'appelle aussi <strong>Douglas–Rachford splitting</strong> et signale : « This method
+				converges under more or less the most general possible conditions; see [Boyd et al. 2011, §3.2] for
 				details. » C'est la méthode de splitting la plus générale pour la somme de deux convexes —
 				la descente proximale (section 3) en est le cas particulier où <KatexInline formula="f" /> est
 				lisse (on peut alors évaluer
@@ -880,10 +862,7 @@
 		<!-- ========================================================= -->
 		<h2 id="exemple-logistique">Exemple guidé : FISTA sur un Lasso logistique</h2>
 
-		<ExampleBlock
-			number="pseudo-code, d'après BT09 (4.1)–(4.3) et BPC11 §6.3"
-			title="FISTA, sans système à résoudre"
-		>
+		<ExampleBlock title="FISTA, sans système à résoudre">
 			<p>Lasso logistique (réponse binaire) :</p>
 			<KatexBlock
 				formula={String.raw`\min_{\theta}\; \ell(\theta) + \lambda\lVert\theta\rVert_1`}
@@ -905,7 +884,7 @@
 				<KatexInline formula={String.raw`\nabla^2 \ell \preceq \frac{1}{4} X^{\top}X`} /> et
 			</p>
 			<KatexBlock formula={logLipschitz} />
-			<p>borne valide (calcul fait ici, aucune source nécessaire). FISTA (BT09 (4.1)–(4.3)) :</p>
+			<p>borne valide (calcul fait ici, aucune source nécessaire). FISTA (Beck & Teboulle 2009 (4.1)–(4.3)) :</p>
 			<pre class="pseudo">{`Entrée : X (n×d), y (n), λ, L = (1/4)·λ_max(XᵀX)
 θ⁰ = 0 ;  y¹ = 0 ;  t₁ = 1
 Pour k = 1, 2, 3, … :
@@ -920,8 +899,8 @@ Arrêt : ‖θᵏ − θ^{k−1}‖ < tol  ou  k = K_max`}</pre>
 				(<KatexInline formula={String.raw`n \times d`} />), un seuillage (<KatexInline
 					formula="d"
 				/>) — <strong>pas de système à résoudre</strong>. C'est la différence structurelle avec
-				l'ADMM sur le même problème (BPC11 §6.3 : x-update = Newton sur la logistique régularisée).
-				La démo P.2 de cette page implémente la version <strong>moindres carrés</strong> du même
+				l'ADMM sur le même problème (Boyd et al. 2011 §6.3 : x-update = Newton sur la logistique régularisée).
+				La deuxième démo de cette page implémente la version <strong>moindres carrés</strong> du même
 				pseudo-code (<KatexInline
 					formula={String.raw`\ell(\theta) = \frac{1}{2}\lVert y - X\theta\rVert^2`}
 				/>), où <KatexInline formula={String.raw`L = \lambda_{\max}(X^{\top}X)`} /> est calculée exactement.
@@ -939,20 +918,20 @@ Arrêt : ‖θᵏ − θ^{k−1}‖ < tol  ou  k = K_max`}</pre>
 					<strong>L'opérateur proximal</strong>
 					<KatexInline formula={proxLambda} /> est l'outil : unique, généralise la projection, et se calcule
 					par soft-thresholding pour
-					<KatexInline formula={String.raw`\lVert\cdot\rVert_1`} /> (PB14 eq. (1.2), (6.9)).
+					<KatexInline formula={String.raw`\lVert\cdot\rVert_1`} /> (Parikh & Boyd 2014 eq. (1.2), (6.9)).
 				</li>
 				<li>
-					<strong>ISTA</strong> (PB14 eq. (4.6), BT09 Thm 3.1) : gradient + proximal,
+					<strong>ISTA</strong> (Parikh & Boyd 2014 eq. (4.6), Beck & Teboulle 2009 Thm 3.1) : gradient + proximal,
 					<KatexInline formula={String.raw`O(1/k)`} /> en valeur — le « gradient » des problèmes composites.
 				</li>
 				<li>
-					<strong>FISTA</strong> (BT09 (4.1)–(4.3), Thm 4.4) : + momentum
+					<strong>FISTA</strong> (Beck & Teboulle 2009 (4.1)–(4.3), Thm 4.4) : + momentum
 					<KatexInline formula={String.raw`t_{k}`} />, <KatexInline
 						formula={String.raw`O(1/k^2)`}
 					/> — optimal au pire cas ; coût d'itération identique.
 				</li>
 				<li>
-					<strong>ADMM</strong> (BPC11 eq. (3.5)–(3.7)) : éclatement + multiplicateur ; Lasso = «
+					<strong>ADMM</strong> (Boyd et al. 2011 eq. (3.5)–(3.7)) : éclatement + multiplicateur ; Lasso = «
 					Ridge itérée + seuillage » ; itérés
 					<KatexInline formula={String.raw`z^{k}`} /> exactement sparses.
 				</li>
@@ -960,8 +939,8 @@ Arrêt : ‖θᵏ − θ^{k−1}‖ < tol  ou  k = K_max`}</pre>
 					<strong>Le lien profond</strong> : <KatexInline
 						formula={String.raw`\operatorname{prox} = (I + \lambda\partial f)^{-1}`}
 					/>
-					(PB14 (3.4)), Moreau <KatexInline formula={moreau} /> (PB14 (2.4)), Douglas–Rachford = ADMM
-					sans contrainte (PB14 §4.4) — sous-gradient et Fenchel se rejoignent dans un seul objet.
+					(Parikh & Boyd 2014 (3.4)), Moreau <KatexInline formula={moreau} /> (Parikh & Boyd 2014 (2.4)), Douglas–Rachford = ADMM
+					sans contrainte (Parikh & Boyd 2014 §4.4) — sous-gradient et Fenchel se rejoignent dans un seul objet.
 				</li>
 			</ol>
 		</Callout>
@@ -976,7 +955,7 @@ Arrêt : ‖θᵏ − θ^{k−1}‖ < tol  ou  k = K_max`}</pre>
 					Calculer <KatexInline
 						formula={String.raw`\operatorname{prox}_{\lVert\cdot\rVert_1}(v)`}
 					/>
-					(soft-thresholding, PB14 (6.9)).
+					(soft-thresholding, Parikh & Boyd 2014 (6.9)).
 				</li>
 				<li>
 					Calculer
@@ -986,7 +965,7 @@ Arrêt : ‖θᵏ − θ^{k−1}‖ < tol  ou  k = K_max`}</pre>
 					(section 2, <KatexInline formula={String.raw`\rho = 1`} />).
 				</li>
 				<li>
-					Vérifier la décomposition de Moreau (PB14 (2.4)) : montrer que
+					Vérifier la décomposition de Moreau (Parikh & Boyd 2014 (2.4)) : montrer que
 					<KatexInline
 						formula={String.raw`v = \operatorname{prox}_{\lVert\cdot\rVert_1}(v) + \Pi_{\lVert\cdot\rVert_{\infty} \le 1}(v)`}
 					/> en identifiant <KatexInline
@@ -1022,8 +1001,8 @@ Arrêt : ‖θᵏ − θ^{k−1}‖ < tol  ou  k = K_max`}</pre>
 				<KatexInline formula={String.raw`F(\theta^{k}) - F^{*} \le 10^{-4}`} />.
 			</p>
 			<ol>
-				<li>Borne supérieure du nombre d'itérations ISTA (BT09 Thm 3.1).</li>
-				<li>Borne supérieure pour FISTA (BT09 Thm 4.4).</li>
+				<li>Borne supérieure du nombre d'itérations ISTA (Beck & Teboulle 2009 Thm 3.1).</li>
+				<li>Borne supérieure pour FISTA (Beck & Teboulle 2009 Thm 4.4).</li>
 				<li>Pourquoi ces bornes sont des majorations au pire cas, pas des prédictions ?</li>
 			</ol>
 			{#snippet solution()}
@@ -1066,7 +1045,7 @@ Arrêt : ‖θᵏ − θ^{k−1}‖ < tol  ou  k = K_max`}</pre>
 		</ExercisePanel>
 
 		<InteractiveSection
-			number="E.8"
+			number="E.3"
 			title="Quiz — prox, FISTA et ADMM"
 			onInteract={tracker.trackInteraction}
 		>

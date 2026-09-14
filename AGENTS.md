@@ -84,24 +84,52 @@ before citing it.
 
 ## Content fidelity to `course_sources/`
 
-- Lesson pages teach what's in `course_sources/` — same theorem numbers,
-  same proof structure (paraphrased in your own words, not copied verbatim,
-  but mathematically faithful step-for-step), taken from whichever source
-  file in the tree actually contains that content.
-- Do not invent new theorems or propositions and present them as course
-  content. Extensions beyond the sources (a generalized cost-sensitive Bayes
-  rule, a speculative preview of a later part, a simplified/illustrative
-  toy model standing in for a formula the sources don't give code for) are
-  allowed, but must be **visibly marked as such** — "exercice optionnel, au
-  delà du cours", "illustratif, pas une simulation exacte", a code comment
-  explaining the simplification — never presented as if it came from the
+- Lesson pages teach what's in `course_sources/` — same proof structure
+  (paraphrased in your own words, not copied verbatim, but mathematically
+  faithful step-for-step), taken from whichever source file in the tree
+  actually contains that content.
+- Do not invent new theorems or propositions. Extensions beyond the sources
+  (a generalized cost-sensitive Bayes rule, a speculative preview of a later
+  part, a simplified/illustrative toy model standing in for a formula the
+  sources don't give code for) are allowed, marked with a code comment
+  explaining the simplification — never presented as if they came from the
   sources.
+- **Numbering follows what the course pages already display.** The `number`
+  of a `DefinitionBlock`/`TheoremBlock`/`ExampleBlock` is a plain `N.M`
+  label from the part's own displayed sequence; expert content extending an
+  existing lesson continues that lesson's sequence with a `.bis` suffix
+  (precedent: the KKT panel in part1/lesson1, `1.5.1.bis`–`1.5.6.bis`); a
+  standalone expert lesson uses a small local `N.M` set or no numbers
+  (precedent: part1/lesson3-adam). `InteractiveSection` keeps the existing
+  `E.n` / `n.m` pattern. **Never put a literature citation or a raw-material
+  reference in a visible `number` slot** — primary-literature attribution
+  belongs in the prose and in `Bibliography`.
+- **The site presents its own content.** The raw materials in
+  `course_sources/` are *not available to readers*, so no learner-facing
+  text (lesson body, block titles, callouts, demo captions, quiz
+  questions/explanations) may reference `course_sources/` or any raw-material
+  file (paths or names: `theorie.typ`, `optim.typ`, `regularization.typ`,
+  `*.tex`, `*.pdf`), invoke the materials as objects ("les diapositives",
+  "le support du cours", "le TP"), or use boundary framing ("au-delà du
+  cours", "complément, au-delà du cours", "absent du cours"). All content —
+  including material that goes beyond `course_sources/` — reads as the
+  site's own original construction. Allowed in visible text: cross-
+  references to other site pages using the numbering those pages display
+  (e.g. "Théorème 3.4 (Partie I, leçon 3)"), citations of primary literature
+  (authors, external theorem numbers, `Bibliography` entries), author-level
+  attribution ("d'après Demangeot (2022)"), and honest simplification notes
+  about a demo's toy model ("petit problème synthétique seedé — illustration
+  des ordres au pire cas, pas un benchmark").
 - When a demo needs a concrete numeric model that `course_sources/` only
   describes qualitatively (e.g. the double-descent figure, the neural-net
   norm bound), build the simplest faithful version of the _shape_ of the
-  real result, document every simplifying assumption in both the code
-  comment and the visible caption, and don't claim more precision than the
-  toy model supports.
+  real result, document every simplifying assumption in the code comment
+  and — as an honest simplification note (see above, no boundary framing) —
+  in the visible caption, and don't claim more precision than the toy model
+  supports.
+- The internal anchors stay: math-module docstrings, code comments, tests,
+  and `expert/` briefs keep citing the exact `course_sources/` file and
+  section/theorem they implement — that is how fidelity remains auditable.
 
 ## Math modules (`src/lib/math/`)
 

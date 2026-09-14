@@ -19,8 +19,8 @@
 	 *
 	 * Petit problème synthétique seedé (n = 60, d = 12, vrai θ* creux à 4
 	 * éléments). Les trois trajectoires F(θ^k) − F* sont tracées en échelle
-	 * log-y : ISTA suit O(1/k) (BT09 thm 3.1, droite), FISTA O(1/k²) (BT09
-	 * thm 4.4, courbe) ; ADMM converge (BPC11 §3.2) et suit ISTA en pratique
+	 * log-y : ISTA suit O(1/k) (Beck & Teboulle 2009 thm 3.1, droite), FISTA O(1/k²) (Beck & Teboulle 2009
+	 * thm 4.4, courbe) ; ADMM converge (Boyd et al. 2011 §3.2) et suit ISTA en pratique
 	 * — aucun taux en valeur n'est enseigné pour l'ADMM. Ce n'est PAS un
 	 * benchmark : sur un
 	 * problème réel, les constantes et le coût d'une itération changent tout
@@ -172,7 +172,7 @@
 			legend={[
 				{ label: 'ISTA — O(1/k)', color: 'var(--color-text)', kind: 'line' },
 				{ label: 'FISTA — O(1/k²)', color: 'var(--color-belief)', kind: 'line' },
-				{ label: 'ADMM — converge (BPC11 §3.2)', color: 'var(--color-surprise)', kind: 'line' }
+				{ label: 'ADMM — converge (Boyd et al. 2011 §3.2)', color: 'var(--color-surprise)', kind: 'line' }
 			]}
 		/>
 	</Figure>
@@ -221,18 +221,18 @@
 
 	<p class="cap">
 		F(θ<sup>k</sup>) − F* en échelle log. ISTA descend en ligne droite
-		(ordre O(1/k), BT09 thm 3.1), FISTA en courbe (ordre O(1/k²), BT09
-		thm 4.4) ; ADMM converge (BPC11 §3.2) et suit ici ISTA en pratique —
+		(ordre O(1/k), Beck & Teboulle 2009 thm 3.1), FISTA en courbe (ordre O(1/k²), Beck & Teboulle 2009
+		thm 4.4) ; ADMM converge (Boyd et al. 2011 §3.2) et suit ici ISTA en pratique —
 		pas de taux en valeur enseigné pour l'ADMM dans cette leçon.
 		{#if algo === 'admm'}
 			Pour ADMM, c'est l'itérat <KatexInline formula="x^k" /> qui est tracé (F(x^k)) ;
 			l'itérat <KatexInline formula="z^k" />, obtenu par soft-thresholding, est
-			<strong>exactement</strong> creux (PB14 §4.4) — comparez les compteurs
+			<strong>exactement</strong> creux (Parikh & Boyd 2014 §4.4) — comparez les compteurs
 			<KatexInline formula={String.raw`\|z^k\|_0`} /> et
 			<KatexInline formula={String.raw`\|x^k\|_0`} />.
 		{:else}
 			<KatexInline formula="F(\theta^k)" /> n'est pas monotone pour FISTA
-			(BT09 lemme 4.3 : c'est une fonction modifiée qui descend) — les
+			(Beck & Teboulle 2009 lemme 4.3 : c'est une fonction modifiée qui descend) — les
 			petits à-coups sont normaux.
 		{/if}
 		<br />

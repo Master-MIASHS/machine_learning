@@ -35,7 +35,7 @@ Querying is by **path prefix**, matching over **all** of a question's tags (unio
 1. Append to the correct `questions/partN.ts` (home part), in course order.
 2. Give each a unique `id` (`pN-lM-qK`; `pN-syn-qK` for synthesis; `pN-lM-a-qK` / `pN-lM-b-qK` for a split lesson quiz) and at least one tag from the table.
 3. Keep `answerIndex` 0-based and `< options.length`; use ≥ 2 options.
-4. Write content in French, faithful to `course_sources/` — items test existing theorems/sections, so cite the real theorem numbers.
+4. Write content in French, faithful to `course_sources/` — items test existing theorems/sections, so cite the real theorem numbers. Question text and explanations are learner-facing: no raw-material references (`course_sources/`, raw file names, "les diapositives", "au-delà du cours"); cite theorem numbers as displayed on the lesson page; primary-literature citations are fine.
 5. Update the exact-count assertion in `quiz.test.ts` (`QUESTIONS.length`).
 
 To add an existing question to another part, add a second **tag** — do not duplicate the record.

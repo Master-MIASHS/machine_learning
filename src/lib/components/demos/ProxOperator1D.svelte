@@ -10,9 +10,9 @@
 	 * 1-D illustration of the proximal operator (expert lesson « Méthodes
 	 * proximales », Part I — au-delà du cours).
 	 *
-	 * Two penalties, one shared quadratic weight (PB14 eq. (1.2) convention,
+	 * Two penalties, one shared quadratic weight (Parikh & Boyd 2014 eq. (1.2) convention,
 	 * prox_{λf}(v) = argmin f(x) + (1/(2λ))(x−v)²):
-	 *   f = |·|        → argmin = S(v, λ) = sign(v)·max(|v|−λ, 0)  (PB14 (6.9))
+	 *   f = |·|        → argmin = S(v, λ) = sign(v)·max(|v|−λ, 0)  (Parikh & Boyd 2014 (6.9))
 	 *   f = ½·(·)²     → argmin = λv/(λ+1)                         (Ridge shrinkage)
 	 * The red dot is the argmin of the drawn curve; the dashed line marks the
 	 * anchor v (where the quadratic term is zero).
@@ -37,7 +37,7 @@
 	const fOf = (x: number): number =>
 		kind === 'l1' ? Math.abs(x) + ((x - v) ** 2) / (2 * lambda) : 0.5 * x * x + ((x - v) ** 2) / (2 * lambda);
 
-	// l1: x* = S(v, λ) — computed via the tested proximal module [PB14 (6.9)].
+	// l1: x* = S(v, λ) — computed via the tested proximal module [Parikh & Boyd 2014 (6.9)].
 	// l2: prox of f = (ρ/2)‖·‖² with parameter λ and ρ = 1: x* = λv/(λ+1),
 	// computed directly (proxL2Squared([v], 1/λ) gives the same value).
 	const xStar = $derived(kind === 'l1' ? proxL1([v], lambda)[0] : (lambda * v) / (lambda + 1));
@@ -160,7 +160,7 @@
 			<KatexInline formula="v" /> ; le terme
 			<KatexInline formula="|x|" /> tire vers
 			<KatexInline formula="0" /> — et <strong>annule exactement</strong> la solution dès que
-			<KatexInline formula={String.raw`|v| \le \lambda`} /> (c'est le soft-thresholding, PB14 eq. (6.9) :
+			<KatexInline formula={String.raw`|v| \le \lambda`} /> (c'est le soft-thresholding, Parikh & Boyd 2014 eq. (6.9) :
 			la sélection de variables du Lasso, coordonnée par coordonnée).
 		{:else}
 			La courbe est <KatexInline
