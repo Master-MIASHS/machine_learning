@@ -81,8 +81,8 @@
 
 		<p>
 			Toute l’estimation de la leçon 1 repose sur
-			<KatexInline formula={String.raw`(X^\topX)^{-1}`} /> : il faut donc d’abord vérifier que
-			cette inversion est licite. Géométriquement, la régression est la
+			<KatexInline formula={String.raw`(X^\top X)^{-1}`} /> : il faut donc d’abord vérifier que cette
+			inversion est licite. Géométriquement, la régression est la
 			<strong>projection orthogonale</strong>
 			de
 			<KatexInline formula="Y" /> sur le sous-espace engendré par les colonnes de
@@ -95,7 +95,7 @@
 		<DefinitionBlock number="4.1" title="Matrice chapeau (hat matrix) et plein rang">
 			<p>
 				La matrice
-				<KatexInline formula={String.raw`H = X(X^\topX)^{-1}X^\top`} />, appelée
+				<KatexInline formula={String.raw`H = X(X^\top X)^{-1}X^\top`} />, appelée
 				<strong>matrice chapeau</strong>
 				(hat matrix), est la projection orthogonale sur
 				<KatexInline formula={String.raw`\mathrm{sev}(X)`} /> : elle est
@@ -104,8 +104,8 @@
 				<KatexInline formula={String.raw`p+1`} /> colonnes de
 				<KatexInline formula="X" /> n’engendrent pas un sous-espace de dimension
 				<KatexInline formula={String.raw`p+1`} /> (colinéarité), alors
-				<KatexInline formula={String.raw`X^\topX`} /> n’est pas inversible et l’équation
-				<KatexInline formula={String.raw`X^\topY = X^\topX\,\beta`} />
+				<KatexInline formula={String.raw`X^\top X`} /> n’est pas inversible et l’équation
+				<KatexInline formula={String.raw`X^\topY = X^\top X\,\beta`} />
 				n’a <strong>pas de solution unique</strong>.
 			</p>
 			<p>
@@ -157,11 +157,11 @@
 					formula={String.raw`Y = \beta_0 + \beta_1 X + \beta_2 X + \varepsilon = \beta_0 + (\beta_1 + \beta_2) X + \varepsilon`}
 				/>, les coefficients <KatexInline formula={String.raw`\beta_1, \beta_2`} /> ne sont
 				<strong>pas identifiables</strong>
-				(infinité de solutions) ; dans le cas général, les coefficients sont mal estimés, peuvent
-				avoir des
+				(infinité de solutions) ; dans le cas général, les coefficients sont mal estimés, peuvent avoir
+				des
 				<strong>signes opposés</strong>, et certains passent sous le seuil de significativité.
 				Numériquement,
-				<KatexInline formula={String.raw`X^\topX`} /> est mal conditionnée : difficulté de convergence
+				<KatexInline formula={String.raw`X^\top X`} /> est mal conditionnée : difficulté de convergence
 				et manque de précision.
 			</p>
 		</TheoremBlock>
@@ -303,8 +303,8 @@
 				importante manque — chercher ce qui discrimine les groupes (analyse descriptive, experts du
 				domaine) pour affiner le modèle (deux modèles distincts, ajouter une variable…).
 				<strong>Blocs</strong>
-				: la relation est en réalité non-linéaire — ajouter une variable transformée (carré,
-				logarithme…) ou recourir à une régression non-linéaire.
+				: la relation est en réalité non-linéaire — ajouter une variable transformée (carré, logarithme…)
+				ou recourir à une régression non-linéaire.
 				<strong>Hétéroscédasticité</strong> : variable manquante ou lien non-linéaire entre <KatexInline
 					formula="Y"
 				/> et un prédicteur — consulter les experts et ajouter des variables, éventuellement transformées.

@@ -26,14 +26,14 @@
 	const matrixEq = String.raw`Y = X\beta + \varepsilon`;
 	const h1 = String.raw`\operatorname{rang}(X) = p + 1`;
 	const h2 = String.raw`\mathrm{E}(\varepsilon) = 0_n \quad \text{et} \quad \Sigma_\varepsilon = \sigma^2 I_n`;
-	const hatEq = String.raw`P_X = X(X^\topX)^{-1}X^\top`;
-	const olsEq = String.raw`\hat{\beta} = (X^\topX)^{-1}X^\topY`;
-	const sseExpand = String.raw`\|Y - X\beta\|^2 = Y^\topY - 2\beta^\topX^\topY + \beta^\topX^\topX\beta`;
-	const normalEq = String.raw`-2X^\topY + 2X^\topX\beta = 0`;
-	const varBetaEq = String.raw`\Sigma_{\hat{\beta}} = \sigma^2 (X^\topX)^{-1}`;
+	const hatEq = String.raw`P_X = X(X^\top X)^{-1}X^\top`;
+	const olsEq = String.raw`\hat{\beta} = (X^\top X)^{-1}X^\topY`;
+	const sseExpand = String.raw`\|Y - X\beta\|^2 = Y^\topY - 2\beta^\top X^\topY + \beta^\top X^\top X\beta`;
+	const normalEq = String.raw`-2X^\topY + 2X^\top X\beta = 0`;
+	const varBetaEq = String.raw`\Sigma_{\hat{\beta}} = \sigma^2 (X^\top X)^{-1}`;
 	const residEq = String.raw`\hat{\varepsilon} = Y - \hat{Y} = (I_n - P_X)Y`;
 	const sigma2Eq = String.raw`\hat{\sigma}^2 = \frac{1}{n-p-1}\|\hat{\varepsilon}\|^2 = \frac{1}{n-p-1}\sum_{i=1}^{n}\hat{\varepsilon}_i^2`;
-	const seEq = String.raw`\hat{\sigma}_{\hat{\beta}_{j-1}} = \sqrt{\hat{\sigma}^2 \, [(X^\topX)^{-1}]_{jj}}`;
+	const seEq = String.raw`\hat{\sigma}_{\hat{\beta}_{j-1}} = \sqrt{\hat{\sigma}^2 \, [(X^\top X)^{-1}]_{jj}}`;
 	const scrEq = String.raw`\mathrm{SCR} = \|Y - \hat{Y}\|^2 = \|\hat{\varepsilon}\|^2`;
 	const sceEq = String.raw`\mathrm{SCE} = \|\hat{Y} - \bar{y}\,1\|^2`;
 	const sctEq = String.raw`\mathrm{SCT} = \|Y - \bar{y}\,1\|^2`;
@@ -238,8 +238,8 @@
 		<h2 id="matriciel">Écriture matricielle et géométrie</h2>
 
 		<p>
-			Notons <KatexInline formula={String.raw`Y = (Y_1, \dots, Y_n)^\top`} /> le vecteur colonne
-			des observations. Le modèle s'écrit alors (éq. 2 des sources) :
+			Notons <KatexInline formula={String.raw`Y = (Y_1, \dots, Y_n)^\top`} /> le vecteur colonne des observations.
+			Le modèle s'écrit alors (éq. 2 des sources) :
 		</p>
 
 		<KatexBlock formula={matrixEq} />
@@ -284,8 +284,8 @@
 		<TheoremBlock number="1.1" title="Théorème 1 — Estimateur des moindres carrés">
 			<p>
 				Sous l'hypothèse <KatexInline formula="(H1)" />, la matrice
-				<KatexInline formula={String.raw`X^\topX`} /> étant inversible, l'estimateur des moindres
-				carrés <KatexInline formula={String.raw`\hat{\beta}`} />
+				<KatexInline formula={String.raw`X^\top X`} /> étant inversible, l'estimateur des moindres carrés
+				<KatexInline formula={String.raw`\hat{\beta}`} />
 				de <KatexInline formula={String.raw`\beta`} /> a la forme
 			</p>
 			<KatexBlock formula={olsEq} />
@@ -299,7 +299,7 @@
 			<p>
 				et le poser nul donne bien
 				<KatexInline formula={olsEq} /> (les équations
-				<KatexInline formula={String.raw`X^\topX\hat{\beta} = X^\topY`} />
+				<KatexInline formula={String.raw`X^\top X\hat{\beta} = X^\topY`} />
 				s'appellent les <em>équations normales</em>).
 			</p>
 		</div>
@@ -355,18 +355,18 @@
 			<KatexInline formula={String.raw`\sigma^2`} /> par
 			<KatexInline formula={String.raw`\hat{\sigma}^2`} />, on obtient
 			<KatexInline
-				formula={String.raw`\hat{\Sigma}_{\hat{\beta}} = \hat{\sigma}^2 (X^\topX)^{-1}`}
+				formula={String.raw`\hat{\Sigma}_{\hat{\beta}} = \hat{\sigma}^2 (X^\top X)^{-1}`}
 			/> ; pour chaque coefficient, l'écart-type estimé vaut
 		</p>
 
 		<KatexBlock formula={seEq} />
 
 		<p>
-			où <KatexInline formula={String.raw`[(X^\topX)^{-1}]_{jj}`} /> est l'élément n° <KatexInline
+			où <KatexInline formula={String.raw`[(X^\top X)^{-1}]_{jj}`} /> est l'élément n° <KatexInline
 				formula="j"
 			/> de la diagonale. La précision de chaque coefficient est donc entièrement portée par la matrice
-			<KatexInline formula={String.raw`(X^\topX)^{-1}`} /> — en particulier par la dispersion
-			des valeurs des régresseurs.
+			<KatexInline formula={String.raw`(X^\top X)^{-1}`} /> — en particulier par la dispersion des valeurs
+			des régresseurs.
 		</p>
 
 		<InteractiveSection
@@ -445,18 +445,16 @@
 			</table>
 			<p>
 				En calculant
-				<KatexInline formula={String.raw`\hat{\beta} = (X^\topX)^{-1}X^\topy`} />
+				<KatexInline formula={String.raw`\hat{\beta} = (X^\top X)^{-1}X^\topy`} />
 				— avec
 				<KatexInline
-					formula={String.raw`X^\topX = \begin{pmatrix} 10 & 7 & 242 & 388 \\ 7 & 13 & 204 & 360 \\ 242 & 204 & 6820 & 9679 \\ 388 & 360 & 9679 & 16184 \end{pmatrix}`}
+					formula={String.raw`X^\top X = \begin{pmatrix} 10 & 7 & 242 & 388 \\ 7 & 13 & 204 & 360 \\ 242 & 204 & 6820 & 9679 \\ 388 & 360 & 9679 & 16184 \end{pmatrix}`}
 				/>, son inverse
 				<KatexInline
-					formula={String.raw`(X^\topX)^{-1} = \begin{pmatrix} 7.9183 & 2.4750 & -0.0493 & -0.2154 \\ 2.4750 & 0.9790 & -0.0132 & -0.0732 \\ -0.0493 & -0.0132 & 0.0013 & 0.0007 \\ -0.2154 & -0.0732 & 0.0007 & 0.0064 \end{pmatrix}`}
+					formula={String.raw`(X^\top X)^{-1} = \begin{pmatrix} 7.9183 & 2.4750 & -0.0493 & -0.2154 \\ 2.4750 & 0.9790 & -0.0132 & -0.0732 \\ -0.0493 & -0.0132 & 0.0013 & 0.0007 \\ -0.2154 & -0.0732 & 0.0007 & 0.0064 \end{pmatrix}`}
 				/>
 				et
-				<KatexInline
-					formula={String.raw`X^\topy = (337,\ 215,\ 8483,\ 12902)^\top`}
-				/> — on obtient
+				<KatexInline formula={String.raw`X^\topy = (337,\ 215,\ 8483,\ 12902)^\top`} /> — on obtient
 			</p>
 			<KatexBlock
 				formula={String.raw`\hat{\beta} = \begin{pmatrix} 3.2195 \\ -12.0562 \\ 0.5803 \\ 0.6411 \end{pmatrix}`}

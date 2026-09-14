@@ -130,8 +130,8 @@
 
 		<p>
 			L'estimateur des moindres carrés
-			<KatexInline formula={String.raw`\hat{\beta} = (X^\topX)^{-1}X^\topY`} />
-			exige que <KatexInline formula={String.raw`X^\topX`} /> soit inversible, c'est-à-dire que
+			<KatexInline formula={String.raw`\hat{\beta} = (X^\top X)^{-1}X^\topY`} />
+			exige que <KatexInline formula={String.raw`X^\top X`} /> soit inversible, c'est-à-dire que
 			<KatexInline formula="X" /> soit <strong>de plein rang</strong> : la dimension de l'espace
 			engendré par les colonnes de
 			<KatexInline formula="X" /> vaut le nombre de colonnes

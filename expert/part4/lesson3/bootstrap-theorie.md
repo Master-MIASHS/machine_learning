@@ -7,7 +7,7 @@ anchor: lois-echantillonnage
 title: "Le bootstrap : estimer la loi d'échantillonnage sans gaussienne"
 level: m2
 priority: 1
-status: pending
+status: implemented
 related: [p4-lesson-bootstrap-theorie, p5-l1-bagging-oob-63-2, p4-l3-regression-lineaire-bayesienne]
 sources:
   - course_sources/sophie/StatM1S1_2025.pdf

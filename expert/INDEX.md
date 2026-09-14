@@ -1,7 +1,7 @@
 # INDEX — briefs expert
 
 Manifeste des 64 briefs de recherche (52 panneaux `ExpertPanel` + 12 leçons
-expert). 5 briefs `implemented`, 59 en `pending`.
+expert). 6 briefs `implemented`, 58 en `pending`.
 
 Colonnes : **id** (lien vers le brief) · **titre** · **type** (`panel`/`lesson`)
 · **level** (`m1+`/`m2`/`research`) · **prio** (1 haute, 2 moyenne, 3 frontière)
@@ -66,7 +66,7 @@ Légende des statuts et prompt de spawn : voir [README.md](README.md).
 | [p4-l1-frisch-waugh-lovell](part4/lesson1/frisch-waugh-lovell.md)                                 | Lemme de Frisch–Waugh–Lovell et géométrie des coefficients partiels | panel  | m2    | 2    | pending |
 | [p4-l1-ols-asymptotique-design-aleatoire](part4/lesson1/ols-asymptotique-design-aleatoire.md)     | OLS en design aléatoire : asymptotique et Cramér–Rao                | panel  | m2    | 2    | pending |
 | [p4-l2-tests-multiples-fdr-tukey](part4/lesson2/tests-multiples-fdr-tukey.md)                     | Tests multiples après ANOVA : Tukey, Bonferroni, FDR                | panel  | m2    | 2    | pending |
-| [p4-l3-bootstrap-theorie](part4/lesson3/bootstrap-theorie.md)                                     | Le bootstrap : estimer la loi d'échantillonnage sans gaussienne     | panel  | m2    | 1    | pending |
+| [p4-l3-bootstrap-theorie](part4/lesson3/bootstrap-theorie.md)                                     | Le bootstrap : estimer la loi d'échantillonnage sans gaussienne     | panel  | m2    | 1    | implemented |
 | [p4-l3-regression-lineaire-bayesienne](part4/lesson3/regression-lineaire-bayesienne.md)           | Régression linéaire bayésienne : shrinkage et pont vers le Ridge    | panel  | m2    | 2    | pending |
 | [p4-l4-robust-m-estimateurs-huber](part4/lesson4/robust-m-estimateurs-huber.md)                   | Robustesse : M-estimateurs, Huber et point de rupture               | panel  | m2    | 2    | pending |
 | [p4-l5-cv-inegalite-oracle](part4/lesson5/cv-inegalite-oracle.md)                                 | Validation croisée : inégalité oracle de Yang–Barron                | panel  | m2    | 2    | pending |

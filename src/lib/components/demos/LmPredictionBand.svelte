@@ -17,7 +17,12 @@
 	let alpha = $state(0.05);
 	const rng = mulberry32(combineSeed(SEED, 1));
 	const x = Array.from({ length: N }, () => rng() * 10);
-	const y = x.map((xi) => 2 + 1.5 * xi + gaussianSample({ mu: 0, sigma2: 1 }, mulberry32(combineSeed(SEED, xi * 100 + 2))));
+	const y = x.map(
+		(xi) =>
+			2 +
+			1.5 * xi +
+			gaussianSample({ mu: 0, sigma2: 1 }, mulberry32(combineSeed(SEED, xi * 100 + 2)))
+	);
 	const X = withIntercept(x.map((v) => [v]));
 	const fit = $derived(olsFit(X, y));
 	const df = $derived(fit.n - fit.p - 1);
@@ -57,16 +62,29 @@
 	const sx = (v: number) => PAD + ((v - 0) / 10) * (W - 2 * PAD);
 	const sy = (v: number) => H - PAD - ((v - yLo) / (yHi - yLo)) * (H - 2 * PAD);
 
-	const bandArea = (upper: (b: (typeof bands)[number]) => number, lower: (b: (typeof bands)[number]) => number) => {
-		const up = bands.map((b, i) => `${i === 0 ? 'M' : 'L'}${sx(b.gx).toFixed(1)},${sy(upper(b)).toFixed(1)}`);
-		const dn = bands
-			.map((b) => `L${sx(b.gx).toFixed(1)},${sy(lower(b)).toFixed(1)}`)
-			.reverse();
+	const bandArea = (
+		upper: (b: (typeof bands)[number]) => number,
+		lower: (b: (typeof bands)[number]) => number
+	) => {
+		const up = bands.map(
+			(b, i) => `${i === 0 ? 'M' : 'L'}${sx(b.gx).toFixed(1)},${sy(upper(b)).toFixed(1)}`
+		);
+		const dn = bands.map((b) => `L${sx(b.gx).toFixed(1)},${sy(lower(b)).toFixed(1)}`).reverse();
 		return up.join(' ') + ' ' + dn.join(' ') + ' Z';
 	};
 
-	const piArea = $derived(bandArea((b) => b.piHi, (b) => b.piLo));
-	const ciArea = $derived(bandArea((b) => b.ciHi, (b) => b.ciLo));
+	const piArea = $derived(
+		bandArea(
+			(b) => b.piHi,
+			(b) => b.piLo
+		)
+	);
+	const ciArea = $derived(
+		bandArea(
+			(b) => b.ciHi,
+			(b) => b.ciLo
+		)
+	);
 	const lineEnds = $derived([
 		[sx(0), sy(fit.beta[0])],
 		[sx(10), sy(fit.beta[0] + 10 * fit.beta[1])]
@@ -75,24 +93,66 @@
 
 <div class="lm-predband">
 	<p class="intro">
-		Dans une prédiction, deux incertitudes : celle de la <strong>moyenne</strong> de
-		la réponse en <KatexInline formula="x0" /> (bande étroite) et celle d'une
+		Dans une prédiction, deux incertitudes : celle de la <strong>moyenne</strong> de la réponse en <KatexInline
+			formula="x0"
+		/> (bande étroite) et celle d'une
 		<strong>nouvelle observation</strong> qui ajoute le bruit ε (bande large). Les deux
-		s'élargissent en s'éloignant de <KatexInline formula={String.raw`\bar{x}`} />, via le
-		levier <KatexInline formula={String.raw`v_0^\top(X^\topX)^{-1}v_0`} />.
+		s'élargissent en s'éloignant de <KatexInline formula={String.raw`\bar{x}`} />, via le levier <KatexInline
+			formula={String.raw`v_0^\top(X^\top X)^{-1}v_0`}
+		/>.
 	</p>
 
 	<Slider min={0} max={10} step={0.1} bind:value={x0} label="valeur de prédiction x₀" />
-	<Slider min={0.01} max={0.2} step={0.01} bind:value={alpha} label="seuil α (bandes à (1−α)·100 %)" />
+	<Slider
+		min={0.01}
+		max={0.2}
+		step={0.01}
+		bind:value={alpha}
+		label="seuil α (bandes à (1−α)·100 %)"
+	/>
 
 	<!-- SVG manuel : fallback tant qu'aucune chart component ne supporte les bandes. -->
-	<svg viewBox={`0 0 ${W} ${H}`} class="plot" role="img" aria-label="Bandes de confiance et de prédiction autour de la droite ajustée">
+	<svg
+		viewBox={`0 0 ${W} ${H}`}
+		class="plot"
+		role="img"
+		aria-label="Bandes de confiance et de prédiction autour de la droite ajustée"
+	>
 		<path d={piArea} fill="var(--color-agent)" opacity="0.13" />
 		<path d={ciArea} fill="var(--color-belief)" opacity="0.28" />
-		<line x1={sx(0)} y1={sy(yLo)} x2={sx(0)} y2={sy(yHi)} stroke="var(--color-border)" stroke-width="1" />
-		<line x1={sx(0)} y1={sy(yHi)} x2={sx(10)} y2={sy(yHi)} stroke="var(--color-border)" stroke-width="1" />
-		<line x1={sx(0)} y1={sy(0)} x2={sx(10)} y2={sy(0)} stroke="var(--color-border)" stroke-width="1" stroke-dasharray="3 3" />
-		<line x1={lineEnds[0][0]} y1={lineEnds[0][1]} x2={lineEnds[1][0]} y2={lineEnds[1][1]} stroke="var(--color-text)" stroke-width="1.5" />
+		<line
+			x1={sx(0)}
+			y1={sy(yLo)}
+			x2={sx(0)}
+			y2={sy(yHi)}
+			stroke="var(--color-border)"
+			stroke-width="1"
+		/>
+		<line
+			x1={sx(0)}
+			y1={sy(yHi)}
+			x2={sx(10)}
+			y2={sy(yHi)}
+			stroke="var(--color-border)"
+			stroke-width="1"
+		/>
+		<line
+			x1={sx(0)}
+			y1={sy(0)}
+			x2={sx(10)}
+			y2={sy(0)}
+			stroke="var(--color-border)"
+			stroke-width="1"
+			stroke-dasharray="3 3"
+		/>
+		<line
+			x1={lineEnds[0][0]}
+			y1={lineEnds[0][1]}
+			x2={lineEnds[1][0]}
+			y2={lineEnds[1][1]}
+			stroke="var(--color-text)"
+			stroke-width="1.5"
+		/>
 		{#each y as yi, i (i)}
 			<circle cx={sx(x[i])} cy={sy(yi)} r="3.5" fill="var(--color-belief)" opacity="0.8" />
 		{/each}
@@ -120,12 +180,13 @@
 
 	<div class="legend">
 		<span>
-			<i class="sw" style="background: color-mix(in srgb, var(--color-belief) 45%, transparent)"></i>IC
+			<i class="sw" style="background: color-mix(in srgb, var(--color-belief) 45%, transparent)"
+			></i>IC
 			{Math.round((1 - alpha) * 100)} % de la moyenne
 		</span>
 		<span>
-			<i class="sw" style="background: color-mix(in srgb, var(--color-agent) 25%, transparent)"></i>Intervalle de
-			prédiction {Math.round((1 - alpha) * 100)} %
+			<i class="sw" style="background: color-mix(in srgb, var(--color-agent) 25%, transparent)"
+			></i>Intervalle de prédiction {Math.round((1 - alpha) * 100)} %
 		</span>
 	</div>
 
@@ -149,11 +210,11 @@
 	</Metrics>
 
 	<p class="caption">
-		StatM1S1_2025.pdf, §6.8 : prévision ŷ0 = β̂0 + β̂1x0 avec v0 = (1, x0) ; l'intervalle
-		de prédiction est ŷ0 ± tₙ₋ₚ₋₁(1−α/2)·σ̂√(1 + v0ᵀ(XᵀX)⁻¹v0). L'intervalle de
-		confiance de la <em>moyenne</em> est la même formule sans le « + 1 » (aucun bruit de
-		nouvelle observation) — extension immédiate de la formule du cours. Nuage seedé
-		(n = 15, pente vraie 1.5).
+		StatM1S1_2025.pdf, §6.8 : prévision ŷ0 = β̂0 + β̂1x0 avec v0 = (1, x0) ; l'intervalle de
+		prédiction est ŷ0 ± tₙ₋ₚ₋₁(1−α/2)·σ̂√(1 + v0ᵀ(XᵀX)⁻¹v0). L'intervalle de confiance de la <em
+			>moyenne</em
+		> est la même formule sans le « + 1 » (aucun bruit de nouvelle observation) — extension immédiate
+		de la formule du cours. Nuage seedé (n = 15, pente vraie 1.5).
 	</p>
 </div>
 
@@ -169,7 +230,6 @@
 		font-size: 0.8125rem;
 		line-height: 1.5;
 	}
-
 
 	.plot {
 		display: block;
