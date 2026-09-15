@@ -13,14 +13,15 @@ async function load() {
 }
 
 describe('PAGES', () => {
-	it('contains exactly three expert pages (Adam, méthodes proximales, RKHS)', async () => {
+	it('contains exactly four expert pages (Adam, méthodes proximales, RKHS, bootstrap)', async () => {
 		const { PAGES } = await load();
 		const experts = PAGES.filter((p) => p.expert);
-		expect(experts).toHaveLength(3);
+		expect(experts).toHaveLength(4);
 		expect(experts.map((p) => p.path)).toEqual([
 			'/part1/lesson3-adam',
 			'/part1/methodes-proximales',
-			'/part2/rkhs-methodes-noyau'
+			'/part2/rkhs-methodes-noyau',
+			'/part4/bootstrap-theorie'
 		]);
 	});
 
@@ -87,14 +88,16 @@ describe('reserved parts (classification supervisée & clustering)', () => {
 		expect(PAGES[idx].part).toBe(4);
 		expect(PAGES[idx + 1].path).toBe('/part4/lesson2');
 		expect(PAGES[idx + 2].path).toBe('/part4/lesson3');
-		expect(PAGES[idx + 3].path).toBe('/part4/lesson4');
-		expect(PAGES[idx + 4].path).toBe('/part4/lesson5');
-		expect(PAGES[idx + 5].path).toBe('/part4/quiz');
-		expect(PAGES[idx + 6].path).toBe('/part4/exercices');
-		expect(PAGES[idx + 7].path).toBe('/part4/practice/travaux-pratiques');
+		expect(PAGES[idx + 3].path).toBe('/part4/bootstrap-theorie');
+		expect(PAGES[idx + 3].expert).toBe(true);
+		expect(PAGES[idx + 4].path).toBe('/part4/lesson4');
+		expect(PAGES[idx + 5].path).toBe('/part4/lesson5');
+		expect(PAGES[idx + 6].path).toBe('/part4/quiz');
+		expect(PAGES[idx + 7].path).toBe('/part4/exercices');
+		expect(PAGES[idx + 8].path).toBe('/part4/practice/travaux-pratiques');
 		// The regression part sits between clustering and regularization.
 		expect(PAGES[idx - 1].path).toBe('/part3/practice/travaux-pratiques');
-		expect(PAGES[idx + 8].path).toBe('/part5/lesson1');
+		expect(PAGES[idx + 9].path).toBe('/part5/lesson1');
 	});
 
 	it('keeps renumbered content: regression at IV, regularization at V, loss at X', async () => {
@@ -197,6 +200,28 @@ describe('getAdjacentPages', () => {
 		expect(getAdjacentPages('/part2/lesson4', true).next?.path).toBe('/part2/rkhs-methodes-noyau');
 		expect(getAdjacentPages('/part2/exercices', false).prev?.path).toBe('/part2/lesson4');
 		expect(getAdjacentPages('/part2/exercices', true).prev?.path).toBe('/part2/rkhs-methodes-noyau');
+	});
+
+	it('gives lesson3/lesson4 as prev/next of the bootstrap-theorie page in expert mode', async () => {
+		const { getAdjacentPages } = await load();
+		const { prev, next } = getAdjacentPages('/part4/bootstrap-theorie', true);
+		expect(prev?.path).toBe('/part4/lesson3');
+		expect(next?.path).toBe('/part4/lesson4');
+	});
+
+	it('hides the bootstrap-theorie page entirely in default mode (no prev/next for it)', async () => {
+		const { getAdjacentPages } = await load();
+		const { prev, next } = getAdjacentPages('/part4/bootstrap-theorie', false);
+		expect(prev).toBeUndefined();
+		expect(next).toBeUndefined();
+	});
+
+	it('bridges the bootstrap-theorie page: lesson3 → lesson4 in default mode, via bootstrap in expert mode', async () => {
+		const { getAdjacentPages } = await load();
+		expect(getAdjacentPages('/part4/lesson3', false).next?.path).toBe('/part4/lesson4');
+		expect(getAdjacentPages('/part4/lesson3', true).next?.path).toBe('/part4/bootstrap-theorie');
+		expect(getAdjacentPages('/part4/lesson4', false).prev?.path).toBe('/part4/lesson3');
+		expect(getAdjacentPages('/part4/lesson4', true).prev?.path).toBe('/part4/bootstrap-theorie');
 	});
 
 	it('returns no prev for home and intro as next (both modes)', async () => {

@@ -1,7 +1,7 @@
 # INDEX — briefs expert
 
 Manifeste des 64 briefs de recherche (52 panneaux `ExpertPanel` + 12 leçons
-expert). 7 briefs `implemented`, 56 en `pending`.
+expert). 8 briefs `implemented`, 56 en `pending`.
 
 Colonnes : **id** (lien vers le brief) · **titre** · **type** (`panel`/`lesson`)
 · **level** (`m1+`/`m2`/`research`) · **prio** (1 haute, 2 moyenne, 3 frontière)
@@ -72,7 +72,7 @@ Légende des statuts et prompt de spawn : voir [README.md](README.md).
 | [p4-l5-cv-inegalite-oracle](part4/lesson5/cv-inegalite-oracle.md)                                 | Validation croisée : inégalité oracle de Yang–Barron                | panel  | m2    | 2    | pending |
 | [p4-l5-bic-aic-cv](part4/lesson5/bic-aic-cv.md)                                                   | AIC vs BIC : deux objectifs, deux pénalités                         | panel  | m2    | 2    | pending |
 | [p4-lesson-glm-modeles-lineaires-generalises](part4/lessons/glm-modeles-lineaires-generalises.md) | Modèles linéaires généralisés (GLM)                                 | lesson | m2    | 2    | pending |
-| [p4-lesson-bootstrap-theorie](part4/lessons/bootstrap-theorie.md)                                 | Théorie du bootstrap                                                | lesson | m2    | 1    | pending |
+| [p4-lesson-bootstrap-theorie](part4/lessons/bootstrap-theorie.md)                                 | Théorie du bootstrap                                                | lesson | m2    | 1    | implemented |
 
 ## Part V — Régularisation (8)
 

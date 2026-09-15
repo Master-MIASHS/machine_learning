@@ -546,7 +546,10 @@
 					formula={probNotSelected}
 				/>. Donc environ 63.2% des points sont inclus au moins une fois, et les 36.8% restants
 				forment naturellement un ensemble de validation gratuit pour ce modèle particulier — c'est
-				précisément l'idée exploitée par l'erreur out-of-bag, définie plus loin.
+				précisément l'idée exploitée par l'erreur out-of-bag, définie plus loin. Ce même tirage
+				avec remise est le mécanisme du <a href="/part4/bootstrap-theorie">bootstrap</a>
+				(Partie IV, leçon expert « Théorie du bootstrap »), où on l'utilise pour approcher la loi
+				d'échantillonnage d'une statistique plutôt que pour moyenner des prédictions.
 			</p>
 		</Callout>
 

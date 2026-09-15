@@ -1,12 +1,25 @@
 import { describe, expect, it } from 'vitest';
 import {
+	MAMMEN_HI,
+	MAMMEN_LO,
+	MAMMEN_LO_P,
 	bootstrapCoverageStudy,
+	bootstrapMaxPivots,
+	bootstrapMedians,
 	bootstrapStandardError,
+	exponentialPDF,
+	heteroRegressionSample,
+	medianSEUniform,
 	olsBootstrapSlopes,
 	percentileInterval,
+	parametricBootstrapMaxPivots,
 	quantileOfSorted,
 	resampleIndices,
+	residualBootstrapSlopes,
 	skewedRegressionSample,
+	trueSlopeSE,
+	uniformSample,
+	wildBootstrapSlopes,
 	type BootstrapErrorScenario
 } from './bootstrap-inference.js';
 import { combineSeed, linspace, mulberry32 } from './util.js';
@@ -318,5 +331,324 @@ describe('bootstrapCoverageStudy', () => {
 		expect(() =>
 			bootstrapCoverageStudy({ n: 20, B: 100, R: 10, alpha: 1, scenario: 'gaussian', seed: SEED })
 		).toThrow();
+	});
+});
+
+describe('heteroRegressionSample (wild-bootstrap demo, fan design)', () => {
+	it('is deterministic for a fixed seed', () => {
+		const a = heteroRegressionSample(30, SEED);
+		const b = heteroRegressionSample(30, SEED);
+		expect(a.X).toEqual(b.X);
+		expect(a.y).toEqual(b.y);
+	});
+
+	it('x lies in (0, 10) and the fan is σ²(x) = (1 + 2x/10)²', () => {
+		const s = heteroRegressionSample(40, SEED);
+		for (const row of s.X) {
+			expect(row[0]).toBe(1);
+			expect(row[1]).toBeGreaterThan(0);
+			expect(row[1]).toBeLessThan(10);
+		}
+		expect(s.sigma2(0)).toBeCloseTo(1, 12);
+		expect(s.sigma2(10)).toBeCloseTo(9, 12);
+		expect(s.sigma2(5)).toBeCloseTo(4, 12);
+	});
+
+	it('the OLS fit recovers the truth approximately', () => {
+		const s = heteroRegressionSample(100, SEED);
+		const beta = olsClosedForm(s.X, s.y);
+		expect(Math.abs(beta[1] - 1.5)).toBeLessThan(0.3);
+		expect(Math.abs(beta[0] - 2)).toBeLessThan(2);
+	});
+
+	it('rejects n < 3', () => {
+		expect(() => heteroRegressionSample(2, SEED)).toThrow();
+	});
+});
+
+describe('Mammen weights (Mammen 1993 — moments by direct computation)', () => {
+	// E[v] = 0, E[v²] = 1, E[v³] = 1 are EXACT for v = −(√5−1)/2 c.p. (5+√5)/10
+	// and v = +(√5+1)/2 c.p. (5−√5)/10: check the empirical moments over a
+	// large seeded stream (the analytic values are verified in the module
+	// docstring; this is the numeric witness).
+	it('empirical moments converge to (0, 1, 1) over 200 000 draws', () => {
+		const rng = mulberry32(123);
+		const M = 200000;
+		let s1 = 0,
+			s2 = 0,
+			s3 = 0,
+			nLo = 0;
+		for (let i = 0; i < M; i++) {
+			// Re-derive the weight draw from the exported constants.
+			const v = rng() < MAMMEN_LO_P ? MAMMEN_LO : MAMMEN_HI;
+			if (v < 0) nLo++;
+			s1 += v;
+			s2 += v * v;
+			s3 += v * v * v;
+		}
+		expect(Math.abs(s1 / M)).toBeLessThan(0.006);
+		expect(s2 / M).toBeGreaterThan(0.99);
+		expect(s2 / M).toBeLessThan(1.01);
+		expect(s3 / M).toBeGreaterThan(0.985);
+		expect(s3 / M).toBeLessThan(1.015);
+		// Draw frequency of the low point ≈ (5+√5)/10 ≈ 0.7236.
+		expect(Math.abs(nLo / M - (5 + Math.sqrt(5)) / 10)).toBeLessThan(0.01);
+	});
+});
+
+describe('residualBootstrapSlopes (Wu 1986 — naive variant)', () => {
+	it('is deterministic for a fixed seed', () => {
+		const s = heteroRegressionSample(30, SEED);
+		const a = residualBootstrapSlopes(s.X, s.y, 50, mulberry32(combineSeed(SEED, 100)));
+		const b = residualBootstrapSlopes(s.X, s.y, 50, mulberry32(combineSeed(SEED, 100)));
+		expect(a).toEqual(b);
+	});
+
+	it('recovers the exact slope on a noise-free line (analytic case)', () => {
+		// y = 2 + 1.5x exactly: all residuals are 0, so Y* = Xβ̂ and every
+		// refit returns 1.5.
+		const x = linspace(0, 10, 15);
+		const y = x.map((xi) => 2 + 1.5 * xi);
+		const X = withIntercept(x.map((xi) => [xi]));
+		const slopes = residualBootstrapSlopes(X, y, 200, mulberry32(combineSeed(SEED, 101)));
+		for (const s of slopes) expect(s).toBeCloseTo(1.5, 9);
+		expect(bootstrapStandardError(slopes)).toBeCloseTo(0, 9);
+	});
+
+	it('is biased LOW on the fan design, wild bootstrap is not (Wu 1986)', () => {
+		// Measured (seed 97, n = 100, B = 2000, R = 500): naive/true ≈ 0.877,
+		// wild-Rademacher/true ≈ 0.961, wild-Mammen/true ≈ 0.985. The naive
+		// residual bootstrap implicitly imposes σ_i² = σ² and underestimates
+		// the slope SE on the fan; the wild bootstrap stays calibrated.
+		const n = 100;
+		const B = 2000;
+		const s = heteroRegressionSample(n, SEED);
+		const trueSE = trueSlopeSE({ n, R: 500, seed: SEED }).se;
+		const naive = bootstrapStandardError(
+			residualBootstrapSlopes(s.X, s.y, B, mulberry32(combineSeed(SEED, 102)))
+		);
+		const wildR = bootstrapStandardError(
+			wildBootstrapSlopes(s.X, s.y, B, mulberry32(combineSeed(SEED, 103)), 'rademacher')
+		);
+		const wildM = bootstrapStandardError(
+			wildBootstrapSlopes(s.X, s.y, B, mulberry32(combineSeed(SEED, 104)), 'mammen')
+		);
+		expect(naive / trueSE).toBeLessThan(0.95);
+		expect(naive / trueSE).toBeGreaterThan(0.75);
+		expect(Math.abs(wildR / trueSE - 1)).toBeLessThan(0.1);
+		expect(Math.abs(wildM / trueSE - 1)).toBeLessThan(0.1);
+	});
+
+	it('rejects degenerate inputs', () => {
+		const s = heteroRegressionSample(20, SEED);
+		expect(() => residualBootstrapSlopes(s.X, s.y, 0, mulberry32(1))).toThrow();
+		expect(() => residualBootstrapSlopes(s.X, s.y.slice(0, 19), 10, mulberry32(1))).toThrow();
+		expect(() => residualBootstrapSlopes(s.X, s.y, 10, mulberry32(1))).not.toThrow();
+	});
+});
+
+describe('wildBootstrapSlopes (Wu 1986; Mammen 1993)', () => {
+	it('is deterministic for a fixed seed and weight type', () => {
+		const s = heteroRegressionSample(30, SEED);
+		const a = wildBootstrapSlopes(s.X, s.y, 50, mulberry32(combineSeed(SEED, 105)), 'rademacher');
+		const b = wildBootstrapSlopes(s.X, s.y, 50, mulberry32(combineSeed(SEED, 105)), 'rademacher');
+		expect(a).toEqual(b);
+		const c = wildBootstrapSlopes(s.X, s.y, 50, mulberry32(combineSeed(SEED, 105)), 'mammen');
+		expect(c).not.toEqual(a);
+	});
+
+	it('recovers the exact slope on a noise-free line (analytic case)', () => {
+		const x = linspace(0, 10, 15);
+		const y = x.map((xi) => 2 + 1.5 * xi);
+		const X = withIntercept(x.map((xi) => [xi]));
+		for (const w of ['rademacher', 'mammen'] as const) {
+			const slopes = wildBootstrapSlopes(X, y, 200, mulberry32(combineSeed(SEED, 106)), w);
+			for (const s of slopes) expect(s).toBeCloseTo(1.5, 9);
+			expect(bootstrapStandardError(slopes)).toBeCloseTo(0, 9);
+		}
+	});
+
+	it('rejects an unknown weight type', () => {
+		const s = heteroRegressionSample(20, SEED);
+		expect(() => wildBootstrapSlopes(s.X, s.y, 10, mulberry32(1), 'weird' as never)).toThrow();
+	});
+});
+
+describe('trueSlopeSE (calibration by simulation)', () => {
+	it('is deterministic and equals the sd of its own values', () => {
+		const a = trueSlopeSE({ n: 50, R: 100, seed: SEED });
+		const b = trueSlopeSE({ n: 50, R: 100, seed: SEED });
+		expect(a.se).toBe(b.se);
+		expect(a.values).toEqual(b.values);
+		expect(a.se).toBeCloseTo(bootstrapStandardError(a.values), 12);
+	});
+
+	it('returns a positive SE on the fan design', () => {
+		const { se, values } = trueSlopeSE({ n: 10, R: 50, seed: SEED });
+		expect(se).toBeGreaterThan(0);
+		expect(values).toHaveLength(50);
+	});
+
+	it('rejects invalid inputs', () => {
+		expect(() => trueSlopeSE({ n: 2, R: 10, seed: SEED })).toThrow();
+		expect(() => trueSlopeSE({ n: 10, R: 1, seed: SEED })).toThrow();
+	});
+});
+
+describe('uniformSample (Bickel & Freedman 1981, §6 — bounded support)', () => {
+	it('is deterministic and lies in [0, theta)', () => {
+		const a = uniformSample(20, 4, SEED);
+		const b = uniformSample(20, 4, SEED);
+		expect(a).toEqual(b);
+		expect(a).toHaveLength(20);
+		for (const v of a) {
+			expect(v).toBeGreaterThanOrEqual(0);
+			expect(v).toBeLessThan(4);
+		}
+	});
+
+	it('rejects n < 2 and non-positive theta', () => {
+		expect(() => uniformSample(1, 4, SEED)).toThrow();
+		expect(() => uniformSample(10, 0, SEED)).toThrow();
+	});
+});
+
+describe('bootstrapMaxPivots (Bickel & Freedman 1981, §6 — the failure)', () => {
+	it('is deterministic and never negative (X*_(n) ≤ X_(n))', () => {
+		const sample = uniformSample(30, 4, SEED);
+		const a = bootstrapMaxPivots(sample, 200, mulberry32(combineSeed(SEED, 110)));
+		const b = bootstrapMaxPivots(sample, 200, mulberry32(combineSeed(SEED, 110)));
+		expect(a).toEqual(b);
+		expect(a).toHaveLength(200);
+		for (const p of a) expect(p).toBeGreaterThanOrEqual(0);
+	});
+
+	it('carries the exact coincidence mass 1 − (1−1/n)ⁿ at the pivot 0', () => {
+		// X*_(n) = X_(n) iff at least one of the n draws lands on the max:
+		// probability 1 − (1−1/n)ⁿ — computed EXACTLY from the construction,
+		// not estimated from the weak limit. B = 4000: MC sd of the rate
+		// ≈ √(0.63·0.37/4000) ≈ 0.0077, so ±0.025 is ~3 sd.
+		const B = 4000;
+		for (const n of [20, 50, 100]) {
+			const sample = uniformSample(n, 4, SEED);
+			const pivots = bootstrapMaxPivots(sample, B, mulberry32(combineSeed(SEED, 111 + n)));
+			const zeros = pivots.filter((p) => p === 0).length / B;
+			expect(Math.abs(zeros - (1 - (1 - 1 / n) ** n))).toBeLessThan(0.025);
+		}
+	});
+
+	it('the coincidence rate is far from 0 for every n (no continuous limit at 0)', () => {
+		// A continuous limit of the pivot would put zero mass at 0; the
+		// empirical rate stays near 1 − 1/e ≈ 0.63 at all n.
+		const B = 2000;
+		for (const n of [10, 100, 200]) {
+			const sample = uniformSample(n, 4, SEED);
+			const pivots = bootstrapMaxPivots(sample, B, mulberry32(combineSeed(SEED, 121 + n)));
+			const zeros = pivots.filter((p) => p === 0).length / B;
+			expect(zeros).toBeGreaterThan(0.55);
+		}
+	});
+
+	it('rejects invalid inputs', () => {
+		expect(() => bootstrapMaxPivots([1], 10, mulberry32(1))).toThrow();
+		expect(() => bootstrapMaxPivots([1, 2], 0, mulberry32(1))).toThrow();
+		expect(() => bootstrapMaxPivots([-1, 0], 10, mulberry32(1))).toThrow();
+	});
+});
+
+describe('parametricBootstrapMaxPivots (Bickel & Freedman 1981, §6 — the repair)', () => {
+	it('is deterministic, in [0, n), and invariant to the sample scale', () => {
+		// The pivot n(1 − U_(n)) reads only n and the RNG stream: rescaling
+		// the sample (same draws, different θ) leaves it untouched.
+		const a = parametricBootstrapMaxPivots(uniformSample(30, 4, SEED), 200, mulberry32(combineSeed(SEED, 130)));
+		const b = parametricBootstrapMaxPivots(uniformSample(30, 4, SEED), 200, mulberry32(combineSeed(SEED, 130)));
+		expect(a).toEqual(b);
+		expect(a).toHaveLength(200);
+		for (const p of a) {
+			expect(p).toBeGreaterThanOrEqual(0);
+			expect(p).toBeLessThan(30);
+		}
+		const scaled = parametricBootstrapMaxPivots(
+			uniformSample(30, 4, SEED).map((v) => 7 * v),
+			200,
+			mulberry32(combineSeed(SEED, 130))
+		);
+		expect(scaled).toEqual(a);
+	});
+
+	it('mean of n(1 − U_(n)) is exactly n/(n+1) (not 1) at finite n', () => {
+		// E[U_(n)] = n/(n+1), so E[n(1 − U_(n))] = n/(n+1) → 1 only as
+		// n → ∞ (the Exp(1) limit, mean 1). Measured n = 30, B = 4000: 0.965.
+		const n = 30;
+		const B = 4000;
+		const sample = uniformSample(n, 4, SEED);
+		const pivots = parametricBootstrapMaxPivots(sample, B, mulberry32(combineSeed(SEED, 131)));
+		const mean = pivots.reduce((acc, v) => acc + v, 0) / B;
+		expect(Math.abs(mean - n / (n + 1))).toBeLessThan(0.05);
+	});
+
+	it('rejects invalid inputs', () => {
+		expect(() => parametricBootstrapMaxPivots([1], 10, mulberry32(1))).toThrow();
+		expect(() => parametricBootstrapMaxPivots([1, 2], 0, mulberry32(1))).toThrow();
+	});
+});
+
+describe('bootstrapMedians (Bickel & Freedman 1981, §5 Prop. 5.1 — the success)', () => {
+	it('is deterministic and stays inside the observed range', () => {
+		const sample = uniformSample(40, 4, SEED);
+		const a = bootstrapMedians(sample, 200, mulberry32(combineSeed(SEED, 140)));
+		const b = bootstrapMedians(sample, 200, mulberry32(combineSeed(SEED, 140)));
+		expect(a).toEqual(b);
+		expect(a).toHaveLength(200);
+		const lo = Math.min(...sample);
+		const hi = Math.max(...sample);
+		for (const m of a) {
+			expect(m).toBeGreaterThanOrEqual(lo);
+			expect(m).toBeLessThanOrEqual(hi);
+		}
+	});
+
+	it('bootstrap SE tracks the theory θ/(2√n) for the uniform (f = 1/θ)', () => {
+		// Prop. 5.1: √n(m* − m) ⇒ N(0, 1/(4f²)) — the bootstrap reproduces
+		// the sampling law of the median. Measured (seed 97, n = 100,
+		// B = 4000): ratio ≈ 1.08; the per-sample spacing of the empirical
+		// density near the median adds O(1/√B) noise, hence the band.
+		const n = 100;
+		const sample = uniformSample(n, 4, SEED);
+		const medians = bootstrapMedians(sample, 4000, mulberry32(combineSeed(SEED, 141)));
+		const ratio = bootstrapStandardError(medians) / medianSEUniform(4, n);
+		expect(ratio).toBeGreaterThan(0.9);
+		expect(ratio).toBeLessThan(1.18);
+	});
+
+	it('rejects invalid inputs', () => {
+		expect(() => bootstrapMedians([1], 10, mulberry32(1))).toThrow();
+		expect(() => bootstrapMedians([1, 2], 0, mulberry32(1))).toThrow();
+	});
+});
+
+describe('exponentialPDF (Bickel & Freedman 1981, §6 — true pivot limit)', () => {
+	it('is the standard Exp(1) density', () => {
+		expect(exponentialPDF(0)).toBeCloseTo(1, 12);
+		expect(exponentialPDF(1)).toBeCloseTo(Math.exp(-1), 12);
+		expect(exponentialPDF(2)).toBeCloseTo(Math.exp(-2), 12);
+		expect(exponentialPDF(-1)).toBe(0);
+		// Non-increasing on the positive axis.
+		for (let i = 1; i <= 50; i++) {
+			expect(exponentialPDF(i / 10)).toBeLessThanOrEqual(exponentialPDF((i - 1) / 10));
+		}
+	});
+});
+
+describe('medianSEUniform (Prop. 5.1 with f = 1/θ)', () => {
+	it('exact values', () => {
+		expect(medianSEUniform(4, 4)).toBeCloseTo(1, 12);
+		expect(medianSEUniform(2, 1)).toBeCloseTo(1, 12);
+		expect(medianSEUniform(4, 100)).toBeCloseTo(0.2, 12);
+	});
+
+	it('rejects invalid inputs', () => {
+		expect(() => medianSEUniform(0, 10)).toThrow();
+		expect(() => medianSEUniform(4, 0)).toThrow();
 	});
 });

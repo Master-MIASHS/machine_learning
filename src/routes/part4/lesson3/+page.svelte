@@ -513,6 +513,13 @@
 				non linéaires, comme le maximum du bloc 3.4.5.bis.
 			</p>
 			<DeferredDemo load={() => import('$lib/components/demos/LmBootstrapInference.svelte')} />
+
+			<p>
+				<strong>Aller plus loin :</strong> la théorie complète de cette recette — consistance
+				(Bickel &amp; Freedman, 1981), hiérarchie des intervalles (percentile, studentized, BCa),
+				wild bootstrap et contre-exemples — fait l'objet de la
+				<a href="/part4/bootstrap-theorie">leçon expert « Théorie du bootstrap »</a>.
+			</p>
 		</ExpertPanel>
 
 		<h2 id="student">Intervalles de confiance et test de Student</h2>

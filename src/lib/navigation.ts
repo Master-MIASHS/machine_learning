@@ -69,6 +69,12 @@ const RAW_PAGES = [
 	{ path: '/part4/lesson1', title: 'Le modèle linéaire et les moindres carrés', part: 4 },
 	{ path: '/part4/lesson2', title: 'Le modèle linéaire général : ANOVA et ANCOVA', part: 4 },
 	{ path: '/part4/lesson3', title: 'Inférence dans le modèle gaussien', part: 4 },
+	{
+		path: '/part4/bootstrap-theorie',
+		title: 'Théorie du bootstrap',
+		part: 4,
+		expert: true
+	},
 	{ path: '/part4/lesson4', title: 'Validation et diagnostic du modèle', part: 4 },
 	{ path: '/part4/lesson5', title: 'Choix de modèle et sélection de variables', part: 4 },
 	{ path: '/part4/quiz', title: 'Quiz de synthèse', part: 4 },

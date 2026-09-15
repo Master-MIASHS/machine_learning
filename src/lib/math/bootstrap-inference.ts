@@ -29,7 +29,15 @@
  *  - wild bootstrap (heteroscedasticity): Wu, Ann. Statist. 14(4),
  *    1986, 1261–1295 (residual resampling with random weights is
  *    bias-robust; naive variants give biased variance estimators);
- *    Mammen, Ann. Statist. 21(1), 1993, 255–285 (two-point weights).
+ *    Mammen, Ann. Statist. 21(1), 1993, 255–285 (two-point weights);
+ *  - failures of the nonparametric bootstrap for order statistics:
+ *    Bickel & Freedman 1981, §5 Prop. 5.1 (median with f(m) > 0:
+ *    consistent, same √n limit) and §6 counterexample 2 (maximum of a
+ *    bounded-support law: X*_(n) = X_(n) with probability
+ *    1 − (1−1/n)^n → 1 − 1/e; no weak limit for the pivot; the
+ *    parametric repair resamples from U(0, X_(n))); Athreya, Ann.
+ *    Statist. 15(2), 1987, 724–731 (infinite variance: the bootstrap
+ *    mean converges to a random distribution, not the stable law).
  *
  * Conventions: X is n×d with the intercept as column 0 (as in
  * linear-model.ts); the slope of interest is coefficient index 1.
@@ -236,4 +244,250 @@ export function bootstrapCoverageStudy(opts: {
 		if (loP <= s.beta[1] && s.beta[1] <= hiP) percentileHits++;
 	}
 	return { studentCoverage: studentHits / R, percentileCoverage: percentileHits / R, R, alpha };
+}
+
+// ─── Wild bootstrap (Wu 1986; Mammen 1993) ───────────────
+
+/**
+ * Mammen (1993) two-point wild-bootstrap weights: v = −(√5−1)/2 ≈ −0.618
+ * with probability (5+√5)/10 ≈ 0.7236, and v = +(√5+1)/2 ≈ +1.618 with
+ * probability (5−√5)/10 ≈ 0.2764 — so that E[v] = 0, E[v²] = 1, E[v³] = 1
+ * (verified by direct computation; the matched third moment improves the
+ * second-order approximation, Mammen 1993, Ann. Statist. 21(1):255–285).
+ */
+export const MAMMEN_LO = (1 - Math.sqrt(5)) / 2;
+export const MAMMEN_HI = (1 + Math.sqrt(5)) / 2;
+export const MAMMEN_LO_P = (5 + Math.sqrt(5)) / 10;
+export const MAMMEN_HI_P = (5 - Math.sqrt(5)) / 10;
+
+export type WildWeights = 'rademacher' | 'mammen';
+
+function drawWildWeight(rng: () => number, weights: WildWeights): number {
+	if (weights === 'rademacher') return rng() < 0.5 ? 1 : -1;
+	if (weights === 'mammen') return rng() < MAMMEN_LO_P ? MAMMEN_LO : MAMMEN_HI;
+	throw new Error(`drawWildWeight: unknown weights "${weights}"`);
+}
+
+/** Common input checks for the fixed-design bootstrap variants. */
+function checkFixedDesign(X: number[][], y: number[], B: number): void {
+	const n = X.length;
+	const d = X[0]?.length ?? 0;
+	if (n === 0 || d === 0) throw new Error('X must not be empty');
+	if (y.length !== n) throw new Error(`X has ${n} rows but y has ${y.length}`);
+	if (d < 2) throw new Error(`need an intercept plus at least one regressor (got ${d} columns)`);
+	if (B < 1) throw new Error(`B must be at least 1 (got ${B})`);
+	if (n <= d) throw new Error(`need n > number of parameters (got n = ${n}, p + 1 = ${d})`);
+}
+
+export interface HeteroSample {
+	/** Design rows [1, x_i], n×2. */
+	X: number[][];
+	y: number[];
+	/** True coefficients [β0, β1]. */
+	beta: [number, number];
+	/** Local error variance σ²(x) = (1 + 2x/10)² (the "fan" of the demo). */
+	sigma2: (x: number) => number;
+}
+
+/**
+ * Seeded simple-regression sample y = 2 + 1.5x + ε with x_i ∼ U(0, 10)
+ * and Var(ε_i) = σ²(x_i) = (1 + 2 x_i / 10)² — the heteroscedastic "fan"
+ * design of the wild-bootstrap demo (error sd grows from 1 at x = 0 to 3
+ * at x = 10), the setting where Wu (1986, Ann. Statist. 14(4):1261–1295)
+ * shows the naive residual bootstrap is biased and the wild bootstrap is
+ * bias-robust. Synthetic seeded data (honest simplification: the primary
+ * sources give no numeric example).
+ */
+export function heteroRegressionSample(n: number, seed: number): HeteroSample {
+	if (n < 3) throw new Error(`heteroRegressionSample: n must be at least 3 (got ${n})`);
+	const beta: [number, number] = [2, 1.5];
+	const sigma2 = (x: number): number => (1 + (2 * x) / 10) ** 2;
+	const rng = mulberry32(combineSeed(seed, 1));
+	const X: number[][] = [];
+	const y: number[] = [];
+	for (let i = 0; i < n; i++) {
+		const x = rng() * 10;
+		const z = gaussianSample(BASE, mulberry32(combineSeed(seed, i + 2)));
+		X.push([1, x]);
+		y.push(beta[0] + beta[1] * x + Math.sqrt(sigma2(x)) * z);
+	}
+	return { X, y, beta, sigma2 };
+}
+
+/**
+ * Naive residual bootstrap of the slope (Wu 1986's biased variant): the
+ * design X stays fixed, each Y_i* = X_i β̂ + ε̂_{j(i)} draws a residual
+ * ε̂_{j(i)} i.i.d. from the empirical residual set, and the slope is
+ * refitted. Implicitly imposes σ_i² = σ² for all i, so under
+ * heteroscedasticity the resulting variance estimate is biased (Wu,
+ * 1986, §2).
+ */
+export function residualBootstrapSlopes(X: number[][], y: number[], B: number, rng: () => number): number[] {
+	checkFixedDesign(X, y, B);
+	const n = X.length;
+	const beta = olsClosedForm(X, y);
+	const yHat = X.map((row) => row[0] * beta[0] + row[1] * beta[1]);
+	const epsHat = y.map((yi, i) => yi - yHat[i]);
+	const slopes = new Array<number>(B);
+	for (let b = 0; b < B; b++) {
+		const yStar = yHat.map((mu) => mu + epsHat[Math.floor(rng() * n)]);
+		slopes[b] = olsClosedForm(X, yStar)[1];
+	}
+	return slopes;
+}
+
+/**
+ * Wild bootstrap of the slope (Wu 1986): design fixed,
+ * Y_i* = X_i β̂ + ε̂_i · v_i with v_i i.i.d. mean-0 variance-1 weights
+ * (Rademacher ±1, or Mammen 1993's two-point weights) independent of the
+ * data. The local variance is preserved — Var*(ε̂_i v_i | X) = ε̂_i² — so
+ * the variance estimate is bias-robust under heteroscedasticity (Wu 1986;
+ * Mammen 1993).
+ */
+export function wildBootstrapSlopes(
+	X: number[][],
+	y: number[],
+	B: number,
+	rng: () => number,
+	weights: WildWeights
+): number[] {
+	checkFixedDesign(X, y, B);
+	const beta = olsClosedForm(X, y);
+	const yHat = X.map((row) => row[0] * beta[0] + row[1] * beta[1]);
+	const epsHat = y.map((yi, i) => yi - yHat[i]);
+	const slopes = new Array<number>(B);
+	for (let b = 0; b < B; b++) {
+		const yStar = yHat.map((mu, i) => mu + epsHat[i] * drawWildWeight(rng, weights));
+		slopes[b] = olsClosedForm(X, yStar)[1];
+	}
+	return slopes;
+}
+
+export interface TrueSE {
+	/** Empirical sd (denominator R−1) of the R slope estimates. */
+	se: number;
+	/** The R independent slope estimates β̂₁. */
+	values: number[];
+}
+
+/**
+ * The true standard error of the slope, measured by simulation: R
+ * independent seeded heteroscedastic experiments of size n, and the
+ * empirical sd of the R OLS slopes (the calibration target for the
+ * naive-residual and wild bootstrap SEs of the demo).
+ */
+export function trueSlopeSE(opts: { n: number; R: number; seed: number }): TrueSE {
+	const { n, R, seed } = opts;
+	if (n < 3) throw new Error(`trueSlopeSE: n must be at least 3 (got ${n})`);
+	if (R < 2) throw new Error(`trueSlopeSE: R must be at least 2 (got ${R})`);
+	const values = new Array<number>(R);
+	for (let r = 0; r < R; r++) {
+		const s = heteroRegressionSample(n, combineSeed(seed, r + 1));
+		values[r] = olsClosedForm(s.X, s.y)[1];
+	}
+	return { se: bootstrapStandardError(values), values };
+}
+
+// ─── Order statistics: maximum (failure) & median (success) ───
+
+/**
+ * Seeded sample of size n from the uniform law on (0, θ) — the law of the
+ * Bickel & Freedman (1981, Ann. Statist. 9(6):1196–1217, §6)
+ * counterexample for the nonparametric bootstrap.
+ */
+export function uniformSample(n: number, theta: number, seed: number): number[] {
+	if (n < 2) throw new Error(`uniformSample: n must be at least 2 (got ${n})`);
+	if (!(theta > 0)) throw new Error(`uniformSample: theta must be positive (got ${theta})`);
+	const rng = mulberry32(combineSeed(seed, 1));
+	return Array.from({ length: n }, () => rng() * theta);
+}
+
+/**
+ * Bootstrap pivots of the maximum: for B resamples of size n from the
+ * empirical law, n(X_(n) − X*_(n)) / X_(n) (0 exactly when X*_(n) =
+ * X_(n)). The nonparametric bootstrap cannot exceed the observed maximum,
+ * so the pivots carry a mass 1 − (1−1/n)ⁿ → 1 − 1/e at 0 and have no weak
+ * limit (Bickel & Freedman 1981, §6, p. 1210) — the failure of the lesson.
+ */
+export function bootstrapMaxPivots(sample: number[], B: number, rng: () => number): number[] {
+	if (sample.length < 2) throw new Error(`bootstrapMaxPivots: n must be at least 2 (got ${sample.length})`);
+	if (B < 1) throw new Error(`bootstrapMaxPivots: B must be at least 1 (got ${B})`);
+	const n = sample.length;
+	const xMax = Math.max(...sample);
+	if (!(xMax > 0)) throw new Error('bootstrapMaxPivots: the sample maximum must be positive');
+	const pivots = new Array<number>(B);
+	for (let b = 0; b < B; b++) {
+		let max = -Infinity;
+		for (let i = 0; i < n; i++) {
+			const v = sample[Math.floor(rng() * n)];
+			if (v > max) max = v;
+		}
+		pivots[b] = (n * (xMax - max)) / xMax;
+	}
+	return pivots;
+}
+
+/**
+ * Parametric-bootstrap pivots of the maximum — the repair of Bickel &
+ * Freedman (1981, §6): resample from the fitted uniform law
+ * U(0, X_(n)) instead of the empirical one, i.e. X**_i = X_(n)·U_i with
+ * U_i ∼ U(0,1); the pivot n(X_(n) − X**_(n)) / X_(n) = n(1 − U_(n))
+ * converges to the Exp(1) law (the true pivot limit). Note the pivot is
+ * invariant to the scale of the sample — it only reads n and X_(n).
+ */
+export function parametricBootstrapMaxPivots(sample: number[], B: number, rng: () => number): number[] {
+	if (sample.length < 2) throw new Error(`parametricBootstrapMaxPivots: n must be at least 2 (got ${sample.length})`);
+	if (B < 1) throw new Error(`parametricBootstrapMaxPivots: B must be at least 1 (got ${B})`);
+	const n = sample.length;
+	const xMax = Math.max(...sample);
+	if (!(xMax > 0)) throw new Error('parametricBootstrapMaxPivots: the sample maximum must be positive');
+	const pivots = new Array<number>(B);
+	for (let b = 0; b < B; b++) {
+		let max = 0;
+		for (let i = 0; i < n; i++) {
+			const u = rng();
+			if (u > max) max = u;
+		}
+		pivots[b] = n * (1 - max);
+	}
+	return pivots;
+}
+
+/**
+ * Bootstrap medians: the median of each of B resamples of size n from the
+ * empirical law. With a unique median m and density f satisfying f(m) > 0,
+ * the bootstrap is consistent for the median — √n(m* − m) ⇒
+ * N(0, 1/(4f(m)²)), the same limit as the sampling law (Bickel & Freedman
+ * 1981, §5, Prop. 5.1): the median is a SUCCESS case, in contrast with
+ * the maximum.
+ */
+export function bootstrapMedians(sample: number[], B: number, rng: () => number): number[] {
+	if (sample.length < 2) throw new Error(`bootstrapMedians: n must be at least 2 (got ${sample.length})`);
+	if (B < 1) throw new Error(`bootstrapMedians: B must be at least 1 (got ${B})`);
+	const n = sample.length;
+	const medians = new Array<number>(B);
+	for (let b = 0; b < B; b++) {
+		const resampled = new Array<number>(n);
+		for (let i = 0; i < n; i++) resampled[i] = sample[Math.floor(rng() * n)];
+		resampled.sort((a, b2) => a - b2);
+		medians[b] = quantileOfSorted(resampled, 0.5);
+	}
+	return medians;
+}
+
+/** Standard Exp(1) density — the true limit of the maximum pivot (B&F 1981, §6). */
+export function exponentialPDF(x: number): number {
+	if (x < 0) return 0;
+	return Math.exp(-x);
+}
+
+/**
+ * Theoretical standard error of the median of a size-n sample from the
+ * uniform on (0, θ): θ/(2√n) — Prop. 5.1 of Bickel & Freedman (1981) with
+ * f = 1/θ (variance 1/(4f²) = θ²/4 at scale √n).
+ */
+export function medianSEUniform(theta: number, n: number): number {
+	if (!(theta > 0)) throw new Error(`medianSEUniform: theta must be positive (got ${theta})`);
+	if (n < 1) throw new Error(`medianSEUniform: n must be at least 1 (got ${n})`);
+	return theta / (2 * Math.sqrt(n));
 }
