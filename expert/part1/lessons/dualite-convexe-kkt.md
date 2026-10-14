@@ -7,7 +7,7 @@ anchor: null
 title: "Dualité convexe et conditions KKT"
 level: m2
 priority: 1
-status: pending
+status: implemented
 related: [p1-l1-kkt-dualite-lagrangienne, p2-l4-svm-dualite-kkt, p5-l4-lasso-oracle-irrepresentable]
 sources:
   - course_sources/typst/optim.typ

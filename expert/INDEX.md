@@ -1,7 +1,7 @@
 # INDEX — briefs expert
 
 Manifeste des 64 briefs de recherche (52 panneaux `ExpertPanel` + 12 leçons
-expert). 8 briefs `implemented`, 56 en `pending`.
+expert). 9 briefs `implemented`, 55 en `pending`.
 
 Colonnes : **id** (lien vers le brief) · **titre** · **type** (`panel`/`lesson`)
 · **level** (`m1+`/`m2`/`research`) · **prio** (1 haute, 2 moyenne, 3 frontière)
@@ -32,7 +32,7 @@ Légende des statuts et prompt de spawn : voir [README.md](README.md).
 | [p1-l4-reduction-variance-svrg-sarah](part1/lesson4/reduction-variance-svrg-sarah.md)                       | Réduction de variance : SVRG et SARAH                                       | panel  | m2       | 2    | pending     |
 | [p1-l4-sgd-regularisation-implicite](part1/lesson4/sgd-regularisation-implicite.md)                         | Le SGD comme régularisateur implicite                                       | panel  | research | 3    | pending     |
 | [p1-l4-quasi-newton-lbfgs-gradient-naturel](part1/lesson4/quasi-newton-lbfgs-gradient-naturel.md)           | Quasi-Newton (L-BFGS) et gradient naturel                                   | panel  | m2       | 2    | pending     |
-| [p1-lesson-dualite-convexe-kkt](part1/lessons/dualite-convexe-kkt.md)                                       | Dualité convexe et conditions KKT                                           | lesson | m2       | 1    | pending     |
+| [p1-lesson-dualite-convexe-kkt](part1/lessons/dualite-convexe-kkt.md)                                       | Dualité convexe et conditions KKT                                           | lesson | m2       | 1    | implemented |
 | [p1-lesson-methodes-proximales-fista-admm](part1/lessons/methodes-proximales-fista-admm.md)                 | Méthodes proximales et premier ordre moderne (prox, FISTA, ADMM)            | lesson | m2       | 1    | implemented |
 | [p1-lesson-optimisation-non-convexe-deep-learning](part1/lessons/optimisation-non-convexe-deep-learning.md) | Optimisation non convexe en deep learning                                   | lesson | research | 3    | pending     |
 
@@ -50,28 +50,28 @@ Légende des statuts et prompt de spawn : voir [README.md](README.md).
 
 ## Part III — Clustering (6)
 
-| id                                                                                        | titre                                                                | type   | level    | prio | statut  |
-| ----------------------------------------------------------------------------------------- | -------------------------------------------------------------------- | ------ | -------- | ---- | ------- |
+| id                                                                                        | titre                                                                | type   | level    | prio | statut      |
+| ----------------------------------------------------------------------------------------- | -------------------------------------------------------------------- | ------ | -------- | ---- | ----------- |
 | [p3-l1-single-linkage-mst-hartigan](part3/lesson1/single-linkage-mst-hartigan.md)         | Single-linkage, arbres couvrants minimaux et consistance de Hartigan | panel  | m2       | 1    | implemented |
-| [p3-l1-clustering-model-based-bmdp](part3/lesson1/clustering-model-based-bmdp.md)         | Vue model-based : BMDP et priors de partition                        | panel  | research | 3    | pending |
-| [p3-l2-kmeanspp-garantie](part3/lesson2/kmeanspp-garantie.md) | k-means++ : une initialisation avec garantie | panel | m2 | 1 | implemented |
-| [p3-l2-kmeans-em-dur](part3/lesson2/kmeans-em-dur.md)                                     | K-moyennes comme EM dur sur un mélange gaussien                      | panel  | m2       | 2    | pending |
-| [p3-lesson-clustering-spectral-laplacien](part3/lessons/clustering-spectral-laplacien.md) | Clustering spectral et laplacien de graphe                           | lesson | m2       | 2    | pending |
-| [p3-lessons-melange-gaussien-em](part3/lessons/melange-gaussien-em.md)                    | Mélange gaussien et algorithme EM                                    | lesson | m2       | 2    | pending |
+| [p3-l1-clustering-model-based-bmdp](part3/lesson1/clustering-model-based-bmdp.md)         | Vue model-based : BMDP et priors de partition                        | panel  | research | 3    | pending     |
+| [p3-l2-kmeanspp-garantie](part3/lesson2/kmeanspp-garantie.md)                             | k-means++ : une initialisation avec garantie                         | panel  | m2       | 1    | implemented |
+| [p3-l2-kmeans-em-dur](part3/lesson2/kmeans-em-dur.md)                                     | K-moyennes comme EM dur sur un mélange gaussien                      | panel  | m2       | 2    | pending     |
+| [p3-lesson-clustering-spectral-laplacien](part3/lessons/clustering-spectral-laplacien.md) | Clustering spectral et laplacien de graphe                           | lesson | m2       | 2    | pending     |
+| [p3-lessons-melange-gaussien-em](part3/lessons/melange-gaussien-em.md)                    | Mélange gaussien et algorithme EM                                    | lesson | m2       | 2    | pending     |
 
 ## Part IV — Régression linéaire (10)
 
-| id                                                                                                | titre                                                               | type   | level | prio | statut  |
-| ------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------- | ------ | ----- | ---- | ------- |
-| [p4-l1-frisch-waugh-lovell](part4/lesson1/frisch-waugh-lovell.md)                                 | Lemme de Frisch–Waugh–Lovell et géométrie des coefficients partiels | panel  | m2    | 2    | pending |
-| [p4-l1-ols-asymptotique-design-aleatoire](part4/lesson1/ols-asymptotique-design-aleatoire.md)     | OLS en design aléatoire : asymptotique et Cramér–Rao                | panel  | m2    | 2    | pending |
-| [p4-l2-tests-multiples-fdr-tukey](part4/lesson2/tests-multiples-fdr-tukey.md)                     | Tests multiples après ANOVA : Tukey, Bonferroni, FDR                | panel  | m2    | 2    | pending |
+| id                                                                                                | titre                                                               | type   | level | prio | statut      |
+| ------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------- | ------ | ----- | ---- | ----------- |
+| [p4-l1-frisch-waugh-lovell](part4/lesson1/frisch-waugh-lovell.md)                                 | Lemme de Frisch–Waugh–Lovell et géométrie des coefficients partiels | panel  | m2    | 2    | pending     |
+| [p4-l1-ols-asymptotique-design-aleatoire](part4/lesson1/ols-asymptotique-design-aleatoire.md)     | OLS en design aléatoire : asymptotique et Cramér–Rao                | panel  | m2    | 2    | pending     |
+| [p4-l2-tests-multiples-fdr-tukey](part4/lesson2/tests-multiples-fdr-tukey.md)                     | Tests multiples après ANOVA : Tukey, Bonferroni, FDR                | panel  | m2    | 2    | pending     |
 | [p4-l3-bootstrap-theorie](part4/lesson3/bootstrap-theorie.md)                                     | Le bootstrap : estimer la loi d'échantillonnage sans gaussienne     | panel  | m2    | 1    | implemented |
-| [p4-l3-regression-lineaire-bayesienne](part4/lesson3/regression-lineaire-bayesienne.md)           | Régression linéaire bayésienne : shrinkage et pont vers le Ridge    | panel  | m2    | 2    | pending |
-| [p4-l4-robust-m-estimateurs-huber](part4/lesson4/robust-m-estimateurs-huber.md)                   | Robustesse : M-estimateurs, Huber et point de rupture               | panel  | m2    | 2    | pending |
-| [p4-l5-cv-inegalite-oracle](part4/lesson5/cv-inegalite-oracle.md)                                 | Validation croisée : inégalité oracle de Yang–Barron                | panel  | m2    | 2    | pending |
-| [p4-l5-bic-aic-cv](part4/lesson5/bic-aic-cv.md)                                                   | AIC vs BIC : deux objectifs, deux pénalités                         | panel  | m2    | 2    | pending |
-| [p4-lesson-glm-modeles-lineaires-generalises](part4/lessons/glm-modeles-lineaires-generalises.md) | Modèles linéaires généralisés (GLM)                                 | lesson | m2    | 2    | pending |
+| [p4-l3-regression-lineaire-bayesienne](part4/lesson3/regression-lineaire-bayesienne.md)           | Régression linéaire bayésienne : shrinkage et pont vers le Ridge    | panel  | m2    | 2    | pending     |
+| [p4-l4-robust-m-estimateurs-huber](part4/lesson4/robust-m-estimateurs-huber.md)                   | Robustesse : M-estimateurs, Huber et point de rupture               | panel  | m2    | 2    | pending     |
+| [p4-l5-cv-inegalite-oracle](part4/lesson5/cv-inegalite-oracle.md)                                 | Validation croisée : inégalité oracle de Yang–Barron                | panel  | m2    | 2    | pending     |
+| [p4-l5-bic-aic-cv](part4/lesson5/bic-aic-cv.md)                                                   | AIC vs BIC : deux objectifs, deux pénalités                         | panel  | m2    | 2    | pending     |
+| [p4-lesson-glm-modeles-lineaires-generalises](part4/lessons/glm-modeles-lineaires-generalises.md) | Modèles linéaires généralisés (GLM)                                 | lesson | m2    | 2    | pending     |
 | [p4-lesson-bootstrap-theorie](part4/lessons/bootstrap-theorie.md)                                 | Théorie du bootstrap                                                | lesson | m2    | 1    | implemented |
 
 ## Part V — Régularisation (8)

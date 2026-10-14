@@ -23,7 +23,7 @@ export const PART1: QuizQuestion[] = [
 			"En un point x*, le gradient s'annule et le Hessien est semi-défini positif. Que peut-on conclure à partir de la leçon ?",
 		options: [
 			'x* est forcément un minimum local',
-			'la condition nécessaire du second ordre est satisfaite, mais x* peut encore être un point-selle',
+			'La condition nécessaire du second ordre est satisfaite, mais \\(x^*\\) peut notamment être un point-selle',
 			'x* est un minimum local strict, par la CSSO',
 			'x* est un minimum global'
 		],
@@ -396,7 +396,7 @@ export const PART1: QuizQuestion[] = [
 			"En un point x*, le gradient s'annule et le Hessien est semi-défini positif. Que peut-on conclure ?",
 		options: [
 			'x* est forcément un minimum local',
-			'la condition nécessaire du second ordre est satisfaite, mais x* peut encore être un point-selle',
+			'La condition nécessaire du second ordre est satisfaite, mais \\(x^*\\) peut notamment être un point-selle',
 			'x* est un minimum local strict',
 			'x* est un minimum global'
 		],
@@ -666,8 +666,7 @@ export const PART1: QuizQuestion[] = [
 	{
 		id: 'p1-proximal-q3',
 		tags: ['p1/proximal'],
-		question:
-			"Dans l'ADMM appliqué au Lasso min ½‖Ax−b‖² + λ‖x‖₁, que vaut la mise à jour de x ?",
+		question: "Dans l'ADMM appliqué au Lasso min ½‖Ax−b‖² + λ‖x‖₁, que vaut la mise à jour de x ?",
 		options: [
 			'xᵏ⁺¹ = (AᵀA + ρI)⁻¹(Aᵀb + ρ(zᵏ − uᵏ)) — une régression Ridge',
 			'xᵏ⁺¹ = (AᵀA)⁻¹Aᵀb — une régression OLS',
@@ -681,8 +680,7 @@ export const PART1: QuizQuestion[] = [
 	{
 		id: 'p1-proximal-q4',
 		tags: ['p1/proximal'],
-		question:
-			"Pour f convexe fermé propre et λ > 0, comment caractérise-t-on z = prox_{λf}(x) ?",
+		question: 'Pour f convexe fermé propre et λ > 0, comment caractérise-t-on z = prox_{λf}(x) ?',
 		options: [
 			"par 0 ∈ ∂f(z) + (1/λ)(z − x), c'est-à-dire prox_{λf} = (I + λ∂f)⁻¹",
 			'par ∇f(z) = (x − z)/λ',
@@ -696,13 +694,12 @@ export const PART1: QuizQuestion[] = [
 	{
 		id: 'p1-proximal-q5',
 		tags: ['p1/proximal'],
-		question:
-			"Quelles sont les hypothèses minimales pour appliquer la descente proximale (ISTA) ?",
+		question: 'Quelles sont les hypothèses minimales pour appliquer la descente proximale (ISTA) ?',
 		options: [
-			"f lisse à gradient L-Lipschitz + g convexe (éventuellement non lisse) de proximal calculable",
+			'f lisse à gradient L-Lipschitz + g convexe (éventuellement non lisse) de proximal calculable',
 			"f et g lisses (sinon aucun algorithme de premier ordre ne s'applique)",
 			"l'objectif non convexe mais différentiable, avec Hessienne disponible",
-			"la contrainte Ax = b avec f convexe mais g quelconque"
+			'la contrainte Ax = b avec f convexe mais g quelconque'
 		],
 		answerIndex: 0,
 		explanation:
@@ -711,9 +708,9 @@ export const PART1: QuizQuestion[] = [
 	{
 		id: 'p1-proximal-q6',
 		tags: ['p1/proximal'],
-		question: "Que vaut la conjugée convexe f* de f(x) = |x| ?",
+		question: 'Que vaut la conjugée convexe f* de f(x) = |x| ?',
 		options: [
-			'0 si |y| ≤ 1, +∞ sinon — l\'indicatrice de [−1, 1]',
+			"0 si |y| ≤ 1, +∞ sinon — l'indicatrice de [−1, 1]",
 			'|y| : la conjugée de |·| est |·| elle-même',
 			'0 partout : le supremum de yx − |x| est toujours 0',
 			'partie positive y⁺ = max(y, 0)'
@@ -721,5 +718,76 @@ export const PART1: QuizQuestion[] = [
 		answerIndex: 0,
 		explanation:
 			"Par définition, f*(y) = sup_x (yx − |x|) : si |y| ≤ 1 alors yx − |x| ≤ |y||x| − |x| ≤ 0 (atteint en x = 0) ; si y > 1 alors (y−1)x → +∞ en x → +∞ ; symétriquement si y < −1. Donc f* = ι_[−1,1] : c'est le cas 1D de ‖·‖₁* = ι_B (indicatrice de la boule duale, Parikh & Boyd 2014 §6.5 ; Boyd & Vandenberghe Exemple 3.26) — et c'est ce qui, via la décomposition de Moreau, transforme le soft-thresholding en troncature sur [−λ, λ]."
+	},
+	{
+		id: 'p1-dualite-q1',
+		tags: ['p1/dualite'],
+		question: 'Pour un problème quelconque (non convexe), que peut-on affirmer sur la duale ?',
+		options: [
+			'd* = p* toujours.',
+			'd* ≤ p*, toujours — même non convexe.',
+			'd* ≥ p*.',
+			'Le gap est toujours nul si le problème a une solution.'
+		],
+		answerIndex: 1,
+		explanation:
+			"C'est l'énoncé (5.23) de Boyd & Vandenberghe : pour tout (λ,ν) faisable dual, g(λ,ν) ≤ p*, donc d* = sup g ≤ p*. La convexité n'intervient que pour la dualité FORTE (d* = p*), pas pour la borne inférieure."
+	},
+	{
+		id: 'p1-dualite-q2',
+		tags: ['p1/dualite'],
+		question: 'Pour un problème convexe, que garantit la condition de Slater ?',
+		options: [
+			'd* = p* pour tout problème, convexe ou non.',
+			'd* = p* = 0.',
+			"l'unicité de la solution primale.",
+			"la dualité forte d* = p*, et l'atteinte du dual optimal si d* > −∞."
+		],
+		answerIndex: 3,
+		explanation:
+			"C'est l'énoncé exact du théorème (Boyd & Vandenberghe §5.2.3, eq. (5.24)–(5.26) + « the dual optimal value is attained »). La convexité fait partie des hypothèses — (a) est faux. Sans Slater, d* = p* peut tout de même tenir mais sans atteinte : ex. minimize (x−1)² s.t. x² ≤ 0 — p* = 1, et g(λ) = 1 − 1/(1+λ) a pour supremum 1 en λ → +∞, jamais atteint (calculé ici) ; et avec gap strict, cf. ex. 5.21 de Boyd & Vandenberghe au panneau de la leçon 1."
+	},
+	{
+		id: 'p1-dualite-q3',
+		tags: ['p1/dualite'],
+		question: 'Dans la duale SVM, la contrainte Σᵢ αᵢyᵢ = 0…',
+		options: [
+			'est déjà dans la primale.',
+			'est une hypothèse de Slater.',
+			'vient de la minimisation en b de la lagrangienne : si Σαᵢyᵢ ≠ 0 alors g(α) = −∞.',
+			"n'apparaît qu'en marge souple."
+		],
+		answerIndex: 2,
+		explanation:
+			"Blocs 3.5 et 6.1 : la lagrangienne est affine en b (terme −b·Σαᵢyᵢ), donc si Σαᵢyᵢ ≠ 0 elle est non bornée inférieurement en b et g(α) = −∞. La contrainte n'est nulle part dans la primale : le domaine fini de g la « cache » et la duale explicite la fait apparaître."
+	},
+	{
+		id: 'p1-dualite-q4',
+		tags: ['p1/dualite'],
+		question: 'Pourquoi la duale du Lasso est-elle « moins exploitable » que celle de la SVM ?',
+		options: [
+			"Parce que le Lasso n'est pas convexe.",
+			'Parce que la dualité forte échoue pour le Lasso.',
+			"Parce que sa contrainte ‖θ‖₁ ≤ t est non lisse et non affine : g(λ) = p_pen(λ) − λt n'a pas de forme close — chaque évaluation coûte un lasso.",
+			"Parce que le Lasso n'a pas de multiplicateurs."
+		],
+		answerIndex: 2,
+		explanation:
+			"Blocs 7.1–7.2 : la duale lagrangienne de (P_t) est g(λ) = p_pen(λ) − λt où p_pen(λ) est la valeur du lasso pénalisé — donc chaque évaluation coûte la résolution d'un lasso complet (pas de forme close). La dualité forte TIENT (Slater en θ = 0 pour t > 0), mais la duale sert de certificat, pas de formule. C'est le contraste exact avec la SVM (contraintes affines ⟹ duale close)."
+	},
+	{
+		id: 'p1-dualite-q5',
+		tags: ['p1/dualite'],
+		question:
+			'Pour minimize (x−2)² s.t. x² ≥ 1 (contrainte non convexe), le gap de dualité optimal est…',
+		options: [
+			'1 — la non-convexité ouvre un gap fini.',
+			'+∞.',
+			'0 — x* = 2 est faisable : p* = 0 et d* = g(0) = inf (x−2)² = 0.',
+			'indéterminé sans Slater.'
+		],
+		answerIndex: 2,
+		explanation:
+			"Bloc 8.2 : l'ensemble faisable déconnecté {x ≤ −1} ∪ {x ≥ 1} ne suffit pas à ouvrir un gap — le minimiseur libre x = 2 est faisable (2² ≥ 1) et la contrainte est inactive en x*, donc p* = f(2) = 0 et d* = g(0) = 0. La non-convexité seule ne garantit pas un gap strict : c'est l'échec d'une condition de qualification (ex. 5.21 de Boyd & Vandenberghe, convexe sans Slater, gap 1 — panneau de la leçon 1) qui l'ouvre."
 	}
 ];

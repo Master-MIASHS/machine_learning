@@ -13,13 +13,14 @@ async function load() {
 }
 
 describe('PAGES', () => {
-	it('contains exactly four expert pages (Adam, méthodes proximales, RKHS, bootstrap)', async () => {
+	it('contains exactly five expert pages (Adam, méthodes proximales, dualité KKT, RKHS, bootstrap)', async () => {
 		const { PAGES } = await load();
 		const experts = PAGES.filter((p) => p.expert);
-		expect(experts).toHaveLength(4);
+		expect(experts).toHaveLength(5);
 		expect(experts.map((p) => p.path)).toEqual([
 			'/part1/lesson3-adam',
 			'/part1/methodes-proximales',
+			'/part1/dualite-convexe-kkt',
 			'/part2/rkhs-methodes-noyau',
 			'/part4/bootstrap-theorie'
 		]);
@@ -32,10 +33,17 @@ describe('PAGES', () => {
 		expect(PAGES[idx + 2].path).toBe('/part1/lesson4');
 	});
 
-	it('orders the proximal-methods page between lesson4 and the quiz of part 1', async () => {
+	it('orders the proximal-methods page between lesson4 and the duality page of part 1', async () => {
 		const { PAGES } = await load();
 		const idx = PAGES.findIndex((p) => p.path === '/part1/lesson4');
 		expect(PAGES[idx + 1].path).toBe('/part1/methodes-proximales');
+		expect(PAGES[idx + 2].path).toBe('/part1/dualite-convexe-kkt');
+	});
+
+	it('orders the duality page between the proximal-methods page and the quiz of part 1', async () => {
+		const { PAGES } = await load();
+		const idx = PAGES.findIndex((p) => p.path === '/part1/methodes-proximales');
+		expect(PAGES[idx + 1].path).toBe('/part1/dualite-convexe-kkt');
 		expect(PAGES[idx + 2].path).toBe('/part1/quiz');
 	});
 
@@ -158,11 +166,14 @@ describe('getAdjacentPages', () => {
 		expect(prevExpert?.path).toBe('/part1/lesson3-adam');
 	});
 
-	it('gives lesson4/quiz as prev/next of the proximal page in expert mode', async () => {
+	it('gives lesson4/duality as prev/next of the proximal page, and proximal/quiz for the duality page (expert mode)', async () => {
 		const { getAdjacentPages } = await load();
-		const { prev, next } = getAdjacentPages('/part1/methodes-proximales', true);
-		expect(prev?.path).toBe('/part1/lesson4');
-		expect(next?.path).toBe('/part1/quiz');
+		const proximal = getAdjacentPages('/part1/methodes-proximales', true);
+		expect(proximal.prev?.path).toBe('/part1/lesson4');
+		expect(proximal.next?.path).toBe('/part1/dualite-convexe-kkt');
+		const duality = getAdjacentPages('/part1/dualite-convexe-kkt', true);
+		expect(duality.prev?.path).toBe('/part1/methodes-proximales');
+		expect(duality.next?.path).toBe('/part1/quiz');
 	});
 
 	it('hides the proximal page entirely in default mode (no prev/next for it)', async () => {
@@ -172,12 +183,19 @@ describe('getAdjacentPages', () => {
 		expect(next).toBeUndefined();
 	});
 
-	it('bridges the proximal page: lesson4 → quiz in default mode, via proximal in expert mode', async () => {
+	it('hides the duality page entirely in default mode (no prev/next for it)', async () => {
+		const { getAdjacentPages } = await load();
+		const { prev, next } = getAdjacentPages('/part1/dualite-convexe-kkt', false);
+		expect(prev).toBeUndefined();
+		expect(next).toBeUndefined();
+	});
+
+	it('bridges the expert pages: lesson4 → quiz in default mode, via proximal + duality in expert mode', async () => {
 		const { getAdjacentPages } = await load();
 		expect(getAdjacentPages('/part1/lesson4', false).next?.path).toBe('/part1/quiz');
 		expect(getAdjacentPages('/part1/lesson4', true).next?.path).toBe('/part1/methodes-proximales');
 		expect(getAdjacentPages('/part1/quiz', false).prev?.path).toBe('/part1/lesson4');
-		expect(getAdjacentPages('/part1/quiz', true).prev?.path).toBe('/part1/methodes-proximales');
+		expect(getAdjacentPages('/part1/quiz', true).prev?.path).toBe('/part1/dualite-convexe-kkt');
 	});
 
 	it('gives lesson4/exercices as prev/next of the RKHS page in expert mode', async () => {

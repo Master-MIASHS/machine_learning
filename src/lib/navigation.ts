@@ -33,6 +33,12 @@ const RAW_PAGES = [
 		part: 1,
 		expert: true
 	},
+	{
+		path: '/part1/dualite-convexe-kkt',
+		title: 'Dualité convexe et conditions KKT',
+		part: 1,
+		expert: true
+	},
 	{ path: '/part1/quiz', title: 'Quiz de synthèse', part: 1 },
 	{ path: '/part1/exercices', title: 'Exercices', part: 1 },
 	{ path: '/part1/practice/travaux-pratiques', title: 'Travaux pratiques', part: 1 },
