@@ -23,7 +23,7 @@ export const PART1: QuizQuestion[] = [
 			"En un point x*, le gradient s'annule et le Hessien est semi-défini positif. Que peut-on conclure à partir de la leçon ?",
 		options: [
 			'x* est forcément un minimum local',
-			'La condition nécessaire du second ordre est satisfaite, mais \\(x^*\\) peut notamment être un point-selle',
+			'La condition nécessaire du second ordre est satisfaite, mais x* peut notamment être un point-selle',
 			'x* est un minimum local strict, par la CSSO',
 			'x* est un minimum global'
 		],
