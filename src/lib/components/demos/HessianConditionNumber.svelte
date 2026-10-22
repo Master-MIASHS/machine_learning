@@ -79,7 +79,7 @@
 			<Slider bind:value={beta} min={0.1} max={5} step={0.1} label="λ₂" />
 		</div>
 		<div class="grp">
-			<div class="gttl">Conditionnement</div>
+			<div class="gttl">Conditionnement (K)</div>
 			<div class="rn">{condNum.toFixed(2)}</div>
 			<div class="ir">
 				{condNum > 3
@@ -92,8 +92,8 @@
 	</SliderGrid>
 
 	<p class="cap">
-		Une forme elliptique étirée (κ élevé) rend la descente zigzagante et lente. Ridge régularisation
-		améliore κ en augmentant uniformément les valeurs propres.
+		Une forme elliptique étirée (κ élevé) rend la descente zigzagante et lente. La régularisation
+		Ridge améliore κ en augmentant uniformément les valeurs propres.
 	</p>
 </div>
 

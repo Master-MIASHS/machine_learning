@@ -782,7 +782,7 @@ w_j^*(\lambda)
 		<ExampleBlock number="2.7" title="Log-perte pour classification binaire">
 			<p>
 				Pour la classification binaire avec des cibles <KatexInline
-					formula={String.raw`y_i \\in \\{-1, +1\\}`}
+					formula={String.raw`y_i \in \{-1, +1\}`}
 				/>, on utilise la log-perte (perte logistique) :
 			</p>
 			<KatexBlock formula={logLossFormula} />
