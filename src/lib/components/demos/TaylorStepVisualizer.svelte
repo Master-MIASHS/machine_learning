@@ -356,7 +356,7 @@
 	.sub-title {
 		margin: 0;
 		color: var(--color-text-muted);
-		font-size: 0.8rem;
+		font-size: 0.9rem;
 		text-align: center;
 		max-width: 550px;
 		line-height: 1.4;
@@ -461,7 +461,7 @@
 	}
 	.info-item .label {
 		color: var(--color-text-muted);
-		font-size: 0.7 hollow rem;
+		font-size: 0.85rem;
 		margin-bottom: 0.15rem;
 	}
 	.info-item .value {
