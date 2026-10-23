@@ -354,7 +354,7 @@
 			Pour les fonctions <strong>fortement convexes</strong>, on obtient une convergence
 			<strong>exponentielle</strong> en <KatexInline formula={strongConvRate} />, où μ est le
 			paramètre de forte convexité et L la constante de Lipschitz du gradient. Le rapport L/μ est le
-			<noscript><em>condition number</em></noscript> de la Hessienne.
+			<em>condition number</em> de la Hessienne.
 		</Callout>
 
 		<ExampleBlock number="3.5" title="Descente de gradient pour les moindres carrés">
