@@ -361,7 +361,8 @@
 			<p>
 				Soit <KatexInline formula="f" /> une fonction convexe fermée propre de
 				<KatexInline formula={String.raw`\mathbb{R}^{n}`} /> dans
-				<KatexInline formula={String.raw`\mathbb{R} \cup \{+\infty\}`} />. Sa <strong>conjugée de Fenchel</strong>
+				<KatexInline formula={String.raw`\mathbb{R} \cup \{+\infty\}`} />. Sa
+				<strong>conjugée de Fenchel</strong>
 				(<em>conjugée convexe</em>) est la fonction
 			</p>
 			<KatexBlock formula={fenchelDef} />
@@ -371,8 +372,10 @@
 				l'ensemble des <KatexInline formula="y" /> pour lesquels il est fini.
 			</p>
 			<p>
-				<strong>Lecture</strong> : pour chaque « pente » <KatexInline formula="y" />, l'hyperplan affine
-				<KatexInline formula={fenchelAffine} /> est le <em>plus haut</em> de pente <KatexInline formula="y"
+				<strong>Lecture</strong> : pour chaque « pente » <KatexInline formula="y" />, l'hyperplan
+				affine
+				<KatexInline formula={fenchelAffine} /> est le <em>plus haut</em> de pente <KatexInline
+					formula="y"
 				/>
 				qui reste sous <KatexInline formula="f" /> — la conjugée paramètre donc les
 				<strong>hyperplans support</strong> de <KatexInline formula="f" /> (l'ordonnée à l'origine
@@ -380,19 +383,19 @@
 				l'inégalité de Fenchel (Boyd & Vandenberghe §3.3.2) :
 			</p>
 			<KatexBlock formula={fenchelYoung} />
-			<p>
-				avec égalité seulement si l'hyperplan est support. Deux faits suffiront pour la suite :
-			</p>
+			<p>avec égalité seulement si l'hyperplan est support. Deux faits suffiront pour la suite :</p>
 			<ul>
 				<li>
 					<KatexInline formula={String.raw`f^{**} = f`} /> pour <KatexInline formula="f" /> convexe fermée
 					propre (bi-conjugée, Boyd & Vandenberghe §3.3.2) ;
 				</li>
 				<li>
-					pour une <em>norme</em>, la conjugée est la fonction indicatrice de la <strong>boule unité de la
-					norme duale</strong> : <KatexInline
-						formula={String.raw`\lVert\cdot\rVert^{*} = \iota_{B}`} /> avec
-					<KatexInline formula={String.raw`B = \{y \mid \lVert y \rVert_{\mathrm{duale}} \le 1\}`} />
+					pour une <em>norme</em>, la conjugée est la fonction indicatrice de la
+					<strong>boule unité de la norme duale</strong>
+					: <KatexInline formula={String.raw`\lVert\cdot\rVert^{*} = \iota_{B}`} /> avec
+					<KatexInline
+						formula={String.raw`B = \{y \mid \lVert y \rVert_{\mathrm{duale}} \le 1\}`}
+					/>
 					(Parikh & Boyd 2014 §6.5 ; Boyd & Vandenberghe Exemple 3.26).
 				</li>
 			</ul>
@@ -404,14 +407,17 @@
 
 		<ExampleBlock title="Calcul direct : la conjugée de |·| en 1D">
 			<p>
-				Pour <KatexInline formula={String.raw`f(x) = |x|`} />, appliquons la définition sans astuce :
+				Pour <KatexInline formula={String.raw`f(x) = |x|`} />, appliquons la définition sans astuce
+				:
 			</p>
 			<KatexBlock formula={fenchelAbs} />
 			<ul>
 				<li>
 					Si <KatexInline formula={String.raw`|y| \le 1`} /> : <KatexInline
 						formula={String.raw`yx - |x| \le |y|\,|x| - |x| \le 0`}
-					/> et le maximum <KatexInline formula="0" /> est atteint en <KatexInline formula="x = 0" />.
+					/> et le maximum <KatexInline formula="0" /> est atteint en <KatexInline
+						formula="x = 0"
+					/>.
 				</li>
 				<li>
 					Si <KatexInline formula={String.raw`y > 1`} /> : pour <KatexInline formula="x > 0" />,
@@ -426,13 +432,12 @@
 				</li>
 			</ul>
 			<p>
-				On retrouve <KatexInline
-					formula={String.raw`\lVert\cdot\rVert_1^{*} = \iota_{[-1, 1]}`}
-				/> : la conjugée de la norme 1 en dimension 1 est l'indicatrice de
+				On retrouve <KatexInline formula={String.raw`\lVert\cdot\rVert_1^{*} = \iota_{[-1, 1]}`} /> :
+				la conjugée de la norme 1 en dimension 1 est l'indicatrice de
 				<KatexInline formula={String.raw`[-1, 1]`} /> — la « boule duale » de
 				<KatexInline formula={String.raw`\lVert\cdot\rVert_1`} /> est la boule
-				<KatexInline formula={String.raw`\lVert\cdot\rVert_{\infty`} />. C'est exactement ce que la conséquence
-				pratique de la décomposition de Moreau ci-dessous exploite : tronquer <KatexInline
+				<KatexInline formula="{String.raw`\lVert\cdot\rVert_{\infty`}}" />. C'est exactement ce que
+				la conséquence pratique de la décomposition de Moreau ci-dessous exploite : tronquer <KatexInline
 					formula="v"
 				/>
 				en <KatexInline formula={String.raw`[-\lambda, \lambda]`} /> et soustraire.
@@ -448,8 +453,8 @@
 			<KatexBlock formula={moreau} />
 			<p>
 				où <KatexInline formula={String.raw`f^{*}`} /> est la conjugée de Fenchel de
-				<KatexInline formula="f" /> (définie ci-dessus ; Parikh & Boyd 2014 §2.5 : « This property, known as
-				Moreau decomposition, is the main relationship between proximal operators and duality. »).
+				<KatexInline formula="f" /> (définie ci-dessus ; Parikh & Boyd 2014 §2.5 : « This property, known
+				as Moreau decomposition, is the main relationship between proximal operators and duality. »).
 			</p>
 			<p>
 				<strong>Conséquence pratique</strong> (Parikh & Boyd 2014 §6.5.2) : comme
@@ -498,7 +503,8 @@
 				>
 				— d'où le nom
 				<em>forward-backward</em> (Euler explicite sur <KatexInline formula="f" />, implicite sur
-				<KatexInline formula="g" /> ; Parikh & Boyd 2014 §4.2 « Forward-backward integration of gradient flow »).
+				<KatexInline formula="g" /> ; Parikh & Boyd 2014 §4.2 « Forward-backward integration of gradient
+				flow »).
 			</p>
 			<p>
 				Pour le Lasso avec <KatexInline
@@ -510,8 +516,8 @@
 			</p>
 			<KatexBlock formula={istaLasso} />
 			<p>
-				c'est l'<strong>ISTA</strong> (iterative shrinkage-thresholding algorithm, Parikh & Boyd 2014 §7.1.1 /
-				Beck & Teboulle 2009 eq. (1.4)–(1.5)). Le facteur
+				c'est l'<strong>ISTA</strong> (iterative shrinkage-thresholding algorithm, Parikh & Boyd
+				2014 §7.1.1 / Beck & Teboulle 2009 eq. (1.4)–(1.5)). Le facteur
 				<KatexInline formula={String.raw`\frac{1}{2}`} /> dans
 				<KatexInline formula={String.raw`f(\theta) = \frac{1}{2}\lVert y - X\theta\rVert_2^2`} /> est
 				une convention d'écriture qui ne change pas les minimiseurs de la Définition 5.2 du cours ; elle
@@ -540,12 +546,15 @@
 				précision <KatexInline formula={String.raw`\varepsilon`} /> en valeur coûte
 				<KatexInline formula={String.raw`O(L\lVert x^{0} - x^{*}\rVert^2/\varepsilon)`} /> itérations,
 				chacune coutant un produit matrice-vecteur par <KatexInline formula={String.raw`X`} /> et par
-				<KatexInline formula={String.raw`X^{\top}`} /> (Parikh & Boyd 2014 §7.1.1) — la partie proximale ne dépend pas
-				de la dimension <KatexInline formula="d" />.
+				<KatexInline formula={String.raw`X^{\top}`} /> (Parikh & Boyd 2014 §7.1.1) — la partie proximale
+				ne dépend pas de la dimension <KatexInline formula="d" />.
 			</p>
 		</TheoremBlock>
 
-		<Callout type="insight" title="Un algorithme, trois visages (Parikh & Boyd 2014 §4.2, « Special cases »)">
+		<Callout
+			type="insight"
+			title="Un algorithme, trois visages (Parikh & Boyd 2014 §4.2, « Special cases »)"
+		>
 			<ul>
 				<li>
 					<KatexInline formula={String.raw`g = \iota_{C}`} /> (contrainte) :
@@ -622,8 +631,8 @@
 				/>) plutôt qu'à <KatexInline formula={String.raw`x^{k-1}`} />. Le coût d'itération est
 				<strong>identique</strong> (un gradient + un proximal) ; le surcoût de (4.2)–(4.3) est
 				marginal (Beck & Teboulle 2009 §4). La récurrence (4.2) donne
-				<KatexInline formula={String.raw`t_{k} \ge \frac{k+1}{2}`} /> (Beck & Teboulle 2009, Lemme 4.3) — le « momentum
-				» croît linéairement.
+				<KatexInline formula={String.raw`t_{k} \ge \frac{k+1}{2}`} /> (Beck & Teboulle 2009, Lemme 4.3)
+				— le « momentum » croît linéairement.
 			</p>
 			<p>
 				<strong>Variante backtracking</strong> (Beck & Teboulle 2009 §4) : si <KatexInline
@@ -633,7 +642,8 @@
 				<KatexInline formula={String.raw`\bar{L} = \eta^{i_{k}} L_{k-1}`} /> tel que le modèle quadratique
 				majorant soit vérifié) ; le taux est alors garanti avec
 				<KatexInline formula={String.raw`\alpha = \eta`} /> au lieu de
-				<KatexInline formula={String.raw`\alpha = 1`} /> (Parikh & Boyd 2014 §4.2–§4.3 donnent la même line search).
+				<KatexInline formula={String.raw`\alpha = 1`} /> (Parikh & Boyd 2014 §4.2–§4.3 donnent la même
+				line search).
 			</p>
 		</DefinitionBlock>
 
@@ -649,14 +659,14 @@
 				<KatexInline formula={String.raw`2C/(k+1)^2`} />. Pour atteindre une précision
 				<KatexInline formula={String.raw`\varepsilon`} /> :
 				<KatexInline formula={String.raw`O(\sqrt{C/\varepsilon})`} /> itérations au lieu de
-				<KatexInline formula={String.raw`O(C/\varepsilon)`} /> — <strong>le carré s'épare</strong> (Beck & Teboulle 2009
-				: « which clearly improves ISTA »).
+				<KatexInline formula={String.raw`O(C/\varepsilon)`} /> — <strong>le carré s'épare</strong> (Beck
+				& Teboulle 2009 : « which clearly improves ISTA »).
 			</p>
 			<p>
 				Ce taux est <strong>optimal au pire cas</strong> parmi les méthodes au premier ordre pour les
 				problèmes convexes composites lisse + convexe : il ne peut pas être amélioré sans information
-				supplémentaire (Beck & Teboulle 2009 §1.2, §4, d'après Nesterov 1983 et Nemirovsky–Yudin 1979 ; Parikh & Boyd 2014 §4.3 « cannot
-				be improved further »).
+				supplémentaire (Beck & Teboulle 2009 §1.2, §4, d'après Nesterov 1983 et Nemirovsky–Yudin 1979
+				; Parikh & Boyd 2014 §4.3 « cannot be improved further »).
 			</p>
 		</TheoremBlock>
 
@@ -707,7 +717,8 @@
 			<KatexBlock formula={admmU} />
 			<p>
 				<KatexInline formula={String.raw`\rho > 0`} /> est la pénalité de la lagrangienne augmentée ;
-				<KatexInline formula={String.raw`u^{k}`} /> est la somme cumulée des résidus (Boyd et al. 2011 §3.1.1).
+				<KatexInline formula={String.raw`u^{k}`} /> est la somme cumulée des résidus (Boyd et al. 2011
+				§3.1.1).
 			</p>
 			<p>
 				<strong>Mécanique</strong> (Boyd et al. 2011 §3.1) : on forme la lagrangienne augmentée
@@ -770,13 +781,12 @@
 				<strong>toujours inversible</strong>
 				(<KatexInline formula={String.raw`\rho > 0`} />) ; sa factorisation se calcule une fois pour
 				toutes (« The x-update is essentially a ridge regression … ADMM can be interpreted as a
-				method for solving the lasso problem by iteratively carrying out ridge regression. » — Boyd et al. 2011
-				§6.4).
+				method for solving the lasso problem by iteratively carrying out ridge regression. » — Boyd
+				et al. 2011 §6.4).
 			</p>
 			<p>
-				<strong>Généralisation</strong> (Boyd et al. 2011 §6.3) : pour <em>n'importe quelle</em> perte convexe <KatexInline
-					formula={String.raw`\ell`}
-				/>,
+				<strong>Généralisation</strong> (Boyd et al. 2011 §6.3) : pour <em>n'importe quelle</em>
+				perte convexe <KatexInline formula={String.raw`\ell`} />,
 				<KatexInline formula={String.raw`\min \ell(x) + \lambda\lVert x\rVert_1`} /> se résout par le
 				même schéma — le x-update devient un proximal de
 				<KatexInline formula={String.raw`\ell`} /> (Newton si
@@ -789,7 +799,10 @@
 			</p>
 		</DefinitionBlock>
 
-		<Callout type="summary" title="Le choix en pratique (Parikh & Boyd 2014 §4.4, Boyd et al. 2011 §6.4)">
+		<Callout
+			type="summary"
+			title="Le choix en pratique (Parikh & Boyd 2014 §4.4, Boyd et al. 2011 §6.4)"
+		>
 			<table class="choice-table">
 				<thead>
 					<tr>
@@ -830,7 +843,8 @@
 							<KatexInline formula={String.raw`x^{k}`} /> « presque sparses »
 						</td>
 						<td>
-							<KatexInline formula={String.raw`z^{k}`} /> <strong>exactement sparses</strong> (Parikh & Boyd 2014 §4.4)
+							<KatexInline formula={String.raw`z^{k}`} /> <strong>exactement sparses</strong> (Parikh
+							& Boyd 2014 §4.4)
 						</td>
 					</tr>
 					<tr>
@@ -892,7 +906,10 @@
 			</p>
 		</Callout>
 
-		<Callout type="note" title="Nom alternatif : Douglas–Rachford splitting (Parikh & Boyd 2014 §4.4)">
+		<Callout
+			type="note"
+			title="Nom alternatif : Douglas–Rachford splitting (Parikh & Boyd 2014 §4.4)"
+		>
 			<p>
 				Pour <KatexInline formula={String.raw`\min f(x) + g(x)`} /> <strong>sans</strong> contrainte
 				(<KatexInline formula={String.raw`A = I`} />, <KatexInline formula={String.raw`B = -I`} />,
@@ -903,11 +920,12 @@
 			<KatexBlock formula={douglas2} />
 			<KatexBlock formula={douglas3} />
 			<p>
-				Parikh & Boyd 2014 l'appelle aussi <strong>Douglas–Rachford splitting</strong> et signale : « This method
-				converges under more or less the most general possible conditions; see [Boyd et al. 2011, §3.2] for
-				details. » C'est la méthode de splitting la plus générale pour la somme de deux convexes —
-				la descente proximale (section 3) en est le cas particulier où <KatexInline formula="f" /> est
-				lisse (on peut alors évaluer
+				Parikh & Boyd 2014 l'appelle aussi <strong>Douglas–Rachford splitting</strong> et signale :
+				« This method converges under more or less the most general possible conditions; see [Boyd
+				et al. 2011, §3.2] for details. » C'est la méthode de splitting la plus générale pour la
+				somme de deux convexes — la descente proximale (section 3) en est le cas particulier où <KatexInline
+					formula="f"
+				/> est lisse (on peut alors évaluer
 				<KatexInline formula={String.raw`\nabla f`} /> au lieu de son proximal). La convergence générale
 				(faible, et forte sous conditions) est celle du Théorème 3.4 de Combettes &amp; Wajs 2005 : pas
 				proximal
@@ -974,7 +992,10 @@
 				<KatexInline formula={String.raw`\nabla^2 \ell \preceq \frac{1}{4} X^{\top}X`} /> et
 			</p>
 			<KatexBlock formula={logLipschitz} />
-			<p>borne valide (calcul fait ici, aucune source nécessaire). FISTA (Beck & Teboulle 2009 (4.1)–(4.3)) :</p>
+			<p>
+				borne valide (calcul fait ici, aucune source nécessaire). FISTA (Beck & Teboulle 2009
+				(4.1)–(4.3)) :
+			</p>
 			<pre class="pseudo">{`Entrée : X (n×d), y (n), λ, L = (1/4)·λ_max(XᵀX)
 θ⁰ = 0 ;  y¹ = 0 ;  t₁ = 1
 Pour k = 1, 2, 3, … :
@@ -989,9 +1010,10 @@ Arrêt : ‖θᵏ − θ^{k−1}‖ < tol  ou  k = K_max`}</pre>
 				(<KatexInline formula={String.raw`n \times d`} />), un seuillage (<KatexInline
 					formula="d"
 				/>) — <strong>pas de système à résoudre</strong>. C'est la différence structurelle avec
-				l'ADMM sur le même problème (Boyd et al. 2011 §6.3 : x-update = Newton sur la logistique régularisée).
-				La deuxième démo de cette page implémente la version <strong>moindres carrés</strong> du même
-				pseudo-code (<KatexInline
+				l'ADMM sur le même problème (Boyd et al. 2011 §6.3 : x-update = Newton sur la logistique
+				régularisée). La deuxième démo de cette page implémente la version
+				<strong>moindres carrés</strong>
+				du même pseudo-code (<KatexInline
 					formula={String.raw`\ell(\theta) = \frac{1}{2}\lVert y - X\theta\rVert^2`}
 				/>), où <KatexInline formula={String.raw`L = \lambda_{\max}(X^{\top}X)`} /> est calculée exactement.
 			</p>
@@ -1011,7 +1033,8 @@ Arrêt : ‖θᵏ − θ^{k−1}‖ < tol  ou  k = K_max`}</pre>
 					<KatexInline formula={String.raw`\lVert\cdot\rVert_1`} /> (Parikh & Boyd 2014 eq. (1.2), (6.9)).
 				</li>
 				<li>
-					<strong>ISTA</strong> (Parikh & Boyd 2014 eq. (4.6), Beck & Teboulle 2009 Thm 3.1) : gradient + proximal,
+					<strong>ISTA</strong> (Parikh & Boyd 2014 eq. (4.6), Beck & Teboulle 2009 Thm 3.1) :
+					gradient + proximal,
 					<KatexInline formula={String.raw`O(1/k)`} /> en valeur — le « gradient » des problèmes composites.
 				</li>
 				<li>
@@ -1021,16 +1044,17 @@ Arrêt : ‖θᵏ − θ^{k−1}‖ < tol  ou  k = K_max`}</pre>
 					/> — optimal au pire cas ; coût d'itération identique.
 				</li>
 				<li>
-					<strong>ADMM</strong> (Boyd et al. 2011 eq. (3.5)–(3.7)) : éclatement + multiplicateur ; Lasso = «
-					Ridge itérée + seuillage » ; itérés
+					<strong>ADMM</strong> (Boyd et al. 2011 eq. (3.5)–(3.7)) : éclatement + multiplicateur ;
+					Lasso = « Ridge itérée + seuillage » ; itérés
 					<KatexInline formula={String.raw`z^{k}`} /> exactement sparses.
 				</li>
 				<li>
 					<strong>Le lien profond</strong> : <KatexInline
 						formula={String.raw`\operatorname{prox} = (I + \lambda\partial f)^{-1}`}
 					/>
-					(Parikh & Boyd 2014 (3.4)), Moreau <KatexInline formula={moreau} /> (Parikh & Boyd 2014 (2.4)), Douglas–Rachford = ADMM
-					sans contrainte (Parikh & Boyd 2014 §4.4) — sous-gradient et Fenchel se rejoignent dans un seul objet.
+					(Parikh & Boyd 2014 (3.4)), Moreau <KatexInline formula={moreau} /> (Parikh & Boyd 2014 (2.4)),
+					Douglas–Rachford = ADMM sans contrainte (Parikh & Boyd 2014 §4.4) — sous-gradient et Fenchel
+					se rejoignent dans un seul objet.
 				</li>
 			</ol>
 		</Callout>

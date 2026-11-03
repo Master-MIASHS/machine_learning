@@ -35,27 +35,33 @@
 	const PAD_B = 30;
 
 	const fOf = (x: number): number =>
-		kind === 'l1' ? Math.abs(x) + ((x - v) ** 2) / (2 * lambda) : 0.5 * x * x + ((x - v) ** 2) / (2 * lambda);
+		kind === 'l1'
+			? Math.abs(x) + (x - v) ** 2 / (2 * lambda)
+			: 0.5 * x * x + (x - v) ** 2 / (2 * lambda);
 
 	// l1: x* = S(v, λ) — computed via the tested proximal module [Parikh & Boyd 2014 (6.9)].
 	// l2: prox of f = (ρ/2)‖·‖² with parameter λ and ρ = 1: x* = λv/(λ+1),
 	// computed directly (proxL2Squared([v], 1/λ) gives the same value).
-	const xStar = $derived(kind === 'l1' ? proxL1([v], lambda)[0] : (lambda * v) / (lambda + 1));
+	const xStar = $derived(kind === 'l1' ? proxL1([v], lambda)[0] : v / (lambda + 1));
 
-	const pts = $derived.by(
-		() =>
-			Array.from({ length: N_PTS }, (_, i) => {
-				const x = X_MIN + ((X_MAX - X_MIN) * i) / (N_PTS - 1);
-				return [x, fOf(x)] as [number, number];
-			}),
-	);
+	const pts = $derived.by(() => {
+		const xs = [
+			...Array.from({ length: N_PTS }, (_, i) => X_MIN + ((X_MAX - X_MIN) * i) / (N_PTS - 1)),
+			xStar
+		].sort((a, b) => a - b);
 
+		return xs.map((x) => [x, fOf(x)] as [number, number]);
+	});
 	const yMax = $derived(Math.max(...pts.map(([, yv]) => yv)) * 1.08);
 
 	const sx = (x: number) => PAD_L + ((x - X_MIN) / (X_MAX - X_MIN)) * (W - PAD_L - PAD_R);
 	const sy = (y: number) => H - PAD_B - (y / yMax) * (H - PAD_T - PAD_B);
 
-	const path = $derived(pts.map(([x, yv], i) => `${i === 0 ? 'M' : 'L'}${sx(x).toFixed(2)} ${sy(yv).toFixed(2)}`).join(' '));
+	const path = $derived(
+		pts
+			.map(([x, yv], i) => `${i === 0 ? 'M' : 'L'}${sx(x).toFixed(2)} ${sy(yv).toFixed(2)}`)
+			.join(' ')
+	);
 
 	const zeroXs = $derived(Array.from({ length: 13 }, (_, i) => X_MIN + i));
 
@@ -70,7 +76,14 @@
 	<Figure type="chart">
 		<svg viewBox={`0 0 ${W} ${H}`} width="100%" role="img" aria-label={ariaLabel}>
 			<!-- x axis -->
-			<line x1={PAD_L} y1={sy(0)} x2={W - PAD_R} y2={sy(0)} stroke="var(--color-border)" stroke-width="1.5" />
+			<line
+				x1={PAD_L}
+				y1={sy(0)}
+				x2={W - PAD_R}
+				y2={sy(0)}
+				stroke="var(--color-border)"
+				stroke-width="1.5"
+			/>
 			{#each zeroXs as tick (tick)}
 				<line x1={sx(tick)} y1={sy(0)} x2={sx(tick)} y2={sy(0) + 4} stroke="var(--color-border)" />
 				<text
@@ -96,12 +109,24 @@
 				stroke-dasharray="4 3"
 				opacity="0.7"
 			/>
-			<text x={sx(v)} y={PAD_T - 4} text-anchor="middle" fill="var(--color-text-muted)" font-size="10.5">
+			<text
+				x={sx(v)}
+				y={PAD_T - 4}
+				text-anchor="middle"
+				fill="var(--color-text-muted)"
+				font-size="10.5"
+			>
 				v = {v.toFixed(2)}
 			</text>
 
 			<!-- penalty curve -->
-			<path d={path} fill="none" stroke="var(--color-belief)" stroke-width="2.5" stroke-linejoin="round" />
+			<path
+				d={path}
+				fill="none"
+				stroke="var(--color-belief)"
+				stroke-width="2.5"
+				stroke-linejoin="round"
+			/>
 
 			<!-- argmin marker -->
 			<line
@@ -114,7 +139,14 @@
 				stroke-dasharray="3 3"
 				opacity="0.8"
 			/>
-			<circle cx={sx(xStar)} cy={sy(fOf(xStar))} r="5.5" fill="var(--color-surprise)" stroke="var(--color-bg)" stroke-width="2" />
+			<circle
+				cx={sx(xStar)}
+				cy={sy(fOf(xStar))}
+				r="5.5"
+				fill="var(--color-surprise)"
+				stroke="var(--color-bg)"
+				stroke-width="2"
+			/>
 		</svg>
 	</Figure>
 
@@ -130,12 +162,8 @@
 	</SliderGrid>
 
 	<div class="kind-toggle" role="group" aria-label="Choix de la pénalité">
-		<button class:active={kind === 'l1'} onclick={() => (kind = 'l1')}>
-			f = ‖·‖₁ (Lasso)
-		</button>
-		<button class:active={kind === 'l2'} onclick={() => (kind = 'l2')}>
-			f = ½‖·‖₂² (Ridge)
-		</button>
+		<button class:active={kind === 'l1'} onclick={() => (kind = 'l1')}> f = ‖·‖₁ (Lasso) </button>
+		<button class:active={kind === 'l2'} onclick={() => (kind = 'l2')}> f = ½‖·‖₂² (Ridge) </button>
 	</div>
 
 	<div class="result-box">
@@ -160,16 +188,16 @@
 			<KatexInline formula="v" /> ; le terme
 			<KatexInline formula="|x|" /> tire vers
 			<KatexInline formula="0" /> — et <strong>annule exactement</strong> la solution dès que
-			<KatexInline formula={String.raw`|v| \le \lambda`} /> (c'est le soft-thresholding, Parikh & Boyd 2014 eq. (6.9) :
-			la sélection de variables du Lasso, coordonnée par coordonnée).
+			<KatexInline formula={String.raw`|v| \le \lambda`} /> (c'est le soft-thresholding, Parikh & Boyd
+			2014 eq. (6.9) : la sélection de variables du Lasso, coordonnée par coordonnée).
 		{:else}
 			La courbe est <KatexInline
 				formula={String.raw`x \mapsto \tfrac{1}{2}x^2 + \tfrac{1}{2\lambda}(x - v)^2`}
 			/>
 			. Le Ridge rétrécit uniformément vers zéro (facteur
-			<KatexInline formula={String.raw`\frac{\lambda}{\lambda+1}`} />)
-			mais n'annule <strong>jamais</strong> une coordonnée non nulle : la différence comportementale
-			Lasso vs Ridge de la Partie V, vue du côté de l'algorithme.
+			<KatexInline formula={String.raw`\frac{\lambda}{\lambda+1}`} />) mais n'annule
+			<strong>jamais</strong> une coordonnée non nulle : la différence comportementale Lasso vs Ridge
+			de la Partie V, vue du côté de l'algorithme.
 		{/if}
 	</p>
 </div>

@@ -341,7 +341,7 @@
 		</DefinitionBlock>
 
 		<p>
-			C'est la formule interpole exactement entre les deux cas extrêmes : en posant <KatexInline
+			La formule interpole entre les deux cas extrêmes : en posant <KatexInline
 				formula={String.raw`B=1`}
 			/>, on retrouve le SGD pur (Algorithme 3.9) ; en posant <KatexInline
 				formula={String.raw`B=n`}
@@ -376,12 +376,13 @@
 		<h3>1.3 Convergence asymptotique du SGD</h3>
 
 		<p>
-			Le caractère sans biais de l'estimateur (Proposition 3.10) ne suffit pas, à lui seul, à garantir
-			la convergence de l'algorithme : un estimateur non biaisé mais dont le bruit ne diminue jamais
-			peut très bien osciller indéfiniment autour du minimum sans jamais s'en approcher. C'est le
-			rôle de la suite de pas <KatexInline formula={alphakSym} /> : elle doit décroître suffisamment vite
-			pour amortir progressivement le bruit stochastique, mais rester assez grande, assez longtemps, pour
-			permettre à l'algorithme d'explorer l'espace et de ne pas se figer prématurément loin de l'optimum.
+			Le caractère sans biais de l'estimateur (Proposition 3.10) ne suffit pas, à lui seul, à
+			garantir la convergence de l'algorithme : un estimateur non biaisé mais dont le bruit ne
+			diminue jamais peut très bien osciller indéfiniment autour du minimum sans jamais s'en
+			approcher. C'est le rôle de la suite de pas <KatexInline formula={alphakSym} /> : elle doit décroître
+			suffisamment vite pour amortir progressivement le bruit stochastique, mais rester assez grande,
+			assez longtemps, pour permettre à l'algorithme d'explorer l'espace et de ne pas se figer prématurément
+			loin de l'optimum.
 		</p>
 
 		<TheoremBlock title="Convergence du SGD — conditions de Robbins-Monro">
@@ -674,8 +675,10 @@
 
 		<Callout type="intuition" title="Newton sur un quadratique pur">
 			<p>
-				Si <KatexInline formula={newtonExactQuad} />, le modèle de Taylor d'ordre 2 est exact — non
-				pas une approximation locale, mais une égalité valable sur tout l'espace :
+				Si <KatexInline formula={newtonExactQuad} />, avec <KatexInline
+					formula={String.raw`Q+Q^\top`}
+				/> inversible, le modèle de Taylor d'ordre 2 est exact — non pas une approximation locale, mais
+				une égalité valable sur tout l'espace :
 				<KatexInline formula={modelEqualsF} />. Newton converge donc en un seul pas, quelle que soit
 				l'inclinaison ou le conditionnement de la fonction quadratique : l'Hessienne est constante
 				et l'approximation quadratique est parfaite partout, pas seulement au voisinage du point
@@ -693,12 +696,12 @@
 		<h3>3.2 Amortissement et recherche de ligne</h3>
 
 		<p>
-			Le Théorème 3.14 est un résultat <strong>local</strong> : il ne s'applique que "pour tout point initial
-			suffisamment proche" du minimum. Loin de l'optimum, la direction de Newton peut être mal conditionnée,
-			voire pointer dans une direction qui n'est pas du tout une direction de descente — en particulier
-			si l'Hessienne n'est pas définie positive en ce point (un point-selle, par exemple, comme ceux rencontrés
-			dans les contre-exemples de la Leçon 1). Pour rendre la méthode robuste sur tout le domaine, et
-			pas seulement près du minimum, on introduit un pas amorti :
+			Le Théorème 3.14 est un résultat <strong>local</strong> : il ne s'applique que "pour tout point
+			initial suffisamment proche" du minimum. Loin de l'optimum, la direction de Newton peut être mal
+			conditionnée, voire pointer dans une direction qui n'est pas du tout une direction de descente —
+			en particulier si l'Hessienne n'est pas définie positive en ce point (un point-selle, par exemple,
+			comme ceux rencontrés dans les contre-exemples de la Leçon 1). Pour rendre la méthode robuste sur
+			tout le domaine, et pas seulement près du minimum, on introduit un pas amorti :
 		</p>
 
 		<DefinitionBlock title="Newton amorti (Damped Newton)">
@@ -712,8 +715,8 @@
 					formula="10^{-4}"
 				/>). Cette condition garantit que le pas choisi produit une décroissance suffisante de <KatexInline
 					formula={fSym}
-				/>, même quand le pas complet <KatexInline formula="\alpha_k = 1" /> (celui utilisé dans la méthode de
-				Newton ci-dessus) ne le ferait pas.
+				/>, même quand le pas complet <KatexInline formula="\alpha_k = 1" /> (celui utilisé dans la méthode
+				de Newton ci-dessus) ne le ferait pas.
 			</p>
 		</DefinitionBlock>
 

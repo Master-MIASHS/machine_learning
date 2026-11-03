@@ -723,7 +723,9 @@
 			title="Voir la correction du biais"
 			onInteract={tracker.trackInteraction}
 		>
-			<DeferredDemo load={() => import('$lib/components/demos/AdamBiasCorrectionExplorer.svelte')} />
+			<DeferredDemo
+				load={() => import('$lib/components/demos/AdamBiasCorrectionExplorer.svelte')}
+			/>
 		</InteractiveSection>
 	</TheorySection>
 
@@ -781,7 +783,9 @@
 			title="Explorer le taux d’apprentissage effectif"
 			onInteract={tracker.trackInteraction}
 		>
-			<DeferredDemo load={() => import('$lib/components/demos/EffectiveLearningRateExplorer.svelte')} />
+			<DeferredDemo
+				load={() => import('$lib/components/demos/EffectiveLearningRateExplorer.svelte')}
+			/>
 		</InteractiveSection>
 
 		<Callout type="warning" title="Ce n’est pas Newton">
@@ -847,12 +851,12 @@
 			title="β₂ et non-stationnarité"
 			onInteract={tracker.trackInteraction}
 		>
-			<DeferredDemo load={() => import('$lib/components/demos/Beta2NonStationarityExplorer.svelte')} />
+			<DeferredDemo
+				load={() => import('$lib/components/demos/Beta2NonStationarityExplorer.svelte')}
+			/>
 		</InteractiveSection>
 
 		<h3>ε : le petit terme qui peut devenir important</h3>
-
-		<p>Adam ajoute :</p>
 
 		<p>
 			Pour chaque coordonnée <KatexInline formula={'i'} />, Adam ajoute un terme de régularisation
