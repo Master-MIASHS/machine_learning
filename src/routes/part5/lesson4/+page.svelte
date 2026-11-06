@@ -121,7 +121,7 @@
 
 	// Effective degrees of freedom of Ridge — the classical (non-CV) bridge to AIC/Cp
 	const effectiveDf =
-		'\\operatorname{df}(\\lambda) = \\sum_{i=1}^{p} \\frac{d_i}{d_i + \\lambda} = \\operatorname{tr}\\bigl(X(X^\\topX+\\lambda I)^{-1}X^\\top\\bigr)';
+		'\\operatorname{df}(\\lambda) = \\sum_{i=1}^{p} \\frac{d_i}{d_i + \\lambda} = \\operatorname{tr}\\bigl(X(X^\\top X+\\lambda I)^{-1}X^\\top\\bigr)';
 	const aicRidge =
 		'\\operatorname{AIC}(\\lambda) = n \\log(\\hat\\sigma^2_\\lambda) + 2\\,\\operatorname{df}(\\lambda)';
 
@@ -383,9 +383,9 @@
 		<KatexBlock formula={ridgeSolution} />
 
 		<p>
-			Cette formule est valable même lorsque <KatexInline formula={'X^\\top X'} /> est singulière (ce qui
-			arrive quand p > n). Le terme <KatexInline formula={'\\lambda I'} /> garantit que la matrice à inverser
-			est toujours définie positive.
+			Cette formule est valable même lorsque <KatexInline formula={'X^\\top X'} /> est singulière (ce
+			qui arrive quand p > n). Le terme <KatexInline formula={'\\lambda I'} /> garantit que la matrice
+			à inverser est toujours définie positive.
 		</p>
 
 		<h3>Interprétation géométrique</h3>
@@ -627,12 +627,10 @@
 			/> de la démo ci-dessous.
 		</Callout>
 
-		<InteractiveSection
-			number="4.4"
-			title="Conditionnement"
-			onInteract={tracker.trackInteraction}
-		>
-			<DeferredDemo load={() => import('$lib/components/demos/IllConditionningExplosionDemo.svelte')} />
+		<InteractiveSection number="4.4" title="Conditionnement" onInteract={tracker.trackInteraction}>
+			<DeferredDemo
+				load={() => import('$lib/components/demos/IllConditionningExplosionDemo.svelte')}
+			/>
 		</InteractiveSection>
 	</ExpertPanel>
 
@@ -740,8 +738,9 @@
 					<strong>Tant que</strong> des variables peuvent être ajoutées :
 					<ul>
 						<li>
-							Trouver la variable <KatexInline formula={larsXj} /> la plus corrélée avec le
-							résidu : <KatexInline formula={larsMaxCorr} />
+							Trouver la variable <KatexInline formula={larsXj} /> la plus corrélée avec le résidu : <KatexInline
+								formula={larsMaxCorr}
+							/>
 						</li>
 						<li>
 							Ajouter <KatexInline formula={larsXjStar} /> à l'ensemble actif
