@@ -900,7 +900,7 @@
 			K modèles de validation ne servent qu'à l'évaluation.
 		</p>
 
-		<h3>La règle du « une écart-type »</h3>
+		<h3>La règle du « un écart-type »</h3>
 
 		<p>
 			En pratique, on préfère souvent choisir une valeur de <KatexInline formula={'\\lambda'} /> plus
