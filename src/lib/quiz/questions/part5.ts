@@ -259,6 +259,145 @@ export const PART5: QuizQuestion[] = [
 			"La définition 8.6 décrit une érosion multiplicative par (1 - eta lambda) avant l'application du gradient de la tâche."
 	},
 	{
+		id: 'p5-dd-q1',
+		tags: ['p5/double-descente/regression-lineaire'],
+		question:
+			"Pour l'estimateur de norme minimale X⁺y avec un design gaussien n × p, où se situe le seuil d'interpolation (risque d'entraînement nul) ?",
+		options: [
+			'p = n/2',
+			'p = n',
+			'p = 2n',
+			'Il n’existe pas : le risque d’entraînement ne s’annule jamais'
+		],
+		answerIndex: 1,
+		explanation:
+			'Proposition 6.2 : dès que p ≥ n, X est presque sûrement de rang n, donc XX⁺ = Iₙ et Xβ̂ = y. Le Théorème 6.3 montre que le risque de test espéré est infini pour n − 1 ≤ p ≤ n + 1.'
+	},
+	{
+		id: 'p5-dd-q2',
+		tags: ['p5/double-descente/regression-lineaire'],
+		question:
+			'Dans le régime sur-paramétré (p ≥ n + 2), d’où vient le terme ‖β_T‖²(1 − n/p) du risque de l’interpolant de norme minimale (Théorème 6.3) ?',
+		options: [
+			'Du bruit amplifié par les petites valeurs singulières',
+			'Du biais : la solution de norme minimale ne capte que la projection du signal sur l’espace (de dimension n) engendré par les lignes de X',
+			'Des variables ignorées, qui agissent comme un bruit supplémentaire',
+			'De l’erreur d’optimisation de la descente de gradient'
+		],
+		answerIndex: 1,
+		explanation:
+			'β̂ − β_T = −(I − Π)β_T + X⁺ξ, où Π projette sur l’espace des lignes de X ; par invariance par rotation, ce sous-espace aléatoire de dimension n capte en moyenne une fraction n/p de ‖β_T‖². C’est un biais, qui n’existe pas pour p ≤ n.'
+	},
+	{
+		id: 'p5-dd-q3',
+		tags: ['p5/double-descente/conditionnement'],
+		question:
+			'Pourquoi la variance de l’estimateur de norme minimale explose-t-elle quand p/n → 1 ?',
+		options: [
+			'Parce que le nombre de paramètres devient infini',
+			'Parce que la plus petite valeur propre non nulle de XᵀX/n tend vers (1 − √γ)², qui s’annule en γ = 1, et que la variance vaut σ² Σ 1/sᵢ²',
+			'Parce que la matrice XᵀX devient diagonale',
+			'Parce que le biais devient négatif'
+		],
+		answerIndex: 1,
+		explanation:
+			'Proposition 6.5 : la variance est σ² Σᵢ 1/sᵢ², dominée par la plus petite valeur singulière. Théorème 6.6 (Marchenko–Pastur, Bai–Yin) : le bord gauche du spectre (1 − √γ)² touche 0 en γ = 1. C’est un problème de conditionnement.'
+	},
+	{
+		id: 'p5-dd-q4',
+		tags: ['p5/double-descente/regularisation'],
+		question:
+			'Dans le modèle isotrope (‖β‖² = r², bruit σ², objectif (1/n)‖y − Xb‖² + λ‖b‖²), quelle pénalité Ridge minimise le risque asymptotique ?',
+		options: ['λ* = r²/σ²', 'λ* = σ²γ/r²', 'λ* = 0', 'λ* = γ'],
+		answerIndex: 1,
+		explanation:
+			'Théorème 6.8 : λ* = σ²γ/r². C’est la pénalité de la moyenne a posteriori sous l’a priori β ~ N(0, (r²/p)I). Le Ridge ainsi réglé domine l’interpolant de norme minimale pour tout γ et reste fini en γ = 1.'
+	},
+	{
+		id: 'p5-dd-q5',
+		tags: ['p5/double-descente/regularisation'],
+		question: 'Quelle borne la Proposition 6.7 donne-t-elle sur la variance de Ridge (λ > 0) ?',
+		options: [
+			'σ² Σ 1/sᵢ², comme pour la norme minimale',
+			'σ²/(4λ), quel que soit le conditionnement de X',
+			'σ² λ',
+			'Aucune : la variance peut être infinie si X est mal conditionnée'
+		],
+		answerIndex: 1,
+		explanation:
+			'Chaque direction contribue σ² sᵢ²/(sᵢ² + nλ)² ≤ σ²/(4nλ) car (s² + c)² ≥ 4cs² ; avec au plus min(n, p) ≤ n directions, on obtient σ²/(4λ).'
+	},
+	{
+		id: 'p5-dd-q6',
+		tags: ['p5/double-descente/classification'],
+		question:
+			'D’après le théorème de Cover, pour n points en position générale de ℝᵈ munis d’étiquettes aléatoires, la probabilité d’être séparables par un hyperplan passant par l’origine vaut 1/2 lorsque :',
+		options: ['n = d', 'n = 2d', 'n = d²', 'n = d/2'],
+		answerIndex: 1,
+		explanation:
+			'Théorème 6.11 : P(séparable) = P(Bin(n − 1, 1/2) ≤ d − 1), qui vaut exactement 1/2 en n = 2d par symétrie. Pour la perte logistique ou la marge maximale, c’est cette transition de séparabilité (et non p = n) qui joue le rôle de seuil d’interpolation.'
+	},
+	{
+		id: 'p5-dd-q10',
+		tags: ['p5/double-descente/classification'],
+		question:
+			'En régression logistique, sur des données strictement linéairement séparables, que se passe-t-il pour le risque empirique logistique (1/n) Σ log(1 + exp(−yᵢ wᵀxᵢ)) ?',
+		options: [
+			'Il est minimisé en un unique w, où il vaut exactement 0',
+			'Son infimum vaut 0 mais n’est atteint en aucun w : le maximum de vraisemblance n’existe pas et ‖w‖ diverge le long de la descente de gradient',
+			'Il reste minoré par une constante strictement positive',
+			'Il vaut 0 dès que p = n, comme pour les moindres carrés'
+		],
+		answerIndex: 1,
+		explanation:
+			'Proposition 6.10 : chaque terme est strictement positif (la sigmoïde n’atteint jamais 0 ni 1), mais le long d’un séparateur strict, L(tw) → 0 quand t → ∞. On n’interpole que les étiquettes (erreur 0-1 nulle), jamais les probabilités. Une pénalité λ‖w‖² rétablit l’existence d’un minimiseur.'
+	},
+	{
+		id: 'p5-dd-q7',
+		tags: ['p5/double-descente/classification'],
+		question:
+			'Pour un classifieur obtenu par moindres carrés de norme minimale sur des étiquettes ±1 (covariables gaussiennes), que devient l’erreur de test quand p/n → 1 ?',
+		options: [
+			'Elle tend vers 0',
+			'Elle tend vers 1/2 (le niveau du hasard), quel que soit le rapport signal sur bruit',
+			'Elle tend vers le niveau de bruit des étiquettes',
+			'Elle ne dépend pas de p/n'
+		],
+		answerIndex: 1,
+		explanation:
+			'Kini & Thrampoulidis (2020) : pour la perte carrée, l’erreur de test tend vers 1/2 au seuil p = n. Opper et al. (1990) l’avaient déjà observé pour le perceptron par pseudo-inverse.'
+	},
+	{
+		id: 'p5-dd-q8',
+		tags: ['p5/double-descente/deep-learning'],
+		question:
+			'Selon Nakkiran et al. (2020), lequel de ces changements déplace le pic de double descente vers des modèles PLUS GRANDS ?',
+		options: [
+			'Réduire le bruit d’étiquettes',
+			'Augmenter le nombre d’exemples d’entraînement',
+			'Diminuer la durée d’entraînement à zéro',
+			'Supprimer l’augmentation de données'
+		],
+		answerIndex: 1,
+		explanation:
+			'Toute modification qui repousse le seuil d’interpolation — plus d’exemples, bruit d’étiquettes, augmentation de données — repousse le pic vers des modèles plus grands. D’où le phénomène « plus de données peut nuire » pour certaines tailles de modèle.'
+	},
+	{
+		id: 'p5-dd-q9',
+		tags: ['p5/double-descente/deep-learning'],
+		question:
+			'Dans le régime paresseux, d’Ascoli et al. (2020) attribuent le pic au seuil d’interpolation à :',
+		options: [
+			'Un biais qui explose',
+			'La variance due au bruit d’étiquettes et celle due à l’initialisation aléatoire',
+			'Une erreur d’arrondi numérique',
+			'La seule variance due à l’échantillonnage des données'
+		],
+		answerIndex: 1,
+		explanation:
+			'Le sur-apprentissage au seuil est entièrement dû aux variances liées au bruit et à l’initialisation ; moyenner K modèles indépendamment initialisés les atténue en 1/K.'
+	},
+	{
 		id: 'p5-syn-q1',
 		tags: ['p5/synthese'],
 		question: "Quel est l'objectif principal du Bagging (Bootstrap Aggregating) ?",

@@ -13,16 +13,17 @@ async function load() {
 }
 
 describe('PAGES', () => {
-	it('contains exactly five expert pages (Adam, méthodes proximales, dualité KKT, RKHS, bootstrap)', async () => {
+	it('contains exactly six expert pages (Adam, méthodes proximales, dualité KKT, RKHS, bootstrap, double descente)', async () => {
 		const { PAGES } = await load();
 		const experts = PAGES.filter((p) => p.expert);
-		expect(experts).toHaveLength(5);
+		expect(experts).toHaveLength(6);
 		expect(experts.map((p) => p.path)).toEqual([
 			'/part1/lesson3-adam',
 			'/part1/methodes-proximales',
 			'/part1/dualite-convexe-kkt',
 			'/part2/rkhs-methodes-noyau',
-			'/part4/bootstrap-theorie'
+			'/part4/bootstrap-theorie',
+			'/part5/double-descente'
 		]);
 	});
 

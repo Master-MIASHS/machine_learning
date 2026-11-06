@@ -92,6 +92,12 @@ const RAW_PAGES = [
 	{ path: '/part5/lesson2', title: 'Random Forest & sélection de features', part: 5 },
 	{ path: '/part5/lesson3', title: 'Boosting (AdaBoost, Gradient Boosting)', part: 5 },
 	{ path: '/part5/lesson4', title: 'Régularisation L1/L2/Elastic Net', part: 5 },
+	{
+		path: '/part5/double-descente',
+		title: 'La double descente',
+		part: 5,
+		expert: true
+	},
 	{ path: '/part5/quiz', title: 'Quiz de synthèse', part: 5 },
 	{ path: '/part5/exercices', title: 'Exercices', part: 5 },
 	{ path: '/part5/practice/travaux-pratiques', title: 'Travaux pratiques', part: 5 },
