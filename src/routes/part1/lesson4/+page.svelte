@@ -19,6 +19,7 @@
 	// ── Demos ──
 
 	// ── Navigation ──
+	import { resolve } from '$app/paths';
 	import { getPageByPath, getAdjacentPages } from '$lib/navigation.js';
 	import { settings } from '$lib/stores/index.js';
 	import { createPageTracker } from '$lib/stores/progress.svelte';
@@ -565,7 +566,10 @@
 			</p>
 			<KatexBlock formula={softThreshold} />
 			<p>
-				où <KatexInline formula="z_j" /> est la valeur qui minimiserait le terme quadratique seul. Cette
+				où <KatexInline formula="z_j" /> est la valeur qui minimiserait le terme quadratique seul (formule
+				écrite pour une colonne normalisée, <KatexInline formula={String.raw`\|A_j\| = 1`} /> ; la
+				justification par le sous-gradient est donnée dans la leçon experte
+				<a href={resolve('/part1/sous-gradient')}>Introduction au sous-gradient</a>). Cette
 				formule explicite est exactement ce qui rend CD si naturel pour le Lasso : chaque mise à jour
 				de coordonnée a un coût de calcul minime, et le résultat révèle directement quelles coordonnées
 				sont poussées à exactement zéro (d'où la sparsité de la solution), sans qu'aucune approximation

@@ -7,7 +7,7 @@ anchor: conditions-necessaires
 title: "Sous-gradient et optimisation non lisse"
 level: m2
 priority: 2
-status: pending
+status: implemented  # couvert par la leçon experte p1-lesson-sous-gradient-introduction (/part1/sous-gradient)
 related: [p1-lesson-methodes-proximales-fista-admm, p5-l4-lasso-oracle-irrepresentable]
 sources:
   - course_sources/typst/optim.typ

@@ -233,11 +233,11 @@ export const PART5: QuizQuestion[] = [
 		id: 'p5-l4-q2',
 		tags: ['p5/l4'],
 		question:
-			'Dans le cas de colonnes orthonormales, si le coefficient OLS vaut 0.8 et lambda vaut 1.0, la solution Lasso vaut :',
+			'Lasso min ‖y − Xw‖² + λ‖w‖₁ (objectif de la leçon) avec colonnes orthonormales : si le coefficient OLS vaut 0.8 et λ = 2, la solution Lasso vaut :',
 		options: ['1.8', '0.8', '0', '-0.2'],
 		answerIndex: 2,
 		explanation:
-			'Le soft-thresholding calcule max(0.8 − 1.0, 0), donc 0. Le coefficient passe exactement à zéro, ce qui réalise une sélection de variables.'
+			'Sans facteur ½ devant le terme quadratique, le seuil du soft-thresholding est λ/2 = 1 : max(0.8 − 1, 0) = 0. Le coefficient passe exactement à zéro, ce qui réalise une sélection de variables.'
 	},
 	{
 		id: 'p5-l4-q3',

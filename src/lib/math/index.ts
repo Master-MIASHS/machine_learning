@@ -23,6 +23,7 @@ export * from './stochastic.js';
 export * from './coordinate-descent.js';
 export * from './newton.js';
 export * from './adam.js';
+export * from './subgradient.js';
 
 // ── Part II — Classification (CM1) ──
 export * from './metrics.js';

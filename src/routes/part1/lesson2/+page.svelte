@@ -739,7 +739,9 @@
 					`}
 		/>
 		<p>
-			Pour des features orthonormées (<KatexInline formula={String.raw`X^\top X = I`} />), la
+			Pour des features orthogonales normalisées (<KatexInline formula={String.raw`X^\top X = nI`} />,
+			c'est-à-dire <KatexInline formula={String.raw`\tfrac{1}{n}X^\top X = I`} />, ce qui s'accorde avec le
+			facteur <KatexInline formula={String.raw`\tfrac{1}{2n}`} /> de l'objectif), la
 			solution se décompose en coordonnées indépendantes. Chaque poids suit l'<strong
 				>opérateur de seuillage doux</strong
 			> :

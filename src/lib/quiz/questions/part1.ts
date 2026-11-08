@@ -375,6 +375,108 @@ export const PART1: QuizQuestion[] = [
 			"Callout « Limites de Newton en grande dimension » : la Hessienne est une matrice d × d (d² nombres) et son inversion coûte O(d³), contre le coût linéaire O(d) d'un pas de gradient ou de CD. Pour d = 10⁶ elle est tout simplement inapplicable : on utilise alors du Quasi-Newton (BFGS, L-BFGS), le gradient conjugué non linéaire ou des approximations diagonales de la Hessienne (comme dans Adam)."
 	},
 	{
+		id: 'p1-sous-gradient-q1',
+		tags: ['p1/sous-gradient'],
+		question:
+			'Soit f : ℝ → ℝ convexe. Que signifie « c est une sous-dérivée de f en x » (Définition E.1) ?',
+		options: [
+			'f(y) ≥ f(x) + c(y − x) pour tout y : la droite de pente c passant par (x, f(x)) reste sous le graphe',
+			'f(y) ≤ f(x) + c(y − x) pour tout y : la droite reste au-dessus du graphe',
+			'c est la limite du taux d’accroissement à droite uniquement',
+			'c est la plus petite valeur prise par f'
+		],
+		answerIndex: 0,
+		explanation:
+			'Définition E.1 : c est une sous-dérivée si la droite d’appui y ↦ f(x) + c(y − x) minore f partout. C’est une condition globale, qui généralise la propriété « la tangente reste sous le graphe » des fonctions convexes dérivables.'
+	},
+	{
+		id: 'p1-sous-gradient-q2',
+		tags: ['p1/sous-gradient'],
+		question: 'Que vaut le sous-différentiel de f(x) = |x| en x = 0 ?',
+		options: ['{0}', '[−1, 1]', '{−1, 1} (deux points seulement)', 'l’ensemble vide, car |·| n’est pas dérivable en 0'],
+		answerIndex: 1,
+		explanation:
+			'Proposition E.2 : ∂f(0) = [f′₋(0), f′₊(0)] = [−1, 1]. Toutes les pentes comprises entre −1 et 1 donnent une droite sous le graphe de |·| ; le sous-différentiel d’une fonction convexe n’est jamais vide.'
+	},
+	{
+		id: 'p1-sous-gradient-q3',
+		tags: ['p1/sous-gradient'],
+		question:
+			'Soit f : ℝᵈ → ℝ convexe et différentiable en x. Que vaut ∂f(x) (Proposition E.5) ?',
+		options: [
+			'un intervalle contenant ∇f(x)',
+			'{0}',
+			'le singleton {∇f(x)}',
+			'la boule unité centrée en ∇f(x)'
+		],
+		answerIndex: 2,
+		explanation:
+			'Proposition E.5, point 1 : là où f est différentiable, le seul sous-gradient est le gradient. La notion de sous-gradient prolonge donc celle de gradient sans rien changer aux points lisses.'
+	},
+	{
+		id: 'p1-sous-gradient-q4',
+		tags: ['p1/sous-gradient'],
+		question: 'Pour f convexe, que dit la règle de Fermat (Théorème E.7) ?',
+		options: [
+			'x* minimise f si et seulement si ∇f(x*) = 0, même quand f n’est pas dérivable',
+			'x* minimise f si et seulement si 0 ∈ ∂f(x*)',
+			'x* minimise f si et seulement si ∂f(x*) = {0}',
+			'x* minimise f si et seulement si tous les sous-gradients en x* sont positifs'
+		],
+		answerIndex: 1,
+		explanation:
+			'Théorème E.7 : 0 ∈ ∂f(x*) signifie f(y) ≥ f(x*) + ⟨0, y − x*⟩ = f(x*) pour tout y, c’est-à-dire que x* est un minimiseur global. Il suffit que 0 soit l’une des pentes admissibles : ∂f(x*) peut être beaucoup plus grand que {0} (par exemple [−1, 1] pour |·| en 0).'
+	},
+	{
+		id: 'p1-sous-gradient-q5',
+		tags: ['p1/sous-gradient'],
+		question: 'Lequel de ces vecteurs appartient à ∂‖·‖₁(w) pour w = (2, 0, −3) ?',
+		options: ['(1, 0.4, −1)', '(2, 0, −3)', '(1, 1.5, −1)', '(1, 0.4, 1)'],
+		answerIndex: 0,
+		explanation:
+			'Exemple E.6 : ∂‖w‖₁ se calcule coordonnée par coordonnée, g_j = sign(w_j) si w_j ≠ 0 et g_j ∈ [−1, 1] si w_j = 0. Ici ∂‖·‖₁(2, 0, −3) = {(1, s, −1) : s ∈ [−1, 1]} ; seul (1, 0.4, −1) convient.'
+	},
+	{
+		id: 'p1-sous-gradient-q6',
+		tags: ['p1/sous-gradient'],
+		question:
+			'Lasso min ½‖y − Xw‖² + λ‖w‖₁ avec XᵀX = I et z = Xᵀy. Quand la coordonnée ŵ_j est-elle exactement nulle (Théorème E.8) ?',
+		options: [
+			'jamais : le Lasso ne fait que rétrécir les coefficients',
+			'si et seulement si z_j = 0',
+			'si et seulement si |z_j| ≤ λ',
+			'si et seulement si |z_j| ≥ λ'
+		],
+		answerIndex: 2,
+		explanation:
+			'Théorème E.8 : ŵ_j = sign(z_j) max(|z_j| − λ, 0). Le cas w_j = 0 de la règle de Fermat s’écrit 0 ∈ −z_j + λ[−1, 1], soit |z_j| ≤ λ : le sous-différentiel de |·| en 0 absorbe le gradient du terme quadratique. C’est l’origine de la sélection de variables.'
+	},
+	{
+		id: 'p1-sous-gradient-q7',
+		tags: ['p1/sous-gradient'],
+		question:
+			'Avec covariables orthonormales, on écrit cette fois le Lasso sans le facteur ½ : min ‖y − Xw‖² + λ‖w‖₁. Quel est le seuil du seuillage doux ?',
+		options: ['λ', 'λ/2', '2λ', '√λ'],
+		answerIndex: 1,
+		explanation:
+			'‖y − Xw‖² + λ‖w‖₁ = 2[½‖y − Xw‖² + (λ/2)‖w‖₁] : on retombe sur le Théorème E.8 avec λ/2 à la place de λ. La forme sign(z) max(|z| − seuil, 0) est la même, mais le seuil dépend de la normalisation de l’objectif.'
+	},
+	{
+		id: 'p1-sous-gradient-q8',
+		tags: ['p1/sous-gradient'],
+		question:
+			'Pourquoi suit-on la meilleure valeur f_best(k) = min_{i ≤ k} f(w_i) dans la méthode du sous-gradient ?',
+		options: [
+			'parce que f(w_k) décroît toujours, et f_best(k) est simplement égal à f(w_k)',
+			'parce que la méthode n’est pas une méthode de descente : un pas dans la direction −g, avec g ∈ ∂f(w), peut faire augmenter f',
+			'parce que le sous-gradient n’est défini qu’au minimum',
+			'pour pouvoir utiliser un pas constant qui garantit la convergence exacte'
+		],
+		answerIndex: 1,
+		explanation:
+			'Section « La méthode du sous-gradient » : pour f(w) = |w₁| + 2|w₂| en w = (1, 0) avec g = (1, 2) ∈ ∂f(w), on a f(w − tg) = 1 + 3t > f(w). Les valeurs f(w_k) ne sont donc pas monotones. Le Théorème E.10 porte sur f_best ; à pas constant, il ne garantit qu’un voisinage de taille G²t/2.'
+	},
+	{
 		id: 'p1-syn-q1',
 		tags: ['p1/synthese'],
 		question:

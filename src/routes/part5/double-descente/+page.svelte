@@ -136,6 +136,23 @@
 	const bayesLink = String.raw`\beta \sim \mathcal{N}\Bigl(0, \tfrac{r^2}{p} I_p\Bigr) \quad\Longrightarrow\quad \mathbb{E}[\beta \mid X, y] = \hat\beta_{\lambda} \ \text{ avec } \ \lambda = \frac{\sigma^2}{n\, r^2/p} = \frac{\sigma^2 \gamma}{r^2}`;
 	const nakkiranMonotone = String.raw`\bar{\mathcal{R}}\bigl(\hat\beta^{\,\mathrm{opt}}_{n+1}\bigr) \le \bar{\mathcal{R}}\bigl(\hat\beta^{\,\mathrm{opt}}_{n}\bigr) \quad \text{pour tous } n,\ d,\ \beta^\star,\ \sigma > 0`;
 
+	// Règles de dérivation (rappels)
+	const ruleLinear = String.raw`(a f + b g)' = a f' + b g', \qquad \nabla (a f + b g) = a \nabla f + b \nabla g`;
+	const ruleChain = String.raw`(g \circ f)'(x) = g'\bigl(f(x)\bigr)\, f'(x), \qquad \nabla_w\, g(h(w)) = g'\bigl(h(w)\bigr)\, \nabla h(w)`;
+	const ruleAffine = String.raw`\nabla_w\, g(a^\top w) = g'(a^\top w)\, a`;
+	const ruleProduct = String.raw`(f g)' = f' g + f g', \qquad (f g)^{(k)} = \sum_{j=0}^{k} \binom{k}{j} f^{(j)} g^{(k-j)}`;
+	const ruleInverse = String.raw`\Bigl(\frac{1}{g}\Bigr)' = -\frac{g'}{g^2}, \qquad \Bigl(\frac{f}{g}\Bigr)' = \frac{f' g - f g'}{g^2}`;
+	const ruleIntegral = String.raw`\frac{\mathrm{d}}{\mathrm{d}\lambda} \int \varphi(s, \lambda)\, \mathrm{d}\mu(s) = \int \frac{\partial \varphi}{\partial \lambda}(s, \lambda)\, \mathrm{d}\mu(s)`;
+	const ruleDomination = String.raw`\Bigl|\frac{\partial \varphi}{\partial \lambda}(s, \lambda)\Bigr| \le G(s), \qquad \int G\, \mathrm{d}\mu < \infty`;
+
+	// Usages in the lesson
+	const localMinDerivative = String.raw`f(\gamma) = r^2\bigl(1 - \gamma^{-1}\bigr) + \sigma^2 (\gamma - 1)^{-1} \quad\Longrightarrow\quad f'(\gamma) = \frac{r^2}{\gamma^2} - \frac{\sigma^2}{(\gamma - 1)^2}`;
+	const localMinSign = String.raw`f'(\gamma) > 0 \iff r(\gamma - 1) > \sigma \gamma \iff \gamma (r - \sigma) > r`;
+	const stieltjesDerivative = String.raw`m'(z) = \int \frac{\mathrm{d}\mu_\gamma(s)}{(s - z)^2}, \qquad \frac{\mathrm{d}}{\mathrm{d}\lambda}\, m(-\lambda) = -\,m'(-\lambda)`;
+	const shrinkVarDerivative = String.raw`\phi(u) = u\,(u + c)^{-2} \quad\Longrightarrow\quad \phi'(u) = (u + c)^{-2} - 2u\,(u + c)^{-3} = \frac{c - u}{(u + c)^3}`;
+	const logisticTermGrad = String.raw`g(z) = \log(1 + e^{-z}),\quad g'(z) = \frac{-e^{-z}}{1 + e^{-z}} = -\sigma(-z) \quad\Longrightarrow\quad \nabla \widehat{L}(w) = -\frac{1}{n} \sum_{i=1}^{n} \sigma\bigl(-y_i\, w^\top x_i\bigr)\, y_i\, x_i`;
+	const logisticGradDirection = String.raw`\bigl\langle \nabla \widehat{L}(w),\, \bar w \bigr\rangle = -\frac{1}{n} \sum_{i=1}^{n} \underbrace{\sigma\bigl(-y_i\, w^\top x_i\bigr)}_{> 0}\, \underbrace{y_i\, \bar w^\top x_i}_{> 0} < 0 \quad \text{pour tout } w`;
+
 	// Classification
 	const sigmoidOpen = String.raw`\sigma(z) = \frac{1}{1 + e^{-z}} \in \,]0, 1[ \quad \text{pour tout } z \in \mathbb{R}`;
 	const logisticRisk = String.raw`\widehat{L}(w) = \frac{1}{n} \sum_{i=1}^{n} \log\bigl(1 + e^{-y_i\, w^\top x_i}\bigr) = -\frac{1}{n} \sum_{i=1}^{n} \log \sigma\bigl(y_i\, w^\top x_i\bigr)`;
@@ -247,6 +264,56 @@
 			seconde (risque en excès) est celle de Hastie, Montanari, Rosset &amp; Tibshirani (2022).
 			Elles diffèrent de la constante <KatexInline formula={String.raw`\sigma^2`} />.
 		</p>
+
+		<h3>Boîte à outils : règles de dérivation</h3>
+		<p>
+			Plusieurs résultats de la leçon (minimum de la courbe de risque, transformée de Stieltjes,
+			borne de variance de Ridge, gradient logistique) se démontrent avec quatre règles de
+			dérivation seulement. On les rappelle ici ; chaque usage y renvoie explicitement.
+		</p>
+		<TheoremBlock title="Règles de dérivation (rappels)">
+			<ol>
+				<li>
+					<strong>Linéarité.</strong> Pour <KatexInline formula="f, g" /> dérivables et des constantes
+					<KatexInline formula="a, b" /> (c'est aussi le Théorème 2.2, « Gradient d'une somme », Partie
+					I, leçon 2) :
+					<KatexBlock formula={ruleLinear} />
+				</li>
+				<li>
+					<strong>Composition (règle de la chaîne).</strong> Pour <KatexInline
+						formula={String.raw`g : \mathbb{R} \to \mathbb{R}`}
+					/> et <KatexInline formula={String.raw`h : \mathbb{R}^p \to \mathbb{R}`} /> dérivables :
+					<KatexBlock formula={ruleChain} />
+					<span
+						>Cas particulier omniprésent dans cette leçon, la composition avec une forme linéaire :</span
+					>
+					<KatexBlock formula={ruleAffine} />
+				</li>
+				<li>
+					<strong>Produit (formule de Leibniz).</strong> Pour <KatexInline formula="f, g" /> dérivables
+					(resp. <KatexInline formula="k" /> fois dérivables) :
+					<KatexBlock formula={ruleProduct} />
+					<span
+						>En combinant avec la composition par <KatexInline
+							formula={String.raw`t \mapsto 1/t`}
+						/>, on obtient l'inverse et le quotient (là où <KatexInline
+							formula={String.raw`g \neq 0`}
+						/>) :</span
+					>
+					<KatexBlock formula={ruleInverse} />
+				</li>
+				<li>
+					<strong>Dérivation sous le signe intégrale (règle de Leibniz).</strong> Si
+					<KatexInline formula={String.raw`\lambda \mapsto \varphi(s, \lambda)`} /> est dérivable pour
+					tout <KatexInline formula="s" />, et si sa dérivée est dominée, uniformément pour
+					<KatexInline formula={String.raw`\lambda`} /> dans un voisinage, par une fonction intégrable
+					:
+					<KatexBlock formula={ruleDomination} />
+					<span>alors on peut échanger dérivée et intégrale :</span>
+					<KatexBlock formula={ruleIntegral} />
+				</li>
+			</ol>
+		</TheoremBlock>
 	</TheorySection>
 
 	<!-- ═══════════════════════════ 2. Régression linéaire ═══════════════════════════ -->
@@ -416,9 +483,27 @@
 		</p>
 		<KatexBlock formula={localMin} />
 		<p>
-			(il suffit d'annuler la dérivée de <KatexInline
-				formula={String.raw`r^2(1 - 1/\gamma) + \sigma^2/(\gamma - 1)`}
-			/>).
+			En effet, par linéarité et composition (dérivée de <KatexInline
+				formula={String.raw`t \mapsto t^{-1}`}
+			/> appliquée à <KatexInline formula={String.raw`\gamma`} /> puis à <KatexInline
+				formula={String.raw`\gamma - 1`}
+			/>), pour <KatexInline formula={String.raw`\gamma > 1`} /> :
+		</p>
+		<KatexBlock formula={localMinDerivative} />
+		<p>
+			Les deux termes étant positifs, on compare leurs racines carrées (avec <KatexInline
+				formula={String.raw`r = \sqrt{r^2}`}
+			/>, <KatexInline formula={String.raw`\sigma = \sqrt{\sigma^2}`} />) :
+		</p>
+		<KatexBlock formula={localMinSign} />
+		<p>
+			Si <KatexInline formula={String.raw`r \le \sigma`} />, la dérivée est toujours négative et le
+			risque décroît sur tout <KatexInline formula={String.raw`]1, +\infty[`} />. Si
+			<KatexInline formula={String.raw`r > \sigma`} />, elle est négative puis positive, et s'annule
+			en <KatexInline formula={String.raw`\gamma^\star = r/(r - \sigma)`} /> : c'est bien un minimum,
+			et l'on retrouve la formule ci-dessus en divisant par <KatexInline
+				formula={String.raw`\sigma`}
+			/>.
 		</p>
 
 		<InteractiveSection
@@ -646,6 +731,22 @@
 		</Callout>
 
 		<p>
+			On peut aussi retrouver la borne, et voir qu'elle est optimale, en étudiant la fonction
+			<KatexInline formula={String.raw`\phi(u) = u/(u + c)^2`} /> pour <KatexInline
+				formula={String.raw`u = s^2 \ge 0`}
+			/>. Par la formule de Leibniz et la règle de la chaîne (dérivée de <KatexInline
+				formula={String.raw`(u + c)^{-2}`}
+			/>) :
+		</p>
+		<KatexBlock formula={shrinkVarDerivative} />
+		<p>
+			<KatexInline formula={String.raw`\phi`} /> croît sur <KatexInline
+				formula={String.raw`[0, c]`}
+			/>, décroît ensuite, et son maximum vaut <KatexInline
+				formula={String.raw`\phi(c) = c/(2c)^2 = 1/(4c)`}
+			/>.
+		</p>
+		<p>
 			La borne est atteinte quand <KatexInline formula={String.raw`s_i^2 = n\lambda`} /> : Ridge plafonne
 			la contribution de chaque direction au lieu de la laisser exploser. En grande dimension, on dispose
 			même du risque exact, exprimé avec la <strong>transformée de Stieltjes</strong> de la loi de
@@ -655,7 +756,20 @@
 		<p>
 			(on choisit la détermination de la racine pour laquelle <KatexInline
 				formula={String.raw`m(-\lambda) > 0`}
-			/> quand <KatexInline formula={String.raw`\lambda > 0`} />).
+			/> quand <KatexInline formula={String.raw`\lambda > 0`} />). Le risque fait aussi intervenir
+			la dérivée <KatexInline formula="m'" />, obtenue par dérivation sous le signe intégrale :
+		</p>
+		<KatexBlock formula={stieltjesDerivative} />
+		<p>
+			La domination est immédiate : pour <KatexInline
+				formula={String.raw`\lambda \ge \lambda_0 > 0`}
+			/> et
+			<KatexInline formula={String.raw`s \ge 0`} />, <KatexInline
+				formula={String.raw`|\partial_\lambda (s + \lambda)^{-1}| = (s + \lambda)^{-2} \le \lambda_0^{-2}`}
+			/>, constante intégrable pour la mesure de probabilité <KatexInline
+				formula={String.raw`\mu_\gamma`}
+			/>. Le signe moins de la seconde égalité vient de la règle de la chaîne appliquée à
+			<KatexInline formula={String.raw`\lambda \mapsto -\lambda`} />.
 		</p>
 
 		<TheoremBlock number="6.8" title="Risque asymptotique de Ridge et pénalité optimale">
@@ -921,6 +1035,24 @@
 			</p>
 		</Callout>
 
+		<p>
+			On peut voir le même phénomène à travers le gradient. Par linéarité, puis par la règle de la
+			chaîne appliquée à <KatexInline formula={String.raw`g(z) = \log(1 + e^{-z})`} /> composée avec la
+			forme linéaire <KatexInline formula={String.raw`w \mapsto y_i\, w^\top x_i`} /> :
+		</p>
+		<KatexBlock formula={logisticTermGrad} />
+		<p>
+			Si <KatexInline formula={String.raw`\bar w`} /> est un séparateur strict, alors
+		</p>
+		<KatexBlock formula={logisticGradDirection} />
+		<p>
+			Le gradient ne s'annule donc jamais : <KatexInline formula={String.raw`\widehat{L}`} /> n'a aucun
+			point critique, donc (étant convexe et dérivable) aucun minimiseur, ce qui redonne le point 2. Et
+			chaque pas de gradient <KatexInline
+				formula={String.raw`w \leftarrow w - \eta \nabla \widehat{L}(w)`}
+			/> augmente strictement <KatexInline formula={String.raw`\langle w, \bar w\rangle`} /> : les poids
+			sont poussés indéfiniment dans la direction des séparateurs.
+		</p>
 		<p>
 			Dans le cas séparable, la descente de gradient sur <KatexInline
 				formula={String.raw`\widehat{L}`}

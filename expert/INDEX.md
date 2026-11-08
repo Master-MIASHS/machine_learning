@@ -1,7 +1,7 @@
 # INDEX — briefs expert
 
-Manifeste des 64 briefs de recherche (52 panneaux `ExpertPanel` + 12 leçons
-expert). 9 briefs `implemented`, 55 en `pending`.
+Manifeste des 65 briefs de recherche (52 panneaux `ExpertPanel` + 13 leçons
+expert). 11 briefs `implemented` (dont 1 couvert par une leçon), 54 en `pending`.
 
 Colonnes : **id** (lien vers le brief) · **titre** · **type** (`panel`/`lesson`)
 · **level** (`m1+`/`m2`/`research`) · **prio** (1 haute, 2 moyenne, 3 frontière)
@@ -18,12 +18,12 @@ Légende des statuts et prompt de spawn : voir [README.md](README.md).
 - **Prio 3 (frontière de recherche)** — niveau M2/doctorat, à traiter après
   les tiers 1–2 (distinguer prouvé/heuristique/UNVERIFIED).
 
-## Part I — Optimisation (13)
+## Part I — Optimisation (14)
 
 | id                                                                                                          | titre                                                                       | type   | level    | prio | statut      |
 | ----------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------- | ------ | -------- | ---- | ----------- |
 | [p1-l1-kkt-dualite-lagrangienne](part1/lesson1/kkt-dualite-lagrangienne.md)                                 | Conditions KKT et dualité lagrangienne                                      | panel  | m2       | 1    | implemented |
-| [p1-l1-sous-gradient-optimisation-non-lisse](part1/lesson1/sous-gradient-optimisation-non-lisse.md)         | Sous-gradient et optimisation non lisse                                     | panel  | m2       | 2    | pending     |
+| [p1-l1-sous-gradient-optimisation-non-lisse](part1/lesson1/sous-gradient-optimisation-non-lisse.md)         | Sous-gradient et optimisation non lisse (→ leçon p1-lesson-sous-gradient-introduction)                             | panel  | m2       | 2    | implemented |
 | [p1-l2-conditionnement-taux-gd](part1/lesson2/conditionnement-taux-gd.md)                                   | Nombre de conditionnement et taux de convergence de la descente de gradient | panel  | m2       | 2    | pending     |
 | [p1-l2-fenchel-legendre-dualite](part1/lesson2/fenchel-legendre-dualite.md)                                 | Dualité de Fenchel–Legendre                                                 | panel  | m2       | 2    | pending     |
 | [p1-l3-nesterov-preuve-ode](part1/lesson3/nesterov-preuve-ode.md)                                           | Nesterov accéléré vu comme une ODE amortie                                  | panel  | m2       | 2    | pending     |
@@ -32,6 +32,7 @@ Légende des statuts et prompt de spawn : voir [README.md](README.md).
 | [p1-l4-reduction-variance-svrg-sarah](part1/lesson4/reduction-variance-svrg-sarah.md)                       | Réduction de variance : SVRG et SARAH                                       | panel  | m2       | 2    | pending     |
 | [p1-l4-sgd-regularisation-implicite](part1/lesson4/sgd-regularisation-implicite.md)                         | Le SGD comme régularisateur implicite                                       | panel  | research | 3    | pending     |
 | [p1-l4-quasi-newton-lbfgs-gradient-naturel](part1/lesson4/quasi-newton-lbfgs-gradient-naturel.md)           | Quasi-Newton (L-BFGS) et gradient naturel                                   | panel  | m2       | 2    | pending     |
+| [p1-lesson-sous-gradient-introduction](part1/lessons/sous-gradient-introduction.md) | Introduction au sous-gradient | lesson | m1+ | 1 | implemented |
 | [p1-lesson-dualite-convexe-kkt](part1/lessons/dualite-convexe-kkt.md)                                       | Dualité convexe et conditions KKT                                           | lesson | m2       | 1    | implemented |
 | [p1-lesson-methodes-proximales-fista-admm](part1/lessons/methodes-proximales-fista-admm.md)                 | Méthodes proximales et premier ordre moderne (prox, FISTA, ADMM)            | lesson | m2       | 1    | implemented |
 | [p1-lesson-optimisation-non-convexe-deep-learning](part1/lessons/optimisation-non-convexe-deep-learning.md) | Optimisation non convexe en deep learning                                   | lesson | research | 3    | pending     |

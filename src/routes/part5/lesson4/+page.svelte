@@ -131,9 +131,13 @@
 	// Soft-thresholding operator
 	const softThreshold = 'S(w, \\lambda) = \\operatorname{sign}(w) \\cdot \\max(|w| - \\lambda, 0)';
 
-	// Lasso with orthonormal features
+	// Lasso with orthonormal features. The objective above has no ½ factor
+	// (course_sources/typst/regularization.typ, Déf. 5.2), so the threshold is
+	// λ/2: ‖y − Xw‖² + λ‖w‖₁ = 2[½‖y − Xw‖² + (λ/2)‖w‖₁] (Hastie et al. 2009,
+	// eq. (3.52) + Table 3.4 use the ½ form, threshold λ). See the expert
+	// lesson /part1/sous-gradient, Théorème E.8.
 	const lassoOrtho =
-		'\\hat{w}_i^{\\text{Lasso}} = \\operatorname{sign}(\\hat{w}_i^{\\text{OLS}}) \\cdot \\max\\bigl(|\\hat{w}_i^{\\text{OLS}}| - \\lambda, 0\\bigr)';
+		'\\hat{w}_i^{\\text{Lasso}} = S\\bigl(\\hat{w}_i^{\\text{OLS}}, \\tfrac{\\lambda}{2}\\bigr) = \\operatorname{sign}(\\hat{w}_i^{\\text{OLS}}) \\cdot \\max\\bigl(|\\hat{w}_i^{\\text{OLS}}| - \\tfrac{\\lambda}{2}, 0\\bigr)';
 
 	// LARS — Algorithme 5.1 des notes
 	const larsResidual = 'r = y';
@@ -168,7 +172,8 @@
 	const lassoConstraint = '\\sum_{i=1}^{p} |w_i| \\leq t';
 
 	// Coordinate descent update for Lasso
-	const coordDescentUpdate = 'w_j^{(k+1)} = \\frac{S\\bigl(z_j, \\lambda\\bigr)}{X_j^\\top X_j}';
+	// λ/2 for the same reason as lassoOrtho (objective without the ½ factor).
+	const coordDescentUpdate = 'w_j^{(k+1)} = \\frac{S\\bigl(z_j, \\lambda/2\\bigr)}{X_j^\\top X_j}';
 
 	// z_j in coordinate descent
 	const zJ = 'z_j = X_j^\\top (y - \\sum_{i \\neq j} X_i w_i^{(k)})';
@@ -179,7 +184,7 @@
 
 	// Exercise formulas
 	const exW_ols = 'w^{OLS} = \\begin{pmatrix} 3.0 \\\\ -1.5 \\\\ 0.8 \\end{pmatrix}';
-	const exLambdaVal = '\\lambda = 1.0';
+	const exLambdaVal = '\\lambda = 2'; // objective without ½ ⇒ threshold λ/2 = 1
 
 	// Weight decay — descente de gradient sur la perte L2-régularisée
 	const l2GradObjective =
@@ -673,8 +678,10 @@
 
 		<p>
 			Contrairement à Ridge qui multiplie par un facteur <KatexInline formula={'S_i(\\lambda)'} />,
-			le Lasso <strong>soustrait</strong> une constante <KatexInline formula={'\\lambda'} />. Une
-			fois qu'un coefficient franchi le seuil <KatexInline formula={'|w^{OLS}| \\leq \\lambda'} />,
+			le Lasso <strong>soustrait</strong> une constante <KatexInline formula={'\\lambda/2'} /> (le
+			facteur <KatexInline formula={'1/2'} /> vient de l'absence de <KatexInline formula={'\\tfrac12'} />
+			devant le terme quadratique de l'objectif ci-dessus). Une
+			fois qu'un coefficient franchi le seuil <KatexInline formula={'|w^{OLS}| \\leq \\lambda/2'} />,
 			il devient exactement zéro et reste nul pour tout
 			<KatexInline formula={'\\lambda'} /> supérieur. C'est ce mécanisme qui permet la sélection de variables.
 		</p>
@@ -941,8 +948,8 @@
 					+ 2) ≈ 0,2. On observe bien que la direction faible (d=0,5) est beaucoup plus réduite.
 				</p>
 				<p>
-					Pour Lasso : S(w₁=3.0, λ=1.0) = 3.0 - 1.0 = <strong>2.0</strong>. S(w₂=−1.5, λ=1.0) =
-					sign(−1.5) · max(1.5 − 1.0, 0) = <strong>−0.5</strong>. S(w₃=0.8, λ=1.0) = sign(0.8) ·
+					Pour Lasso (seuil λ/2 = 1) : S(3.0, 1) = 3.0 − 1.0 = <strong>2.0</strong>. S(−1.5, 1) =
+					sign(−1.5) · max(1.5 − 1.0, 0) = <strong>−0.5</strong>. S(0.8, 1) = sign(0.8) ·
 					max(0.8 − 1.0, 0) = <strong>0</strong> (le coefficient est annulé !).
 				</p>
 			{/snippet}
@@ -966,7 +973,9 @@
 			<p>
 				<strong>b)</strong> Calculer les coefficients Lasso en utilisant le soft-thresholding avec <KatexInline
 					formula={exLambdaVal}
-				/>. Quel coefficient est annulé et pourquoi ?
+				/> (même valeur qu'en a)) dans l'objectif Lasso ci-dessus, en supposant des colonnes
+				orthonormales — le seuil est alors <KatexInline formula={'\\lambda/2 = 1'} />. Quel coefficient est
+				annulé et pourquoi ?
 			</p>
 		</ExercisePanel>
 	</TheorySection>

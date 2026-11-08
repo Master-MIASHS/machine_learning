@@ -28,6 +28,12 @@ const RAW_PAGES = [
 	},
 	{ path: '/part1/lesson4', title: 'SGD, CD & Newton', part: 1 },
 	{
+		path: '/part1/sous-gradient',
+		title: 'Introduction au sous-gradient',
+		part: 1,
+		expert: true
+	},
+	{
 		path: '/part1/methodes-proximales',
 		title: 'Méthodes proximales : prox, FISTA et ADMM',
 		part: 1,

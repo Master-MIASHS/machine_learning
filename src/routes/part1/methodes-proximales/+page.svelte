@@ -13,6 +13,7 @@
 	import KatexInline from '$lib/components/narrative/KatexInline.svelte';
 	import Bibliography from '$lib/components/narrative/bib/Bibliography.svelte';
 	import BibElement from '$lib/components/narrative/bib/BibElement.svelte';
+	import { resolve } from '$app/paths';
 	import { getPageByPath, getAdjacentPages } from '$lib/navigation.js';
 	import { settings } from '$lib/stores/index.js';
 	import { createPageTracker } from '$lib/stores/progress.svelte';
@@ -181,6 +182,14 @@
 		</p>
 
 		<KatexBlock formula={lassoModel} />
+
+		<Callout type="note" title="Prérequis">
+			<p>
+				Cette leçon manipule le sous-différentiel <KatexInline formula={String.raw`\partial f`} /> et le
+				seuillage doux ; tous deux sont introduits pas à pas dans la leçon experte
+				<a href={resolve('/part1/sous-gradient')}>Introduction au sous-gradient</a>.
+			</p>
+		</Callout>
 
 		<p>
 			(Définition 5.2), avec l'algorithme LARS (Algorithme 5.1) comme <em>méthode</em> de calcul
