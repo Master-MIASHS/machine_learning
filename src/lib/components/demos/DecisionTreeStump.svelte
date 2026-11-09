@@ -3,131 +3,112 @@
 	import Metrics from '$lib/components/layout/Metrics.svelte';
 	import Slider from '$lib/components/controls/Slider.svelte';
 	import Button from '$lib/components/controls/Button.svelte';
-	import { buildDecisionStump, giniImpurity, informationGain } from '$lib/math/random-forest';
+	import {
+		fitRandomStump,
+		giniImpurity,
+		informationGain,
+		predictStumpClass
+	} from '$lib/math/random-forest';
+	import { gaussianSample } from '$lib/math/gaussian';
+	import { mulberry32, combineSeed } from '$lib/math/util';
+
+	// Random Forest of depth-1 trees, following Algorithme 4.2
+	// (course_sources/typst/regularization.typ, ch. 4): each tree gets its own
+	// bootstrap sample S_n^(j) AND its own random subset of m features among d.
+	// Depth 1 is a visualization simplification (one node → one draw of m).
 
 	const N_SAMPLES = 80;
+	const D = 5;
+	const N_TREES = 6;
+	const FEATURE_NAMES = ['x₁', 'x₂', 'x₃', 'x₄', 'x₅'];
+	const N_VISIBLE = 2; // x₁, x₂ are the plot axes; x₃..x₅ are hidden variables
+	const SQRT_D = Math.sqrt(D);
+
 	const DATA_MIN = -3.5;
 	const DATA_MAX = 3.5;
 
 	const SVG_W = 460;
-	const SVG_H = 360;
+	const SVG_H = 320;
 	const PAD = { top: 20, right: 20, bottom: 35, left: 40 };
 	const PLOT_W = SVG_W - PAD.left - PAD.right;
-	const PLOT_H = SVG_H - PAD.top - PAD.bottom;
+	const PLOT_H = SVG_H - PAD.bottom - PAD.top;
 
-	function makeRng(seed: number): () => number {
-		let s = ((seed % 2147483647) + 2147483647) % 2147483647 || 1;
-		return () => {
-			s = (s * 16807) % 2147483647;
-			return (s - 1) / 2147483646;
-		};
-	}
+	// 1-D strip for stumps on hidden variables. Hand-rolled SVG fallback: no
+	// 1-D strip-plot component exists yet; swap for one if it gets built.
+	const STRIP_H = 80;
+	const STRIP_PAD = { top: 12, bottom: 24 };
+	const STRIP_ROW = { 0: 30, 1: 48 } as Record<number, number>; // y of class rows
 
-	function randn(rng: () => number): number {
-		let u1 = rng(),
-			u2 = rng();
-		while (u1 === 0) u1 = rng();
-		return Math.sqrt(-2 * Math.log(u1)) * Math.cos(2 * Math.PI * u2);
-	}
-
+	/**
+	 * Toy synthetic model (simplification, seeded):
+	 *  - x₁, x₂ : class means ∓1, σ = 1.2 (the informative, visible pair);
+	 *  - x₃     : weakly informative, class means ∓0.3, σ = 1;
+	 *  - x₄, x₅ : pure noise N(0, 1), independent of the label.
+	 */
 	function generateData(seed: number): { X: number[][]; y: number[] } {
-		const rng = makeRng(seed);
+		const rng = mulberry32(seed);
 		const X: number[][] = [];
 		const y: number[] = [];
 		const half = Math.floor(N_SAMPLES / 2);
-
-		for (let i = 0; i < half; i++) {
-			X.push([-1 + randn(rng) * 1.2, -1 + randn(rng) * 1.2]);
-			y.push(0);
-		}
-		for (let i = 0; i < N_SAMPLES - half; i++) {
-			X.push([1 + randn(rng) * 1.2, 1 + randn(rng) * 1.2]);
-			y.push(1);
+		for (let i = 0; i < N_SAMPLES; i++) {
+			const cls = i < half ? 0 : 1;
+			const s = cls === 0 ? -1 : 1;
+			X.push([
+				gaussianSample({ mu: s, sigma2: 1.44 }, rng),
+				gaussianSample({ mu: s, sigma2: 1.44 }, rng),
+				gaussianSample({ mu: 0.3 * s, sigma2: 1 }, rng),
+				gaussianSample({ mu: 0, sigma2: 1 }, rng),
+				gaussianSample({ mu: 0, sigma2: 1 }, rng)
+			]);
+			y.push(cls);
 		}
 		return { X, y };
 	}
 
 	// ── State ──────────────────────────────────────────────────────────
-	// `dataSeed` regenerates the DATASET itself (a genuinely new problem).
-	// `treeSeed` regenerates the ENSEMBLE of stumps on the SAME dataset —
-	// this is the actual source of Random Forest diversity: many trees,
-	// same data, independent random feature draws at each split.
+	// `dataSeed` regenerates the dataset; `treeSeed` redraws the ensemble
+	// (bootstrap samples + feature subsets) on the SAME dataset.
 	let dataSeed = $state(0);
 	let treeSeed = $state(0);
-	let mTry = $state(1); // FIXED hyperparameter of the whole forest, not per-tree
-
-	const N_TREES = 6; // how many independent stumps to show at once
-
-	const data = $derived(generateData(dataSeed * 7919 + 42));
-
-	// FIX: each of the N_TREES stumps gets its OWN independent random feature
-	// subset, freshly re-seeded from (treeSeed, tree index) — previously
-	// there was only ever ONE stump, and its "random" subset was actually
-	// fully determined by `seed` alone, so it never varied unless you
-	// stepped. Now every click of "Nouvel ensemble" draws N_TREES independent
-	// subsets, which is what actually lets you SEE the diversity m produces.
-	const forest = $derived.by(() => {
-		const stumps = [];
-		for (let t = 0; t < N_TREES; t++) {
-			const rng = makeRng(treeSeed * 104729 + t * 7919 + 13);
-
-			let featureSubset: number[];
-			if (mTry >= 2) {
-				featureSubset = [0, 1]; // both features always available — no randomness to draw
-			} else {
-				featureSubset = [Math.floor(rng() * 2)]; // independent coin flip PER TREE
-			}
-
-			const stump = buildDecisionStump(data.X, data.y, featureSubset, true);
-			stumps.push({ stump, featureSubset, treeIdx: t });
-		}
-		return stumps;
-	});
-
-	// The stump currently highlighted / detailed in the metrics panel below.
+	let mTry = $state(2); // fixed for the whole forest; default ≈ √d
 	let activeTreeIdx = $state(0);
-	const activeStump = $derived(forest[Math.min(activeTreeIdx, forest.length - 1)]?.stump);
 
-	const leftCount = $derived(
-		activeStump
-			? data.X.filter((x) => x[activeStump.featureIdx] <= activeStump.threshold).length
-			: 0
-	);
-	const rightCount = $derived(N_SAMPLES - leftCount);
+	const data = $derived(generateData(combineSeed(dataSeed, 42)));
 
-	const accuracy = $derived.by(() => {
-		if (!activeStump) return 0;
-		let correct = 0;
-		for (let i = 0; i < N_SAMPLES; i++) {
-			const pred =
-				data.X[i][activeStump.featureIdx] <= activeStump.threshold
-					? Math.round(activeStump.leftValue)
-					: Math.round(activeStump.rightValue);
-			if (pred === data.y[i]) correct++;
-		}
-		return correct / N_SAMPLES;
-	});
-
-	const leftLabels = $derived(
-		activeStump
-			? data.X.map((x, i) => ({ x, yi: data.y[i] }))
-					.filter((d) => d.x[activeStump.featureIdx] <= activeStump.threshold)
-					.map((d) => d.yi)
-			: []
-	);
-	const rightLabels = $derived(
-		activeStump
-			? data.X.map((x, i) => ({ x, yi: data.y[i] }))
-					.filter((d) => d.x[activeStump.featureIdx] > activeStump.threshold)
-					.map((d) => d.yi)
-			: []
+	const forest = $derived.by(() =>
+		Array.from({ length: N_TREES }, (_, t) => {
+			// mulberry32 + combineSeed: independent, well-mixed stream per tree
+			// (the previous Park–Miller seeding gave nearly identical first
+			// draws for adjacent seeds → all trees picked the same feature).
+			const rng = mulberry32(combineSeed(combineSeed(treeSeed, t), 1));
+			const fit = fitRandomStump(data.X, data.y, mTry, rng);
+			return { ...fit, treeIdx: t, nDistinct: new Set(fit.bootstrapIdx).size };
+		})
 	);
 
+	const active = $derived(forest[Math.min(activeTreeIdx, forest.length - 1)]);
+	const activeStump = $derived(active.stump);
+	const isHidden = $derived(activeStump.featureIdx >= N_VISIBLE);
+	const isHorizontalSplit = $derived(activeStump.featureIdx === 1);
+	const splitsOnFeature = $derived(FEATURE_NAMES[activeStump.featureIdx]);
+	const inBag = $derived(new Set(active.bootstrapIdx));
+
+	// Metrics on the full data set S_n (not the bootstrap sample).
+	const goesLeft = $derived(data.X.map((x) => x[activeStump.featureIdx] <= activeStump.threshold));
+	const leftLabels = $derived(data.y.filter((_, i) => goesLeft[i]));
+	const rightLabels = $derived(data.y.filter((_, i) => !goesLeft[i]));
+	const leftCount = $derived(leftLabels.length);
+	const rightCount = $derived(rightLabels.length);
+	const accuracy = $derived(
+		data.X.filter((x, i) => predictStumpClass(activeStump, x) === data.y[i]).length / N_SAMPLES
+	);
 	const giniBefore = $derived(giniImpurity(data.y));
 	const giniLeft = $derived(giniImpurity(leftLabels));
 	const giniRight = $derived(giniImpurity(rightLabels));
 	const giniAfter = $derived((leftCount * giniLeft + rightCount * giniRight) / N_SAMPLES);
 	const infoGainVal = $derived(informationGain(data.y, leftLabels, rightLabels));
+	const leftPredClass = $derived(Math.round(activeStump.leftValue));
+	const rightPredClass = $derived(Math.round(activeStump.rightValue));
 
 	function projX(v: number): number {
 		return PAD.left + ((v - DATA_MIN) / (DATA_MAX - DATA_MIN)) * PLOT_W;
@@ -135,22 +116,52 @@
 	function projY(v: number): number {
 		return SVG_H - PAD.bottom - ((v - DATA_MIN) / (DATA_MAX - DATA_MIN)) * PLOT_H;
 	}
+	function clampX(v: number): number {
+		return projX(Math.min(DATA_MAX, Math.max(DATA_MIN, v)));
+	}
 
-	const splitsOnFeature = $derived(activeStump?.featureIdx === 0 ? 'x₁' : 'x₂');
-	const isHorizontalSplit = $derived(activeStump?.featureIdx === 1);
-	const leftPredClass = $derived(activeStump ? Math.round(activeStump.leftValue) : 0);
-	const rightPredClass = $derived(activeStump ? Math.round(activeStump.rightValue) : 0);
+	// Ensemble diversity summary
+	const featureCounts = $derived.by(() => {
+		const c = Array.from({ length: D }, () => 0);
+		for (const f of forest) c[f.stump.featureIdx]++;
+		return c;
+	});
+	const nHiddenStumps = $derived(featureCounts.slice(N_VISIBLE).reduce((a, b) => a + b, 0));
+	const nDistinctSplits = $derived(
+		new Set(forest.map((f) => `${f.stump.featureIdx}:${f.stump.threshold.toFixed(3)}`)).size
+	);
+	const featureSummary = $derived(
+		featureCounts
+			.map((c, j) => (c > 0 ? `${FEATURE_NAMES[j]}×${c}` : null))
+			.filter((s) => s !== null)
+			.join(', ')
+	);
 
-	// How diverse is this ensemble? Count how many distinct features got used
-	// across all N_TREES stumps — the direct visual/numeric signature of the
-	// decorrelation effect from Theorem 6.1.
-	const featuresUsed = $derived(new Set(forest.map((f) => f.stump.featureIdx)));
-	const diversityLabel = $derived(
-		mTry >= 2
-			? 'toutes les features toujours utilisées — aucune diversité de features possible'
-			: featuresUsed.size === 2
-				? 'les deux features sont exploitées à travers l\u2019ensemble — diversité maximale'
-				: 'un seul feature domine tout l\u2019ensemble — pas de diversité (rare avec m=1)'
+	// Badge / banner boxes are sized from the rendered text width
+	// (getComputedTextLength) + side padding, so the label never overflows
+	// whatever the font. Initial values are rough estimates for SSR / first paint.
+	const LABEL_PAD_X = 10;
+	const badgeLabel = $derived(
+		`Arbre #${activeTreeIdx + 1} — split : ${splitsOnFeature} ≤ ${activeStump.threshold.toFixed(2)}${isHidden ? ' (cachée)' : ''}`
+	);
+	const bannerLabel = $derived(`Variable cachée ${splitsOnFeature} — absente du plan (x₁, x₂)`);
+	let badgeTextEl = $state<SVGTextElement | null>(null);
+	let bannerTextEl = $state<SVGTextElement | null>(null);
+	let badgeTextW = $state(0);
+	let bannerTextW = $state(0);
+	$effect(() => {
+		void badgeLabel;
+		if (badgeTextEl) badgeTextW = badgeTextEl.getComputedTextLength();
+	});
+	$effect(() => {
+		void bannerLabel;
+		if (bannerTextEl) bannerTextW = bannerTextEl.getComputedTextLength();
+	});
+	const badgeBoxW = $derived(
+		Math.min(PLOT_W, (badgeTextW || badgeLabel.length * 6.1) + 2 * LABEL_PAD_X)
+	);
+	const bannerBoxW = $derived(
+		Math.min(PLOT_W, (bannerTextW || bannerLabel.length * 6.4) + 2 * LABEL_PAD_X)
 	);
 
 	function newForest() {
@@ -166,261 +177,362 @@
 
 <div class="demo-wrap">
 	<div class="header">
-		<h2>Décision Stump — arbre de profondeur 1</h2>
+		<h2>Forêt de stumps — arbres de profondeur 1</h2>
 		<p class="subtitle">
-			Une seule question sur une seule variable pour séparer deux classes. Avec m=1, la variable
-			interrogée est tirée au hasard <strong>indépendamment pour chaque arbre</strong> — c'est exactement
-			le mécanisme de sélection aléatoire de features du Random Forest.
+			Les données ont <strong>d = {D} variables</strong>. Seules x₁ et x₂ sont visibles dans le plan
+			; <strong>x₃, x₄, x₅ sont des variables cachées</strong> (non représentables en 2D). Chaque
+			arbre reçoit son propre échantillon bootstrap et tire au hasard m variables parmi les
+			{D} avant de choisir sa meilleure division.
 		</p>
 	</div>
 
-	<Figure type="chart" style="width: 100%">
-		<svg
-			viewBox={`0 0 ${SVG_W} ${SVG_H}`}
-			class="scatter-svg"
-			role="img"
-			aria-label="Nuage de points avec frontière de décision du stump actif"
-		>
-			<g class="grid">
-				{#each Array.from({ length: 8 }, (_, i) => DATA_MIN + (i / 7) * (DATA_MAX - DATA_MIN)) as tick}
-					<line x1={projX(tick)} y1={PAD.top} x2={projX(tick)} y2={SVG_H - PAD.bottom} />
-					<line x1={PAD.left} y1={projY(tick)} x2={SVG_W - PAD.right} y2={projY(tick)} />
-				{/each}
-			</g>
+	<div class="layout">
+		<div class="viz-col">
+			<Figure type="chart" style="width: 100%; margin: 0">
+				<svg
+					viewBox={`0 0 ${SVG_W} ${SVG_H}`}
+					class="scatter-svg"
+					role="img"
+					aria-label="Nuage de points dans le plan (x₁, x₂) avec la frontière du stump actif"
+				>
+					<g class="grid">
+						{#each Array.from({ length: 8 }, (_, i) => DATA_MIN + (i / 7) * (DATA_MAX - DATA_MIN)) as tick (tick)}
+							<line x1={projX(tick)} y1={PAD.top} x2={projX(tick)} y2={SVG_H - PAD.bottom} />
+							<line x1={PAD.left} y1={projY(tick)} x2={SVG_W - PAD.right} y2={projY(tick)} />
+						{/each}
+					</g>
 
-			<!-- Ghost boundaries: all OTHER stumps in the ensemble, faint, to show diversity at a glance -->
-			{#each forest as f (f.treeIdx)}
-				{#if f.treeIdx !== activeTreeIdx}
-					{#if f.stump.featureIdx === 1}
-						<line
-							x1={PAD.left}
-							y1={projY(f.stump.threshold)}
-							x2={SVG_W - PAD.right}
-							y2={projY(f.stump.threshold)}
-							class="boundary-ghost"
-						/>
-					{:else}
-						<line
-							x1={projX(f.stump.threshold)}
-							y1={PAD.top}
-							x2={projX(f.stump.threshold)}
-							y2={SVG_H - PAD.bottom}
-							class="boundary-ghost"
-						/>
+					<!-- Ghost boundaries: other stumps of the ensemble that split on a VISIBLE variable -->
+					{#each forest as f (f.treeIdx)}
+						{#if f.treeIdx !== activeTreeIdx && f.stump.featureIdx < N_VISIBLE}
+							{#if f.stump.featureIdx === 1}
+								<line
+									x1={PAD.left}
+									y1={projY(f.stump.threshold)}
+									x2={SVG_W - PAD.right}
+									y2={projY(f.stump.threshold)}
+									class="boundary-ghost"
+								/>
+							{:else}
+								<line
+									x1={projX(f.stump.threshold)}
+									y1={PAD.top}
+									x2={projX(f.stump.threshold)}
+									y2={SVG_H - PAD.bottom}
+									class="boundary-ghost"
+								/>
+							{/if}
+						{/if}
+					{/each}
+
+					{#if !isHidden}
+						{#if isHorizontalSplit}
+							<rect
+								x={PAD.left}
+								y={PAD.top}
+								width={PLOT_W}
+								height={projY(activeStump.threshold) - PAD.top}
+								class="region"
+								class:is-class-0={rightPredClass === 0}
+								class:is-class-1={rightPredClass === 1}
+							/>
+							<rect
+								x={PAD.left}
+								y={projY(activeStump.threshold)}
+								width={PLOT_W}
+								height={SVG_H - PAD.bottom - projY(activeStump.threshold)}
+								class="region"
+								class:is-class-0={leftPredClass === 0}
+								class:is-class-1={leftPredClass === 1}
+							/>
+							<line
+								x1={PAD.left}
+								y1={projY(activeStump.threshold)}
+								x2={SVG_W - PAD.right}
+								y2={projY(activeStump.threshold)}
+								class="boundary"
+							/>
+						{:else}
+							<rect
+								x={PAD.left}
+								y={PAD.top}
+								width={projX(activeStump.threshold) - PAD.left}
+								height={PLOT_H}
+								class="region"
+								class:is-class-0={leftPredClass === 0}
+								class:is-class-1={leftPredClass === 1}
+							/>
+							<rect
+								x={projX(activeStump.threshold)}
+								y={PAD.top}
+								width={SVG_W - PAD.right - projX(activeStump.threshold)}
+								height={PLOT_H}
+								class="region"
+								class:is-class-0={rightPredClass === 0}
+								class:is-class-1={rightPredClass === 1}
+							/>
+							<line
+								x1={projX(activeStump.threshold)}
+								y1={PAD.top}
+								x2={projX(activeStump.threshold)}
+								y2={SVG_H - PAD.bottom}
+								class="boundary"
+							/>
+						{/if}
 					{/if}
-				{/if}
-			{/each}
 
-			{#if activeStump}
-				{#if isHorizontalSplit}
-					<rect
-						x={PAD.left}
-						y={PAD.top}
-						width={PLOT_W}
-						height={projY(activeStump.threshold) - PAD.top}
-						class="region region-left"
-						class:is-class-0={leftPredClass === 0}
-						class:is-class-1={leftPredClass === 1}
-					/>
-					<rect
-						x={PAD.left}
-						y={projY(activeStump.threshold)}
-						width={PLOT_W}
-						height={PAD.top - projY(activeStump.threshold) + PLOT_H}
-						class="region region-right"
-						class:is-class-0={rightPredClass === 0}
-						class:is-class-1={rightPredClass === 1}
-					/>
-				{:else}
-					<rect
-						x={PAD.left}
-						y={PAD.top}
-						width={projX(activeStump.threshold) - PAD.left}
-						height={PLOT_H}
-						class="region region-left"
-						class:is-class-0={leftPredClass === 0}
-						class:is-class-1={leftPredClass === 1}
-					/>
-					<rect
-						x={projX(activeStump.threshold)}
-						y={PAD.top}
-						width={SVG_W - PAD.right - projX(activeStump.threshold)}
-						height={PLOT_H}
-						class="region region-right"
-						class:is-class-0={rightPredClass === 0}
-						class:is-class-1={rightPredClass === 1}
-					/>
-				{/if}
+					<!-- Points: filled = in the active tree's bootstrap sample, faded = out-of-bag -->
+					{#each data.X as point, i (i)}
+						<circle
+							cx={projX(point[0])}
+							cy={projY(point[1])}
+							r={3.5}
+							class="dot"
+							class:is-class-0={data.y[i] === 0}
+							class:is-class-1={data.y[i] === 1}
+							class:oob={!inBag.has(i)}
+						/>
+					{/each}
 
-				{#if isHorizontalSplit}
-					<line
-						x1={PAD.left}
-						y1={projY(activeStump.threshold)}
-						x2={SVG_W - PAD.right}
-						y2={projY(activeStump.threshold)}
-						class="boundary"
-					/>
-				{:else}
-					<line
-						x1={projX(activeStump.threshold)}
-						y1={PAD.top}
-						x2={projX(activeStump.threshold)}
-						y2={SVG_H - PAD.bottom}
-						class="boundary"
-					/>
-				{/if}
-			{/if}
+					{#if isHidden}
+						<g transform={`translate(${SVG_W / 2}, ${PAD.top + 26})`}>
+							<rect
+								x={-bannerBoxW / 2}
+								y="-12"
+								width={bannerBoxW}
+								height="24"
+								rx="4"
+								class="hidden-banner"
+							/>
+							<text
+								bind:this={bannerTextEl}
+								x="0"
+								y="4"
+								text-anchor="middle"
+								class="hidden-banner-text">{bannerLabel}</text
+							>
+						</g>
+					{/if}
 
-			{#each data.X as point, i}
-				<circle
-					cx={projX(point[0])}
-					cy={projY(point[1])}
-					r={3.5}
-					class="dot"
-					class:is-class-0={data.y[i] === 0}
-					class:is-class-1={data.y[i] === 1}
-				/>
-			{/each}
-
-			<text x={SVG_W / 2} y={SVG_H - 4} class="axis-label" text-anchor="middle">x₁</text>
-			<text
-				x={12}
-				y={SVG_H / 2}
-				class="axis-label"
-				text-anchor="middle"
-				transform={`rotate(-90, 12, ${SVG_H / 2})`}>x₂</text
-			>
-
-			{#if activeStump}
-				<g transform={`translate(${SVG_W / 2}, ${PAD.top - 4})`}>
-					<rect x="-90" y="-10" width="180" height="20" rx="4" class="badge-bg" />
-					<text x="0" y="3" text-anchor="middle" class="badge-text"
-						>Arbre #{activeTreeIdx + 1} — split: {splitsOnFeature} ≤ {activeStump.threshold.toFixed(
-							2
-						)}</text
+					<text x={SVG_W / 2} y={SVG_H - 4} class="axis-label" text-anchor="middle">x₁</text>
+					<text
+						x={12}
+						y={SVG_H / 2}
+						class="axis-label"
+						text-anchor="middle"
+						transform={`rotate(-90, 12, ${SVG_H / 2})`}>x₂</text
 					>
-				</g>
-			{/if}
-		</svg>
 
-		{#snippet caption()}
-			m = {mTry} feature{mTry > 1 ? 's' : ''} sur 2 (fixé pour toute la forêt) | {N_TREES} arbres indépendants
-			affichés | Données : {N_SAMPLES} échantillons
-		{/snippet}
-	</Figure>
+					<g transform={`translate(${SVG_W / 2}, ${PAD.top - 4})`}>
+						<rect
+							x={-badgeBoxW / 2}
+							y="-10"
+							width={badgeBoxW}
+							height="20"
+							rx="4"
+							class="badge-bg"
+						/>
+						<text bind:this={badgeTextEl} x="0" y="3" text-anchor="middle" class="badge-text"
+							>{badgeLabel}</text
+						>
+					</g>
+				</svg>
 
-	<!-- Ensemble strip: click any stump to inspect it in the main chart -->
-	<div class="ensemble-strip">
-		{#each forest as f (f.treeIdx)}
-			<button
-				class="tree-chip"
-				class:active={f.treeIdx === activeTreeIdx}
-				onclick={() => (activeTreeIdx = f.treeIdx)}
-			>
-				<span class="chip-idx">#{f.treeIdx + 1}</span>
-				<span class="chip-feat"
-					>{f.stump.featureIdx === 0 ? 'x₁' : 'x₂'} ≤ {f.stump.threshold.toFixed(2)}</span
+				<svg
+					viewBox={`0 0 ${SVG_W} ${STRIP_H}`}
+					class="strip-svg"
+					role="img"
+					aria-label={`Projection des points sur la variable ${splitsOnFeature} avec le seuil du stump actif`}
 				>
-			</button>
-		{/each}
+					<rect
+						x={PAD.left}
+						y={STRIP_PAD.top}
+						width={clampX(activeStump.threshold) - PAD.left}
+						height={STRIP_H - STRIP_PAD.top - STRIP_PAD.bottom}
+						class="region"
+						class:is-class-0={leftPredClass === 0}
+						class:is-class-1={leftPredClass === 1}
+					/>
+					<rect
+						x={clampX(activeStump.threshold)}
+						y={STRIP_PAD.top}
+						width={SVG_W - PAD.right - clampX(activeStump.threshold)}
+						height={STRIP_H - STRIP_PAD.top - STRIP_PAD.bottom}
+						class="region"
+						class:is-class-0={rightPredClass === 0}
+						class:is-class-1={rightPredClass === 1}
+					/>
+					<text x={PAD.left - 4} y={STRIP_ROW[0] + 3} class="strip-row-label" text-anchor="end"
+						>y=0</text
+					>
+					<text x={PAD.left - 4} y={STRIP_ROW[1] + 3} class="strip-row-label" text-anchor="end"
+						>y=1</text
+					>
+					{#each data.X as point, i (i)}
+						<circle
+							cx={clampX(point[activeStump.featureIdx])}
+							cy={STRIP_ROW[data.y[i]] + ((i * 37) % 7) - 3}
+							r={3}
+							class="dot"
+							class:is-class-0={data.y[i] === 0}
+							class:is-class-1={data.y[i] === 1}
+							class:oob={!inBag.has(i)}
+						/>
+					{/each}
+					<line
+						x1={clampX(activeStump.threshold)}
+						y1={STRIP_PAD.top}
+						x2={clampX(activeStump.threshold)}
+						y2={STRIP_H - STRIP_PAD.bottom}
+						class="boundary"
+					/>
+					<text x={SVG_W / 2} y={STRIP_H - 6} class="axis-label" text-anchor="middle"
+						>{splitsOnFeature} en 1D — {isHidden
+							? 'variable cachée, seule vue possible'
+							: 'variable visible, même seuil que dans le plan'}</text
+					>
+				</svg>
+
+				{#snippet caption()}
+					m = {mTry} variable{mTry > 1 ? 's' : ''} sur d = {D} (fixé pour toute la forêt) | {N_TREES}
+					arbres | {N_SAMPLES} échantillons. Petit modèle synthétique seedé : x₁, x₂ informatives, x₃
+					faiblement informative, x₄, x₅ bruit pur. Points estompés : hors de l'échantillon bootstrap
+					de l'arbre actif ({active.nDistinct}/{N_SAMPLES} points distincts tirés). Métriques calculées
+					sur les {N_SAMPLES}
+					points.
+				{/snippet}
+			</Figure>
+		</div>
+
+		<div class="side-col">
+			<div class="controls-panel">
+				<Slider
+					bind:value={mTry}
+					min={1}
+					max={D}
+					step={1}
+					label={`Variables tirées par division (m) — règle empirique m ≈ √d ≈ ${SQRT_D.toFixed(1).replace('.', ',')}`}
+				/>
+
+				<div class="actions-row">
+					<Button variant="outline" size="sm" onclick={newDataset}>⟲ Nouvelles données</Button>
+					<Button variant="primary" size="sm" onclick={newForest}
+						>🎲 Nouvel ensemble d'arbres</Button
+					>
+				</div>
+			</div>
+
+			<!-- Ensemble strip: click any stump to inspect it in the main chart -->
+			<div class="ensemble-strip">
+				{#each forest as f (f.treeIdx)}
+					<button
+						class="tree-chip"
+						class:active={f.treeIdx === activeTreeIdx}
+						class:hidden-feat={f.stump.featureIdx >= N_VISIBLE}
+						onclick={() => (activeTreeIdx = f.treeIdx)}
+						title={`Variables tirées : ${f.featureSubset.map((j) => FEATURE_NAMES[j]).join(', ')}`}
+					>
+						<span class="chip-idx"
+							>#{f.treeIdx + 1}{f.stump.featureIdx >= N_VISIBLE ? ' · cachée' : ''}</span
+						>
+						<span class="chip-feat"
+							>{FEATURE_NAMES[f.stump.featureIdx]} ≤ {f.stump.threshold.toFixed(2)}</span
+						>
+						<span class="chip-subset"
+							>{'{'}{f.featureSubset.map((j) => FEATURE_NAMES[j]).join(',')}{'}'}</span
+						>
+					</button>
+				{/each}
+			</div>
+
+			<p class="diversity-note">
+				Variables utilisées : {featureSummary} — {nDistinctSplits} divisions distinctes sur {N_TREES}
+				arbres{nHiddenStumps > 0
+					? ` — ${nHiddenStumps} arbre${nHiddenStumps > 1 ? 's' : ''} sur une variable cachée (ligne absente du plan)`
+					: ''}.
+			</p>
+
+			<div class="stump-params">
+				<div class="param-cell">
+					<span class="label">Variable</span>
+					<span class="value mono">{splitsOnFeature}{isHidden ? ' (cachée)' : ''}</span>
+				</div>
+				<div class="param-cell">
+					<span class="label">Seuil</span>
+					<span class="value mono">{activeStump.threshold.toFixed(3)}</span>
+				</div>
+				<div class="param-cell">
+					<span class="label">← Préd.</span>
+					<span
+						class="value"
+						style:color={leftPredClass === 0 ? 'var(--color-surprise)' : 'var(--color-positive)'}
+						>{leftPredClass}</span
+					>
+				</div>
+				<div class="param-cell">
+					<span class="label">Préd. →</span>
+					<span
+						class="value"
+						style:color={rightPredClass === 0 ? 'var(--color-surprise)' : 'var(--color-positive)'}
+						>{rightPredClass}</span
+					>
+				</div>
+				<div class="param-cell">
+					<span class="label">Échantillons</span>
+					<span class="value mono">{leftCount} / {rightCount}</span>
+				</div>
+			</div>
+
+			<Metrics
+				align="center"
+				style="margin: 0; padding: 0.5rem 0 0; background: transparent; border: none; border-top: 1px solid var(--color-border); border-radius: 0"
+			>
+				<div class="cell">
+					<span class="label">Précision</span>
+					<span class="value" style:color="var(--color-positive)"
+						>{(accuracy * 100).toFixed(1)}%</span
+					>
+					<span class="unit">{Math.round(accuracy * N_SAMPLES)}/{N_SAMPLES} corrects</span>
+				</div>
+
+				<div class="cell">
+					<span class="label">Gini avant</span>
+					<span class="value" style:color="var(--color-surprise)">{giniBefore.toFixed(3)}</span>
+					<span class="unit">impureté globale</span>
+				</div>
+
+				<div class="cell">
+					<span class="label">Gini après</span>
+					<span class="value" style:color="var(--color-belief)">{giniAfter.toFixed(3)}</span>
+					<span class="unit"
+						>pondéré {leftCount}×{giniLeft.toFixed(2)} + {rightCount}×{giniRight.toFixed(2)}</span
+					>
+				</div>
+
+				<div class="cell">
+					<span class="label">Gain info.</span>
+					<span class="value" style:color="var(--color-positive)">{infoGainVal.toFixed(3)}</span>
+					<span class="unit">bits d'entropie</span>
+				</div>
+			</Metrics>
+		</div>
 	</div>
 
-	<p class="diversity-note">{diversityLabel}</p>
-
-	<!-- Stump Parameters Panel -->
-	{#if activeStump}
-		<div class="stump-params">
-			<div class="param-cell">
-				<span class="label">Feature</span>
-				<span class="value mono">{splitsOnFeature}</span>
-			</div>
-			<div class="param-cell">
-				<span class="label">Seuil</span>
-				<span class="value mono">{activeStump.threshold.toFixed(3)}</span>
-			</div>
-			<div class="param-cell">
-				<span class="label">← Préd.</span>
-				<span
-					class="value"
-					style:color={leftPredClass === 0 ? 'var(--color-surprise)' : 'var(--color-positive)'}
-					>{leftPredClass}</span
-				>
-			</div>
-			<div class="param-cell">
-				<span class="label">Préd. →</span>
-				<span
-					class="value"
-					style:color={rightPredClass === 0 ? 'var(--color-surprise)' : 'var(--color-positive)'}
-					>{rightPredClass}</span
-				>
-			</div>
-			<div class="param-cell">
-				<span class="label">Échantillons</span>
-				<span class="value mono">{leftCount} / {rightCount}</span>
-			</div>
-		</div>
-	{/if}
-
-	<!-- Metrics Panel -->
-	<Metrics align="center">
-		<div class="cell">
-			<span class="label">Précision</span>
-			<span class="value" style:color="var(--color-positive)">{(accuracy * 100).toFixed(1)}%</span>
-			<span class="unit">{Math.round(accuracy * N_SAMPLES)}/{N_SAMPLES} corrects</span>
-		</div>
-
-		<div class="cell">
-			<span class="label">Gini avant</span>
-			<span class="value" style:color="var(--color-surprise)">{giniBefore.toFixed(3)}</span>
-			<span class="unit">impureté globale</span>
-		</div>
-
-		<div class="cell">
-			<span class="label">Gini après</span>
-			<span class="value" style:color="var(--color-belief)">{giniAfter.toFixed(3)}</span>
-			<span class="unit"
-				>pondéré {leftCount}×{giniLeft.toFixed(2)} + {rightCount}×{giniRight.toFixed(2)}</span
-			>
-		</div>
-
-		<div class="cell">
-			<span class="label">Gain info.</span>
-			<span class="value" style:color="var(--color-positive)">{infoGainVal.toFixed(3)}</span>
-			<span class="unit">bits d'entropie</span>
-		</div>
-	</Metrics>
-
-	<!-- Controls -->
-	<div class="controls-panel">
-		<Slider
-			bind:value={mTry}
-			min={1}
-			max={2}
-			step={1}
-			label="Taille sous-ensemble (m) — fixée pour toute la forêt"
-		/>
-
-		<div class="actions-row">
-			<Button variant="outline" size="sm" onclick={newDataset}>⟲ Nouvelles données</Button>
-			<Button variant="primary" size="sm" onclick={newForest}>🎲 Nouvel ensemble d'arbres</Button>
-		</div>
-	</div>
-
-	<!-- Insight box -->
 	<div class="insight-box">
 		<span class="icon">🌲</span>
 		<p>
-			Dans un <strong>Random Forest</strong>, m est un hyperparamètre
-			<strong>fixe pour toute la forêt</strong>
-			: chaque arbre tire toujours exactement m features par division, mais
-			<strong>lesquelles</strong>
-			sont tirées indépendamment à chaque arbre (et même à chaque nœud, dans un vrai arbre plus profond).
-			Avec m=1 ici, les {N_TREES} arbres ci-dessus ont chacun tiré leur propre feature au hasard — regardez
-			les lignes fantômes grises sur le graphique : elles montrent tous les autres seuils de l'ensemble.
-			Avec m=2, il n'y a plus rien à tirer au hasard (les deux features sont toujours disponibles), donc
-			tous les arbres retombent sur exactement le même seuil — la diversité de features disparaît complètement,
-			ce qui, d'après le Théorème 6.1 du cours, ramène la corrélation moyenne
-			<span class="mono">ρ̄</span> à son maximum.
+			Chaque arbre d'un <strong>Random Forest</strong> combine deux sources d'aléa :
+			<strong>un échantillon bootstrap</strong> (n tirages avec remise) et, à chaque division,
+			<strong>m variables tirées au hasard</strong> parmi les d. Avec m = d = {D}, toutes les
+			variables sont toujours disponibles : chaque arbre choisit la variable dominante et seuls ses
+			seuils bougent légèrement d'un bootstrap à l'autre — les arbres restent fortement corrélés.
+			Avec m petit, beaucoup d'arbres sont contraints de couper sur une variable moins informative,
+			voire sur une variable cachée de pur bruit (x₄, x₅) : chaque arbre est moins bon, mais
+			l'ensemble est plus diversifié. C'est ce compromis qu'exprime le théorème sur la variance d'un
+			ensemble en fonction de la corrélation moyenne <span class="mono">ρ̄</span> (section
+			précédente) : réduire
+			<span class="mono">ρ̄</span> diminue le terme <span class="mono">ρ̄σ²</span> que l'ajout d'arbres
+			ne fait pas disparaître.
 		</p>
 	</div>
 </div>
@@ -536,7 +648,7 @@
 		padding: 0.3rem 0.6rem;
 		border-radius: var(--radius-sm, 4px);
 		border: 1px solid var(--color-border);
-		background: var(--color-surface-2, transparent);
+		background: var(--color-surface, transparent);
 		cursor: pointer;
 		font-family: var(--font-mono, monospace);
 		color: var(--color-text-muted);
@@ -578,11 +690,9 @@
 		display: flex;
 		gap: 0.5rem;
 		width: 100%;
-		max-width: 480px;
-		padding: 0.5rem 0.75rem;
-		background: var(--color-surface-2);
-		border: 1px solid var(--color-border);
-		border-radius: var(--radius-md, 8px);
+		padding: 0.5rem 0 0;
+		border-top: 1px solid var(--color-border);
+		justify-content: space-around;
 		flex-wrap: wrap;
 	}
 
@@ -618,10 +728,8 @@
 		flex-direction: column;
 		gap: 0.75rem;
 		width: 100%;
-		padding: 0.75rem;
-		border: 1px solid var(--color-border);
-		border-radius: var(--radius-md, 8px);
-		background: var(--color-surface-2);
+		padding-bottom: 0.75rem;
+		border-bottom: 1px solid var(--color-border);
 	}
 
 	.actions-row {
@@ -652,5 +760,79 @@
 	.icon {
 		font-size: 1.1rem;
 		flex-shrink: 0;
+	}
+
+	.strip-svg {
+		width: 100%;
+		height: auto;
+		margin-top: 0.25rem;
+	}
+
+	.strip-row-label {
+		font-size: 9px;
+		fill: var(--color-text-muted);
+		font-family: var(--font-mono, monospace);
+	}
+
+	.dot.oob {
+		opacity: 0.25;
+	}
+
+	.hidden-banner {
+		fill: var(--color-surface-2);
+		stroke: var(--color-text-muted);
+		stroke-width: 0.8;
+		stroke-dasharray: 4 3;
+		opacity: 0.95;
+	}
+
+	.hidden-banner-text {
+		font-size: 10.5px;
+		fill: var(--color-text);
+		font-family: var(--font-mono, monospace);
+	}
+
+	.tree-chip.hidden-feat {
+		border-style: dashed;
+	}
+
+	.chip-subset {
+		font-size: 0.6rem;
+		opacity: 0.7;
+	}
+
+	/* Two columns on wide screens: plot on the left, controls + readouts on
+	   the right, so the slider/buttons stay next to the chart they drive. */
+	.layout {
+		display: grid;
+		grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
+		gap: 0.75rem;
+		width: 100%;
+		align-items: stretch;
+	}
+
+	.viz-col,
+	.side-col {
+		display: flex;
+		flex-direction: column;
+		gap: 0.75rem;
+		min-width: 0;
+	}
+
+	/* Right column wrapped in the same card style as Figure's chart-wrap
+	   (border, radius, surface-2, padding) so both columns read as panels. */
+	.side-col {
+		box-sizing: border-box;
+		padding: 1rem 0.75rem;
+		border: 1px solid var(--color-border);
+		border-radius: var(--radius-md, 8px);
+		background: var(--color-surface-2);
+	}
+
+	@media (max-width: 760px) {
+		.layout {
+			grid-template-columns: 1fr;
+		}
+		/* single column: keep controls right under the plot */
 	}
 </style>

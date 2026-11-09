@@ -22,6 +22,7 @@
  */
 
 import { mulberry32 } from './util.js';
+import { resampleIndices } from './bootstrap-inference.js';
 
 // ─── Decision Stump Builder ────────────────────────────────
 
@@ -125,6 +126,73 @@ export function buildDecisionStump(
 			giniDecrease: 0
 		}
 	);
+}
+
+// ─── Random Forest building blocks (Algorithme 4.2) ────────
+
+/**
+ * Draw m distinct feature indices uniformly at random among {0, …, d−1}
+ * (partial Fisher–Yates), returned sorted ascending.
+ *
+ * Source : course_sources/typst/regularization.typ, ch. 4, Algorithme 4.2
+ * (Random Forest) — « À chaque nœud, sélectionner aléatoirement m features
+ * parmi les d disponibles ».
+ */
+export function sampleFeatureSubset(d: number, m: number, rng: () => number): number[] {
+	if (!Number.isInteger(d) || d < 1)
+		throw new Error(`sampleFeatureSubset: d must be a positive integer (got ${d})`);
+	if (!Number.isInteger(m) || m < 1 || m > d)
+		throw new Error(`sampleFeatureSubset: m must be an integer in [1, d=${d}] (got ${m})`);
+	const idx = Array.from({ length: d }, (_, i) => i);
+	for (let i = 0; i < m; i++) {
+		const j = i + Math.floor(rng() * (d - i));
+		[idx[i], idx[j]] = [idx[j], idx[i]];
+	}
+	return idx.slice(0, m).sort((a, b) => a - b);
+}
+
+export interface RandomStumpFit {
+	stump: DecisionStump;
+	featureSubset: number[];
+	/** Indices (with repetition) of the bootstrap sample S_n^(j) in the original data. */
+	bootstrapIdx: number[];
+}
+
+/**
+ * One tree of a Random Forest restricted to depth 1 (a stump), for binary
+ * 0/1 classification: bootstrap sample S_n^(j) (n draws with replacement),
+ * then a random subset of m features, then the best Gini split among those
+ * m features only (`buildDecisionStump`).
+ *
+ * Source : course_sources/typst/regularization.typ, ch. 4, Algorithme 4.2
+ * (étapes 1–2 ; Définition 4.5 pour l'échantillon bootstrap). Depth 1 is a
+ * simplification for visualization — a stump has a single node, so « à
+ * chaque nœud » reduces to a single draw of the m features.
+ */
+export function fitRandomStump(
+	X: number[][],
+	y: number[],
+	m: number,
+	rng: () => number
+): RandomStumpFit {
+	const n = X.length;
+	if (n < 1) throw new Error('fitRandomStump: X must contain at least one row');
+	if (y.length !== n)
+		throw new Error(`fitRandomStump: X and y lengths differ (${n} vs ${y.length})`);
+	const d = X[0].length;
+	const bootstrapIdx = resampleIndices(n, rng);
+	const featureSubset = sampleFeatureSubset(d, m, rng);
+	const Xb = bootstrapIdx.map((i) => X[i]);
+	const yb = bootstrapIdx.map((i) => y[i]);
+	const stump = buildDecisionStump(Xb, yb, featureSubset, true);
+	return { stump, featureSubset, bootstrapIdx };
+}
+
+/** Predicted 0/1 class of a classification stump at point x. */
+export function predictStumpClass(stump: DecisionStump, x: number[]): number {
+	return x[stump.featureIdx] <= stump.threshold
+		? Math.round(stump.leftValue)
+		: Math.round(stump.rightValue);
 }
 
 // ─── Impurity Measures ────────────────────────────────

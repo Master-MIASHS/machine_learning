@@ -6,9 +6,12 @@ import {
 	informationGain,
 	impurityOf,
 	misclassificationImpurity,
-	permutationImportance
+	permutationImportance,
+	sampleFeatureSubset,
+	fitRandomStump,
+	predictStumpClass
 } from '../math/random-forest.js';
-import { mulberry32 } from './util.js';
+import { mulberry32, combineSeed } from './util.js';
 
 // Note: Random Forests are not part of theorie.typ (which covers
 // Théorèmes 1.1–4.2); this module supports Part 4, lesson 2 of the course,
@@ -423,5 +426,99 @@ describe('impurity-based feature importance (sanity, mirrors FeatureImportanceCh
 			for (let i = 1; i < scores.length; i++) if (scores[i] > scores[top]) top = i;
 			expect(top).toBeLessThan(3);
 		}
+	});
+});
+
+// Algorithme 4.2 (course_sources/typst/regularization.typ, ch. 4) building blocks.
+describe('sampleFeatureSubset', () => {
+	it('returns m distinct, sorted, in-range indices', () => {
+		const rng = mulberry32(7);
+		for (let m = 1; m <= 5; m++) {
+			const s = sampleFeatureSubset(5, m, rng);
+			expect(s).toHaveLength(m);
+			expect(new Set(s).size).toBe(m);
+			expect(s.every((f) => Number.isInteger(f) && f >= 0 && f < 5)).toBe(true);
+			expect([...s].sort((a, b) => a - b)).toEqual(s);
+		}
+	});
+
+	it('returns every feature when m = d', () => {
+		expect(sampleFeatureSubset(4, 4, mulberry32(1))).toEqual([0, 1, 2, 3]);
+	});
+
+	it('throws outside 1 ≤ m ≤ d', () => {
+		expect(() => sampleFeatureSubset(5, 0, mulberry32(1))).toThrow();
+		expect(() => sampleFeatureSubset(5, 6, mulberry32(1))).toThrow();
+		expect(() => sampleFeatureSubset(5, 1.5, mulberry32(1))).toThrow();
+		expect(() => sampleFeatureSubset(0, 1, mulberry32(1))).toThrow();
+	});
+
+	it('is uniform across features for m = 1, even with adjacent seeds', () => {
+		// Regression test: a poorly mixed PRNG seeded with nearby integers gave
+		// the same feature for every tree. Expected count 2000, sd ≈ 40.
+		const counts = [0, 0, 0, 0, 0];
+		for (let t = 0; t < 10000; t++) {
+			counts[sampleFeatureSubset(5, 1, mulberry32(combineSeed(0, t)))[0]]++;
+		}
+		for (const c of counts) expect(Math.abs(c - 2000)).toBeLessThan(250);
+	});
+
+	it('includes each feature with probability m/d', () => {
+		// P(f ∈ subset) = m/d for a uniform m-subset: here 2/5 → 4000 of 10000.
+		const counts = [0, 0, 0, 0, 0];
+		const rng = mulberry32(123);
+		for (let t = 0; t < 10000; t++) for (const f of sampleFeatureSubset(5, 2, rng)) counts[f]++;
+		for (const c of counts) expect(Math.abs(c - 4000)).toBeLessThan(300);
+	});
+});
+
+describe('fitRandomStump', () => {
+	// Two Gaussian blobs on feature 0, noise on feature 1.
+	const rng0 = mulberry32(99);
+	const X: number[][] = [];
+	const y: number[] = [];
+	for (let i = 0; i < 60; i++) {
+		const cls = i < 30 ? 0 : 1;
+		X.push([(cls === 0 ? -1 : 1) + (rng0() - 0.5) * 3, rng0() * 2 - 1]);
+		y.push(cls);
+	}
+
+	it('is deterministic for a fixed seed', () => {
+		const a = fitRandomStump(X, y, 1, mulberry32(5));
+		const b = fitRandomStump(X, y, 1, mulberry32(5));
+		expect(a).toEqual(b);
+	});
+
+	it('draws a bootstrap sample of size n with values in range', () => {
+		const { bootstrapIdx } = fitRandomStump(X, y, 2, mulberry32(3));
+		expect(bootstrapIdx).toHaveLength(60);
+		expect(bootstrapIdx.every((i) => i >= 0 && i < 60)).toBe(true);
+	});
+
+	it('only splits on a feature of its drawn subset', () => {
+		for (let t = 0; t < 30; t++) {
+			const fit = fitRandomStump(X, y, 1, mulberry32(combineSeed(1, t)));
+			expect(fit.featureSubset).toContain(fit.stump.featureIdx);
+		}
+	});
+
+	it('with m = d, bootstrap alone still makes thresholds vary across trees', () => {
+		const thresholds = new Set<number>();
+		for (let t = 0; t < 20; t++) {
+			thresholds.add(fitRandomStump(X, y, 2, mulberry32(combineSeed(2, t))).stump.threshold);
+		}
+		expect(thresholds.size).toBeGreaterThan(1);
+	});
+
+	it('throws on mismatched X / y', () => {
+		expect(() => fitRandomStump(X, y.slice(1), 1, mulberry32(1))).toThrow();
+	});
+});
+
+describe('predictStumpClass', () => {
+	it('routes x[f] ≤ threshold to the left leaf', () => {
+		const stump = { featureIdx: 1, threshold: 0.5, leftValue: 0.2, rightValue: 0.9 };
+		expect(predictStumpClass(stump, [10, 0.5])).toBe(0);
+		expect(predictStumpClass(stump, [-10, 0.51])).toBe(1);
 	});
 });

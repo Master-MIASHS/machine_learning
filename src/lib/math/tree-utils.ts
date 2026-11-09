@@ -1,6 +1,6 @@
 /**
  * Tree utilities for 2D visualization of decision stumps and simple trees.
- * Used by DecisionTreeStump and ForestGrowthAnimation demo components.
+ * Used by the ForestGrowthAnimation demo component (DecisionTreeStump uses random-forest.ts directly).
  *
  * Also hosts the full CART (classification/regression tree) builder used by
  * Part 2, lesson 3: `buildCartTree` / `findBestSplit1D` implement the greedy,
