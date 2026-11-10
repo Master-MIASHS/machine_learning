@@ -15,7 +15,7 @@
 	// Random Forest of depth-1 trees, following Algorithme 4.2
 	// (course_sources/typst/regularization.typ, ch. 4): each tree gets its own
 	// bootstrap sample S_n^(j) AND its own random subset of m features among d.
-	// Depth 1 is a visualization simplification (one node → one draw of m).
+	// Depth 1 is a visualization simplification (one node → one draw of m)
 
 	const N_SAMPLES = 80;
 	const D = 5;
