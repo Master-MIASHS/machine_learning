@@ -3,7 +3,7 @@
 	import ContourPlot from '$lib/components/charts/ContourPlot.svelte';
 	import Slider from '$lib/components/controls/Slider.svelte';
 	import SliderGrid from '$lib/components/layout/SliderGrid.svelte';
-	import { paraboloid, rosenbrock } from '$lib/math/test-functions.js';
+	import { paraboloid, rosenbrock, residualNorm } from '$lib/math/test-functions.js';
 
 	interface FuncOption {
 		key: string;
@@ -11,6 +11,7 @@
 		func: typeof paraboloid;
 		defaultAlpha: number;
 		defaultBeta: number;
+		alphaRange: { min: number; max: number; step: number };
 		startPoint: [number, number];
 		color: string;
 	}
@@ -22,6 +23,7 @@
 			func: rosenbrock,
 			defaultAlpha: 0.001,
 			defaultBeta: 0.9,
+			alphaRange: { min: 0.0001, max: 0.005, step: 0.0001 },
 			startPoint: [-1.5, 2],
 			color: '#ef4444'
 		},
@@ -31,12 +33,30 @@
 			func: paraboloid,
 			defaultAlpha: 0.1,
 			defaultBeta: 0.9,
+			alphaRange: { min: 0.01, max: 1.0, step: 0.01 },
 			startPoint: [-2.5, 2],
 			color: '#3b82f6'
+		},
+		{
+			// Départ par défaut (−3.5, 0), α = 0.01, β = 0.9 : le GD classique tombe dans le
+			// minimum global (−2.245, −3.041), le momentum est emporté vers l'autre,
+			// (2.055, −2.224). Les deux sont des pointes de cône : zigzag résiduel au fond.
+			key: 'residualNorm',
+			label: '√((x²+y−2)² + (x+y²−7)²)',
+			func: residualNorm,
+			defaultAlpha: 0.01,
+			defaultBeta: 0.9,
+			alphaRange: { min: 0.001, max: 0.1, step: 0.001 },
+			startPoint: [-3.5, 0],
+			color: '#a855f7'
 		}
 	];
 
 	let selectedKey = $state('rosenbrock');
+	// Point de départ contrôlable (sliders, clic sur l'un des graphes, clavier) ;
+	// réinitialisé au point par défaut quand on change de fonction.
+	let x0 = $state(-1.5);
+	let y0 = $state(2);
 	let alpha = $state(0.001);
 	let beta = $state(0.9);
 	let maxSteps = $state(150);
@@ -54,14 +74,13 @@
 		[-3, 3]
 	];
 	const domain = $derived(func.domain ?? defaultDomain);
-	const startPoint = $derived(opt.startPoint);
-	const startX = $derived(startPoint[0]);
-	const startY = $derived(startPoint[1]);
+	const startX = $derived(x0);
+	const startY = $derived(y0);
 
-	// Ajustement dynamique des limites du slider d'apprentissage selon la fonction
-	const alphaMin = $derived(selectedKey === 'rosenbrock' ? 0.0001 : 0.01);
-	const alphaMax = $derived(selectedKey === 'rosenbrock' ? 0.005 : 1.0);
-	const alphaStep = $derived(selectedKey === 'rosenbrock' ? 0.0001 : 0.01);
+	// Limites du slider d'apprentissage propres à chaque fonction
+	const alphaMin = $derived(opt.alphaRange.min);
+	const alphaMax = $derived(opt.alphaRange.max);
+	const alphaStep = $derived(opt.alphaRange.step);
 
 	const gdPoints = $derived.by(() => {
 		let x = startX,
@@ -122,7 +141,9 @@
 	let rowWidth = $state(680);
 	const gapPx = 16;
 	const chartW = $derived(Math.max(140, Math.min(320, (rowWidth - gapPx) / 2 - 24)));
-	const pad = 30;
+	// Doit refléter le padding interne de ContourPlot (pad = 36) pour que les trajectoires
+	// tombent sur les bonnes courbes de niveau.
+	const pad = 36;
 	const aspect = $derived((domain[1][1] - domain[1][0]) / (domain[0][1] - domain[0][0]));
 	const chartH = $derived(Math.round(chartW * aspect));
 
@@ -131,6 +152,53 @@
 	}
 	function projY(y: number) {
 		return pad + ((domain[1][1] - y) / (domain[1][1] - domain[1][0])) * (chartH - pad * 2);
+	}
+	function unprojX(px: number) {
+		return domain[0][0] + ((px - pad) / (chartW - pad * 2)) * (domain[0][1] - domain[0][0]);
+	}
+	function unprojY(py: number) {
+		return domain[1][1] - ((py - pad) / (chartH - pad * 2)) * (domain[1][1] - domain[1][0]);
+	}
+
+	const startStepX = $derived((domain[0][1] - domain[0][0]) / 200);
+	const startStepY = $derived((domain[1][1] - domain[1][0]) / 200);
+
+	function setStart(x: number, y: number) {
+		x0 = Math.min(domain[0][1], Math.max(domain[0][0], x));
+		y0 = Math.min(domain[1][1], Math.max(domain[1][0], y));
+	}
+
+	// Clic sur l'un des graphes → nouveau point de départ (commun aux deux méthodes).
+	// Conversion écran → SVG via getScreenCTM().inverse(), puis inverse de projX/projY.
+	function handleCanvasClick(event: MouseEvent & { currentTarget: SVGRectElement }) {
+		const svg = event.currentTarget.ownerSVGElement;
+		const ctm = svg?.getScreenCTM();
+		if (!svg || !ctm) return;
+		const pt = svg.createSVGPoint();
+		pt.x = event.clientX;
+		pt.y = event.clientY;
+		const p = pt.matrixTransform(ctm.inverse());
+		setStart(unprojX(p.x), unprojY(p.y));
+	}
+
+	// Équivalent clavier (plus limité que le pointeur) : flèches = déplacer le point de départ
+	// d'un pas de slider (×10 avec Maj), Entrée/Espace = lancer la course.
+	function handleCanvasKey(event: KeyboardEvent) {
+		const k = event.shiftKey ? 10 : 1;
+		const moves: Record<string, [number, number]> = {
+			ArrowLeft: [-k * startStepX, 0],
+			ArrowRight: [k * startStepX, 0],
+			ArrowUp: [0, k * startStepY],
+			ArrowDown: [0, -k * startStepY]
+		};
+		const mv = moves[event.key];
+		if (mv) {
+			event.preventDefault();
+			setStart(x0 + mv[0], y0 + mv[1]);
+		} else if (event.key === 'Enter' || event.key === ' ') {
+			event.preventDefault();
+			play();
+		}
 	}
 
 	function pathFor(points: { x: number; y: number }[], upTo: number): string {
@@ -193,6 +261,8 @@
 		const o = funcOptions.find((o2) => o2.key === key)!;
 		alpha = o.defaultAlpha;
 		beta = o.defaultBeta;
+		x0 = o.startPoint[0];
+		y0 = o.startPoint[1];
 		resetAnim();
 	}
 
@@ -202,6 +272,8 @@
 		void alpha;
 		void beta;
 		void maxSteps;
+		void x0;
+		void y0;
 		resetAnim();
 	});
 </script>
@@ -232,6 +304,25 @@
 			<Slider bind:value={beta} min={0} max={0.99} step={0.01} label="β" />
 		</div>
 		<div class="grp">
+			<div class="gttl">Point de départ</div>
+			<Slider
+				value={x0}
+				min={domain[0][0]}
+				max={domain[0][1]}
+				step={startStepX}
+				label="x₀"
+				onchange={(v) => setStart(v, y0)}
+			/>
+			<Slider
+				value={y0}
+				min={domain[1][0]}
+				max={domain[1][1]}
+				step={startStepY}
+				label="y₀"
+				onchange={(v) => setStart(x0, v)}
+			/>
+		</div>
+		<div class="grp">
 			<div class="gttl">Nombre d'étapes max</div>
 			<Slider bind:value={maxSteps} min={10} max={300} step={5} label="k" />
 		</div>
@@ -239,6 +330,9 @@
 
 	<div class="transport">
 		<button class="btn" onclick={resetAnim}>⟲ Reset</button>
+		<button class="btn" onclick={() => setStart(opt.startPoint[0], opt.startPoint[1])}
+			>⌖ Départ par défaut</button
+		>
 		<button class="btn" onclick={tick} disabled={playing || bothSettled}>▶ Un pas</button>
 		{#if playing}
 			<button class="btn btn-warn" onclick={pause}>⏸ Pause</button>
@@ -257,6 +351,20 @@
 			<div class="chart-container" style:width="{chartW}px" style:height="{chartH}px">
 				<ContourPlot {f} {domain} width={chartW} height={chartH} numLevels={8} />
 				<svg class="traj-overlay" width={chartW} height={chartH}>
+					<!-- Zone cliquable : place le point de départ (clavier : flèches, Entrée). -->
+					<rect
+						class="click-canvas"
+						x={pad}
+						y={pad}
+						width={chartW - pad * 2}
+						height={chartH - pad * 2}
+						fill="transparent"
+						role="button"
+						tabindex="0"
+						aria-label="Placer le point de départ : cliquer sur le graphe, ou flèches du clavier puis Entrée"
+						onclick={handleCanvasClick}
+						onkeydown={handleCanvasKey}
+					/>
 					<path d={gdPathVisible} fill="none" stroke="#94a3b8" stroke-width="2.5" opacity="0.9" />
 					<circle
 						cx={projX(startX)}
@@ -282,6 +390,20 @@
 			<div class="chart-container" style:width="{chartW}px" style:height="{chartH}px">
 				<ContourPlot {f} {domain} width={chartW} height={chartH} numLevels={8} />
 				<svg class="traj-overlay" width={chartW} height={chartH}>
+					<!-- Zone cliquable : place le point de départ (clavier : flèches, Entrée). -->
+					<rect
+						class="click-canvas"
+						x={pad}
+						y={pad}
+						width={chartW - pad * 2}
+						height={chartH - pad * 2}
+						fill="transparent"
+						role="button"
+						tabindex="0"
+						aria-label="Placer le point de départ : cliquer sur le graphe, ou flèches du clavier puis Entrée"
+						onclick={handleCanvasClick}
+						onkeydown={handleCanvasKey}
+					/>
 					<path d={momPathVisible} fill="none" stroke="#22c55e" stroke-width="2.5" opacity="0.9" />
 					<circle
 						cx={projX(startX)}
@@ -336,7 +458,10 @@
 	<div class="callout-intuition">
 		💡 Sur la vallée étroite (Ellipse) ou courbée (Rosenbrock), le GD classique accumule des
 		oscillations orthogonales massives. Le Momentum additionne les gradients successifs dans la
-		direction du minimum et annule les oscillations parasites.
+		direction du minimum et annule les oscillations parasites. Sur √((x²+y−2)² + (x+y²−7)²), qui a
+		deux minima globaux (f = 0) et un minimum local (f ≈ 0,625), l'inertie peut faire changer de
+		bassin : déplacez le point de départ pour le constater. Au fond des minima globaux, la fonction
+		n'est pas différentiable et les deux méthodes zigzaguent sans converger exactement.
 	</div>
 </div>
 
@@ -486,6 +611,14 @@
 		position: absolute;
 		inset: 0;
 		pointer-events: none;
+	}
+
+	.click-canvas {
+		pointer-events: all;
+		cursor: crosshair;
+	}
+	.click-canvas:focus-visible {
+		outline: 2px solid var(--color-text-muted);
 	}
 
 	.stats {

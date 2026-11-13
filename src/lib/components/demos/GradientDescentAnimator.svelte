@@ -3,7 +3,7 @@
 	import ContourPlot from '$lib/components/charts/ContourPlot.svelte';
 	import Slider from '$lib/components/controls/Slider.svelte';
 	import SliderGrid from '$lib/components/layout/SliderGrid.svelte';
-	import { paraboloid, rosenbrock, ellipse } from '$lib/math/test-functions.js';
+	import { paraboloid, rosenbrock, ellipse, residualNorm } from '$lib/math/test-functions.js';
 	import { gdStep } from '$lib/math/gradient-descent.js';
 
 	interface FuncOption {
@@ -39,10 +39,29 @@
 			defaultAlpha: 0.3,
 			startPoint: [-3, -3],
 			color: '#10b981'
+		},
+		{
+			// Départ par défaut (0, 0) : piégé dans le minimum local lisse (0.096, 2.605), f ≈ 0.625.
+			// Départ vers (3.5, −0.5) : atteint un minimum global non lisse et y zigzague
+			// (cf. residualNorm dans test-functions.ts et ses tests).
+			key: 'residualNorm',
+			label: '√((x²+y−2)² + (x+y²−7)²)',
+			func: residualNorm,
+			defaultAlpha: 0.03,
+			startPoint: [0, 0],
+			color: '#a855f7'
 		}
 	];
 
+	// Plafond d'itérations : sans lui, une trajectoire qui ne converge jamais au sens
+	// ‖∇f‖ < 1e-3 (pointe de cône de residualNorm) animerait indéfiniment.
+	const MAX_STEPS = 2000;
+
 	let selectedKey = $state('paraboloid');
+	// Point de départ contrôlable (sliders, clic sur le graphe, clavier) ; réinitialisé au
+	// point par défaut de la fonction quand on change de fonction.
+	let x0 = $state(-2.5);
+	let y0 = $state(2);
 	let containerWidth = $state(420);
 	let alpha = $state(0.1);
 	let stepIntervalMs = $state(150);
@@ -83,10 +102,25 @@
 	const lastGradNorm = $derived(Math.hypot(lastGrad[0], lastGrad[1]));
 	const isConverged = $derived(lastGradNorm < 1e-3);
 	const stepCount = $derived(Math.max(0, trajectory.length - 1));
+	const hitMaxSteps = $derived(stepCount >= MAX_STEPS);
+	// Itéré proche d'un zéro de f (minimum global) alors que ‖∇f‖ reste grand : signature
+	// d'un minimum non différentiable (pointe de cône). Seuils choisis pour residualNorm,
+	// où ‖∇f‖ ≥ σ_min(J) ≈ 3 au voisinage des zéros (cf. tests).
+	// Le bandeau est volontairement mémorisé : près de la pointe, un pas peut sortir
+	// brièvement du seuil f < 0.3, ce qui ne signifie pas que le régime oscillant a cessé.
+	// On recherche donc la signature dans toute la trajectoire courante plutôt que sur
+	// le seul dernier point. Les états convergence/divergence restent prioritaires dans
+	// le rendu ci-dessous.
+	const hasConeOscillation = $derived(
+		selectedKey === 'residualNorm' &&
+		trajectory.some((point, i) => point.fVal < 0.3 && (gradNorms[i] ?? 0) > 1)
+	);
+	const coneOscillation = $derived(hasConeOscillation && !isConverged && !diverged);
+	const stopped = $derived(isConverged || diverged || hitMaxSteps);
 
 	// Prédiction brute (permet de voir l'overflow réel de la flèche)
 	const nextPredictedPoint = $derived.by(() => {
-		if (!lastPoint || isConverged || diverged) return null;
+		if (!lastPoint || stopped) return null;
 		const [nx, ny] = gdStep(lastPoint.x, lastPoint.y, func.grad, alpha);
 		return { x: nx, y: ny };
 	});
@@ -94,13 +128,12 @@
 	function reset() {
 		stopAnim();
 		diverged = false;
-		const sp = opt.startPoint;
-		trajectory = [{ x: sp[0], y: sp[1], fVal: func.f(sp[0], sp[1]) }];
-		gradNorms = [gradNormAt(sp[0], sp[1])];
+		trajectory = [{ x: x0, y: y0, fVal: func.f(x0, y0) }];
+		gradNorms = [gradNormAt(x0, y0)];
 	}
 
 	function step() {
-		if (isConverged || diverged || !nextPredictedPoint) return;
+		if (stopped || !nextPredictedPoint) return;
 
 		const nx = nextPredictedPoint.x;
 		const ny = nextPredictedPoint.y;
@@ -126,7 +159,7 @@
 		if (trajectory.length === 0) reset();
 		playing = true;
 		animTimer = setInterval(() => {
-			if (isConverged || diverged) {
+			if (stopped) {
 				stopAnim();
 				return;
 			}
@@ -163,7 +196,56 @@
 		selectedKey = key;
 		const o = funcOptions.find((o2) => o2.key === key)!;
 		alpha = o.defaultAlpha;
+		x0 = o.startPoint[0];
+		y0 = o.startPoint[1];
 		reset();
+	}
+
+	function setStart(x: number, y: number) {
+		x0 = Math.min(domain[0][1], Math.max(domain[0][0], x));
+		y0 = Math.min(domain[1][1], Math.max(domain[1][0], y));
+		reset();
+	}
+
+	function resetStartToDefault() {
+		setStart(opt.startPoint[0], opt.startPoint[1]);
+	}
+
+	const startStepX = $derived((domain[0][1] - domain[0][0]) / 200);
+	const startStepY = $derived((domain[1][1] - domain[1][0]) / 200);
+
+	// Clic sur le graphe → nouveau point de départ. Conversion écran → SVG via
+	// getScreenCTM().inverse() (robuste au redimensionnement CSS), puis inverse de projX/projY
+	// (même `pad` = 36 que ContourPlot).
+	function handleCanvasClick(event: MouseEvent & { currentTarget: SVGRectElement }) {
+		const svg = event.currentTarget.ownerSVGElement;
+		const ctm = svg?.getScreenCTM();
+		if (!svg || !ctm) return;
+		const pt = svg.createSVGPoint();
+		pt.x = event.clientX;
+		pt.y = event.clientY;
+		const p = pt.matrixTransform(ctm.inverse());
+		setStart(unprojX(p.x), unprojY(p.y));
+	}
+
+	// Équivalent clavier (plus limité que le pointeur) : les flèches déplacent le point de
+	// départ d'un pas de slider (×10 avec Maj), Entrée/Espace relance depuis ce point.
+	function handleCanvasKey(event: KeyboardEvent) {
+		const k = event.shiftKey ? 10 : 1;
+		const moves: Record<string, [number, number]> = {
+			ArrowLeft: [-k * startStepX, 0],
+			ArrowRight: [k * startStepX, 0],
+			ArrowUp: [0, k * startStepY],
+			ArrowDown: [0, -k * startStepY]
+		};
+		const mv = moves[event.key];
+		if (mv) {
+			event.preventDefault();
+			setStart(x0 + mv[0], y0 + mv[1]);
+		} else if (event.key === 'Enter' || event.key === ' ') {
+			event.preventDefault();
+			reset();
+		}
 	}
 
 	reset();
@@ -175,6 +257,12 @@
 	}
 	function projY(y: number): number {
 		return pad + ((domain[1][1] - y) / (domain[1][1] - domain[1][0])) * (height - pad * 2);
+	}
+	function unprojX(px: number): number {
+		return domain[0][0] + ((px - pad) / (width - pad * 2)) * (domain[0][1] - domain[0][0]);
+	}
+	function unprojY(py: number): number {
+		return domain[1][1] - ((py - pad) / (height - pad * 2)) * (domain[1][1] - domain[1][0]);
 	}
 
 	function segmentColor(i: number): string {
@@ -243,17 +331,37 @@
 			<div class="gttl">Vitesse de lecture</div>
 			<Slider bind:value={stepIntervalMs} min={30} max={500} step={10} label="ms / pas" />
 		</div>
+		<div class="grp start-group">
+			<div class="gttl">Point de départ</div>
+			<div class="start-sliders">
+				<Slider
+					value={x0}
+					min={domain[0][0]}
+					max={domain[0][1]}
+					step={startStepX}
+					label="x₀"
+					onchange={(v) => setStart(v, y0)}
+				/>
+				<Slider
+					value={y0}
+					min={domain[1][0]}
+					max={domain[1][1]}
+					step={startStepY}
+					label="y₀"
+					onchange={(v) => setStart(x0, v)}
+				/>
+			</div>
+		</div>
 	</SliderGrid>
 
 	<div class="transport">
 		<button class="btn" onclick={reset}>⟲ Reset</button>
-		<button class="btn" onclick={step} disabled={isConverged || diverged}>▶ Step</button>
+		<button class="btn" onclick={resetStartToDefault}>⌖ Départ par défaut</button>
+		<button class="btn" onclick={step} disabled={stopped}>▶ Step</button>
 		{#if playing}
 			<button class="btn btn-warn" onclick={pause}>⏸ Pause</button>
 		{:else}
-			<button class="btn btn-primary" onclick={play} disabled={isConverged || diverged}
-				>⏵ Play</button
-			>
+			<button class="btn btn-primary" onclick={play} disabled={stopped}>⏵ Play</button>
 		{/if}
 
 		<div class="stats">
@@ -266,7 +374,19 @@
 	{:else if isConverged}
 		<div class="status-banner success">
 			✓ Convergé — ‖∇f(x⁽ᵏ⁾)‖ ≈ {lastGradNorm.toExponential(2)}
+			{#if selectedKey === 'residualNorm' && lastPoint && lastPoint.fVal > 0.1}
+				— mais f(x⁽ᵏ⁾) ≈ {lastPoint.fVal.toFixed(3)} &gt; 0 : minimum local, pas global. Déplacez le point
+				de départ.
+			{/if}
 		</div>
+	{:else if coneOscillation}
+		<div class="status-banner warn">
+			↯ Oscillation autour du minimum : f n'est pas différentiable en x* (pointe de cône), donc ‖∇f‖
+			≈ {lastGradNorm.toFixed(2)} ne s'annule pas et le pas constant fait zigzaguer. Réduire α resserre
+			la zone ; seul un pas décroissant (méthode du sous-gradient) converge.
+		</div>
+	{:else if hitMaxSteps}
+		<div class="status-banner warn">Arrêt après {MAX_STEPS} pas sans convergence.</div>
 	{/if}
 
 	<div class="chart-container">
@@ -279,7 +399,31 @@
 				</clipPath>
 			</defs>
 
+			<!-- Zone cliquable : place le point de départ (équivalent clavier : flèches + Entrée). -->
+			<rect
+				class="click-canvas"
+				x={pad}
+				y={pad}
+				width={width - pad * 2}
+				height={height - pad * 2}
+				fill="transparent"
+				role="button"
+				tabindex="0"
+				aria-label="Placer le point de départ : cliquer sur le graphe, ou flèches du clavier puis Entrée"
+				onclick={handleCanvasClick}
+				onkeydown={handleCanvasKey}
+			/>
+
 			<g clip-path="url(#graph-clip)">
+				<circle
+					cx={projX(x0)}
+					cy={projY(y0)}
+					r="7"
+					fill="none"
+					stroke="#f59e0b"
+					stroke-width="2"
+					stroke-dasharray="3 2"
+				/>
 				{#each trajectorySegments as seg}
 					<path
 						d={seg.d}
@@ -359,8 +503,7 @@
 				{@const lastIdx = gradNorms.length - 1}
 				<circle
 					cx={sparkPad.l +
-						(lastIdx / Math.max(1, gradNorms.length - 1)) *
-							(sparkW - sparkPad.l - sparkPad.r)}
+						(lastIdx / Math.max(1, gradNorms.length - 1)) * (sparkW - sparkPad.l - sparkPad.r)}
 					cy={sparkH - sparkPad.b}
 					r="3.5"
 					fill={opt.color}
@@ -370,7 +513,9 @@
 		</svg>
 		<p class="spark-caption">
 			Une pente qui reste linéaire (en log) signale une convergence géométrique — typique d'une
-			fonction fortement convexe à gradient Lipschitz, comme le paraboloïde ou l'ellipse.
+			fonction fortement convexe à gradient Lipschitz, comme le paraboloïde ou l'ellipse. Un plateau
+			(‖∇f‖ qui ne descend plus) près d'un minimum signale au contraire un minimum non
+			différentiable, comme les deux minima globaux de √((x²+y−2)² + (x+y²−7)²).
 		</p>
 	</div>
 </div>
@@ -424,12 +569,54 @@
 		display: flex;
 		flex-direction: column;
 		gap: 0.5rem;
+		min-width: 0;
+		width: 100%;
 	}
 	.gttl {
 		font-size: 0.75rem;
 		text-transform: uppercase;
 		letter-spacing: 0.05em;
 		color: var(--color-text-muted);
+		min-height: 2.2em;
+		display: flex;
+		align-items: flex-start;
+	}
+
+	/* SliderGrid fournit la structure ; cette démo a trois groupes et doit donc
+	   garder des colonnes de même largeur, même lorsque le troisième groupe passe
+	   sur la ligne suivante. */
+	.demo-wrap :global(.sliders-grid) {
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+		column-gap: 1rem;
+		row-gap: 0.9rem;
+		align-items: start;
+	}
+	.start-group {
+		grid-column: 1 / -1;
+	}
+	.start-sliders {
+		display: grid;
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+		gap: 1rem;
+	}
+	@media (max-width: 520px) {
+		.demo-wrap :global(.sliders-grid) {
+			grid-template-columns: 1fr;
+			row-gap: 0.75rem;
+		}
+
+		.gttl {
+			min-height: 0;
+		}
+
+		.start-sliders {
+			gap: 0.75rem;
+		}
+	}
+	@media (max-width: 360px) {
+		.start-sliders {
+			grid-template-columns: 1fr;
+		}
 	}
 	.transport {
 		display: flex;
@@ -482,6 +669,11 @@
 		background: rgba(34, 197, 94, 0.15);
 		color: #22c55e;
 	}
+	.status-banner.warn {
+		background: rgba(245, 158, 11, 0.15);
+		color: #f59e0b;
+		max-width: 480px;
+	}
 	.status-banner.danger {
 		background: rgba(239, 68, 68, 0.15);
 		color: #ef4444;
@@ -493,6 +685,13 @@
 		position: absolute;
 		inset: 0;
 		pointer-events: none;
+	}
+	.click-canvas {
+		pointer-events: all;
+		cursor: crosshair;
+	}
+	.click-canvas:focus-visible {
+		outline: 2px solid #f59e0b;
 	}
 	.legend {
 		display: flex;
