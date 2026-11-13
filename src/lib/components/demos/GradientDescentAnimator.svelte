@@ -3,7 +3,7 @@
 	import ContourPlot from '$lib/components/charts/ContourPlot.svelte';
 	import Slider from '$lib/components/controls/Slider.svelte';
 	import SliderGrid from '$lib/components/layout/SliderGrid.svelte';
-	import { paraboloid, rosenbrock, ellipse, residualNorm } from '$lib/math/test-functions.js';
+	import { paraboloid, rosenbrock, residualNorm } from '$lib/math/test-functions.js';
 	import { gdStep } from '$lib/math/gradient-descent.js';
 
 	interface FuncOption {
@@ -31,14 +31,6 @@
 			defaultAlpha: 0.001,
 			startPoint: [-1.5, 2],
 			color: '#ef4444'
-		},
-		{
-			key: 'ellipse',
-			label: 'Ellipse (x²/4 + y²)',
-			func: ellipse,
-			defaultAlpha: 0.3,
-			startPoint: [-3, -3],
-			color: '#10b981'
 		},
 		{
 			// Départ par défaut (0, 0) : piégé dans le minimum local lisse (0.096, 2.605), f ≈ 0.625.
@@ -513,7 +505,7 @@
 		</svg>
 		<p class="spark-caption">
 			Une pente qui reste linéaire (en log) signale une convergence géométrique — typique d'une
-			fonction fortement convexe à gradient Lipschitz, comme le paraboloïde ou l'ellipse. Un plateau
+			fonction fortement convexe à gradient Lipschitz, comme le paraboloïde. Un plateau
 			(‖∇f‖ qui ne descend plus) près d'un minimum signale au contraire un minimum non
 			différentiable, comme les deux minima globaux de √((x²+y−2)² + (x+y²−7)²).
 		</p>
